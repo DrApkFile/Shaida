@@ -1,4 +1,5 @@
-# Aevum Starter Kit. Run `make help` for the list.
+# Shaida. Run `make help` for the list.
+# Based on the Aevum Starter Kit Makefile (MIT, (c) 2026 PQA Labs, github.com/qday-io/aevum-starter-kit).
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
@@ -16,6 +17,12 @@ ANVIL_0     := 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 AMOUNT      ?= 100
 # `make fork` runs under its own chain ID so wallets and signatures never mix it up with the real testnet.
 FORK_CHAIN  := 440050
+AEVUM_CHAIN := 44005
+# Gloam pool deposit limits for tUSD8, base units (6 decimals): 100 tUSD8 per deposit, 10,000 in total.
+# Fixed at deploy; after endSetup they can only be lowered at once, or raised through Gloam's 3-day timelock.
+TUSD8_PER_DEPOSIT := 100000000
+TUSD8_TOTAL       := 10000000000
+STACK_SCRIPT := script/DeployStack.s.sol:DeployStack
 
 .PHONY: help install build test test-fork check anvil fork deploy-local deploy-fork deploy-aevum mint deal dev
 
@@ -51,17 +58,23 @@ deploy-local: ## Deploy MockUSD8 + Checkout to `make anvil`
 # Deploy from a random address nobody has the key for (anvil impersonates it), not from a public
 # anvil account. Otherwise the fork's contract addresses could be claimed on the real testnet by
 # anyone holding that public key.
-deploy-fork: ## Deploy Checkout (real tUSD8) to `make fork`
+deploy-fork: ## Deploy the stack (Poseidon, Gloam final verifiers, pool, memo) to `make fork`
 	@test "$$(cast chain-id --rpc-url $(FORK_RPC))" = "$(FORK_CHAIN)" || (echo "This only works on 'make fork'." && exit 1)
 	@DEPLOYER=$$(cast to-check-sum-address 0x$$(openssl rand -hex 20)); \
 	  cast rpc anvil_setBalance $$DEPLOYER 0x8ac7230489e80000 --rpc-url $(FORK_RPC) > /dev/null && \
 	  cast rpc anvil_impersonateAccount $$DEPLOYER --rpc-url $(FORK_RPC) > /dev/null && \
 	  echo "Deploying from throwaway address $$DEPLOYER (no private key exists for it)" && \
-	  cd contracts && MERCHANT=$${MERCHANT:-$(ANVIL_0)} forge script script/Deploy.s.sol --rpc-url $(FORK_RPC) --broadcast --unlocked --sender $$DEPLOYER
+	  cd contracts && TUSD8_PER_DEPOSIT=$(TUSD8_PER_DEPOSIT) TUSD8_TOTAL=$(TUSD8_TOTAL) \
+	    forge script $(STACK_SCRIPT) --rpc-url $(FORK_RPC) --broadcast --legacy --slow --unlocked --sender $$DEPLOYER
+	node tools/write-deployment.mjs --chain $(FORK_CHAIN) --rpc $(FORK_RPC) --out deployments/fork.json
 
-deploy-aevum: ## Deploy Checkout to Aevum testnet. Needs ACCOUNT=<keystore name> (see README)
+deploy-aevum: ## Deploy the stack to Aevum testnet. Needs ACCOUNT=<keystore name> and a clean, committed tree
 	@test -n "$(ACCOUNT)" || (echo "Set ACCOUNT=<name>. Create one with: cast wallet import <name> --interactive" && exit 1)
-	cd contracts && forge script script/Deploy.s.sol --rpc-url $(AEVUM_RPC) --broadcast --legacy --account $(ACCOUNT)
+	@test -z "$$(git status --porcelain)" || (echo "Commit first (untracked files and submodule changes count): deployments/aevum.json records the exact commit." && exit 1)
+	@test "$$(cast chain-id --rpc-url $(AEVUM_RPC))" = "$(AEVUM_CHAIN)" || (echo "$(AEVUM_RPC) is not chain $(AEVUM_CHAIN)." && exit 1)
+	cd contracts && TUSD8_PER_DEPOSIT=$(TUSD8_PER_DEPOSIT) TUSD8_TOTAL=$(TUSD8_TOTAL) \
+	  forge script $(STACK_SCRIPT) --rpc-url $(AEVUM_RPC) --broadcast --legacy --slow --account $(ACCOUNT)
+	node tools/write-deployment.mjs --chain $(AEVUM_CHAIN) --rpc $(AEVUM_RPC) --out deployments/aevum.json
 
 mint: ## `make anvil` only: mint AMOUNT MockUSD8 to TO. Needs CHECKOUT=<address>
 	@test -n "$(TO)" -a -n "$(CHECKOUT)" || (echo "Usage: make mint TO=0x... CHECKOUT=0x... [AMOUNT=100]" && exit 1)

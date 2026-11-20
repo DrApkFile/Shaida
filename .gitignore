@@ -15,3 +15,6 @@ contracts/cache/
 contracts/broadcast/
 
 .DS_Store
+
+# local fork deployments (the Aevum 44005 record, deployments/aevum.json, is committed)
+deployments/fork.json
