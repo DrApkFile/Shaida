@@ -3,5 +3,8 @@ export * from "./errors.js";
 export * from "./field.js";
 export * from "./hash.js";
 export * from "./schema.js";
+export * from "./split.js";
 export * from "./tree.js";
 export * from "./witness.js";
+export * from "./verify/link.js";
+export * from "./verify/verify.js";

@@ -21,3 +21,7 @@ export const sweepLeaf = (nullifier: bigint, sweepCommitment: bigint): bigint =>
 
 /** Merkle node: Poseidon(left, right). */
 export const hashPair = (left: bigint, right: bigint): bigint => poseidon2([left, right]);
+
+/** Proof context (PRD §3): Poseidon(readerIdHash, expiryUnix, salt), checked by the verifier, not the circuit. */
+export const contextOf = (readerIdHash: bigint, expiry: bigint, salt: bigint): bigint =>
+  poseidon3([readerIdHash, expiry, salt]);

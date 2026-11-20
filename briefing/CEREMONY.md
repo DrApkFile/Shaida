@@ -12,7 +12,9 @@ Why: a single-party Groth16 setup lets whoever ran it forge proofs (IDEA_CHECK R
 | Stored | builder's machine only, not in the repo |
 
 ## Phase 2 (circuit-specific): to do during the build
-Done once the 8-slot circuit is frozen. Changing the circuit means a new ceremony.
+Done once the circuit is frozen: since D12 that is the 4-slot `income.circom`, r1cs sha256
+`d866695ca2473e70408d288feafaec7181983480a688acac30b42156d305d82a` (44,687 constraints; the 2^17 ptau above covers it).
+Changing the circuit means a new ceremony.
 | # | Contributor | Command | Contribution hash | Date |
 |---|---|---|---|---|
 | 0 | setup | `snarkjs groth16 setup income.r1cs powersOfTau28_hez_final_17.ptau income_0000.zkey` | — | |

@@ -10,7 +10,7 @@ export interface RunRequest {
 }
 
 export interface Timings {
-  /** First run of this variant in this worker: includes fetching wasm and zkey and the curve setup. */
+  /** First run in this worker (always, with a fresh worker per run): fetched wasm and zkey and set up the curve. */
   readonly cold: boolean;
   readonly zkeyLoadMs: number | null;
   readonly wasmLoadMs: number | null;

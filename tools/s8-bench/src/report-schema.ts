@@ -1,4 +1,6 @@
 // Shape of one S8 report (what the page produces). Checked by serve.ts on upload and by record.ts.
+// shaida-s8/1: one worker for the whole page, saved at the end. shaida-s8/2: a fresh worker per run, saved after
+// every run under one reportId, with `complete`.
 import { z } from "zod";
 
 const ms = z.number().nonnegative();
@@ -21,7 +23,10 @@ const run = z
 
 export const reportSchema = z
   .object({
-    schema: z.literal("shaida-s8/1"),
+    schema: z.enum(["shaida-s8/1", "shaida-s8/2"]),
+    reportId: z.string().regex(/^[0-9A-Za-z-]{1,64}$/).optional(),
+    complete: z.boolean().optional(),
+    workerPerRun: z.literal(true).optional(),
     label: z.string().max(200),
     userAgent: z.string().max(500),
     hardwareConcurrency: z.number().int().positive().nullable(),
@@ -58,3 +63,22 @@ export const reportSchema = z
   .strict();
 
 export type S8ReportFile = z.infer<typeof reportSchema>;
+
+/**
+ * A result the builder reported by hand because the page saved nothing (before shaida-s8/2, a run that stalled lost
+ * the whole report). Kept apart in results/reported/ and labelled as reported, not machine-saved, in the evidence.
+ */
+export const reportedSchema = z
+  .object({
+    schema: z.literal("shaida-s8-reported/1"),
+    label: z.string().max(200),
+    source: z.string().max(500),
+    reportedAt: z.string(),
+    pageCommit: z.string().regex(/^[0-9a-f]{40}$/).nullable(),
+    runs: z
+      .array(z.object({ variant: z.enum(["income8", "income4"]), run: z.number().int().positive(), cold: z.boolean(), totalMs: ms, verified: z.boolean() }).strict())
+      .max(40),
+    notes: z.array(z.string().max(500)).max(10),
+  })
+  .strict();
+export type S8Reported = z.infer<typeof reportedSchema>;

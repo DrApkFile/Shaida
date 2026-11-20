@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
-// The Income template of income.circom (PRD §3), kept apart from `component main` so spike S8 can compile a
-// 4-slot variant with exactly the same per-slot constraints. GPL-3.0: includes circomlib (D6). Read the header of
+// The Income template of income.circom (PRD §3), kept apart from `component main` so spike S8 can compile an
+// 8-slot variant with exactly the same per-slot constraints. GPL-3.0: includes circomlib (D6). Read the header of
 // ../income.circom for what it proves. Changing this file invalidates the phase-2 ceremony.
 pragma circom 2.1.6;
 
@@ -13,7 +13,7 @@ include "./merkle.circom";
 function VOUCH_TAG() { return 1; }
 function SWEEP_TAG() { return 2; }
 function AMOUNT_BITS() { return 64; }
-// 8 * (2^64 - 1) < 2^67 < 2^68: the sum of all slots and the threshold both fit.
+// slots * (2^64 - 1) < 2^68 for up to 16 slots: the sum of all slots and the threshold both fit.
 function SUM_BITS() { return 68; }
 
 template Income(slots, levels) {

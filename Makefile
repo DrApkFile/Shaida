@@ -95,15 +95,15 @@ deal: ## `make fork` only: give TO AMOUNT tUSD8 and 10 tQDAY for gas
 	@cast send $(TUSD8) "mint(address,uint256)" $(TO) $$(cast parse-units $(AMOUNT) 6) --from $(TUSD8_MM) --unlocked --rpc-url $(FORK_RPC) > /dev/null
 	@echo "tUSD8 balance of $(TO): $$(cast call $(TUSD8) 'balanceOf(address)(uint256)' $(TO) --rpc-url $(FORK_RPC))"
 
-s8-build: ## Spike S8: build the browser proving bench (8 vs 4 slots, THROWAWAY keys). Needs PTAU_PATH
+s8-build: ## Spike S8: build the browser proving bench (4 vs 8 slots, THROWAWAY keys). Needs PTAU_PATH
 	@test -n "$(PTAU_PATH)" || (echo "INCONCLUSIVE: set PTAU_PATH=/path/to/powersOfTau28_hez_final_17.ptau" && exit 1)
 	PTAU_PATH=$(abspath $(PTAU_PATH)) pnpm --filter @shaida/s8-bench build
 
 s8-serve: ## Spike S8: serve the bench on 0.0.0.0:8088 (saves results to tools/s8-bench/results/)
 	pnpm --filter @shaida/s8-bench serve
 
-s8-headless: ## Spike S8: run the bench in headless Chromium on this machine (RUNS=3)
-	pnpm --filter @shaida/s8-bench headless $(or $(RUNS),3)
+s8-headless: ## Spike S8: run the bench in headless Chromium on this machine (RUNS=3, SLOTS=4|8|both)
+	pnpm --filter @shaida/s8-bench headless $(or $(RUNS),3) $(or $(SLOTS),both)
 
 s8-record: ## Spike S8: write evidence/s8-browser.md from tools/s8-bench/results/
 	pnpm --filter @shaida/s8-bench record

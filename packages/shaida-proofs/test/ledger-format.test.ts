@@ -4,9 +4,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
-import { buildIncomeWitness, TUSD8_FIELD, zeroHashes } from "../src/index.js";
+import { TUSD8_FIELD, zeroHashes } from "../src/index.js";
 import { ledgerVectors } from "../scripts/ledger-vectors.js";
 import { PKG, runCircuit } from "./helpers/circuit.js";
+import { buildSingleProof } from "./helpers/scenario.js";
 
 const GLOAM_IMT = join(PKG, "../../contracts/lib/gloam/contracts/src/lib/IncrementalMerkleTreePoseidon.sol");
 const VECTORS = join(PKG, "../../contracts/test/fixtures/income-vectors.json");
@@ -28,7 +29,7 @@ describe("ledger format: circuit = JS = ShaidaLedger", () => {
 
   it("the circuit proves income over the vector leaves, so its V and S hashes equal the ledger's", async () => {
     const v = ledgerVectors();
-    const r = buildIncomeWitness({
+    const r = buildSingleProof({
       ledgerLeaves: v.leaves,
       ledgerRoot: v.root,
       asset: TUSD8_FIELD,

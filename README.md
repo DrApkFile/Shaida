@@ -11,14 +11,17 @@ Build steps 1 and 2 of PRD §11 are done locally; nothing is deployed on Aevum t
 - Contracts: `PayerRegistry`, `ShaidaDepositor` (gasless EIP-3009 + standard deposit), `ShaidaLedger` (vouch and
   sweep leaves, one vouch per payment, `lateVouch` repair for a front-run pay: DECISIONS D9), on Gloam's pool with its
   final-ceremony verifiers.
-- Income circuit v1 (`packages/shaida-proofs`): 8 slots, 89,231 constraints, with a pure witness builder. Tested with
-  honest cases, the circuit cheats of EVAL_DESIGN (X04–X09 and public-signal tampering) and a property test.
+- Income circuit (`packages/shaida-proofs`): 4 slots per proof, 44,687 constraints (DECISIONS D12). A pure witness
+  builder splits a period into a bundle of up to 8 proofs over disjoint leaf ranges, and the pure verification core
+  (PRD §5) checks bundles. Tested with honest cases, the circuit cheats of EVAL_DESIGN (X04–X09, X14–X17 and
+  public-signal tampering) and a property test.
   Proving keys so far are a **throwaway local key** for tests and timing only; the ceremony (step 3) is not done.
 - Tests: `make test` (contracts, circuit, witness builder) and `make test-fork` (real tUSD8 on a fork, including
   deposit → vouched pay → sweep with real proofs). Gas: [evidence/fork-gas.md](evidence/fork-gas.md).
   Issuer and front-running limits: [LIMITS.md](LIMITS.md).
 
-Not built yet: the phase-2 ceremony, IncomeVerifier, the verification steps (PRD §5), indexer, Shaida relayer and UI.
+Not built yet: the phase-2 ceremony, IncomeVerifier, the browser prover, the chain-reading side of verification
+(`isKnownRoot`, dates; injected into the pure core), indexer, Shaida relayer and UI.
 `web/` and `examples/` are still the starter kit's checkout demo and will be replaced.
 
 ## Commands

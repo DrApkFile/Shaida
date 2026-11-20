@@ -1,11 +1,15 @@
 // Seeded ledger scenarios: the leaves ShaidaLedger would hold after a mix of our recipient's payments, their
 // sweeps and other people's leaves, plus the recipient's own records. Same seed, same scenario.
 import {
+  buildIncomeBundle,
   FIELD_ORDER,
+  type IncomeBundleWitness,
+  type IncomeProofWitness,
   LedgerTree,
   noteCommitment,
   nullifierOf,
   type PaymentRecord,
+  type Result,
   sweepLeaf,
   TUSD8_FIELD,
   vouchLeaf,
@@ -118,4 +122,14 @@ export function honestRequest(s: Scenario, rng: Rng, overrides: Record<string, u
     payments: s.payments,
     ...overrides,
   };
+}
+
+/** A bundle of exactly one proof (≤ INCOME_SLOTS payments), flattened for tests that work on one circuit input. */
+export type SingleProof = IncomeProofWitness & { readonly skipped: IncomeBundleWitness["skipped"] };
+
+export function buildSingleProof(raw: unknown): Result<SingleProof> {
+  const r = buildIncomeBundle(raw);
+  if (!r.ok) return r;
+  if (r.value.proofs.length !== 1) throw new Error(`expected one proof, the builder made ${r.value.proofs.length}`);
+  return { ok: true, value: { ...r.value.proofs[0]!, skipped: r.value.skipped } };
 }

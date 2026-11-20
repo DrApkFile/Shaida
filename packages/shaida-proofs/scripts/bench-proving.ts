@@ -7,9 +7,9 @@ import { mkdirSync, readFileSync, statSync, writeFileSync, copyFileSync } from "
 import { cpus, totalmem } from "node:os";
 import { join } from "node:path";
 import * as snarkjs from "snarkjs";
-import { buildIncomeWitness, type CircuitInput } from "../src/index.js";
+import { type CircuitInput, INCOME_SLOTS } from "../src/index.js";
 import { BUILD, endSnarkjs, PKG } from "../test/helpers/circuit.js";
-import { honestRequest, makeScenario, Rng } from "../test/helpers/scenario.js";
+import { buildSingleProof, honestRequest, makeScenario, Rng } from "../test/helpers/scenario.js";
 import { ensureThrowawayKey, THROWAWAY } from "./throwaway.js";
 
 const REPO = join(PKG, "../..");
@@ -37,11 +37,11 @@ const vkey = JSON.parse(readFileSync(key.vkey, "utf8")) as snarkjs.VerificationK
 function witnessFor(payments: number): CircuitInput {
   const rng = new Rng(1000 + payments);
   const s = makeScenario(rng, { payments });
-  const r = buildIncomeWitness(honestRequest(s, rng, { threshold: 1n }));
+  const r = buildSingleProof(honestRequest(s, rng, { threshold: 1n }));
   return r.ok ? r.value.input : fail(`builder: ${r.error.code}`);
 }
 const timings: { slots: number; ms: number[] }[] = [];
-for (const slots of [1, 8]) {
+for (const slots of [1, INCOME_SLOTS]) {
   const input = witnessFor(slots);
   const ms: number[] = [];
   for (let i = 0; i < RUNS; i++) {
@@ -105,5 +105,5 @@ const lines = [
   "",
 ];
 writeFileSync(join(REPO, "evidence/income-circuit.md"), lines.join("\n"));
-console.log(`✓ evidence/income-circuit.md (${nonLinear} constraints, median 8-slot ${sec(median(timings[1]!.ms))})`);
+console.log(`✓ evidence/income-circuit.md (${nonLinear} constraints, median ${INCOME_SLOTS}-slot ${sec(median(timings[1]!.ms))})`);
 process.exit(0); // snarkjs workers keep Node alive otherwise

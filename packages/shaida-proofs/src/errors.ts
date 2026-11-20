@@ -20,7 +20,7 @@ export const ERROR_CODES = {
   RangeUnresolvable: { retryable: "yes", nextAction: "resync" },
   TxOutcomeUnknown: { retryable: "check", nextAction: "wait; check by hash/nullifier" },
   RelayerBudgetExceeded: { retryable: "later", nextAction: "use standard mode" },
-  NotEnoughSlots: { retryable: "no", nextAction: "split the period (disjoint ranges add safely)" },
+  NotEnoughSlots: { retryable: "no", nextAction: "split the period into shorter ones (more than 32 payments)" },
   TokenPaused: { retryable: "later", nextAction: "wait for the issuer to unpause; nothing was sent" },
   PayerBlacklisted: { retryable: "no", nextAction: "pay from another address" },
   RecipientBlacklisted: { retryable: "no", nextAction: "withdraw to another address" },
@@ -28,6 +28,9 @@ export const ERROR_CODES = {
   NoSweptPayments: { retryable: "no", nextAction: "sweep your payments, or pick a period that has some" },
   BelowThreshold: { retryable: "no", nextAction: "lower the threshold or widen the period" },
   InputRejected: { retryable: "no", nextAction: "fix the input; nothing was built" },
+  // D12 (bundles of proofs)
+  RangesOverlap: { retryable: "no", nextAction: "ask for a new link; a bundle must not count a leaf range twice" },
+  MixedContexts: { retryable: "no", nextAction: "ask for a new link; its proofs were made for different readers or expiries" },
 } as const satisfies Record<string, CodeSpec>;
 
 export type ErrorCode = keyof typeof ERROR_CODES;

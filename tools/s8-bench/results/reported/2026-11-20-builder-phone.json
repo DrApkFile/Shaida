@@ -1,0 +1,16 @@
+{
+  "schema": "shaida-s8-reported/1",
+  "label": "builder's phone",
+  "source": "Reported by the builder in the session (D12 message), cold run 1 of each variant; the page saved no JSON because a run stalled before the end (the shaida-s8/1 page saved only when all runs finished).",
+  "reportedAt": "2026-11-20",
+  "pageCommit": null,
+  "runs": [
+    { "variant": "income8", "run": 1, "cold": true, "totalMs": 38870, "verified": true },
+    { "variant": "income4", "run": 1, "cold": true, "totalMs": 19430, "verified": true }
+  ],
+  "notes": [
+    "8 slots, run 2 stalled on the phone and never finished (the builder suspects memory). No later runs.",
+    "Phone model, browser, logical CPUs and memory were not reported: shown as —.",
+    "Served by make s8-serve from the laptop; the only www/ build there was made at commit c3dfca6d98d70983f79822d1608d280a6c05fef4 (not confirmed by a saved report)."
+  ]
+}

@@ -6,10 +6,19 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { after, before, describe, it } from "node:test";
 import * as snarkjs from "snarkjs";
-import { buildIncomeWitness, FIELD_ORDER, type IncomeWitness, PUBLIC_SIGNAL_ORDER } from "../src/index.js";
+import {
+  buildIncomeBundle,
+  encodeIncomeLink,
+  FIELD_ORDER,
+  type Groth16Proof,
+  type IncomeVerification,
+  PUBLIC_SIGNAL_ORDER,
+  verifyIncomeLink,
+} from "../src/index.js";
 import { ensureThrowawayKey, type ThrowawayKey } from "../scripts/throwaway.js";
 import { BUILD, endSnarkjs } from "./helpers/circuit.js";
-import { honestRequest, makeScenario, Rng } from "./helpers/scenario.js";
+import { contextFor, depsFor, type LinkProof, type Opening } from "./helpers/link.js";
+import { buildSingleProof, honestRequest, makeScenario, Rng, type SingleProof } from "./helpers/scenario.js";
 
 const PTAU = process.env.PTAU_PATH;
 const SKIP = PTAU ? false : "INCONCLUSIVE: PTAU_PATH unset; Groth16 proving tests not run (see briefing/CEREMONY.md)";
@@ -21,7 +30,7 @@ const at = (name: (typeof PUBLIC_SIGNAL_ORDER)[number]) => PUBLIC_SIGNAL_ORDER.i
 describe("income circuit: Groth16 with a throwaway key (local)", { skip: SKIP }, () => {
   let key: ThrowawayKey;
   let vkey: snarkjs.VerificationKey;
-  let w: IncomeWitness;
+  let w: SingleProof;
   let proof: snarkjs.Groth16Proof;
   let signals: string[];
 
@@ -30,7 +39,7 @@ describe("income circuit: Groth16 with a throwaway key (local)", { skip: SKIP },
     vkey = JSON.parse(readFileSync(key.vkey, "utf8")) as snarkjs.VerificationKey;
     const rng = new Rng(16);
     const s = makeScenario(rng, { payments: 3 });
-    const r = buildIncomeWitness(honestRequest(s, rng, { threshold: 1n }));
+    const r = buildSingleProof(honestRequest(s, rng, { threshold: 1n }));
     if (!r.ok) throw new Error(r.error.code);
     w = r.value;
     ({ proof, publicSignals: signals } = await snarkjs.groth16.fullProve(w.input, WASM, key.zkey));
@@ -61,5 +70,52 @@ describe("income circuit: Groth16 with a throwaway key (local)", { skip: SKIP },
     for (const name of ["count", "fromIndex", "toIndex", "ledgerRoot", "asset"] as const) {
       assert.equal(await snarkjs.groth16.verify(vkey, tamper(name, (v) => v + 1n), proof), false, name);
     }
+  });
+});
+
+describe("verifyIncomeLink with real Groth16 proofs: a 2-proof bundle (D12, local)", { skip: SKIP }, () => {
+  const opening: Opening = { readerIdHash: 0x5eade5n, expiry: 1_900_000_000n, salt: 9n };
+  let proofs: LinkProof[];
+  let total: bigint;
+  let deps: ReturnType<typeof depsFor>;
+  const link = (ps: LinkProof[]) =>
+    encodeIncomeLink({ v: 1, proofs: ps, readerIdHash: `${opening.readerIdHash}`, expiry: `${opening.expiry}`, salt: `${opening.salt}` });
+  const code = (v: IncomeVerification) => (v.status === "VALID" ? "VALID" : `${v.status}(${v.error.code})`);
+
+  before(async () => {
+    const key = await ensureThrowawayKey(PTAU!);
+    const vkey = JSON.parse(readFileSync(key.vkey, "utf8")) as snarkjs.VerificationKey;
+    const rng = new Rng(26);
+    const s = makeScenario(rng, { payments: 6 });
+    total = s.payments.reduce((a, p) => a + p.amount, 0n);
+    const r = buildIncomeBundle(honestRequest(s, rng, { threshold: total, context: contextFor(opening) }));
+    if (!r.ok) throw new Error(r.error.code);
+    proofs = [];
+    for (const p of r.value.proofs) {
+      const out = await snarkjs.groth16.fullProve(p.input, WASM, key.zkey);
+      proofs.push({ proof: out.proof as unknown as Groth16Proof, publicSignals: out.publicSignals });
+    }
+    const verify = (signals: readonly string[], proof: Groth16Proof) =>
+      snarkjs.groth16.verify(vkey, [...signals], proof as unknown as snarkjs.Groth16Proof);
+    deps = depsFor(verify, opening.readerIdHash, [s.tree.root]);
+  });
+  after(endSnarkjs);
+
+  it("accepts the honest bundle: 6 payments in 2 proofs, total = Σ thresholds", async () => {
+    assert.equal(proofs.length, 2);
+    const v = await verifyIncomeLink(link(proofs), deps);
+    if (v.status !== "VALID") assert.fail(`${v.status}: ${v.error.message}`);
+    assert.equal(v.threshold, total);
+    assert.equal(v.count, 6n);
+  });
+
+  it("X15 refuses a real proof included twice (RangesOverlap)", async () => {
+    assert.equal(code(await verifyIncomeLink(link([proofs[0]!, proofs[0]!]), deps)), "INVALID(RangesOverlap)");
+  });
+
+  it("refuses one proof's threshold raised by 1 (ProofInvalid)", async () => {
+    const signals = [...proofs[1]!.publicSignals];
+    signals[at("threshold")] = (BigInt(signals[at("threshold")]!) + 1n).toString();
+    assert.equal(code(await verifyIncomeLink(link([proofs[0]!, { ...proofs[1]!, publicSignals: signals }]), deps)), "INVALID(ProofInvalid)");
   });
 });

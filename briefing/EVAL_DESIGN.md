@@ -8,10 +8,10 @@ Shaida makes security claims, not accuracy claims. The field's standard for ZK a
 | Claim | Standard test | Pass condition |
 |---|---|---|
 | C1 Soundness: a proof can't overstate vouched income | Negative witnesses for every cheating route (table below) | 100% of cheating cases rejected, by circuit or verifier, with a named reason |
-| C2 Completeness: honest proofs verify | Generated honest cases across N = 1…max payments, amounts at range edges | 100% verify |
-| C3 Disclosure is minimal | Inspect the public signals | Only: bound X, count N, block range, reader, expiry, recipient key, payer set root (plus payer names only if the user opts in) |
+| C2 Completeness: honest proofs verify | Generated honest cases across N = 1…max payments (max 32: bundles of up to 8 proofs of 4, rev. 3), amounts at range edges | 100% verify |
+| C3 Disclosure is minimal | Inspect the public signals | Only: bound X, count N, block range, reader, expiry, recipient key, payer set root (plus payer names only if the user opts in). Rev. 3: a bundle of k > 1 proofs also shows each proof's sub-bound, sub-count and sub-range (D12) |
 | C4 Aevum-native | Run the full loop on chain 44005 | Every step has a tx hash on explorer-test.qday.info |
-| C5 Usable | Proving time in a mid-range laptop browser | ≤ 30 s for N ≤ 8 (target; record the real number either way) |
+| C5 Usable | Proving time in a mid-range laptop browser | Rev. 3: ≤ 30 s per 4-slot proof; a period of N payments needs ⌈N/4⌉ proofs (target; record the real number either way). Rev. 2 target was ≤ 30 s for N ≤ 8 in one proof |
 
 ## Cheating cases (C1), each a named test
 | ID | Attack | Expected refusal |
@@ -28,6 +28,10 @@ Shaida makes security claims, not accuracy claims. The field's standard for ZK a
 | X10 | Expired proof | `ProofExpired` |
 | X11 | Wrong reader | `WrongReader` |
 | X12 | Replay of a proof for another bound X | public-signal mismatch |
+| X14 | Bundle: two proofs whose leaf ranges overlap | verifier `RangesOverlap` |
+| X15 | Bundle: the same proof included twice | verifier `RangesOverlap` |
+| X16 | Bundle: proofs made for two readers joined | verifier `MixedContexts` |
+| X17 | Bundle: proofs with two expiries joined | verifier `MixedContexts` |
 | X13 | Cycling: one tUSD8 amount paid, swept, re-paid 3× by the same registered payer | **Counts** (by design, it's real vouched payment). Documented in LIMITS as collusion risk, not a bug. |
 
 ## Data
@@ -42,3 +46,6 @@ By 2026-11-24, crude but real: deposit → pay → sweep → prove → verify on
 
 
 Revision 2 (2026-11-20): X01–X03, X08, X09 updated for D3 (vouch/sweep leaves in ShaidaLedger). Thresholds unchanged.
+
+Revision 3 (2026-11-20): D12, 4 slots per proof and bundles. C2's maximum N, C3 (a bundle's sub-totals) and C5 (per
+4-slot proof) revised; X14–X17 added for bundles. The rev. 2 C5 target (≤ 30 s for N ≤ 8) is kept above for the record.

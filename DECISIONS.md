@@ -123,4 +123,35 @@ Measured 2026-11-20 (evidence/income-circuit.md, throwaway key, Node, Intel i3 M
 at commit 2472f27 (11:10 UTC): 31.2 s and 30.1 s. Same key, circuit and machine; it is a shared desktop (browser and
 other processes running, 15-min load ~5), so we take ~30–50 s as the range, cause of the spread not identified. The
 circuit always evaluates all 8 slots. S7 estimated ~7 s on another machine. EVAL C5 (≤ 30 s in a mid-range browser) is open until S8 runs on a mid-range laptop.
+Superseded in part by D12 (4 slots per proof; new r1cs). The bounds, `--O2`, context binding and gating above still hold.
 Where: packages/shaida-proofs/circuits/, evidence/income-circuit.md
+
+## D12: 4 slots per proof, with bundles
+Context: slot count had to be final before phase 2. Spike S8 measured the same `Income` template at 8 and 4 slots
+(throwaway keys; evidence/s8-browser.md). Real periods hold more than 8 payments, so bundling is needed either way.
+Numbers (total = witness + prove + verify):
+- Builder's phone (reported by the builder, cold run 1): 8 slots 38.87 s, 4 slots 19.43 s, both verified; the 8-slot
+  second run stalled on the phone (likely memory) and never finished.
+- Builder's laptop, headless Chromium 153, Intel i3 M 370 (4 logical CPUs, 7.5 GiB): warm medians 8 slots 37.48 s,
+  4 slots 21.43 s (4/8 = 0.57); cold runs 8 slots 34.83 / 40.82 / 51.97 s, 4 slots 20.16 / 20.41 / 30.58 s.
+- Size: 8 slots 89,231 constraints, zkey 50.6 MiB; 4 slots 44,687 constraints, zkey 25.3 MiB.
+Decision (the builder's): the production circuit is `Income(4, 20)`, same template, circom 2.2.3 `--O2`. Its r1cs
+sha256 `d866695ca2473e70408d288feafaec7181983480a688acac30b42156d305d82a` is byte-identical to the 4-slot variant S8
+measured, and replaces D11's `4f4af7bd…` as the phase-2 candidate. A period is proved by a bundle of 1–8 proofs:
+- Verification (PRD §5, `src/verify/`): every proof has the same `context` (so reader and expiry) and `asset`; every
+  root passes `isKnownRoot`; leaf ranges strictly disjoint; total = Σ thresholds, count = Σ counts. New codes
+  `RangesOverlap` and `MixedContexts`. Roots may differ (append-only tree: an index names the same leaf under every
+  known root); the builder uses one root for all proofs.
+- Builder (`buildIncomeBundle`, `src/split.ts`): payments in V-leaf order, ≤ 4 per proof; ranges tile the asked
+  period with each boundary halfway between neighbouring proofs' V leaves; the threshold is split by water-filling
+  (equal shares, capped at each proof's sum), which reveals a proof's exact sum only when it is below the share.
+- Limit: 8 proofs (32 payments) per bundle, chosen by the agent to bound link length (~5 KB) and verification work;
+  `NotEnoughSlots` now means more than 32 payments.
+Rejected: 8 slots (about 2× the proving time per proof on both devices, and the stalled phone run); one proof per
+period with more slots (cost grows with every slot, used or not); an even or proportional threshold split (even fails
+when a proof's sum is below the share; proportional reveals every proof's share of the total).
+Consequences: a bundle discloses each proof's sub-threshold, sub-count and sub-range, and the boundaries narrow where
+payments sit (EVAL C3 rev. 3, LIMITS). Proving a period takes ⌈N/4⌉ proofs. The ceremony (step 3) keys the 4-slot r1cs.
+Tests: test/verify.bundle.test.ts (9, Groth16 replaced by a witness-checked stand-in), income.honest.test.ts bundle
+cases (5), property test over 1–13 payments, income.groth16.test.ts real 2-proof bundle (3, local).
+Where: packages/shaida-proofs/{circuits/income.circom,src/split.ts,src/witness.ts,src/verify/}, PRD §3–§5, EVAL_DESIGN rev. 3

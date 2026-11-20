@@ -5,14 +5,17 @@ export const FIELD_ORDER = 21888242871839275222246405745257275088548364400416034
 export const TREE_DEPTH = 20 as const;
 export const MAX_LEAVES = 1n << BigInt(TREE_DEPTH);
 
-/** Payment slots in income.circom (BUILD_CONTRACT: frozen). */
-export const INCOME_SLOTS = 8 as const;
+/** Payment slots in one income.circom proof (BUILD_CONTRACT: frozen; D12). */
+export const INCOME_SLOTS = 4 as const;
+
+/** Proofs in one bundle (D12): a period holds at most INCOME_SLOTS × MAX_BUNDLE_PROOFS = 32 payments. */
+export const MAX_BUNDLE_PROOFS = 8 as const;
 
 /** Leaf tags, equal to ShaidaLedger.VOUCH_TAG / SWEEP_TAG and the circuit's VOUCH_TAG() / SWEEP_TAG(). */
 export const VOUCH_TAG = 1n;
 export const SWEEP_TAG = 2n;
 
-/** income.circom bounds: each amount < 2^64; the threshold < 2^68 (above any sum of 8 amounts). */
+/** income.circom bounds: each amount < 2^64; a proof's threshold < 2^68 (above any sum of its 4 amounts). */
 export const AMOUNT_LIMIT = 1n << 64n;
 export const THRESHOLD_LIMIT = 1n << 68n;
 

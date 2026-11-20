@@ -1,5 +1,5 @@
-// Proves in a dedicated Web Worker: loads wasm + zkey once per variant, then witness -> Groth16 prove -> verify,
-// timing each step. snarkjs (GPL-3.0) is the browser build copied next to this file.
+// Proves one run in a dedicated Web Worker (page.ts starts a fresh one per run and terminates it after): loads wasm,
+// zkey and the curve, then witness -> Groth16 prove -> verify, timing each step. snarkjs (GPL-3.0) is the browser build copied next to this file.
 import type { RunRequest, Timings, Variant, WorkerReply } from "./messages.js";
 
 interface MemFile {
@@ -23,7 +23,7 @@ interface Loaded {
   readonly zkey: Uint8Array;
   readonly vkey: unknown;
 }
-const loaded = new Map<Variant, Loaded>();
+const loaded = new Map<Variant, Loaded>(); // one run per worker, so this is always empty at the start of a run
 let curveReady = false;
 
 async function fetchBytes(url: string): Promise<Uint8Array> {

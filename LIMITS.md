@@ -41,3 +41,12 @@ Follow-up (10:10 UTC): one new pending-tx filter polled with `eth_getFilterChang
 transaction was mined in that window. **Inconclusive:** the pending-tx methods exist, but one transaction is too few to
 tell whether this node shows pending transactions or the transaction reached the chain through another node. We did
 not send a transaction of our own to test it. Shaida assumes front-running is possible (D9).
+
+## What a bundle of proofs shows (D12)
+A period with more than 4 payments is proved by several proofs (at most 8, so at most 32 payments). Each proof's
+public signals are visible to the reader, so a bundle shows more than one proof would:
+- each proof's leaf range, threshold share and count. The boundaries fall halfway between the last vouch leaf of one
+  proof and the first of the next, so they narrow where payments sit among the public `Vouched` events;
+- a proof's exact sum when it is below the even share of the threshold (water-filling split, `src/split.ts`).
+Not shown: amounts per payment, payer per payment, the recipient's notes. A period of more than 32 payments must be
+split into shorter periods (`NotEnoughSlots`).

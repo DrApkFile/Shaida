@@ -40,9 +40,12 @@ createServer((req, res) => {
         res.writeHead(400).end(`report refused: ${String(parsed.error).slice(0, 300)}`);
         return;
       }
-      const file = join(HERE, "results", `${new Date().toISOString().replace(/[:.]/g, "-")}.json`);
+      // shaida-s8/2 saves after every run under one reportId (the regex keeps it a plain file name): overwrite it.
+      const name = parsed.data.reportId ?? new Date().toISOString().replace(/[:.]/g, "-");
+      const file = join(HERE, "results", `${name}.json`);
       writeFileSync(file, `${JSON.stringify(parsed.data, null, 2)}\n`);
-      console.log(`saved ${file} (${parsed.data.label || "no label"})`);
+      const state = parsed.data.complete === false ? `partial, ${parsed.data.runs.length} run(s)` : "complete";
+      console.log(`saved ${file} (${parsed.data.label || "no label"}; ${state})`);
       res.writeHead(201).end("saved");
     });
     return;

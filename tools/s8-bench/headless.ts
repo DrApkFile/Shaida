@@ -1,5 +1,5 @@
 // Runs the S8 page in headless Chromium on this machine (DevTools protocol, no extra packages) and saves the report,
-// with this machine's CPU and RAM, into results/. Usage: pnpm --filter @shaida/s8-bench headless [runs]
+// with this machine's CPU and RAM, into results/. Usage: pnpm --filter @shaida/s8-bench headless [runs] [4|8|both]
 import { spawn } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { cpus, hostname, tmpdir, totalmem } from "node:os";
@@ -9,6 +9,7 @@ import { reportSchema } from "./src/report-schema.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RUNS = Number(process.argv[2] ?? 3);
+const SLOTS = process.argv[3] ?? "both";
 const CHROMIUM = process.env.CHROMIUM ?? "chromium";
 const PORT = 8089;
 const fail = (msg: string): never => {
@@ -54,7 +55,7 @@ function cdp<T>(method: string, params: object = {}, sessionId?: string): Promis
 const version = await cdp<{ product: string }>("Browser.getVersion");
 const cpu = cpus();
 const label = `${hostname()}: ${cpu[0]?.model.replace(/\s+/g, " ")}, headless ${version.product}`;
-const url = `http://127.0.0.1:${PORT}/?auto=1&nosave=1&runs=${RUNS}&label=${encodeURIComponent(label)}`;
+const url = `http://127.0.0.1:${PORT}/?auto=1&nosave=1&runs=${RUNS}&slots=${SLOTS}&label=${encodeURIComponent(label)}`;
 const { targetId } = await cdp<{ targetId: string }>("Target.createTarget", { url });
 const { sessionId } = await cdp<{ sessionId: string }>("Target.attachToTarget", { targetId, flatten: true });
 
@@ -80,7 +81,7 @@ const withHost = {
   },
 };
 const parsed = reportSchema.parse(withHost);
-const file = join(HERE, "results", `${new Date().toISOString().replace(/[:.]/g, "-")}-headless.json`);
+const file = join(HERE, "results", `${parsed.reportId ?? new Date().toISOString().replace(/[:.]/g, "-")}-headless.json`);
 writeFileSync(file, `${JSON.stringify(parsed, null, 2)}\n`);
 console.log(`✓ ${file} (${parsed.runs.length} runs, ${parsed.errors.length} errors)`);
 ws.close();

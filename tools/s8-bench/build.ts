@@ -1,5 +1,5 @@
 // Spike S8: assembles tools/s8-bench/www/, a static page that proves the income circuit in the browser, for the
-// 8-slot circuit and a 4-slot variant. Keys are THROWAWAY (one local contribution, scripts/throwaway.ts): never
+// production 4-slot circuit (D12) and an 8-slot comparison variant. Keys are THROWAWAY (one local contribution, scripts/throwaway.ts): never
 // committed or published; this script makes them on your machine from your Hermez 2^17 ptau.
 // Usage: PTAU_PATH=/path/to/powersOfTau28_hez_final_17.ptau pnpm --filter @shaida/s8-bench build
 import { execFileSync, spawnSync } from "node:child_process";
@@ -9,7 +9,7 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
-import { ensureThrowawayKey, INCOME_8 } from "../../packages/shaida-proofs/scripts/throwaway.js";
+import { ensureThrowawayKey, INCOME_MAIN } from "../../packages/shaida-proofs/scripts/throwaway.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(HERE, "../..");
@@ -28,26 +28,26 @@ function constraints(out: string): number {
   return Number(out.match(/^non-linear constraints: (\d+)$/m)?.[1] ?? fail("no constraint count in circom output"));
 }
 
-// 1. 8 slots: the package's own compile (circom 2.2.3, --O2)
-const c8 = spawnSync(process.execPath, ["scripts/compile.mjs"], { cwd: PROOFS, encoding: "utf8" });
-if (c8.status !== 0) fail(`8-slot compile:\n${c8.stdout}${c8.stderr}`);
+// 1. 4 slots: the production circuit, the package's own compile (circom 2.2.3, --O2; D12)
+const c4 = spawnSync(process.execPath, ["scripts/compile.mjs"], { cwd: PROOFS, encoding: "utf8" });
+if (c4.status !== 0) fail(`4-slot compile:\n${c4.stdout}${c4.stderr}`);
 
-// 2. 4 slots: same template, same compiler and flags
+// 2. 8 slots: the comparison variant, same template, same compiler and flags
 const cargoCircom = join(homedir(), ".cargo/bin/circom");
 const circom = process.env.CIRCOM ?? (existsSync(cargoCircom) ? cargoCircom : "circom");
 const version = execFileSync(circom, ["--version"], { encoding: "utf8" }).trim();
 if (!version.endsWith("2.2.3")) fail(`need circom 2.2.3, found "${version}"`);
-mkdirSync(join(BUILD, "c4"), { recursive: true });
-const c4 = spawnSync(
+mkdirSync(join(BUILD, "c8"), { recursive: true });
+const c8 = spawnSync(
   circom,
-  ["circuits/income4.circom", "--r1cs", "--wasm", "--O2", "-o", "build/c4", "-l", join(PROOFS, "node_modules")],
+  ["circuits/income8.circom", "--r1cs", "--wasm", "--O2", "-o", "build/c8", "-l", join(PROOFS, "node_modules")],
   { cwd: HERE, encoding: "utf8" },
 );
-if (c4.status !== 0) fail(`4-slot compile:\n${c4.stdout}${c4.stderr}`);
+if (c8.status !== 0) fail(`8-slot compile:\n${c8.stdout}${c8.stderr}`);
 
 // 3. THROWAWAY keys (reused when the r1cs is unchanged)
-const key8 = await ensureThrowawayKey(ptauPath, INCOME_8);
-const key4 = await ensureThrowawayKey(ptauPath, { r1cs: join(BUILD, "c4/income4.r1cs"), dir: join(BUILD, "keys4"), name: "income4" });
+const key4 = await ensureThrowawayKey(ptauPath, INCOME_MAIN);
+const key8 = await ensureThrowawayKey(ptauPath, { r1cs: join(BUILD, "c8/income8.r1cs"), dir: join(BUILD, "keys8"), name: "income8" });
 
 // 4. assemble www/
 rmSync(WWW, { recursive: true, force: true });
@@ -57,15 +57,15 @@ const variants = {
   income8: {
     slots: 8,
     constraints: constraints(c8.stdout),
-    wasm: join(PROOFS, "build/income_js/income.wasm"),
-    r1cs: join(PROOFS, "build/income.r1cs"),
+    wasm: join(BUILD, "c8/income8_js/income8.wasm"),
+    r1cs: join(BUILD, "c8/income8.r1cs"),
     key: key8,
   },
   income4: {
     slots: 4,
     constraints: constraints(c4.stdout),
-    wasm: join(BUILD, "c4/income4_js/income4.wasm"),
-    r1cs: join(BUILD, "c4/income4.r1cs"),
+    wasm: join(PROOFS, "build/income_js/income.wasm"),
+    r1cs: join(PROOFS, "build/income.r1cs"),
     key: key4,
   },
 };

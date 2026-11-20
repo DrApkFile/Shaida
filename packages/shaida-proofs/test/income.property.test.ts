@@ -1,10 +1,10 @@
-// Property test: random honest scenarios must build and be accepted; one random cheat applied to each must be
-// refused. Every failure is collected with its seed, and the list must be empty.
+// Property test: random honest scenarios (1–13 payments, so bundles of 1–4 proofs, D12) must build, tile the period
+// and be accepted; one random cheat applied to one proof of each must be refused. Every failure is collected with its seed, and the list must be empty.
 // PROPERTY_RUNS (default 24) and PROPERTY_SEED (default: random, printed) reproduce a run.
 import assert from "node:assert/strict";
 import { randomInt } from "node:crypto";
 import { describe, it } from "node:test";
-import { buildIncomeWitness, type CircuitInput, FIELD_ORDER, type IncomeWitness } from "../src/index.js";
+import { buildIncomeBundle, type CircuitInput, FIELD_ORDER, type IncomeProofWitness, INCOME_SLOTS } from "../src/index.js";
 import { runCircuit } from "./helpers/circuit.js";
 import { honestRequest, makeScenario, Rng } from "./helpers/scenario.js";
 
@@ -12,7 +12,7 @@ const RUNS = Number(process.env.PROPERTY_RUNS ?? 24);
 const BASE_SEED = process.env.PROPERTY_SEED === undefined ? randomInt(2 ** 31) : Number(process.env.PROPERTY_SEED);
 
 type Arr = string[];
-type Mutation = (input: CircuitInput, w: IncomeWitness, rng: Rng) => boolean; // false: not applicable
+type Mutation = (input: CircuitInput, w: IncomeProofWitness, rng: Rng) => boolean; // false: not applicable
 
 const bump = (input: CircuitInput, key: string, slot: number, by: bigint) => {
   const arr = input[key] as Arr;
@@ -20,7 +20,7 @@ const bump = (input: CircuitInput, key: string, slot: number, by: bigint) => {
 };
 const perSlot = ["used", "secretP", "amount", "payerId", "secretS", "amountS"];
 const paths = ["vPathElements", "vPathIndices", "sPathElements", "sPathIndices"];
-const n = (w: IncomeWitness) => w.counted.length;
+const n = (w: IncomeProofWitness) => w.counted.length;
 
 const MUTATIONS: Record<string, Mutation> = {
   X06_inflateAmount: (i, w, r) => (bump(i, "amount", r.int(n(w)), 1n + BigInt(r.int(1000))), true),
@@ -84,26 +84,39 @@ describe("income circuit: property over random honest and cheating witnesses", (
     for (let run = 0; run < RUNS; run++) {
       const seed = BASE_SEED + run;
       const rng = new Rng(seed);
-      const payments = 1 + rng.int(9); // 1..9: 9 must be NotEnoughSlots
+      const payments = 1 + rng.int(13); // 1..13: bundles of 1..4 proofs
       const unswept = rng.int(3) === 0 ? [rng.int(payments)] : [];
       const s = makeScenario(rng, { payments, unswept, noise: rng.int(4) });
       const countable = s.payments.filter((_, k) => s.vouchIndex[k]! >= 0 && s.sweepIndex[k]! >= 0);
       const total = countable.reduce((a, p) => a + p.amount, 0n);
       const threshold = total === 0n ? 0n : (total * BigInt(rng.int(101))) / 100n;
-      const r = buildIncomeWitness(honestRequest(s, rng, { threshold }));
+      const request = honestRequest(s, rng, { threshold });
+      const r = buildIncomeBundle(request);
 
-      const expected = countable.length === 0 ? "NoSweptPayments" : countable.length > 8 ? "NotEnoughSlots" : "ok";
+      const expected = countable.length === 0 ? "NoSweptPayments" : "ok";
       const got = r.ok ? "ok" : r.error.code;
       if (got !== expected) failures.push({ seed, what: `builder: expected ${expected}, got ${got}` });
       if (!r.ok) continue;
-      if (r.value.counted.length !== countable.length) failures.push({ seed, what: "builder: wrong count" });
+      const b = r.value;
+      if (b.counted.length !== countable.length) failures.push({ seed, what: "builder: wrong count" });
+      const ps = b.proofs.map((p) => p.publicSignals);
+      if (b.proofs.length !== Math.ceil(countable.length / INCOME_SLOTS)) failures.push({ seed, what: "builder: wrong proof count" });
+      if (ps[0]!.fromIndex !== request.fromIndex || ps.at(-1)!.toIndex !== request.toIndex) {
+        failures.push({ seed, what: "bundle: does not span the period" });
+      }
+      if (ps.some((p, k) => k > 0 && p.fromIndex !== ps[k - 1]!.toIndex + 1n)) failures.push({ seed, what: "bundle: ranges not contiguous" });
+      if (ps.reduce((a, p) => a + p.threshold, 0n) !== threshold) failures.push({ seed, what: "bundle: Σ thresholds ≠ threshold" });
+      if (ps.reduce((a, p) => a + p.count, 0n) !== BigInt(countable.length)) failures.push({ seed, what: "bundle: Σ counts wrong" });
 
-      if (!(await runCircuit(r.value.input)).accepted) failures.push({ seed, what: "honest witness refused" });
+      for (const [k, p] of b.proofs.entries()) {
+        if (!(await runCircuit(p.input)).accepted) failures.push({ seed, what: `honest proof ${k + 1} refused` });
+      }
 
+      const w = rng.pick(b.proofs);
       const names = Object.keys(MUTATIONS);
       let name = rng.pick(names);
-      const cheat = structuredClone(r.value.input);
-      while (!MUTATIONS[name]!(cheat, r.value, rng)) name = rng.pick(names);
+      const cheat = structuredClone(w.input);
+      while (!MUTATIONS[name]!(cheat, w, rng)) name = rng.pick(names);
       tried[name] = (tried[name] ?? 0) + 1;
       const v = await runCircuit(cheat);
       if (v.accepted) failures.push({ seed, what: `cheat ACCEPTED: ${name}` });

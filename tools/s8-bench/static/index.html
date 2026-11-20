@@ -15,7 +15,7 @@
   .warn { background: var(--warn-bg); color: var(--warn); padding: 8px 10px; border-radius: 6px; }
   dl { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; }
   dt { color: var(--muted); } dd { margin: 0; overflow-wrap: anywhere; }
-  label { display: block; margin: 8px 0; } input { font: inherit; padding: 4px 6px; max-width: 100%; }
+  label { display: block; margin: 8px 0; } input, select { font: inherit; padding: 4px 6px; max-width: 100%; }
   button { font: inherit; padding: 8px 14px; margin: 4px 4px 4px 0; }
   .scroll { overflow-x: auto; } table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
   th, td { border-bottom: 1px solid var(--line); padding: 4px 6px; text-align: right; white-space: nowrap; }
@@ -32,14 +32,15 @@
     <dt>User agent</dt><dd id="ua">—</dd>
   </dl>
   <label>Device (model, CPU, browser): <input id="label" size="40" placeholder="e.g. ThinkPad T14, Ryzen 5, Chrome"></label>
+  <label>Slots: <select id="slots"><option value="both">4 and 8</option><option value="4">4 only (production)</option><option value="8">8 only</option></select></label>
   <label>Runs per variant: <input id="runs" type="number" min="1" max="10" value="3"></label>
-  <button id="start">Run 8 and 4 slots</button>
-  <p id="status">Each run: random valid witness (here) → witness, Groth16 prove, verify (Web Worker).</p>
+  <button id="start">Run</button>
+  <p id="status">Each run: random valid witness (here) → witness, Groth16 prove, verify, in a fresh Web Worker. The report is saved after every run.</p>
   <div class="scroll"><table>
     <thead><tr><th>Slots</th><th>Run</th><th>Input</th><th>Witness</th><th>Prove</th><th>Verify</th><th>Total</th><th>zkey load</th><th>OK</th></tr></thead>
     <tbody id="rows"></tbody>
   </table></div>
-  <p>Total = witness + prove + verify. A cold run also fetched its wasm and zkey (column "zkey load") and set up the curve.</p>
+  <p>Total = witness + prove + verify. Every run starts a fresh worker, which also fetches the wasm and zkey (column "zkey load", not in the total) and sets up the curve.</p>
   <p id="saved"></p>
   <button id="copy" disabled>Copy JSON</button><button id="save" disabled>Download JSON</button>
   <pre id="json"></pre>

@@ -45,7 +45,7 @@ packages/aevum: chain/tUSD8/EIP-3009/logs helpers adapted from the kit
 
 Reused (credited, licences kept): Gloam `ShieldPoolPoseidon`, `*VerifierFinal`, `DualProofVerifier`, `GloamPayMemo`, PoseidonT3 (circomlibjs bytecode), `IncrementalMerkleTreePoseidon` (MIT).
 
-### The income circuit (`packages/shaida-proofs/circuits/income.circom`, 8 slots)
+### The income circuit (`packages/shaida-proofs/circuits/income.circom`, 4 slots per proof, D12)
 Public: `ledgerRoot, asset, threshold, count, fromIndex, toIndex, context`.
 Per used slot i (used slots first, V-leaf indices strictly increasing):
 1. `Cp = Poseidon(secretP, amount, asset)` (the payment note)
@@ -55,16 +55,31 @@ Per used slot i (used slots first, V-leaf indices strictly increasing):
 5. `S = Poseidon(2, N, Cs)` is in the ledger tree
 6. `amount < 2^64`; `sum(amount) ≥ threshold`; `count = Σ used ≥ 1`
 `context = Poseidon(readerIdHash, expiryUnix, salt)`, checked by the verifier, not the circuit.
-Bounds (D11): `fromIndex`, `toIndex` < 2^20; `threshold` < 2^68; `context` is bound to the proof by a dummy square. Compiled with circom 2.2.3 `--O2`: 89,231 constraints (fits 2^17).
+Bounds (D11): `fromIndex`, `toIndex` < 2^20; `threshold` < 2^68; `context` is bound to the proof by a dummy square. Compiled with circom 2.2.3 `--O2`: 44,687 constraints (fits 2^16; set up with the verified Hermez 2^17 ptau). r1cs sha256 `d866695c…` (D12).
 Why this is sound (map to EVAL_DESIGN):
 - V exists only if an active registered payer paid through ShaidaLedger (X01–X03).
 - S exists only if the payment note was spent via `sweep`, and opening Cs needs the recipient's secret (X08 clawback, X09 presenter).
 - The strict index order stops double counting (X04).
 
+### Bundles: periods with more than 4 payments (D12)
+A period is proved by a **bundle** of 1–8 proofs (at most 32 payments). Every proof in a bundle has the same
+`context` (so the same reader and expiry) and `asset`, its root passes `isKnownRoot`, and the proofs' leaf ranges
+`[fromIndex, toIndex]` are **strictly disjoint**. The bundle proves `total = Σ thresholds` over `count = Σ counts`
+payments, from the lowest `fromIndex` to the highest `toIndex`.
+Why this is sound: each proof counts only V leaves inside its own range (circuit), a payment has exactly one V leaf
+(D9), and disjoint ranges share no leaf, so no payment is counted by two proofs (X14, X15). Proofs made for another
+reader or expiry have another context and are refused as a set (X16, X17). Roots may differ between proofs: the
+tree is append-only, so a leaf index names the same leaf under every known root.
+The witness builder splits automatically: payments in V-leaf order, at most 4 per proof; the first range starts at the
+asked `fromIndex`, the last ends at the asked `toIndex`, each boundary is halfway between the last V leaf of one proof
+and the first of the next; the asked threshold is split by water-filling (equal shares, capped at each proof's sum).
+Disclosure cost: each proof's threshold, count and range are public, so a bundle shows sub-totals over sub-ranges
+(EVAL C3, LIMITS).
+
 ### Off-chain
 - **Indexer** `/api/index`: reads pool and ledger events with `getLogsChunked`, with retry and a persisted cursor. Serves leaf snapshots. The client recomputes the root and checks `isKnownRoot`; on mismatch it refuses with `UnknownRoot`.
 - **Prover:** in the browser (snarkjs wasm + `income_final.zkey`, self-hosted, hash pinned). Node CLI for tests.
-- **Proof link:** `/v#<base64url(proof, signals, readerId, expiry, salt)>`. The fragment never reaches the server.
+- **Proof link:** `/v#<base64url(JSON {v: 1, proofs: [{proof, publicSignals}] (1–8), readerIdHash, expiry, salt})>` (D12; a single proof is a bundle of one). The fragment never reaches the server.
 - **Relayer** `/api/relay`: the kit's rail pattern plus hardening (§8). One route per contract function.
 
 ## 4. Vocabulary
@@ -90,27 +105,34 @@ Why this is sound (map to EVAL_DESIGN):
 | `RangeUnresolvable` | leaf indices can't be mapped to dates | yes | resync |
 | `TxOutcomeUnknown` | broadcast without receipt | yes (check, never resend) | wait; check by hash/nullifier |
 | `RelayerBudgetExceeded` | gas budget hit | later | use standard mode |
-| `NotEnoughSlots` | > 8 payments in range | no | split the period (disjoint ranges add safely) |
+| `NotEnoughSlots` | > 32 payments in range (a bundle is at most 8 proofs of 4, D12) | no | split the period into shorter ones |
 | `TokenPaused` | tUSD8 is paused by its issuer (S9) | later | wait for the issuer to unpause; nothing was sent |
 | `PayerBlacklisted` | the paying address is on tUSD8's blacklist (S9) | no | pay from another address |
 | `RecipientBlacklisted` | the withdrawal address is on tUSD8's blacklist (S9) | no | withdraw to another address |
 | `NoSweptPayments` | no vouched, swept payment in the period (D10) | no | sweep first, or pick another period |
 | `BelowThreshold` | the counted payments add up to less than the threshold (D10) | no | lower the threshold or widen the period |
 | `InputRejected` | the proof request failed the strict schema (D10) | no | fix the input; nothing was built |
+| `RangesOverlap` | two proofs of a bundle share a leaf index (D12) | no | ask for a new link |
+| `MixedContexts` | the proofs of a bundle were made for different readers or expiries (D12) | no | ask for a new link |
 
 Before every deposit, pay and withdraw, the app reads `paused()` and `isBlacklisted(address)` on tUSD8 and refuses
 with the codes above before asking for a signature (D7). `ShaidaDepositor` repeats the deposit checks on chain.
 
 ## 5. Core verification steps (`verifyIncomeLink`, first failure returns its code)
-1. Parse the fragment as `unknown`; strict schema (`.strict()`, BigInt strings). → `ProofInvalid`
-2. `asset == tUSD8`. → `AssetMismatch`
+Input: a bundle of 1–8 proofs (D12). Pure (`packages/shaida-proofs/src/verify/`): the chain reads, the Groth16 check,
+the reader's id hash and the clock are injected. Retryable codes (`UnknownRoot`, `RangeUnresolvable`) give
+`INCONCLUSIVE`, the others `INVALID`.
+1. Decode the fragment and parse it as `unknown`; strict schema (`.strict()`, canonical decimal strings, 1–8 proofs). → `ProofInvalid`
+2. Every proof's `asset == tUSD8`. → `AssetMismatch`
+   - 2a. Every proof has the same `context`. → `MixedContexts`
+   - 2b. Leaf ranges are strictly disjoint (sorted by `fromIndex`, each `toIndex` < the next `fromIndex`; a duplicated proof overlaps itself). → `RangesOverlap`
 3. `context == Poseidon(readerIdHash, expiry, salt)`. → `ContextMismatch`
 4. `readerIdHash == hash(this reader's id)`. → `WrongReader`
 5. `now ≤ expiry`. → `ProofExpired`
-6. `ledger.isKnownRoot(ledgerRoot)` at a pinned block. → `UnknownRoot`
-7. Groth16 verify (off-chain), and optionally `IncomeVerifier.check` on-chain. → `ProofInvalid`
-8. Map `fromIndex`/`toIndex` to block timestamps via ledger `Vouched` events. → `RangeUnresolvable`
-9. Result `VALID{threshold, count, fromDate, toDate, expiry}`.
+6. `ledger.isKnownRoot(ledgerRoot)` at a pinned block, for every proof's root. → `UnknownRoot`
+7. Groth16 verify every proof (off-chain), and optionally `IncomeVerifier.check` on-chain. → `ProofInvalid`
+8. Map the lowest `fromIndex` and highest `toIndex` to block timestamps via ledger `Vouched` events. → `RangeUnresolvable`
+9. Result `VALID{threshold = Σ thresholds, count = Σ counts, fromDate, toDate, expiry, proofs}`.
 
 ## 6. State machines
 - **Payment (recipient side):** `seen` (memo opened) → `sweeping` → `swept` | `unknown`. `unknown` has **no resend edge**: check by nullifier.
@@ -148,16 +170,17 @@ with the codes above before asking for a signature (D7). `ShaidaDepositor` repea
 **Not analysed:** side channels in browser proving; front-end supply chain beyond pinned deps.
 
 ## 9. Test list (mirrors the demo and EVAL_DESIGN; IDs in test titles)
-- Circuit: H1, H2, X04–X07, X08 (no S leaf), X09 (wrong Cs secret), threshold, count, root, gap, zero, 8-slot full, `NotEnoughSlots`.
+- Circuit: H1, H2, X04–X07, X08 (no S leaf), X09 (wrong Cs secret), threshold, count, root, gap, zero, 4-slot full.
+- Witness builder: bundle split (5, 9, 12 and 32 payments; threshold = total), `NotEnoughSlots` (33 payments), property test over 1–13 payments.
 - Contracts: X01/X02 `PayerNotRegistered` (direct and relayed), X03 `PayerRevoked`, gasless deposit replay/amount/commitment binding (from S6), `sweep` inserts S, roots known, legacy-tx fork test on real tUSD8, tUSD8 blacklist/pause probe (S9), Shanghai opcode check over all artifacts.
-- Verifier: every §4 code reachable; tamper threshold/count/range/context → refused.
+- Verifier: every §4 code reachable; tamper threshold/count/range/context → refused; bundles: honest 2- and 3-proof, X14 overlapping ranges, X15 duplicate proof, X16 mixed reader, X17 mixed expiry.
 - Relayer: each rail, budget, unknown-outcome handling (no double submit).
 - Indexer: retry, cursor resume, root-mismatch refusal.
 
 ## 10. Priorities
 - **P0:**
   - contracts above
-  - circuit (8 slots) + ceremony
+  - circuit (4 slots per proof, bundles: D12) + ceremony
   - Node and browser prover
   - verify page + on-chain check
   - indexer
@@ -177,7 +200,7 @@ with the codes above before asking for a signature (D7). `ShaidaDepositor` repea
 | Dates (2026) | Work | Exit check |
 |---|---|---|
 | Nov 21–22 | Repo from the kit; Gloam as pinned submodule; `make fork` stack deploy (Poseidon, Gloam final verifiers, pool, memo, Shaida contracts); S9 probe | fork test: deposit → vouchedPay → sweep with real tUSD8 |
-| Nov 23–24 | `income.circom` v1 (8 slots) + witness builder + all circuit tests | **go/no-go Nov 24** (fallback per IDEA_CHECK R7) |
+| Nov 23–24 | `income.circom` v1 (8 slots; 4 slots + bundles since D12) + witness builder + all circuit tests | **go/no-go Nov 24** (fallback per IDEA_CHECK R7) |
 | Nov 25–26 | Ceremony phase 2 (2+ contributors + beacon); `IncomeVerifier`; Node prover; verification core (§5) | X-suite green; ceremony recorded |
 | Nov 27–29 | Indexer + relayer + pay/inbox flows | acts 2–3 work on fork |
 | Nov 30–Dec 2 | Browser prover + prove/verify UI | acts 4–6 on fork; S8 timing recorded |

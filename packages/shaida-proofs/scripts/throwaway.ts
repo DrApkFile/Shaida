@@ -14,13 +14,13 @@ export const PTAU_17_BLAKE2B =
 export const THROWAWAY = join(BUILD, "throwaway");
 const SNARKJS_CLI = join(PKG, "node_modules/snarkjs/build/cli.cjs");
 
-/** Which circuit to key. The default is income.circom (8 slots); spike S8 also keys its 4-slot variant. */
+/** Which circuit to key. The default is income.circom (4 slots, D12); spike S8 also keys its 8-slot variant. */
 export interface KeyTarget {
   readonly r1cs: string;
   readonly dir: string;
   readonly name: string;
 }
-export const INCOME_8: KeyTarget = { r1cs: join(BUILD, "income.r1cs"), dir: THROWAWAY, name: "income" };
+export const INCOME_MAIN: KeyTarget = { r1cs: join(BUILD, "income.r1cs"), dir: THROWAWAY, name: "income" };
 
 export interface ThrowawayKey {
   readonly zkey: string;
@@ -42,7 +42,7 @@ function snarkjs(args: string[]): void {
 }
 
 /** Verifies the ptau hash, then builds (or reuses, if made from this exact r1cs) the throwaway key. */
-export async function ensureThrowawayKey(ptauPath: string, target: KeyTarget = INCOME_8): Promise<ThrowawayKey> {
+export async function ensureThrowawayKey(ptauPath: string, target: KeyTarget = INCOME_MAIN): Promise<ThrowawayKey> {
   const { r1cs: R1CS, dir: THROWAWAY, name } = target;
   if (!existsSync(R1CS)) throw new Error(`${R1CS} is missing: compile the circuit first`);
   const ptauHash = await blake2b(ptauPath);

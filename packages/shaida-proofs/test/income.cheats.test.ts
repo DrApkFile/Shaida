@@ -3,20 +3,18 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
-  buildIncomeWitness,
   type CircuitInput,
   circuitInput,
   FIELD_ORDER,
-  type IncomeWitness,
-  LedgerTree,
+    LedgerTree,
 } from "../src/index.js";
 import { CONSTRAINT, runCircuit } from "./helpers/circuit.js";
-import { honestRequest, makeScenario, Rng, type Scenario } from "./helpers/scenario.js";
+import { buildSingleProof, honestRequest, makeScenario, Rng, type Scenario, type SingleProof } from "./helpers/scenario.js";
 
 function honest(seed: number, payments: number, opts: { unswept?: number[] } = {}) {
   const rng = new Rng(seed);
   const s = makeScenario(rng, { payments, ...opts });
-  const r = buildIncomeWitness(honestRequest(s, rng));
+  const r = buildSingleProof(honestRequest(s, rng));
   if (!r.ok) assert.fail(`builder refused: ${r.error.code}`);
   return { s, w: r.value, rng };
 }
@@ -44,7 +42,7 @@ async function refusedAt(input: CircuitInput, expectedLine: number, label: strin
   assert.equal(v.incomeLine, expectedLine, `${label}: refused at income.circom:${v.incomeLine}, want ${expectedLine}`);
 }
 
-const vIdx = (w: IncomeWitness, slot: number) => BigInt(w.counted[slot]!.vouchIndex);
+const vIdx = (w: SingleProof, slot: number) => BigInt(w.counted[slot]!.vouchIndex);
 
 describe("income circuit: cheating witnesses are refused (C1)", () => {
   it("X04 refuses the same payment counted twice", async () => {
@@ -146,7 +144,7 @@ describe("income circuit: cheating witnesses are refused (C1)", () => {
 });
 
 /** The honest slots plus one extra, re-laid out with the same public signals (count + 1). */
-function slotsWithExtra(s: Scenario, w: IncomeWitness, extra: Parameters<typeof circuitInput>[1][number]) {
+function slotsWithExtra(s: Scenario, w: SingleProof, extra: Parameters<typeof circuitInput>[1][number]) {
   const slots = w.counted.map((c) => {
     const p = s.payments[c.record]!;
     return { ...p, used: 1 as const, vPath: s.tree.path(c.vouchIndex), sPath: s.tree.path(c.sweepIndex) };
