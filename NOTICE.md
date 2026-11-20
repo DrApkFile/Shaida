@@ -47,5 +47,9 @@ and `KeyCheckProofs` (deploy-time key check only). PoseidonT3 is deployed from G
 | viem | 2.57.12 | MIT | web, examples, packages/aevum |
 | tsx | 4.23.15 | MIT | examples (dev) |
 | typescript | 5.9.3 | Apache-2.0 | all (dev) |
+| @gloamtrade/sdk | 0.8.0 | MIT | packages/gloam-fixtures (test fixtures only) |
+| snarkjs | 0.7.6 | GPL-3.0 | packages/gloam-fixtures (proving tool, not shipped) |
+| circomlibjs | 0.1.7 (via @gloamtrade/sdk) | GPL-3.0 | packages/gloam-fixtures (Poseidon, not shipped) |
+| zod | 3.25.76 | MIT | packages/gloam-fixtures |
 
 Their own dependencies carry their own licenses. To list them all, run `pnpm licenses list` in the repo root.

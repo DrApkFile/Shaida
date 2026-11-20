@@ -7,14 +7,14 @@ Based in part on the [Aevum Starter Kit](https://github.com/qday-io/aevum-starte
 Private payments run on [Gloam](https://github.com/gloamtrade/gloam) (MIT), a pinned submodule. See [NOTICE.md](NOTICE.md).
 
 ## Status
-Work in progress (build step 1 of PRD §11). Built so far:
-- Repo layout from the starter kit; Gloam pinned at `contracts/lib/gloam`.
-- `make deploy-fork` / `make deploy-aevum`: deploys PoseidonT3, Gloam's final-ceremony verifiers, the Gloam pool and
-  the pay-memo board, checks them on chain, and records them in `deployments/` from the receipts.
-- Spike S9 (tUSD8 admin powers): see [LIMITS.md](LIMITS.md).
+Build step 1 of PRD §11 is done on a fork; nothing is deployed on Aevum testnet yet.
+- Contracts: `PayerRegistry`, `ShaidaDepositor` (gasless EIP-3009 + standard deposit), `ShaidaLedger` (vouch and
+  sweep leaves), on Gloam's pool with its final-ceremony verifiers.
+- Tests: `make test` (unit) and `make test-fork` (real tUSD8 on a fork, including deposit → vouched pay → sweep with
+  real proofs). Gas: [evidence/fork-gas.md](evidence/fork-gas.md). Issuer risks: [LIMITS.md](LIMITS.md).
 
-Not built yet: PayerRegistry, ShaidaDepositor, ShaidaLedger, the income circuit, IncomeVerifier, indexer, relayer, UI.
-Nothing is deployed on Aevum testnet yet.
+Not built yet: the income circuit, IncomeVerifier, indexer, Shaida relayer and UI. `web/` and `examples/` are still the
+starter kit's checkout demo and will be replaced.
 
 ## Commands
 ```bash
@@ -24,5 +24,6 @@ make test         # unit tests
 make test-fork    # tests against the real tUSD8 (needs https://rpc-test.qday.info)
 make fork         # local Aevum fork, chain 440050 on 127.0.0.1:8555
 make deploy-fork  # deploy the stack to the fork; writes deployments/fork.json
-make deploy-aevum ACCOUNT=<keystore>   # real deploy (clean committed tree only); writes deployments/aevum.json
+make deploy-aevum ACCOUNT=<keystore> ATTESTOR=0x...   # real deploy (clean committed tree only); writes deployments/aevum.json
+pnpm --filter @shaida/gloam-fixtures gen:fork-flow    # regenerate the fork test's Gloam proofs (final keys)
 ```
