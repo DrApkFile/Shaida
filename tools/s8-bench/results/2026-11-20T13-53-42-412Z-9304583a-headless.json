@@ -1,0 +1,130 @@
+{
+  "schema": "shaida-s8/2",
+  "reportId": "2026-11-20T13-53-42-412Z-9304583a",
+  "complete": true,
+  "workerPerRun": true,
+  "label": "archlinux: Intel(R) Core(TM) i3 CPU M 370 @ 2.40GHz, headless Chrome/153.0.8010.52",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "hardwareConcurrency": 4,
+  "deviceMemoryGiB": 8,
+  "manifest": {
+    "key": "THROWAWAY (one local contribution; never deploy, never publish)",
+    "compiler": "circom compiler 2.2.3, --O2",
+    "commit": "e9e63f121577f5dc800e398ab3abcfcef0cb86ae",
+    "dirty": false,
+    "builtAt": "2026-11-20T13:51:53.675Z",
+    "variants": {
+      "income8": {
+        "slots": 8,
+        "constraints": 89231,
+        "r1csSha256": "4f4af7bd587cfc68b69e43dbb7fd431d6f70e4c52a3010eebbda25f0925af81e",
+        "wasmSha256": "819af94823f24bb60274aa5a6c51cd31e663dddcc4f26d2b947b1584cddca734",
+        "zkeySha256": "bd2fa46b9b5862637302566cfc617770d1cf585f40457e5c983a45a91c2ef911",
+        "zkeyBytes": 53046330
+      },
+      "income4": {
+        "slots": 4,
+        "constraints": 44687,
+        "r1csSha256": "d866695ca2473e70408d288feafaec7181983480a688acac30b42156d305d82a",
+        "wasmSha256": "8fb36f38c220edb2cd5468e8ba676d4d269b9e6665c253b9d6d67e45e3e0d14a",
+        "zkeySha256": "f0feb5a74eb121022a918e12d72143885de379c297c6c894db57532df8238f68",
+        "zkeyBytes": 26562618
+      }
+    }
+  },
+  "startedAt": "2026-11-20T13:53:42.412Z",
+  "finishedAt": "2026-11-20T13:56:34.739Z",
+  "runs": [
+    {
+      "variant": "income4",
+      "run": 1,
+      "inputMs": 30.700000002980232,
+      "cold": true,
+      "zkeyLoadMs": 636.5,
+      "wasmLoadMs": 119.20000000298023,
+      "curveInitMs": 348.79999999701977,
+      "witnessMs": 441.70000000298023,
+      "proveMs": 18421.09999999404,
+      "verifyMs": 54.30000001192093,
+      "totalMs": 18917.10000000894,
+      "verified": true
+    },
+    {
+      "variant": "income8",
+      "run": 1,
+      "inputMs": 78.20000000298023,
+      "cold": true,
+      "zkeyLoadMs": 623.8000000119209,
+      "wasmLoadMs": 55.599999994039536,
+      "curveInitMs": 328.59999999403954,
+      "witnessMs": 637.6000000089407,
+      "proveMs": 33456.59999999404,
+      "verifyMs": 52.70000000298023,
+      "totalMs": 34146.90000000596,
+      "verified": true
+    },
+    {
+      "variant": "income4",
+      "run": 2,
+      "inputMs": 67.90000000596046,
+      "cold": true,
+      "zkeyLoadMs": 338.20000000298023,
+      "wasmLoadMs": 58.29999999701977,
+      "curveInitMs": 367.1000000089407,
+      "witnessMs": 435.8999999910593,
+      "proveMs": 19383,
+      "verifyMs": 53.900000005960464,
+      "totalMs": 19872.79999999702,
+      "verified": true
+    },
+    {
+      "variant": "income8",
+      "run": 2,
+      "inputMs": 87.79999999701977,
+      "cold": true,
+      "zkeyLoadMs": 640.9000000059605,
+      "wasmLoadMs": 160.19999998807907,
+      "curveInitMs": 338.6000000089407,
+      "witnessMs": 665.2999999970198,
+      "proveMs": 33996.5,
+      "verifyMs": 61.20000000298023,
+      "totalMs": 34723,
+      "verified": true
+    },
+    {
+      "variant": "income4",
+      "run": 3,
+      "inputMs": 53.70000000298023,
+      "cold": true,
+      "zkeyLoadMs": 345.09999999403954,
+      "wasmLoadMs": 57.400000005960464,
+      "curveInitMs": 351.59999999403954,
+      "witnessMs": 726.4000000059605,
+      "proveMs": 20017.20000000298,
+      "verifyMs": 95.8999999910593,
+      "totalMs": 20839.5,
+      "verified": true
+    },
+    {
+      "variant": "income8",
+      "run": 3,
+      "inputMs": 110.90000000596046,
+      "cold": true,
+      "zkeyLoadMs": 620.3999999910593,
+      "wasmLoadMs": 64.90000000596046,
+      "curveInitMs": 487.59999999403954,
+      "witnessMs": 727.1000000089407,
+      "proveMs": 35308.79999999702,
+      "verifyMs": 78.5,
+      "totalMs": 36114.40000000596,
+      "verified": true
+    }
+  ],
+  "errors": [],
+  "host": {
+    "cpuModel": "Intel(R) Core(TM) i3 CPU M 370 @ 2.40GHz",
+    "logicalCpus": 4,
+    "ramGiB": 7.5,
+    "browser": "headless Chrome/153.0.8010.52"
+  }
+}

@@ -19,6 +19,8 @@ zkey and setting up the curve are timed separately. Report format shaida-s8/1 us
 | archlinux: Intel(R) Core(TM) i3 CPU M 370 @ 2.40GHz, headless Chrome/153.0.8010.52 | page | 4 | — | — | — | 30.58 s | 51.97 s | warm runs (run 1 excluded) | `2026-11-20T11-28-04-951Z-headless.json` |
 | archlinux: Intel(R) Core(TM) i3 CPU M 370 @ 2.40GHz, headless Chrome/153.0.8010.52 | page | 4 | 21.43 s | 37.48 s | 0.57 | 20.16 s | 34.83 s | warm runs (run 1 excluded) | `2026-11-20T11-35-51-235Z-headless.json` |
 | archlinux: Intel(R) Core(TM) i3 CPU M 370 @ 2.40GHz, headless Chrome/153.0.8010.52 | page | 4 | — | — | — | 20.41 s | 40.82 s | warm runs (run 1 excluded) | `2026-11-20T11-43-55-954Z-headless.json` |
+| archlinux: i3 M 370, headless Chromium 153 (page save path) | page | 4 | 20.02 s | 36.89 s | 0.54 | 20.02 s | 36.89 s | all runs, fresh worker each | `2026-11-20T13-52-15-500Z-5709ccb4.json` |
+| archlinux: Intel(R) Core(TM) i3 CPU M 370 @ 2.40GHz, headless Chrome/153.0.8010.52 | page | 4 | 19.87 s | 34.72 s | 0.57 | 18.92 s | 34.15 s | all runs, fresh worker each | `2026-11-20T13-53-42-412Z-9304583a-headless.json` |
 | builder's phone | **reported** | — | 19.43 s | 38.87 s | 0.50 | 19.43 s | 38.87 s | the reported runs | `reported/2026-11-20-builder-phone.json` |
 
 ## builder's phone (reported)
@@ -129,5 +131,68 @@ Medians over warm runs (run 1 excluded):
 |---:|---:|---|---:|---:|---:|---:|---:|---|
 | 8 | 1 | yes | 0.07 s | 0.62 s | 40.14 s | 0.05 s | 40.82 s | yes |
 | 4 | 1 | yes | 0.04 s | 0.47 s | 19.87 s | 0.07 s | 20.41 s | yes |
+
+</details>
+
+## archlinux: i3 M 370, headless Chromium 153 (page save path)
+
+| Field | Value |
+|---|---|
+| Report | `tools/s8-bench/results/2026-11-20T13-52-15-500Z-5709ccb4.json` (shaida-s8/2) |
+| User agent | Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36 |
+| navigator.hardwareConcurrency | 4 |
+| navigator.deviceMemory | 8 GiB (rounded by the browser) |
+| Page built from | commit `e9e63f121577f5dc800e398ab3abcfcef0cb86ae`, circom compiler 2.2.3, --O2, 2026-11-20T13:51:53.675Z |
+| Run | 2026-11-20T13:52:15.500Z → 2026-11-20T13:53:15.276Z |
+| income8 | 8 slots, 89,231 constraints, zkey 50.6 MiB, r1cs `4f4af7bd587cfc68…` |
+| income4 | 4 slots, 44,687 constraints, zkey 25.3 MiB, r1cs `d866695ca2473e70…` |
+
+Medians over all runs, fresh worker each:
+
+| Slots | runs | witness | prove | verify | total | run 1: zkey load | run 1: wasm load | run 1: curve init | run 1 total |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 4 | 1 | 1.01 s | 18.96 s | 0.05 s | 20.02 s | 0.32 s | 0.03 s | 0.37 s | 20.02 s |
+| 8 | 1 | 0.62 s | 36.21 s | 0.06 s | 36.89 s | 0.77 s | 0.06 s | 0.45 s | 36.89 s |
+
+<details><summary>All runs</summary>
+
+| Slots | run | cold | input | witness | prove | verify | total | verified |
+|---:|---:|---|---:|---:|---:|---:|---:|---|
+| 4 | 1 | yes | 0.04 s | 1.01 s | 18.96 s | 0.05 s | 20.02 s | yes |
+| 8 | 1 | yes | 0.09 s | 0.62 s | 36.21 s | 0.06 s | 36.89 s | yes |
+
+</details>
+
+## archlinux: Intel(R) Core(TM) i3 CPU M 370 @ 2.40GHz, headless Chrome/153.0.8010.52
+
+| Field | Value |
+|---|---|
+| Report | `tools/s8-bench/results/2026-11-20T13-53-42-412Z-9304583a-headless.json` (shaida-s8/2) |
+| User agent | Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36 |
+| navigator.hardwareConcurrency | 4 |
+| navigator.deviceMemory | 8 GiB (rounded by the browser) |
+| Host (headless run) | Intel(R) Core(TM) i3 CPU M 370 @ 2.40GHz, 4 logical CPUs, 7.5 GiB RAM, headless Chrome/153.0.8010.52 |
+| Page built from | commit `e9e63f121577f5dc800e398ab3abcfcef0cb86ae`, circom compiler 2.2.3, --O2, 2026-11-20T13:51:53.675Z |
+| Run | 2026-11-20T13:53:42.412Z → 2026-11-20T13:56:34.739Z |
+| income8 | 8 slots, 89,231 constraints, zkey 50.6 MiB, r1cs `4f4af7bd587cfc68…` |
+| income4 | 4 slots, 44,687 constraints, zkey 25.3 MiB, r1cs `d866695ca2473e70…` |
+
+Medians over all runs, fresh worker each:
+
+| Slots | runs | witness | prove | verify | total | run 1: zkey load | run 1: wasm load | run 1: curve init | run 1 total |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 4 | 3 | 0.44 s | 19.38 s | 0.05 s | 19.87 s | 0.64 s | 0.12 s | 0.35 s | 18.92 s |
+| 8 | 3 | 0.67 s | 34.00 s | 0.06 s | 34.72 s | 0.62 s | 0.06 s | 0.33 s | 34.15 s |
+
+<details><summary>All runs</summary>
+
+| Slots | run | cold | input | witness | prove | verify | total | verified |
+|---:|---:|---|---:|---:|---:|---:|---:|---|
+| 4 | 1 | yes | 0.03 s | 0.44 s | 18.42 s | 0.05 s | 18.92 s | yes |
+| 8 | 1 | yes | 0.08 s | 0.64 s | 33.46 s | 0.05 s | 34.15 s | yes |
+| 4 | 2 | yes | 0.07 s | 0.44 s | 19.38 s | 0.05 s | 19.87 s | yes |
+| 8 | 2 | yes | 0.09 s | 0.67 s | 34.00 s | 0.06 s | 34.72 s | yes |
+| 4 | 3 | yes | 0.05 s | 0.73 s | 20.02 s | 0.10 s | 20.84 s | yes |
+| 8 | 3 | yes | 0.11 s | 0.73 s | 35.31 s | 0.08 s | 36.11 s | yes |
 
 </details>

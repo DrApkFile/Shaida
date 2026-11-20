@@ -1,0 +1,68 @@
+{
+  "schema": "shaida-s8/2",
+  "reportId": "2026-11-20T13-52-15-500Z-5709ccb4",
+  "complete": true,
+  "workerPerRun": true,
+  "label": "archlinux: i3 M 370, headless Chromium 153 (page save path)",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "hardwareConcurrency": 4,
+  "deviceMemoryGiB": 8,
+  "manifest": {
+    "key": "THROWAWAY (one local contribution; never deploy, never publish)",
+    "compiler": "circom compiler 2.2.3, --O2",
+    "commit": "e9e63f121577f5dc800e398ab3abcfcef0cb86ae",
+    "dirty": false,
+    "builtAt": "2026-11-20T13:51:53.675Z",
+    "variants": {
+      "income8": {
+        "slots": 8,
+        "constraints": 89231,
+        "r1csSha256": "4f4af7bd587cfc68b69e43dbb7fd431d6f70e4c52a3010eebbda25f0925af81e",
+        "wasmSha256": "819af94823f24bb60274aa5a6c51cd31e663dddcc4f26d2b947b1584cddca734",
+        "zkeySha256": "bd2fa46b9b5862637302566cfc617770d1cf585f40457e5c983a45a91c2ef911",
+        "zkeyBytes": 53046330
+      },
+      "income4": {
+        "slots": 4,
+        "constraints": 44687,
+        "r1csSha256": "d866695ca2473e70408d288feafaec7181983480a688acac30b42156d305d82a",
+        "wasmSha256": "8fb36f38c220edb2cd5468e8ba676d4d269b9e6665c253b9d6d67e45e3e0d14a",
+        "zkeySha256": "f0feb5a74eb121022a918e12d72143885de379c297c6c894db57532df8238f68",
+        "zkeyBytes": 26562618
+      }
+    }
+  },
+  "startedAt": "2026-11-20T13:52:15.500Z",
+  "finishedAt": "2026-11-20T13:53:15.276Z",
+  "runs": [
+    {
+      "variant": "income4",
+      "run": 1,
+      "inputMs": 36.1000000089407,
+      "cold": true,
+      "zkeyLoadMs": 318.29999999701977,
+      "wasmLoadMs": 30.30000001192093,
+      "curveInitMs": 373,
+      "witnessMs": 1011.5999999940395,
+      "proveMs": 18956,
+      "verifyMs": 52.6000000089407,
+      "totalMs": 20020.20000000298,
+      "verified": true
+    },
+    {
+      "variant": "income8",
+      "run": 1,
+      "inputMs": 86.70000000298023,
+      "cold": true,
+      "zkeyLoadMs": 765.7000000029802,
+      "wasmLoadMs": 63.70000000298023,
+      "curveInitMs": 448.90000000596046,
+      "witnessMs": 622.4000000059605,
+      "proveMs": 36208.59999999404,
+      "verifyMs": 56.599999994039536,
+      "totalMs": 36887.59999999404,
+      "verified": true
+    }
+  ],
+  "errors": []
+}
