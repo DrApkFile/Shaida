@@ -119,6 +119,8 @@ Rejected: `--O1` with a 2^18 ptau (2× the setup and key size for the same const
 Consequence: r1cs sha256 `4f4af7bd587cfc68b69e43dbb7fd431d6f70e4c52a3010eebbda25f0925af81e` is the v1 candidate for
 the phase-2 ceremony (step 3). Any change to income.circom or its includes changes it and needs a new ceremony.
 Measured 2026-11-20 (evidence/income-circuit.md, throwaway key, Node, Intel i3 M 370, 4 threads): zkey 50.6 MiB;
-`fullProve` median 49.8 s for 8 used slots, 43.5 s for 1 (the circuit always evaluates all 8). S7 estimated ~7 s on
-another machine. EVAL C5 (≤ 30 s in a mid-range browser) is open until S8 runs on a mid-range laptop.
+`fullProve` median 49.8 s for 8 used slots, 43.5 s for 1 (run at commit 6509216, 10:59 UTC); re-run on a clean tree
+at commit 2472f27 (11:10 UTC): 31.2 s and 30.1 s. Same key, circuit and machine; it is a shared desktop (browser and
+other processes running, 15-min load ~5), so we take ~30–50 s as the range, cause of the spread not identified. The
+circuit always evaluates all 8 slots. S7 estimated ~7 s on another machine. EVAL C5 (≤ 30 s in a mid-range browser) is open until S8 runs on a mid-range laptop.
 Where: packages/shaida-proofs/circuits/, evidence/income-circuit.md

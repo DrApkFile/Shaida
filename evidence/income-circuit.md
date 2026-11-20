@@ -17,12 +17,12 @@ ran it could forge proofs: it is never deployed or published. The real key comes
 | Setup + 1 contribution | — (key reused from an earlier run on the same r1cs) |
 | Verifier (snarkjs) | ✓ 3 bytecode blobs checked (1 from Gloam): Shanghai-safe. Runtime size 1,909 bytes. |
 | Machine | Intel(R) Core(TM) i3 CPU M 370 @ 2.40GHz, 4 logical CPUs, 7.5 GiB RAM, linux x64, node v24.19.0 |
-| Commit | `6509216bf34d7bf1e51f54d0331a5468cfd8d1f9` (working tree dirty) |
-| Date | 2026-11-20T10:59:33.999Z |
+| Commit | `2472f27b26a70f349fa8986ced05f53875b7b8b0` |
+| Date | 2026-11-20T11:10:24.746Z |
 
 Node proving time, `snarkjs.groth16.fullProve` (witness + proof), 3 runs each, every proof verified:
 
 | Used slots | runs | median |
 |---:|---|---:|
-| 1 | 43.48 s, 63.46 s, 41.93 s | 43.48 s |
-| 8 | 48.10 s, 49.81 s, 54.66 s | 49.81 s |
+| 1 | 30.00 s, 30.72 s, 30.13 s | 30.13 s |
+| 8 | 30.43 s, 31.22 s, 32.05 s | 31.22 s |
