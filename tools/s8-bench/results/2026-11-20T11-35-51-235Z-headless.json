@@ -1,0 +1,127 @@
+{
+  "schema": "shaida-s8/1",
+  "label": "archlinux: Intel(R) Core(TM) i3 CPU M 370 @ 2.40GHz, headless Chrome/153.0.8010.52",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "hardwareConcurrency": 4,
+  "deviceMemoryGiB": 8,
+  "manifest": {
+    "key": "THROWAWAY (one local contribution; never deploy, never publish)",
+    "compiler": "circom compiler 2.2.3, --O2",
+    "commit": "c3dfca6d98d70983f79822d1608d280a6c05fef4",
+    "dirty": false,
+    "builtAt": "2026-11-20T11:32:32.437Z",
+    "variants": {
+      "income8": {
+        "slots": 8,
+        "constraints": 89231,
+        "r1csSha256": "4f4af7bd587cfc68b69e43dbb7fd431d6f70e4c52a3010eebbda25f0925af81e",
+        "wasmSha256": "819af94823f24bb60274aa5a6c51cd31e663dddcc4f26d2b947b1584cddca734",
+        "zkeySha256": "bd2fa46b9b5862637302566cfc617770d1cf585f40457e5c983a45a91c2ef911",
+        "zkeyBytes": 53046330
+      },
+      "income4": {
+        "slots": 4,
+        "constraints": 44687,
+        "r1csSha256": "d866695ca2473e70408d288feafaec7181983480a688acac30b42156d305d82a",
+        "wasmSha256": "8fb36f38c220edb2cd5468e8ba676d4d269b9e6665c253b9d6d67e45e3e0d14a",
+        "zkeySha256": "f0feb5a74eb121022a918e12d72143885de379c297c6c894db57532df8238f68",
+        "zkeyBytes": 26562618
+      }
+    }
+  },
+  "startedAt": "2026-11-20T11:32:53.275Z",
+  "finishedAt": "2026-11-20T11:35:48.127Z",
+  "runs": [
+    {
+      "variant": "income8",
+      "run": 1,
+      "inputMs": 83.70000000298023,
+      "cold": true,
+      "zkeyLoadMs": 412.1000000014901,
+      "wasmLoadMs": 20.19999999552965,
+      "curveInitMs": 374.1000000014901,
+      "witnessMs": 720.3000000044703,
+      "proveMs": 34043.69999999553,
+      "verifyMs": 63.80000000447035,
+      "totalMs": 34827.80000000447,
+      "verified": true
+    },
+    {
+      "variant": "income4",
+      "run": 1,
+      "inputMs": 62.69999999552965,
+      "cold": true,
+      "zkeyLoadMs": 457.79999999701977,
+      "wasmLoadMs": 108.70000000298023,
+      "curveInitMs": null,
+      "witnessMs": 449.70000000298023,
+      "proveMs": 19655.29999999702,
+      "verifyMs": 57.899999998509884,
+      "totalMs": 20162.89999999851,
+      "verified": true
+    },
+    {
+      "variant": "income8",
+      "run": 2,
+      "inputMs": 90.20000000298023,
+      "cold": false,
+      "zkeyLoadMs": null,
+      "wasmLoadMs": null,
+      "curveInitMs": null,
+      "witnessMs": 735,
+      "proveMs": 36973.5,
+      "verifyMs": 57.69999999552965,
+      "totalMs": 37766.19999999553,
+      "verified": true
+    },
+    {
+      "variant": "income4",
+      "run": 2,
+      "inputMs": 54.399999998509884,
+      "cold": false,
+      "zkeyLoadMs": null,
+      "wasmLoadMs": null,
+      "curveInitMs": null,
+      "witnessMs": 494.5,
+      "proveMs": 22219.89999999851,
+      "verifyMs": 50.80000000447035,
+      "totalMs": 22765.20000000298,
+      "verified": true
+    },
+    {
+      "variant": "income8",
+      "run": 3,
+      "inputMs": 54.400000005960464,
+      "cold": false,
+      "zkeyLoadMs": null,
+      "wasmLoadMs": null,
+      "curveInitMs": null,
+      "witnessMs": 728.1000000014901,
+      "proveMs": 36413.29999999702,
+      "verifyMs": 60.5,
+      "totalMs": 37201.89999999851,
+      "verified": true
+    },
+    {
+      "variant": "income4",
+      "run": 3,
+      "inputMs": 59.5,
+      "cold": false,
+      "zkeyLoadMs": null,
+      "wasmLoadMs": null,
+      "curveInitMs": null,
+      "witnessMs": 513.1000000014901,
+      "proveMs": 19516.10000000149,
+      "verifyMs": 60.5,
+      "totalMs": 20089.70000000298,
+      "verified": true
+    }
+  ],
+  "errors": [],
+  "host": {
+    "cpuModel": "Intel(R) Core(TM) i3 CPU M 370 @ 2.40GHz",
+    "logicalCpus": 4,
+    "ramGiB": 7.5,
+    "browser": "headless Chrome/153.0.8010.52"
+  }
+}

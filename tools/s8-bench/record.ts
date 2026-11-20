@@ -37,18 +37,22 @@ const lines: string[] = [
   "Each run: a random valid witness with every slot used, built in the page; then witness calculation, Groth16 prove",
   "and verify in a Web Worker (snarkjs 0.7.6 browser build). Total = witness + prove + verify. Medians are over warm",
   "runs (the first run of each variant also fetched its wasm and zkey and set up the curve; shown separately).",
-  "Every run listed was verified; a run that failed verification would be excluded and is counted in its row.",
+  "Medians use verified runs only; \"All runs\" lists every run with its verification result.",
   "",
-  "## Summary (median warm total)",
+  "## Summary (total = witness + prove + verify)",
   "",
-  "| Device | Logical CPUs | 8 slots | 4 slots | 4 / 8 | Report |",
-  "|---|---:|---:|---:|---:|---|",
+  "| Device | Logical CPUs | 8 slots, warm median | 4 slots, warm median | 4 / 8 | 8 slots, cold | 4 slots, cold | Report |",
+  "|---|---:|---:|---:|---:|---:|---:|---|",
 ];
 for (const { file, r } of reports) {
   const t8 = med(warm(r, "income8"), "totalMs");
   const t4 = med(warm(r, "income4"), "totalMs");
   const ratio = t8 && t4 ? (t4 / t8).toFixed(2) : "—";
-  lines.push(`| ${device(r)} | ${r.hardwareConcurrency ?? "—"} | ${sec(t8)} | ${sec(t4)} | ${ratio} | \`${file}\` |`);
+  const c8 = cold(r, "income8")?.totalMs;
+  const c4 = cold(r, "income4")?.totalMs;
+  lines.push(
+    `| ${device(r)} | ${r.hardwareConcurrency ?? "—"} | ${sec(t8)} | ${sec(t4)} | ${ratio} | ${sec(c8)} | ${sec(c4)} | \`${file}\` |`,
+  );
 }
 lines.push("");
 
