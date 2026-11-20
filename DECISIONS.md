@@ -75,7 +75,8 @@ Why one V per commitment: two V leaves for one Cp would let the circuit count on
 indices, one shared S leaf). Before D9 the pool's `commitmentSeen` already prevented that for `vouchedPay`;
 `lateVouch` would have reopened it.
 Consequence: a late-vouched payment's V index (and so its date in a proof) is the `lateVouch` time, not the payment
-time. `vouchedPay` costs one more storage write and one pool read (re-measured in evidence/fork-gas.md).
+time. `vouchedPay` costs one more storage write and one pool read: measured 2026-11-20 (evidence/fork-gas.md, fork,
+commit b0d094b) 2,767,881 gas per tx, up 23,374 from 2,744,507; ledger overhead 927,828.
 Rejected (copied sweep): a repair function for a missing S leaf. The ledger cannot tell which note a nullifier spent
 (the pool stores no nullifier→commitment link, S5), so anyone could write S = Poseidon(2, N, Cs) for a payment that was
 never swept, or for one the payer clawed back. That breaks R1 (only swept payments count, X08). A note whose sweep was
