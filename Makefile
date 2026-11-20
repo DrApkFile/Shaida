@@ -4,7 +4,6 @@ SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
 AEVUM_RPC   ?= https://rpc-test.qday.info
-LOCAL_RPC   ?= http://127.0.0.1:8545
 # Own port, so wallets can hold it next to an existing "Localhost 8545" / anvil network
 # (MetaMask refuses two networks with the same RPC URL).
 FORK_PORT   ?= 8555
@@ -26,7 +25,7 @@ STACK_SCRIPT := script/DeployStack.s.sol:DeployStack
 # PayerRegistry owner on `make fork`: anvil account 0, so payers can be registered locally. On 44005: ATTESTOR=0x... (required).
 FORK_ATTESTOR := $(ANVIL_0)
 
-.PHONY: help install build test test-fork check anvil fork deploy-local deploy-fork deploy-aevum mint deal dev
+.PHONY: help install build test test-fork check anvil fork deploy-fork deploy-aevum deal dev
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36mmake %-14s\033[0m %s\n", $$1, $$2}'
@@ -54,9 +53,6 @@ anvil: ## Empty local chain (31337) with Aevum's EVM rules
 fork: ## Local copy of Aevum testnet on 127.0.0.1:8555 (chain 440050)
 	anvil --fork-url $(AEVUM_RPC) --hardfork shanghai --chain-id $(FORK_CHAIN) --port $(FORK_PORT)
 
-deploy-local: ## Deploy MockUSD8 + Checkout to `make anvil`
-	cd contracts && forge script script/Deploy.s.sol --rpc-url $(LOCAL_RPC) --broadcast --unlocked --sender $(ANVIL_0)
-
 # Deploy from a random address nobody has the key for (anvil impersonates it), not from a public
 # anvil account. Otherwise the fork's contract addresses could be claimed on the real testnet by
 # anyone holding that public key.
@@ -78,12 +74,6 @@ deploy-aevum: ## Deploy the stack to Aevum testnet. Needs ACCOUNT=<keystore name
 	cd contracts && TUSD8_PER_DEPOSIT=$(TUSD8_PER_DEPOSIT) TUSD8_TOTAL=$(TUSD8_TOTAL) ATTESTOR=$(ATTESTOR) \
 	  forge script $(STACK_SCRIPT) --rpc-url $(AEVUM_RPC) --broadcast --legacy --slow --account $(ACCOUNT)
 	node tools/write-deployment.mjs --chain $(AEVUM_CHAIN) --rpc $(AEVUM_RPC) --out deployments/aevum.json
-
-mint: ## `make anvil` only: mint AMOUNT MockUSD8 to TO. Needs CHECKOUT=<address>
-	@test -n "$(TO)" -a -n "$(CHECKOUT)" || (echo "Usage: make mint TO=0x... CHECKOUT=0x... [AMOUNT=100]" && exit 1)
-	cast send $$(cast call $(CHECKOUT) "token()(address)" --rpc-url $(LOCAL_RPC)) "mint(address,uint256)" $(TO) $$(cast parse-units $(AMOUNT) 6) \
-	  --rpc-url $(LOCAL_RPC) --unlocked --from $(ANVIL_0) > /dev/null
-	@echo "Minted $(AMOUNT) to $(TO)."
 
 deal: ## `make fork` only: give TO AMOUNT tUSD8 and 10 tQDAY for gas
 	@test -n "$(TO)" || (echo "Usage: make deal TO=0x... [AMOUNT=100]" && exit 1)

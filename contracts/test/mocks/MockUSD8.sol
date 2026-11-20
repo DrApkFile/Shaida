@@ -5,6 +5,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
+// Source: qday-io/aevum-starter-kit contracts/src/mocks/MockUSD8.sol (MIT, (c) 2026 PQA Labs), moved under test/.
 /// @title MockUSD8
 /// @notice Local stand-in for tUSD8: 6 decimals, the same EIP-712 domain ("tUSD8", version "2")
 ///         and the same EIP-3009 functions. Anyone can mint. FOR LOCAL TESTING ONLY.

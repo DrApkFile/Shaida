@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {ShaidaDepositor} from "../src/ShaidaDepositor.sol";
-import {MockUSD8} from "../src/mocks/MockUSD8.sol";
+import {MockUSD8} from "./mocks/MockUSD8.sol";
 import {Signing} from "./Signing.sol";
 import {ShaidaBase} from "./helpers/ShaidaBase.sol";
 

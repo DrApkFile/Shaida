@@ -7,7 +7,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ShieldPoolPoseidon} from "gloam/src/ShieldPoolPoseidon.sol";
 import {IVerifier} from "gloam/src/interfaces/IVerifier.sol";
 import {IPoseidon2, IPoseidon3} from "gloam/src/lib/IPoseidon.sol";
-import {MockUSD8} from "../../src/mocks/MockUSD8.sol";
+import {MockUSD8} from "../mocks/MockUSD8.sol";
 import {PayerRegistry} from "../../src/PayerRegistry.sol";
 import {ShaidaDepositor} from "../../src/ShaidaDepositor.sol";
 import {ShaidaLedger} from "../../src/ShaidaLedger.sol";

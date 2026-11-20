@@ -3,7 +3,8 @@
 Shaida is MIT licensed (see [LICENSE](LICENSE)). It is based in part on the
 [Aevum Starter Kit](https://github.com/qday-io/aevum-starter-kit) (MIT, (c) 2026 PQA Labs), commit
 `e87bcff10fbaffcc920df658b2fdf79b4586b277`: the repo layout, Makefile, `tools/check-shanghai.mjs`, `packages/aevum`,
-`web/`, `examples/` and the example `Checkout` contract come from it. Files adapted from it carry a source comment.
+`web/`, `examples/` and `contracts/test/mocks/MockUSD8.sol` come from it (the kit's example `Checkout` contract was removed).
+Files adapted from it carry a source comment.
 
 Third-party Solidity libraries are git submodules that keep their own LICENSE files; JavaScript packages are
 installed from npm. Nothing from them is copied into this repository, except the snippets listed under
@@ -30,6 +31,9 @@ and `KeyCheckProofs` (deploy-time key check only). PoseidonT3 is deployed from G
 | `contracts/script/DeployStack.s.sol` `_deployFinalVerifiers`, `_requireCeremonyKeys` | gloamtrade/gloam `contracts/script/MainnetDeploy.sol` | MIT, (c) 2026 Gloam |
 | `tools/check-shanghai.mjs` (extended to Gloam sources and raw PoseidonT3 bytecode) | qday-io/aevum-starter-kit `tools/check-shanghai.mjs` | MIT, (c) 2026 PQA Labs |
 | `Makefile` (`fork`, `deal`, throwaway-deployer pattern in `deploy-fork`) | qday-io/aevum-starter-kit `Makefile` | MIT, (c) 2026 PQA Labs |
+| `contracts/script/DeployStack.s.sol` `_isAnvilAccount` | qday-io/aevum-starter-kit `contracts/script/Deploy.s.sol` | MIT, (c) 2026 PQA Labs |
+| `contracts/src/ShaidaDepositor.sol` gasless pattern (nonce bound to contract + id) | qday-io/aevum-starter-kit `contracts/src/Checkout.sol` | MIT, (c) 2026 PQA Labs |
+| `contracts/test/fork/AevumFork.t.sol` (domain check) | qday-io/aevum-starter-kit same path | MIT, (c) 2026 PQA Labs |
 
 ## JavaScript packages (direct dependencies)
 
