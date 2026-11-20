@@ -135,6 +135,8 @@ Numbers (total = witness + prove + verify):
 - Builder's laptop, headless Chromium 153, Intel i3 M 370 (4 logical CPUs, 7.5 GiB): warm medians 8 slots 37.48 s,
   4 slots 21.43 s (4/8 = 0.57); cold runs 8 slots 34.83 / 40.82 / 51.97 s, 4 slots 20.16 / 20.41 / 30.58 s.
 - Size: 8 slots 89,231 constraints, zkey 50.6 MiB; 4 slots 44,687 constraints, zkey 25.3 MiB.
+- After the switch (evidence/income-circuit.md, clean commit ac177d2, Node `fullProve`, same laptop): median 17.61 s
+  for 4 used slots, 17.43 s for 1; the throwaway verifier passes the Shanghai check.
 Decision (the builder's): the production circuit is `Income(4, 20)`, same template, circom 2.2.3 `--O2`. Its r1cs
 sha256 `d866695ca2473e70408d288feafaec7181983480a688acac30b42156d305d82a` is byte-identical to the 4-slot variant S8
 measured, and replaces D11's `4f4af7bd…` as the phase-2 candidate. A period is proved by a bundle of 1–8 proofs:

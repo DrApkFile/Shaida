@@ -8,21 +8,21 @@ ran it could forge proofs: it is never deployed or published. The real key comes
 | Field | Value |
 |---|---|
 | Class | local (Node, this machine), throwaway key |
-| Circuit | packages/shaida-proofs/circuits/income.circom, sha256 `a6e15bf745dab0f4af72059695b38710355649ab5ed1ebf7bf10f90207ae93dc` |
+| Circuit | circuits/income.circom sha256 `085bad705f507b4d51152677cdcbf527fd11ef88233fbdd35a0841bba47cb37b`, circuits/lib/income_template.circom sha256 `942f46b2599f85fb38978fe44c187aea13290308aa04cab8ca6c876477dbe73d` |
 | Compiler | circom compiler 2.2.3, `--O2` |
-| Constraints | 89,231 non-linear, 0 linear; 7 public inputs |
-| Fits 2^17? | yes: constraints + public inputs + 1 = 89,239 of 131,072 |
-| r1cs sha256 | `4f4af7bd587cfc68b69e43dbb7fd431d6f70e4c52a3010eebbda25f0925af81e` |
-| Throwaway zkey | 53,046,330 bytes (50.6 MiB) |
+| Constraints | 44,687 non-linear, 0 linear; 7 public inputs |
+| Fits 2^17? | yes: constraints + public inputs + 1 = 44,695 of 131,072 |
+| r1cs sha256 | `d866695ca2473e70408d288feafaec7181983480a688acac30b42156d305d82a` |
+| Throwaway zkey | 26,562,618 bytes (25.3 MiB) |
 | Setup + 1 contribution | — (key reused from an earlier run on the same r1cs) |
 | Verifier (snarkjs) | ✓ 3 bytecode blobs checked (1 from Gloam): Shanghai-safe. Runtime size 1,909 bytes. |
 | Machine | Intel(R) Core(TM) i3 CPU M 370 @ 2.40GHz, 4 logical CPUs, 7.5 GiB RAM, linux x64, node v24.19.0 |
-| Commit | `2472f27b26a70f349fa8986ced05f53875b7b8b0` |
-| Date | 2026-11-20T11:10:24.746Z |
+| Commit | `ac177d23ef4f86b88124d94c4d3584e0f3b2c4b4` |
+| Date | 2026-11-20T14:01:41.600Z |
 
 Node proving time, `snarkjs.groth16.fullProve` (witness + proof), 3 runs each, every proof verified:
 
 | Used slots | runs | median |
 |---:|---|---:|
-| 1 | 30.00 s, 30.72 s, 30.13 s | 30.13 s |
-| 8 | 30.43 s, 31.22 s, 32.05 s | 31.22 s |
+| 1 | 18.38 s, 16.55 s, 17.43 s | 17.43 s |
+| 4 | 17.61 s, 18.04 s, 17.10 s | 17.61 s |
