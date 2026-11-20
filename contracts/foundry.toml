@@ -11,11 +11,16 @@ optimizer_runs = 200
 remappings = [
   "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
   "forge-std/=lib/forge-std/src/",
+  # Gloam (MIT), pinned submodule. Import only; never edit files under lib/gloam.
+  "gloam/=lib/gloam/contracts/",
 ]
+# Read Gloam's circomlibjs PoseidonT3 bytecode at deploy time instead of copying it into the repo.
+fs_permissions = [{ access = "read", path = "./lib/gloam/contracts/test/fixtures" }]
 
 [rpc_endpoints]
 aevum = "https://rpc-test.qday.info"
 local = "http://127.0.0.1:8545"
+fork = "http://127.0.0.1:8555"
 
 [fmt]
 line_length = 110
