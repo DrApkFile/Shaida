@@ -58,3 +58,27 @@ Rejected: `ShieldPoolPayments` (smaller surface, but not what S2 exercised end t
 would need a new spike). Higher limits (the demo moves single-digit tUSD8; faucet gives 5 tUSD8 per address).
 Consequence: more than 10,000 tUSD8 in total needs a timelocked raise or a new pool.
 Where: contracts/script/DeployStack.s.sol, Makefile
+
+## D9: Front-running repairs: lateVouch yes, sweep repair no
+Context: Gloam's pool accepts `transfer` from any sender. A `vouchedPay` or `sweep` copied from the mempool and sent to
+the pool first spends the note with no leaf in `ShaidaLedger` (LIMITS.md). Whether Aevum's RPC shows pending
+transactions is recorded in LIMITS.md (probed 2026-11-20; inconclusive, so we assume it can).
+Decision (copied vouchedPay): `ShaidaLedger.lateVouch(paymentCommitment)` and `lateVouchFor(paymentCommitment, payer,
+deadline, sig)` (EIP-712 `LateVouch(bytes32 paymentCommitment,uint256 deadline)`). Only an active registered payer
+(`activeIdOf`, so `PayerNotRegistered` / `PayerRevoked`). It inserts V = Poseidon(1, payerId, Cp) and emits the same
+`Vouched` event. The ledger now writes **at most one V leaf per commitment** (`vouched[Cp]`, `AlreadyVouched`), on
+both `vouchedPay` and `lateVouch`, and `lateVouch` needs a commitment the pool has seen (`UnknownCommitment`).
+Why it is safe: a V leaf counts in an income proof only with an S leaf for the same note, and S leaves come only from
+a real `sweep` of that note through the ledger, which needs the note's secret. So `lateVouch` adds nothing a
+registered payer could not already do with `vouchedPay` (paying a colluding recipient is "Not defended", PRD §8).
+Why one V per commitment: two V leaves for one Cp would let the circuit count one payment twice (two increasing V
+indices, one shared S leaf). Before D9 the pool's `commitmentSeen` already prevented that for `vouchedPay`;
+`lateVouch` would have reopened it.
+Consequence: a late-vouched payment's V index (and so its date in a proof) is the `lateVouch` time, not the payment
+time. `vouchedPay` costs one more storage write and one pool read (re-measured in evidence/fork-gas.md).
+Rejected (copied sweep): a repair function for a missing S leaf. The ledger cannot tell which note a nullifier spent
+(the pool stores no nullifier→commitment link, S5), so anyone could write S = Poseidon(2, N, Cs) for a payment that was
+never swept, or for one the payer clawed back. That breaks R1 (only swept payments count, X08). A note whose sweep was
+copied stays uncounted; the recipient's funds are safe (the copied proof sends them to the recipient's own sweep note).
+Tests: contracts/test/ShaidaLedgerLateVouch.t.sol (9).
+Where: contracts/src/ShaidaLedger.sol, PRD §3, LIMITS.md

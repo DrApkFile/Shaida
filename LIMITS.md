@@ -21,4 +21,23 @@ Gloam's pool accepts `transfer` from any sender. If someone copies a pending `vo
 and sends the same proof to the pool directly first, the note is spent without a vouch or sweep leaf in `ShaidaLedger`.
 This never creates a false leaf (only the ledger writes V and S), so it cannot inflate income; it can only leave a
 real payment out of every income proof. Shown in `test_GAS_baseline_same_payment_sent_to_the_pool_directly`
-(a direct transfer adds no leaf). Not mitigated in v1.
+(a direct transfer adds no leaf).
+- Copied `vouchedPay`: repairable. The payer calls `lateVouch(paymentCommitment)` (or signs `lateVouchFor`); the
+  payment then counts, dated by the `lateVouch` (D9).
+- Copied `sweep`: not repairable. The swept funds still reach the recipient's sweep note, but that payment can never
+  count in an income proof. A repair would let anyone fake swept income (D9).
+
+### Can a front-runner see pending transactions? (probed 2026-11-20, https://rpc-test.qday.info)
+| Method | Reply |
+|---|---|
+| `txpool_content` | exists: `{"baseFee":{},"pending":{},"queued":{}}` |
+| `txpool_status` | exists: `{"baseFee":"0x0","pending":"0x0","queued":"0x0"}` |
+| `txpool_inspect` | `-32601 the method txpool_inspect does not exist/is not available` |
+| `eth_pendingTransactions` | `-32601 the method eth_pendingTransactions does not exist/is not available` |
+| `eth_newPendingTransactionFilter` | exists: returns a filter id (e.g. `0x9205000000000000875402d3e494a4e5`) |
+
+Follow-up (10:10 UTC): one new pending-tx filter polled with `eth_getFilterChanges` and `txpool_content` every 2 s,
+15 times (blocks 3,653,746 → 3,653,785). The filter returned 0 hashes, no errors, and the txpool stayed empty, while 1
+transaction was mined in that window. **Inconclusive:** the pending-tx methods exist, but one transaction is too few to
+tell whether this node shows pending transactions or the transaction reached the chain through another node. We did
+not send a transaction of our own to test it. Shaida assumes front-running is possible (D9).

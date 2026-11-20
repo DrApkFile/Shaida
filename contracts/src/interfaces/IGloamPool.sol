@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-/// @notice The two Gloam ShieldPoolPoseidon entry points Shaida calls
+/// @notice The Gloam ShieldPoolPoseidon functions Shaida calls
 ///         (gloamtrade/gloam contracts/src/ShieldPoolCore.sol, MIT).
 interface IGloamPool {
     function shieldBound(address asset, uint256 amount, bytes32 commitment, bytes calldata proof)
@@ -10,6 +10,9 @@ interface IGloamPool {
 
     function transfer(bytes calldata proof, bytes32 root, bytes32 nullifier, bytes32[2] calldata newCommitments)
         external;
+
+    /// @notice True once a commitment has been inserted into the pool tree (shield or transfer output).
+    function commitmentSeen(bytes32 commitment) external view returns (bool);
 }
 
 /// @notice tUSD8 (Circle FiatTokenV2_2) functions the depositor uses. S9 measured these on the live token.
