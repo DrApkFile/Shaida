@@ -15,7 +15,10 @@ remappings = [
   "gloam/=lib/gloam/contracts/",
 ]
 # Read Gloam's circomlibjs PoseidonT3 bytecode at deploy time instead of copying it into the repo.
-fs_permissions = [{ access = "read", path = "./lib/gloam/contracts/test/fixtures" }]
+fs_permissions = [
+  { access = "read", path = "./lib/gloam/contracts/test/fixtures" },
+  { access = "read", path = "./test/fixtures" },
+]
 
 [rpc_endpoints]
 aevum = "https://rpc-test.qday.info"
