@@ -90,6 +90,12 @@ Why this is sound (map to EVAL_DESIGN):
 | `TxOutcomeUnknown` | broadcast without receipt | yes (check, never resend) | wait; check by hash/nullifier |
 | `RelayerBudgetExceeded` | gas budget hit | later | use standard mode |
 | `NotEnoughSlots` | > 8 payments in range | no | split the period (disjoint ranges add safely) |
+| `TokenPaused` | tUSD8 is paused by its issuer (S9) | later | wait for the issuer to unpause; nothing was sent |
+| `PayerBlacklisted` | the paying address is on tUSD8's blacklist (S9) | no | pay from another address |
+| `RecipientBlacklisted` | the withdrawal address is on tUSD8's blacklist (S9) | no | withdraw to another address |
+
+Before every deposit, pay and withdraw, the app reads `paused()` and `isBlacklisted(address)` on tUSD8 and refuses
+with the codes above before asking for a signature (D7). `ShaidaDepositor` repeats the deposit checks on chain.
 
 ## 5. Core verification steps (`verifyIncomeLink`, first failure returns its code)
 1. Parse the fragment as `unknown`; strict schema (`.strict()`, BigInt strings). → `ProofInvalid`

@@ -33,3 +33,24 @@ Rejected: server-stored proofs (privacy, storage).
 
 ## D6: Licence mix
 Decision: MIT for Shaida code. GPL-3.0 headers kept on snarkjs-generated verifiers and circuits that include circomlib; listed per file in NOTICE.md (EVENT.md).
+
+## D7: Named refusals for tUSD8 pause and blacklist
+Context: S9 (2026-11-20) measured tUSD8 as FiatTokenV2_2: one EOA can pause the token and blacklist any address,
+and a blacklisted account can still `approve`, so failures show up only at the pull, as a generic revert.
+Decision: add `TokenPaused`, `PayerBlacklisted` and `RecipientBlacklisted` to the closed codes (PRD §4). The app reads
+`paused()` and `isBlacklisted(address)` before deposit, pay and withdraw and refuses before any signature.
+`ShaidaDepositor` checks `paused()` and the payer's blacklist status on chain and reverts with the same names.
+Rejected: relying on `approve` or the pull to fail (approve succeeds; the pull's revert string is not a closed code).
+Consequence: the issuer's powers stay a trust assumption (LIMITS.md, PRD §8 "Not defended"); we only make them legible.
+Where: PRD §4, contracts/src/ShaidaDepositor.sol, LIMITS.md
+
+## D8: Gloam pool variant and deposit limits
+Context: Gloam ships `ShieldPoolPoseidon` (testnet pool; sealed swaps possible but off when unset) and
+`ShieldPoolPayments` (mainnet payments-only pool). Gloam requires deposit limits before `endSetup()`; after it,
+limits can be lowered at once but raised only through a 3-day timelock.
+Decision: keep `ShieldPoolPoseidon` with `sealedSwapVerifier` left unset (checked by the deploy script), as tested in S2.
+tUSD8 limits: 100 tUSD8 per deposit (100000000 base units), 10,000 tUSD8 in total (10000000000), set in the Makefile.
+Rejected: `ShieldPoolPayments` (smaller surface, but not what S2 exercised end to end with the SDK on 44005; switching
+would need a new spike). Higher limits (the demo moves single-digit tUSD8; faucet gives 5 tUSD8 per address).
+Consequence: more than 10,000 tUSD8 in total needs a timelocked raise or a new pool.
+Where: contracts/script/DeployStack.s.sol, Makefile
