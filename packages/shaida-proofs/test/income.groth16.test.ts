@@ -1,0 +1,65 @@
+// Full Groth16 proofs with a THROWAWAY local key (scripts/throwaway.ts). Local only: needs PTAU_PATH pointing at
+// the Hermez 2^17 ptau (hash-checked, briefing/CEREMONY.md). Without it these tests are skipped as INCONCLUSIVE,
+// never passed.
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { after, before, describe, it } from "node:test";
+import * as snarkjs from "snarkjs";
+import { buildIncomeWitness, FIELD_ORDER, type IncomeWitness, PUBLIC_SIGNAL_ORDER } from "../src/index.js";
+import { ensureThrowawayKey, type ThrowawayKey } from "../scripts/throwaway.js";
+import { BUILD, endSnarkjs } from "./helpers/circuit.js";
+import { honestRequest, makeScenario, Rng } from "./helpers/scenario.js";
+
+const PTAU = process.env.PTAU_PATH;
+const SKIP = PTAU ? false : "INCONCLUSIVE: PTAU_PATH unset; Groth16 proving tests not run (see briefing/CEREMONY.md)";
+if (SKIP) console.log(SKIP);
+
+const WASM = join(BUILD, "income_js/income.wasm");
+const at = (name: (typeof PUBLIC_SIGNAL_ORDER)[number]) => PUBLIC_SIGNAL_ORDER.indexOf(name);
+
+describe("income circuit: Groth16 with a throwaway key (local)", { skip: SKIP }, () => {
+  let key: ThrowawayKey;
+  let vkey: snarkjs.VerificationKey;
+  let w: IncomeWitness;
+  let proof: snarkjs.Groth16Proof;
+  let signals: string[];
+
+  before(async () => {
+    key = await ensureThrowawayKey(PTAU!);
+    vkey = JSON.parse(readFileSync(key.vkey, "utf8")) as snarkjs.VerificationKey;
+    const rng = new Rng(16);
+    const s = makeScenario(rng, { payments: 3 });
+    const r = buildIncomeWitness(honestRequest(s, rng, { threshold: 1n }));
+    if (!r.ok) throw new Error(r.error.code);
+    w = r.value;
+    ({ proof, publicSignals: signals } = await snarkjs.groth16.fullProve(w.input, WASM, key.zkey));
+  });
+  after(endSnarkjs);
+
+  it("H1 an honest proof verifies, with public signals in the frozen order", async () => {
+    assert.deepEqual(signals, PUBLIC_SIGNAL_ORDER.map((k) => w.publicSignals[k].toString()));
+    assert.equal(await snarkjs.groth16.verify(vkey, signals, proof), true);
+  });
+
+  const tamper = (name: (typeof PUBLIC_SIGNAL_ORDER)[number], value: (v: bigint) => bigint) => {
+    const t = [...signals];
+    t[at(name)] = (value(BigInt(t[at(name)]!)) % FIELD_ORDER).toString();
+    return t;
+  };
+
+  it("X12 refuses the proof replayed for another threshold", async () => {
+    assert.equal(await snarkjs.groth16.verify(vkey, tamper("threshold", (v) => v + 1n), proof), false);
+    assert.equal(await snarkjs.groth16.verify(vkey, tamper("threshold", (v) => v - 1n), proof), false);
+  });
+
+  it("refuses the proof replayed for another context (another reader or expiry)", async () => {
+    assert.equal(await snarkjs.groth16.verify(vkey, tamper("context", (v) => v + 1n), proof), false);
+  });
+
+  it("refuses an edited count, range, root or asset", async () => {
+    for (const name of ["count", "fromIndex", "toIndex", "ledgerRoot", "asset"] as const) {
+      assert.equal(await snarkjs.groth16.verify(vkey, tamper(name, (v) => v + 1n), proof), false, name);
+    }
+  });
+});

@@ -34,6 +34,16 @@ and `KeyCheckProofs` (deploy-time key check only). PoseidonT3 is deployed from G
 | `contracts/script/DeployStack.s.sol` `_isAnvilAccount` | qday-io/aevum-starter-kit `contracts/script/Deploy.s.sol` | MIT, (c) 2026 PQA Labs |
 | `contracts/src/ShaidaDepositor.sol` gasless pattern (nonce bound to contract + id) | qday-io/aevum-starter-kit `contracts/src/Checkout.sol` | MIT, (c) 2026 PQA Labs |
 | `contracts/test/fork/AevumFork.t.sol` (domain check) | qday-io/aevum-starter-kit same path | MIT, (c) 2026 PQA Labs |
+| `packages/shaida-proofs/circuits/lib/merkle.circom` (Merkle path; root and leaf index as outputs) | gloamtrade/gloam `contracts/circuits/common/merkle_poseidon.circom` (commit `d8db1e6c`) | MIT, (c) 2026 Gloam |
+
+## Circuits and circuit tools
+`packages/shaida-proofs/circuits/income.circom` includes circomlib (`poseidon`, `comparators`, `bitify`), so it is
+GPL-3.0 (its SPDX header says so, D6). The compiled r1cs/wasm and keys are build outputs, not committed.
+
+| Project | Version | License | Used for |
+|---|---|---|---|
+| circomlib | 2.0.5 (npm) | GPL-3.0 | included by income.circom |
+| circom | 2.2.3 (cargo build from tag, or the release binary in CI, sha256-pinned) | GPL-3.0 | compiler; not shipped |
 
 ## JavaScript packages (direct dependencies)
 
@@ -50,6 +60,8 @@ and `KeyCheckProofs` (deploy-time key check only). PoseidonT3 is deployed from G
 | @gloamtrade/sdk | 0.8.0 | MIT | packages/gloam-fixtures (test fixtures only) |
 | snarkjs | 0.7.6 | GPL-3.0 | packages/gloam-fixtures (proving tool, not shipped) |
 | circomlibjs | 0.1.7 (via @gloamtrade/sdk) | GPL-3.0 | packages/gloam-fixtures (Poseidon, not shipped) |
-| zod | 3.25.76 | MIT | packages/gloam-fixtures |
+| zod | 3.25.76 | MIT | packages/gloam-fixtures, packages/shaida-proofs |
+| poseidon-lite | 0.3.0 | MIT | packages/shaida-proofs (Poseidon for the witness builder) |
+| snarkjs | 0.7.6 | GPL-3.0 | packages/shaida-proofs (dev: witness checks, throwaway key, timing) |
 
 Their own dependencies carry their own licenses. To list them all, run `pnpm licenses list` in the repo root.

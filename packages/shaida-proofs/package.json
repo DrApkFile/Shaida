@@ -1,0 +1,30 @@
+{
+  "name": "@shaida/proofs",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Shaida income circuit, pure witness builder and (later) prover and verification steps. No network, no framework.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "compile": "node scripts/compile.mjs",
+    "test": "node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'",
+    "test:groth16": "node --import tsx --test --test-reporter=spec 'test/**/*.groth16.ts'",
+    "bench": "tsx scripts/bench-proving.ts",
+    "vectors": "tsx scripts/gen-ledger-vectors.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "poseidon-lite": "0.3.0",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "circomlib": "2.0.5",
+    "snarkjs": "0.7.6",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

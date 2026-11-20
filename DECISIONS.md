@@ -83,3 +83,39 @@ never swept, or for one the payer clawed back. That breaks R1 (only swept paymen
 copied stays uncounted; the recipient's funds are safe (the copied proof sends them to the recipient's own sweep note).
 Tests: contracts/test/ShaidaLedgerLateVouch.t.sol (9).
 Where: contracts/src/ShaidaLedger.sol, PRD §3, LIMITS.md
+
+## D10: Three closed codes for building an income proof
+Context: PRD §4 had `NotEnoughSlots` and `UnknownRoot` for the witness builder but no code for "nothing to count",
+"not enough", or malformed input, and the builder must return a named refusal, never a fake witness.
+Decision: add `NoSweptPayments` (no vouched, swept payment in the period), `BelowThreshold` (the counted payments add
+up to less than the asked threshold) and `InputRejected` (the strict schema refused the input). All say "Nothing was
+built". The builder counts every payment it can prove and lists the others with a reason (`notVouched`, `notSwept`,
+`outOfRange`, `duplicate`); those reasons are statuses for the UI, not error codes.
+Rejected: refusing the whole build when one inbox payment is unswept or unvouched (one stray payment would block every
+proof); per-payment error codes (they are not failures of the request).
+Where: PRD §4, packages/shaida-proofs/src/errors.ts, src/witness.ts
+
+## D11: income.circom v1, as built (what the PRD left open)
+Context: PRD §3 fixes the formulas, 8 slots, depth 20 and the public signals; these details were not fixed.
+Decision:
+- **Compile with `--O2`.** Measured 2026-11-20, circom 2.2.3: `--O2` gives 89,231 non-linear + 0 linear constraints
+  (89,239 with public inputs, fits the 2^17 ptau); `--O1` gives 90,363 + 100,908 = 191,271 (would need 2^18).
+  `--O2` substitutes linear relations (e.g. `used[7] = count − Σ others`, `used[0] = 1`); the constraint system is
+  equivalent, and the count/gap/zero tests exercise exactly those.
+- **Bounded public inputs.** `fromIndex`, `toIndex` < 2^20 and `threshold` < 2^68 (Num2Bits). circomlib comparators
+  are only sound on inputs within their bit width; a threshold like p − 1 would otherwise read as "≥ −1".
+  8 × (2^64 − 1) < 2^68, so every real sum and threshold fits.
+- **`context` bound by a dummy square** (`contextSquare <== context * context`). A public input in no constraint
+  has a zero verifier term, so the proof would verify under any context (any reader, any expiry).
+- **Leaf index from the path bits** (`Σ pathIndices[i]·2^i`), as in spike S4. Merkle template adapted from Gloam's
+  `merkle_poseidon.circom` with the root as an output, so it is only required for used slots.
+- **Gating.** Every per-slot check is multiplied by `used[i]` except the 64-bit amount range check and the hashes,
+  which unused slots satisfy with zeros. `count ≥ 1` is `used[0] = 1` (used slots come first).
+- **No double count needs D9.** Strictly increasing V indices stop reuse of one V leaf; D9 guarantees one V leaf per
+  commitment, and an S leaf is fixed by its payment note, so one payment cannot fill two slots.
+- **JS Poseidon is poseidon-lite (MIT, sync, no wasm),** not circomlibjs, in the pure core. Equality with the on-chain
+  circomlibjs bytecode is tested: contracts/test/IncomeVectors.t.sol replays the vectors the circuit proves over.
+Rejected: `--O1` with a 2^18 ptau (2× the setup and key size for the same constraints); unbounded comparators.
+Consequence: r1cs sha256 `4f4af7bd587cfc68b69e43dbb7fd431d6f70e4c52a3010eebbda25f0925af81e` is the v1 candidate for
+the phase-2 ceremony (step 3). Any change to income.circom or its includes changes it and needs a new ceremony.
+Where: packages/shaida-proofs/circuits/, evidence/income-circuit.md

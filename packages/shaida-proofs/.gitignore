@@ -1,0 +1,2 @@
+# circom output and throwaway setups: rebuilt by `pnpm compile` / `pnpm setup:throwaway`, never committed
+build/

@@ -1,0 +1,42 @@
+{
+  "generatedBy": "pnpm --filter @shaida/proofs vectors (packages/shaida-proofs/scripts/gen-ledger-vectors.ts)",
+  "asset": "0x000000000000000000000000456569838f1d43009a91eba4263147afd7233483",
+  "payerId": 1,
+  "emptyRoot": "0x2134e76ac5d21aab186c2be1dd8f84ee880a1e46eaf712f9d371b6df22191f3e",
+  "eventKinds": [
+    "vouchedPay",
+    "vouchedPay",
+    "sweep",
+    "sweep"
+  ],
+  "eventNotes": [
+    0,
+    1,
+    0,
+    1
+  ],
+  "paymentCommitments": [
+    "0x1c8182bee706b1c55f9fca50ef222c2b6e5d8a011c8d85e3cc2e26522176d535",
+    "0x12c54cc432ae493a0abd9f3604c7ff778373a62e90855470a753ed5971430891"
+  ],
+  "nullifiers": [
+    "0x10514a6341cfa5c1df807fa840f6064cad146d220c8c1dba43747fc06ee12602",
+    "0x25aa1ffe01d3cb5ff8f4dfd33f23c8a153ed552058b8568cc11dfab8f45f8e43"
+  ],
+  "sweepCommitments": [
+    "0x0011fdeb0adc77023541a72bb919436e65937a264f3ef062a3e0b6dafe7d9e01",
+    "0x1af7b69bb2331d786cd09a9d3f5fc549c148e4f2a02480864171d25a116791d4"
+  ],
+  "leaves": [
+    "0x0a01a874e4fb3baf9edf4414975609b8373cb871e86c06b12b57704ac2aa19e3",
+    "0x1244f10a103e6c0e2954db1a1511cc8418900cb0a5d67e08df3421de3628aa07",
+    "0x222975f61e1586a6bd7d88691bd6f0391814a6ed1a3fefe809b51d17c6623a8c",
+    "0x00cd1a5764fc21383b504cd816cf34a1ebc271d26041dba4d2437f8bcb09e684"
+  ],
+  "roots": [
+    "0x120d45ea4a05982079052f8847942ffea8e44645e4402823f7a54bdd30591853",
+    "0x2a0de267ddd1401fd65d35f990115e73dfab0200f3d91edd3b9d00a380448ec3",
+    "0x247d93ffad37a3373f7fe1cfbc1cf28796b4096156aaf5e8faa6cdcfa767e725",
+    "0x29604a248d6fcb289e0624eb9467d5e44730968b62e00eb3beea78d6e5b05790"
+  ]
+}

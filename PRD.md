@@ -55,6 +55,7 @@ Per used slot i (used slots first, V-leaf indices strictly increasing):
 5. `S = Poseidon(2, N, Cs)` is in the ledger tree
 6. `amount < 2^64`; `sum(amount) ≥ threshold`; `count = Σ used ≥ 1`
 `context = Poseidon(readerIdHash, expiryUnix, salt)`, checked by the verifier, not the circuit.
+Bounds (D11): `fromIndex`, `toIndex` < 2^20; `threshold` < 2^68; `context` is bound to the proof by a dummy square. Compiled with circom 2.2.3 `--O2`: 89,231 constraints (fits 2^17).
 Why this is sound (map to EVAL_DESIGN):
 - V exists only if an active registered payer paid through ShaidaLedger (X01–X03).
 - S exists only if the payment note was spent via `sweep`, and opening Cs needs the recipient's secret (X08 clawback, X09 presenter).
@@ -93,6 +94,9 @@ Why this is sound (map to EVAL_DESIGN):
 | `TokenPaused` | tUSD8 is paused by its issuer (S9) | later | wait for the issuer to unpause; nothing was sent |
 | `PayerBlacklisted` | the paying address is on tUSD8's blacklist (S9) | no | pay from another address |
 | `RecipientBlacklisted` | the withdrawal address is on tUSD8's blacklist (S9) | no | withdraw to another address |
+| `NoSweptPayments` | no vouched, swept payment in the period (D10) | no | sweep first, or pick another period |
+| `BelowThreshold` | the counted payments add up to less than the threshold (D10) | no | lower the threshold or widen the period |
+| `InputRejected` | the proof request failed the strict schema (D10) | no | fix the input; nothing was built |
 
 Before every deposit, pay and withdraw, the app reads `paused()` and `isBlacklisted(address)` on tUSD8 and refuses
 with the codes above before asking for a signature (D7). `ShaidaDepositor` repeats the deposit checks on chain.
