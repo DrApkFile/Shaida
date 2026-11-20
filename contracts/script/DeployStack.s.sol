@@ -3,12 +3,12 @@ pragma solidity ^0.8.24;
 
 import {Script, console2} from "forge-std/Script.sol";
 import {stdJson} from "forge-std/StdJson.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 // Gloam (MIT, (c) 2026 Gloam), pinned submodule at contracts/lib/gloam. Imported, never copied.
 import {ShieldPoolPoseidon} from "gloam/src/ShieldPoolPoseidon.sol";
 import {GloamPayMemo} from "gloam/src/GloamPayMemo.sol";
-import {IVerifier} from "gloam/src/interfaces/IVerifier.sol";
-import {IPoseidon2} from "gloam/src/lib/IPoseidon.sol";
+import {IPoseidon2, IPoseidon3} from "gloam/src/lib/IPoseidon.sol";
 import {DualProofVerifier} from "gloam/src/verifiers/DualProofVerifier.sol";
 import {ShieldVerifierFinal} from "gloam/src/verifiers/final/ShieldVerifierFinal.sol";
 import {ShieldIVerifierFinal} from "gloam/src/verifiers/final/ShieldIVerifierFinal.sol";
@@ -16,24 +16,30 @@ import {UnshieldVerifierFinal} from "gloam/src/verifiers/final/UnshieldVerifierF
 import {UnshieldIVerifierFinal} from "gloam/src/verifiers/final/UnshieldIVerifierFinal.sol";
 import {TransferVerifierFinal} from "gloam/src/verifiers/final/TransferVerifierFinal.sol";
 import {TransferIVerifierFinal} from "gloam/src/verifiers/final/TransferIVerifierFinal.sol";
-import {KeyCheckProofs} from "gloam/script/KeyCheckProofs.sol";
+
+import {PayerRegistry} from "../src/PayerRegistry.sol";
+import {ShaidaDepositor} from "../src/ShaidaDepositor.sol";
+import {ShaidaLedger} from "../src/ShaidaLedger.sol";
+import {IGloamPool} from "../src/interfaces/IGloamPool.sol";
+import {DeployChecks, Stack} from "./DeployChecks.sol";
 
 /**
  * Deploys the Shaida stack on Aevum testnet (44005) or on `make fork` (440050), in one broadcast:
  *
- *   1. PoseidonT3 (circomlibjs bytecode from Gloam's fixture), checked against a known vector
+ *   1. PoseidonT3 and PoseidonT4 (circomlibjs bytecode from Gloam's fixtures), checked against known vectors
  *   2. Gloam's FINAL ceremony verifiers + DualProofVerifier, refused unless they accept
  *      final-key proofs and reject dev-key proofs (DECISIONS D2)
  *   3. ShieldPoolPoseidon: deposit limits on, shield verifier set (plain shield() refused,
- *      deposits go through shieldBound), tUSD8 listed, setup ended
+ *      deposits go through shieldBound), tUSD8 listed, setup ended (D8)
  *   4. GloamPayMemo
+ *   5. PayerRegistry (owned by ATTESTOR), ShaidaLedger, ShaidaDepositor
  *
- * Not built yet (PRD §11 step 1, still to do): PayerRegistry, ShaidaDepositor, ShaidaLedger.
- * IncomeVerifier waits for the ceremony (step 3).
+ * Not built yet: IncomeVerifier (waits for the circuit and its ceremony, PRD §11 steps 2-3).
  *
  * Environment (all required; the Makefile sets them, nothing has a silent default):
  *   TUSD8_PER_DEPOSIT   pool deposit limit per deposit, tUSD8 base units (6 decimals)
  *   TUSD8_TOTAL         pool deposit limit in total, tUSD8 base units
+ *   ATTESTOR            owner of PayerRegistry. On 44005 it must not be a public anvil account.
  *
  * Addresses, tx hashes and blocks are written to deployments/ by tools/write-deployment.mjs,
  * from the broadcast receipts, never from this script's simulation.
@@ -44,19 +50,8 @@ contract DeployStack is Script {
     uint256 internal constant AEVUM_TESTNET = 44005;
     uint256 internal constant AEVUM_FORK = 440050;
     address internal constant TUSD8 = 0x456569838f1d43009A91ebA4263147Afd7233483;
-
-    string internal constant POSEIDON2_FIXTURE = "lib/gloam/contracts/test/fixtures/Poseidon2.json";
-    /// @dev circomlib Poseidon([1, 2]), the reference vector from circomlibjs' own tests.
-    uint256 internal constant POSEIDON_1_2 =
-        0x115cc0f5e7d690413df64c6b9662e9cf2a3617f2743245519e19607a4417189a;
-
-    struct Stack {
-        address poseidon2;
-        address shieldVerifier;
-        address dualVerifier;
-        address pool;
-        address payMemo;
-    }
+    string internal constant FIXTURES = "lib/gloam/contracts/test/fixtures/";
+    string internal constant ANVIL_MNEMONIC = "test test test test test test test test test test test junk";
 
     function run() external returns (Stack memory s) {
         require(
@@ -67,11 +62,18 @@ contract DeployStack is Script {
         uint128 perDeposit = _envUint128("TUSD8_PER_DEPOSIT");
         uint128 total = _envUint128("TUSD8_TOTAL");
         require(perDeposit > 0 && perDeposit <= total, "need 0 < TUSD8_PER_DEPOSIT <= TUSD8_TOTAL");
+        address attestor = vm.envAddress("ATTESTOR");
+        require(attestor != address(0), "ATTESTOR is zero");
+        if (block.chainid == AEVUM_TESTNET) {
+            require(!_isAnvilAccount(attestor), "ATTESTOR is a public anvil account. Use your own address.");
+        }
 
-        bytes memory poseidonCode = vm.readFile(POSEIDON2_FIXTURE).readBytes(".bytecode");
+        bytes memory poseidon2Code = vm.readFile(string.concat(FIXTURES, "Poseidon2.json")).readBytes(".bytecode");
+        bytes memory poseidon3Code = vm.readFile(string.concat(FIXTURES, "Poseidon3.json")).readBytes(".bytecode");
 
         vm.startBroadcast();
-        s.poseidon2 = _create(poseidonCode);
+        s.poseidon2 = _create(poseidon2Code);
+        s.poseidon3 = _create(poseidon3Code);
         (s.dualVerifier, s.shieldVerifier) = _deployFinalVerifiers();
         ShieldPoolPoseidon pool = new ShieldPoolPoseidon(s.poseidon2, s.dualVerifier);
         // Limits on before the shield verifier, so no block exists where any deposit is accepted.
@@ -82,9 +84,15 @@ contract DeployStack is Script {
         pool.endSetup();
         s.pool = address(pool);
         s.payMemo = address(new GloamPayMemo());
+        PayerRegistry registry = new PayerRegistry(attestor);
+        s.registry = address(registry);
+        s.ledger = address(
+            new ShaidaLedger(IGloamPool(s.pool), registry, IPoseidon2(s.poseidon2), IPoseidon3(s.poseidon3))
+        );
+        s.depositor = address(new ShaidaDepositor(IERC20(TUSD8), IGloamPool(s.pool)));
         vm.stopBroadcast();
 
-        _checkDeployed(s, perDeposit, total);
+        DeployChecks.check(s, perDeposit, total, attestor);
         _log(s);
     }
 
@@ -92,7 +100,7 @@ contract DeployStack is Script {
         assembly {
             addr := create(0, add(code, 0x20), mload(code))
         }
-        require(addr != address(0), "PoseidonT3 deploy failed");
+        require(addr != address(0), "Poseidon deploy failed");
     }
 
     // Source: gloamtrade/gloam contracts/script/MainnetDeploy.sol `_deployVerifiers` (MIT, (c) 2026 Gloam).
@@ -104,53 +112,31 @@ contract DeployStack is Script {
         shieldI = address(shieldV);
     }
 
-    /// @dev Read back from the chain; any mismatch fails the run. Do not use a stack that fails here.
-    function _checkDeployed(Stack memory s, uint128 perDeposit, uint128 total) internal view {
-        require(IPoseidon2(s.poseidon2).poseidon([uint256(1), uint256(2)]) == POSEIDON_1_2, "PoseidonT3 wrong");
-        _requireCeremonyKeys(s.dualVerifier, s.shieldVerifier);
-
-        ShieldPoolPoseidon pool = ShieldPoolPoseidon(payable(s.pool));
-        require(address(pool.poseidon2()) == s.poseidon2, "pool poseidon mismatch");
-        require(address(pool.verifier()) == s.dualVerifier, "pool spend verifier mismatch");
-        require(address(pool.shieldVerifier()) == s.shieldVerifier, "pool shield verifier mismatch");
-        require(address(pool.sealedSwapVerifier()) == address(0), "sealed swaps must stay off");
-        require(pool.depositLimitsOn(), "deposit limits off");
-        require(!pool.setupMode(), "setup not ended");
-        require(pool.withdrawFeeBps() == 0, "withdraw fee must be off");
-        (uint128 per, uint128 cap) = pool.depositLimit(TUSD8);
-        require(per == perDeposit && cap == total, "tUSD8 limit mismatch");
-        require(s.payMemo.code.length > 0, "GloamPayMemo has no code");
-    }
-
-    // Source: gloamtrade/gloam contracts/script/MainnetDeploy.sol `_requireCeremonyKeys` (MIT, (c) 2026 Gloam).
-    function _requireCeremonyKeys(address dual, address shieldI) internal view {
-        (bytes memory p, uint256[] memory pub) = KeyCheckProofs.shieldFinal();
-        require(IVerifier(shieldI).verify(p, pub), "shield verifier rejects a final-key proof");
-        (p, pub) = KeyCheckProofs.shieldDev();
-        require(!IVerifier(shieldI).verify(p, pub), "shield verifier accepts a DEV-key proof");
-        (p, pub) = KeyCheckProofs.unshieldFinal();
-        require(IVerifier(dual).verify(p, pub), "unshield verifier rejects a final-key proof");
-        (p, pub) = KeyCheckProofs.unshieldDev();
-        require(!IVerifier(dual).verify(p, pub), "unshield verifier accepts a DEV-key proof");
-        (p, pub) = KeyCheckProofs.transferFinal();
-        require(IVerifier(dual).verify(p, pub), "transfer verifier rejects a final-key proof");
-        (p, pub) = KeyCheckProofs.transferDev();
-        require(!IVerifier(dual).verify(p, pub), "transfer verifier accepts a DEV-key proof");
-    }
-
     function _envUint128(string memory name) internal view returns (uint128) {
         uint256 raw = vm.envUint(name);
         require(raw <= type(uint128).max, string.concat(name, " does not fit in uint128"));
         return uint128(raw);
     }
 
+    // Source: qday-io/aevum-starter-kit contracts/script/Deploy.s.sol `isAnvilAccount` (MIT, (c) 2026 PQA Labs).
+    function _isAnvilAccount(address a) internal pure returns (bool) {
+        for (uint32 i = 0; i < 10; i++) {
+            if (vm.addr(vm.deriveKey(ANVIL_MNEMONIC, i)) == a) return true;
+        }
+        return false;
+    }
+
     function _log(Stack memory s) internal view {
         console2.log("chainId           ", block.chainid);
         console2.log("PoseidonT3        ", s.poseidon2);
+        console2.log("PoseidonT4        ", s.poseidon3);
         console2.log("ShieldIVerifier   ", s.shieldVerifier);
         console2.log("DualProofVerifier ", s.dualVerifier);
         console2.log("ShieldPoolPoseidon", s.pool);
         console2.log("GloamPayMemo      ", s.payMemo);
-        console2.log("All checks passed: final keys, limits on, setup ended.");
+        console2.log("PayerRegistry     ", s.registry);
+        console2.log("ShaidaLedger      ", s.ledger);
+        console2.log("ShaidaDepositor   ", s.depositor);
+        console2.log("All checks passed: final keys, limits on, setup ended, Shaida contracts wired.");
     }
 }

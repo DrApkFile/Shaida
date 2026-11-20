@@ -12,6 +12,7 @@ const TUSD8 = "0x456569838f1d43009a91eba4263147afd7233483";
 const NETWORKS = { 44005: "aevum-testnet", 440050: "aevum-fork" };
 const EXPECTED_CREATES = [
   "PoseidonT3",
+  "PoseidonT4",
   "ShieldVerifierFinal",
   "ShieldIVerifierFinal",
   "UnshieldVerifierFinal",
@@ -21,6 +22,9 @@ const EXPECTED_CREATES = [
   "DualProofVerifier",
   "ShieldPoolPoseidon",
   "GloamPayMemo",
+  "PayerRegistry",
+  "ShaidaLedger",
+  "ShaidaDepositor",
 ];
 const EXPECTED_SETUP_CALLS = [
   "turnOnDepositLimits()",
@@ -28,8 +32,10 @@ const EXPECTED_SETUP_CALLS = [
   "setDepositLimit(address,uint128,uint128)",
   "endSetup()",
 ];
-// cast sig "poseidon2()"
+// cast sig "poseidon2()", "poseidon3()", "owner()"
 const POSEIDON2_SELECTOR = "0xca5ee4b2";
+const POSEIDON3_SELECTOR = "0xcce3e038";
+const OWNER_SELECTOR = "0x8da5cb5b";
 
 function fail(message) {
   console.error(`✗ write-deployment: ${message}`);
@@ -96,11 +102,20 @@ async function confirmed(tx) {
 const contracts = {};
 const pool = creates.find((t) => t.contractName === "ShieldPoolPoseidon");
 if (!pool) fail("no ShieldPoolPoseidon create in the broadcast");
-// The raw PoseidonT3 create has no contract name; identify it by what the pool says it uses.
-const poolPoseidon = "0x" + (await rpc(rpcUrl, "eth_call", [{ to: pool.contractAddress, data: POSEIDON2_SELECTOR }, "latest"])).slice(26);
+const ledger = creates.find((t) => t.contractName === "ShaidaLedger");
+const registry = creates.find((t) => t.contractName === "PayerRegistry");
+if (!ledger || !registry) fail("no ShaidaLedger or PayerRegistry create in the broadcast");
+async function readAddress(to, data) {
+  return ("0x" + (await rpc(rpcUrl, "eth_call", [{ to, data }, "latest"])).slice(26)).toLowerCase();
+}
+// The raw Poseidon creates have no contract name; identify them by what the pool and the ledger say they use.
+const poolPoseidon = await readAddress(pool.contractAddress, POSEIDON2_SELECTOR);
+const ledgerPoseidon = await readAddress(ledger.contractAddress, POSEIDON3_SELECTOR);
+const attestor = await readAddress(registry.contractAddress, OWNER_SELECTOR);
+const RAW_CREATES = { [poolPoseidon]: "PoseidonT3", [ledgerPoseidon]: "PoseidonT4" };
 for (const tx of creates) {
   const address = tx.contractAddress.toLowerCase();
-  const name = tx.contractName ?? (address === poolPoseidon.toLowerCase() ? "PoseidonT3" : null);
+  const name = tx.contractName ?? RAW_CREATES[address] ?? null;
   if (!name || !EXPECTED_CREATES.includes(name)) fail(`unexpected create ${tx.contractName} at ${address}`);
   if (contracts[name]) fail(`${name} created twice`);
   const code = await rpc(rpcUrl, "eth_getCode", [address, "latest"]);
@@ -124,7 +139,9 @@ const record = {
   poolDeployBlock: contracts.ShieldPoolPoseidon.block,
   contracts,
   setupTxs,
-  notBuiltYet: ["PayerRegistry", "ShaidaDepositor", "ShaidaLedger", "IncomeVerifier"],
+  attestor,
+  ledgerDeployBlock: contracts.ShaidaLedger.block,
+  notBuiltYet: ["IncomeVerifier"],
   broadcastFile: broadcastFile.slice(ROOT.length + 1),
   recordedAt: new Date().toISOString(),
 };

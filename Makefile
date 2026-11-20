@@ -23,6 +23,8 @@ AEVUM_CHAIN := 44005
 TUSD8_PER_DEPOSIT := 100000000
 TUSD8_TOTAL       := 10000000000
 STACK_SCRIPT := script/DeployStack.s.sol:DeployStack
+# PayerRegistry owner on `make fork`: anvil account 0, so payers can be registered locally. On 44005: ATTESTOR=0x... (required).
+FORK_ATTESTOR := $(ANVIL_0)
 
 .PHONY: help install build test test-fork check anvil fork deploy-local deploy-fork deploy-aevum mint deal dev
 
@@ -58,21 +60,22 @@ deploy-local: ## Deploy MockUSD8 + Checkout to `make anvil`
 # Deploy from a random address nobody has the key for (anvil impersonates it), not from a public
 # anvil account. Otherwise the fork's contract addresses could be claimed on the real testnet by
 # anyone holding that public key.
-deploy-fork: ## Deploy the stack (Poseidon, Gloam final verifiers, pool, memo) to `make fork`
+deploy-fork: ## Deploy the stack (Poseidon, Gloam final verifiers, pool, memo, Shaida contracts) to `make fork`
 	@test "$$(cast chain-id --rpc-url $(FORK_RPC))" = "$(FORK_CHAIN)" || (echo "This only works on 'make fork'." && exit 1)
 	@DEPLOYER=$$(cast to-check-sum-address 0x$$(openssl rand -hex 20)); \
 	  cast rpc anvil_setBalance $$DEPLOYER 0x8ac7230489e80000 --rpc-url $(FORK_RPC) > /dev/null && \
 	  cast rpc anvil_impersonateAccount $$DEPLOYER --rpc-url $(FORK_RPC) > /dev/null && \
 	  echo "Deploying from throwaway address $$DEPLOYER (no private key exists for it)" && \
-	  cd contracts && TUSD8_PER_DEPOSIT=$(TUSD8_PER_DEPOSIT) TUSD8_TOTAL=$(TUSD8_TOTAL) \
+	  cd contracts && TUSD8_PER_DEPOSIT=$(TUSD8_PER_DEPOSIT) TUSD8_TOTAL=$(TUSD8_TOTAL) ATTESTOR=$(FORK_ATTESTOR) \
 	    forge script $(STACK_SCRIPT) --rpc-url $(FORK_RPC) --broadcast --legacy --slow --unlocked --sender $$DEPLOYER
 	node tools/write-deployment.mjs --chain $(FORK_CHAIN) --rpc $(FORK_RPC) --out deployments/fork.json
 
-deploy-aevum: ## Deploy the stack to Aevum testnet. Needs ACCOUNT=<keystore name> and a clean, committed tree
+deploy-aevum: ## Deploy the stack to Aevum testnet. Needs ACCOUNT=<keystore name>, ATTESTOR=0x... and a clean, committed tree
 	@test -n "$(ACCOUNT)" || (echo "Set ACCOUNT=<name>. Create one with: cast wallet import <name> --interactive" && exit 1)
+	@test -n "$(ATTESTOR)" || (echo "Set ATTESTOR=0x...: the address that registers and revokes payers." && exit 1)
 	@test -z "$$(git status --porcelain)" || (echo "Commit first (untracked files and submodule changes count): deployments/aevum.json records the exact commit." && exit 1)
 	@test "$$(cast chain-id --rpc-url $(AEVUM_RPC))" = "$(AEVUM_CHAIN)" || (echo "$(AEVUM_RPC) is not chain $(AEVUM_CHAIN)." && exit 1)
-	cd contracts && TUSD8_PER_DEPOSIT=$(TUSD8_PER_DEPOSIT) TUSD8_TOTAL=$(TUSD8_TOTAL) \
+	cd contracts && TUSD8_PER_DEPOSIT=$(TUSD8_PER_DEPOSIT) TUSD8_TOTAL=$(TUSD8_TOTAL) ATTESTOR=$(ATTESTOR) \
 	  forge script $(STACK_SCRIPT) --rpc-url $(AEVUM_RPC) --broadcast --legacy --slow --account $(ACCOUNT)
 	node tools/write-deployment.mjs --chain $(AEVUM_CHAIN) --rpc $(AEVUM_RPC) --out deployments/aevum.json
 
