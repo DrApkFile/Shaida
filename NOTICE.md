@@ -63,5 +63,7 @@ GPL-3.0 (its SPDX header says so, D6). The compiled r1cs/wasm and keys are build
 | zod | 3.25.76 | MIT | packages/gloam-fixtures, packages/shaida-proofs |
 | poseidon-lite | 0.3.0 | MIT | packages/shaida-proofs (Poseidon for the witness builder) |
 | snarkjs | 0.7.6 | GPL-3.0 | packages/shaida-proofs (dev: witness checks, throwaway key, timing) |
+| snarkjs (browser build `snarkjs.min.js`) | 0.7.6 | GPL-3.0 | tools/s8-bench (copied into the generated, uncommitted `www/`) |
+| esbuild | 0.28.2 | MIT | tools/s8-bench (dev: bundles the bench page) |
 
 Their own dependencies carry their own licenses. To list them all, run `pnpm licenses list` in the repo root.

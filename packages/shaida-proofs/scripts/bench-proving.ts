@@ -57,7 +57,7 @@ await endSnarkjs();
 // 4. Shanghai check of the generated verifier (compiled alone, solc 0.8.24, evm shanghai)
 const forgeDir = join(THROWAWAY, "forge");
 mkdirSync(join(forgeDir, "src"), { recursive: true });
-copyFileSync(key.verifierSol, join(forgeDir, "src/IncomeVerifierThrowaway.sol"));
+copyFileSync(key.verifierSol, join(forgeDir, "src/IncomeVerifierThrowaway.sol")); // compiled alone, under a fixed name
 writeFileSync(
   join(forgeDir, "foundry.toml"),
   '[profile.default]\nsrc = "src"\nout = "out"\nsolc_version = "0.8.24"\nevm_version = "shanghai"\noptimizer = true\noptimizer_runs = 200\n',
@@ -85,7 +85,7 @@ const lines = [
   "| Field | Value |",
   "|---|---|",
   "| Class | local (Node, this machine), throwaway key |",
-  `| Circuit | packages/shaida-proofs/circuits/income.circom, sha256 \`${sha256(join(PKG, "circuits/income.circom"))}\` |`,
+  `| Circuit | circuits/income.circom sha256 \`${sha256(join(PKG, "circuits/income.circom"))}\`, circuits/lib/income_template.circom sha256 \`${sha256(join(PKG, "circuits/lib/income_template.circom"))}\` |`,
   `| Compiler | ${compile.stdout.match(/circom compiler [\d.]+/)?.[0] ?? "—"}, \`--O2\` |`,
   `| Constraints | ${nonLinear.toLocaleString("en-US")} non-linear, ${linear.toLocaleString("en-US")} linear; ${publicInputs} public inputs |`,
   `| Fits 2^17? | ${domain <= 131072 ? "yes" : "NO"}: constraints + public inputs + 1 = ${domain.toLocaleString("en-US")} of 131,072 |`,

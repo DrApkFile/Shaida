@@ -1,0 +1,3 @@
+# compiled circuits, THROWAWAY keys and the assembled page: rebuilt by `pnpm build`, never committed or published
+build/
+www/

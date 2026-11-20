@@ -1,0 +1,26 @@
+{
+  "name": "@shaida/s8-bench",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Spike S8: browser proving time of the income circuit, 8 slots vs 4 slots, with THROWAWAY local keys.",
+  "scripts": {
+    "build": "tsx build.ts",
+    "serve": "tsx serve.ts",
+    "record": "tsx record.ts",
+    "headless": "tsx headless.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@shaida/proofs": "workspace:*",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "esbuild": "0.28.2",
+    "snarkjs": "0.7.6",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

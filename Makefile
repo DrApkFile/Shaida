@@ -25,7 +25,7 @@ STACK_SCRIPT := script/DeployStack.s.sol:DeployStack
 # PayerRegistry owner on `make fork`: anvil account 0, so payers can be registered locally. On 44005: ATTESTOR=0x... (required).
 FORK_ATTESTOR := $(ANVIL_0)
 
-.PHONY: help install build test test-fork test-groth16 bench-circuit check anvil fork deploy-fork deploy-aevum deal dev
+.PHONY: help install build test test-fork test-groth16 bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum deal dev
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36mmake %-14s\033[0m %s\n", $$1, $$2}'
@@ -94,6 +94,19 @@ deal: ## `make fork` only: give TO AMOUNT tUSD8 and 10 tQDAY for gas
 	@cast send $(TUSD8) "configureMinter(address,uint256)" $(TUSD8_MM) 1000000000000000 --from $(TUSD8_MM) --unlocked --rpc-url $(FORK_RPC) > /dev/null
 	@cast send $(TUSD8) "mint(address,uint256)" $(TO) $$(cast parse-units $(AMOUNT) 6) --from $(TUSD8_MM) --unlocked --rpc-url $(FORK_RPC) > /dev/null
 	@echo "tUSD8 balance of $(TO): $$(cast call $(TUSD8) 'balanceOf(address)(uint256)' $(TO) --rpc-url $(FORK_RPC))"
+
+s8-build: ## Spike S8: build the browser proving bench (8 vs 4 slots, THROWAWAY keys). Needs PTAU_PATH
+	@test -n "$(PTAU_PATH)" || (echo "INCONCLUSIVE: set PTAU_PATH=/path/to/powersOfTau28_hez_final_17.ptau" && exit 1)
+	PTAU_PATH=$(abspath $(PTAU_PATH)) pnpm --filter @shaida/s8-bench build
+
+s8-serve: ## Spike S8: serve the bench on 0.0.0.0:8088 (saves results to tools/s8-bench/results/)
+	pnpm --filter @shaida/s8-bench serve
+
+s8-headless: ## Spike S8: run the bench in headless Chromium on this machine (RUNS=3)
+	pnpm --filter @shaida/s8-bench headless $(or $(RUNS),3)
+
+s8-record: ## Spike S8: write evidence/s8-browser.md from tools/s8-bench/results/
+	pnpm --filter @shaida/s8-bench record
 
 dev: ## Start the web app on http://localhost:3000
 	pnpm dev

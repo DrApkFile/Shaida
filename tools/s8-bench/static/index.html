@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S8 proving bench</title>
+<style>
+  :root { --bg: #fff; --fg: #1a1a1a; --muted: #666; --line: #ddd; --warn: #8a4b00; --warn-bg: #fff4e0; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #141414; --fg: #eee; --muted: #aaa; --line: #333; --warn: #ffc56b; --warn-bg: #3a2a0f; }
+  }
+  body { background: var(--bg); color: var(--fg); font: 15px/1.45 system-ui, sans-serif; margin: 0; padding: 16px; }
+  main { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 1.3rem; margin: 0 0 .5rem; }
+  .warn { background: var(--warn-bg); color: var(--warn); padding: 8px 10px; border-radius: 6px; }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; }
+  dt { color: var(--muted); } dd { margin: 0; overflow-wrap: anywhere; }
+  label { display: block; margin: 8px 0; } input { font: inherit; padding: 4px 6px; max-width: 100%; }
+  button { font: inherit; padding: 8px 14px; margin: 4px 4px 4px 0; }
+  .scroll { overflow-x: auto; } table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { border-bottom: 1px solid var(--line); padding: 4px 6px; text-align: right; white-space: nowrap; }
+  pre { overflow-x: auto; font-size: 12px; border: 1px solid var(--line); padding: 8px; max-height: 300px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Spike S8: browser proving time</h1>
+  <p class="warn">THROWAWAY keys, made on the builder's machine for timing only. Not the ceremony; never deployed.</p>
+  <dl>
+    <dt>Logical CPUs</dt><dd id="cores">—</dd>
+    <dt>Device memory</dt><dd id="mem">—</dd>
+    <dt>User agent</dt><dd id="ua">—</dd>
+  </dl>
+  <label>Device (model, CPU, browser): <input id="label" size="40" placeholder="e.g. ThinkPad T14, Ryzen 5, Chrome"></label>
+  <label>Runs per variant: <input id="runs" type="number" min="1" max="10" value="3"></label>
+  <button id="start">Run 8 and 4 slots</button>
+  <p id="status">Each run: random valid witness (here) → witness, Groth16 prove, verify (Web Worker).</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Slots</th><th>Run</th><th>Input</th><th>Witness</th><th>Prove</th><th>Verify</th><th>Total</th><th>zkey load</th><th>OK</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+  <p>Total = witness + prove + verify. A cold run also fetched its wasm and zkey (column "zkey load") and set up the curve.</p>
+  <p id="saved"></p>
+  <button id="copy" disabled>Copy JSON</button><button id="save" disabled>Download JSON</button>
+  <pre id="json"></pre>
+</main>
+<script src="page.js"></script>
+</body>
+</html>

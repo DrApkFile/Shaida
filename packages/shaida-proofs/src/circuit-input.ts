@@ -53,10 +53,17 @@ export const UNUSED_SLOT: CircuitSlot = {
   sPath: EMPTY_PATH,
 };
 
-/** Lays out public signals and up to 8 slots (unused ones padded) as income.circom input. */
-export function circuitInput(publicSignals: IncomePublicSignals, slots: readonly CircuitSlot[]): CircuitInput {
-  if (slots.length > INCOME_SLOTS) throw new RangeError(`at most ${INCOME_SLOTS} slots`);
-  const all = [...slots, ...Array<CircuitSlot>(INCOME_SLOTS - slots.length).fill(UNUSED_SLOT)];
+/**
+ * Lays out public signals and the used slots (unused ones padded) as income.circom input.
+ * `slotCount` is 8 for income.circom; spike S8 also lays out its 4-slot variant.
+ */
+export function circuitInput(
+  publicSignals: IncomePublicSignals,
+  slots: readonly CircuitSlot[],
+  slotCount: number = INCOME_SLOTS,
+): CircuitInput {
+  if (slots.length > slotCount) throw new RangeError(`at most ${slotCount} slots`);
+  const all = [...slots, ...Array<CircuitSlot>(slotCount - slots.length).fill(UNUSED_SLOT)];
   const each = (f: (s: CircuitSlot) => bigint | number) => all.map((s) => f(s).toString());
   const paths = (f: (s: CircuitSlot) => readonly (bigint | number)[]) => all.map((s) => f(s).map(String));
   const input: CircuitInput = {};

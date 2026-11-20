@@ -9,7 +9,7 @@ import type { CircuitInput } from "../../src/index.js";
 export const PKG = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const BUILD = join(PKG, "build");
 const WASM = join(BUILD, "income_js/income.wasm");
-const CIRCUIT_SOURCE = join(PKG, "circuits/income.circom");
+const CIRCUIT_SOURCE = join(PKG, "circuits/lib/income_template.circom"); // the Income template, where constraints live
 
 interface WitnessCalculator {
   calculateWitness(input: CircuitInput, sanityCheck: boolean): Promise<bigint[]>;
@@ -63,11 +63,11 @@ export async function witnessBin(input: CircuitInput): Promise<Uint8Array> {
   return (await load()).calculateWTNSBin(input, true);
 }
 
-/** 1-based line in income.circom of the only line containing `snippet` (so tests name constraints, not numbers). */
+/** 1-based line in the Income template of the only line containing `snippet` (so tests name constraints, not numbers). */
 export function lineOf(snippet: string): number {
   const lines = readFileSync(CIRCUIT_SOURCE, "utf8").split("\n");
   const hits = lines.flatMap((l, i) => (l.includes(snippet) ? [i + 1] : []));
-  if (hits.length !== 1) throw new Error(`"${snippet}" is on ${hits.length} lines of income.circom, want exactly 1`);
+  if (hits.length !== 1) throw new Error(`"${snippet}" is on ${hits.length} lines of the Income template, want exactly 1`);
   return hits[0]!;
 }
 

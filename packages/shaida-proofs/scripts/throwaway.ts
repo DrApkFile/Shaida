@@ -13,7 +13,14 @@ export const PTAU_17_BLAKE2B =
 
 export const THROWAWAY = join(BUILD, "throwaway");
 const SNARKJS_CLI = join(PKG, "node_modules/snarkjs/build/cli.cjs");
-const R1CS = join(BUILD, "income.r1cs");
+
+/** Which circuit to key. The default is income.circom (8 slots); spike S8 also keys its 4-slot variant. */
+export interface KeyTarget {
+  readonly r1cs: string;
+  readonly dir: string;
+  readonly name: string;
+}
+export const INCOME_8: KeyTarget = { r1cs: join(BUILD, "income.r1cs"), dir: THROWAWAY, name: "income" };
 
 export interface ThrowawayKey {
   readonly zkey: string;
@@ -35,16 +42,17 @@ function snarkjs(args: string[]): void {
 }
 
 /** Verifies the ptau hash, then builds (or reuses, if made from this exact r1cs) the throwaway key. */
-export async function ensureThrowawayKey(ptauPath: string): Promise<ThrowawayKey> {
-  if (!existsSync(R1CS)) throw new Error(`${R1CS} is missing: run \`pnpm compile\` first`);
+export async function ensureThrowawayKey(ptauPath: string, target: KeyTarget = INCOME_8): Promise<ThrowawayKey> {
+  const { r1cs: R1CS, dir: THROWAWAY, name } = target;
+  if (!existsSync(R1CS)) throw new Error(`${R1CS} is missing: compile the circuit first`);
   const ptauHash = await blake2b(ptauPath);
   if (ptauHash !== PTAU_17_BLAKE2B) throw new Error(`${ptauPath}: blake2b ${ptauHash} is not the Hermez 2^17 ptau`);
 
   const r1csSha256 = createHash("sha256").update(readFileSync(R1CS)).digest("hex");
   const key = {
-    zkey: join(THROWAWAY, "income_THROWAWAY.zkey"),
-    vkey: join(THROWAWAY, "income_THROWAWAY_vkey.json"),
-    verifierSol: join(THROWAWAY, "IncomeVerifierThrowaway.sol"),
+    zkey: join(THROWAWAY, `${name}_THROWAWAY.zkey`),
+    vkey: join(THROWAWAY, `${name}_THROWAWAY_vkey.json`),
+    verifierSol: join(THROWAWAY, `${name}_VerifierThrowaway.sol`),
   };
   const stampFile = join(THROWAWAY, "stamp.json");
   const stamp = existsSync(stampFile) ? (JSON.parse(readFileSync(stampFile, "utf8")) as { r1csSha256?: string }) : {};
@@ -55,7 +63,7 @@ export async function ensureThrowawayKey(ptauPath: string): Promise<ThrowawayKey
   rmSync(THROWAWAY, { recursive: true, force: true });
   mkdirSync(THROWAWAY, { recursive: true });
   const t0 = performance.now();
-  const initial = join(THROWAWAY, "income_0000.zkey");
+  const initial = join(THROWAWAY, `${name}_0000.zkey`);
   snarkjs(["groth16", "setup", R1CS, ptauPath, initial]);
   snarkjs([
     "zkey",
