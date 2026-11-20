@@ -24,9 +24,24 @@ jobs:
         run: node tools/check-shanghai.mjs contracts/out
       - name: Unit tests
         run: cd contracts && forge test --no-match-path 'test/fork/*' -vv
+      - name: Probe the Aevum RPC (eth_chainId must be 0xabe5 = 44005)
+        id: aevum
+        run: |
+          set -euo pipefail
+          body='{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}'
+          if reply=$(curl -sS --max-time 20 --retry 2 --retry-all-errors -H 'content-type: application/json' \
+              --data "$body" https://rpc-test.qday.info) \
+              && [ "$(echo "$reply" | jq -r '.result // empty')" = "0xabe5" ]; then
+            echo "reachable=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "reachable=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Fork tests INCONCLUSIVE::Aevum RPC unreachable (reply: ${reply:-none})"
+            echo "### Fork tests: INCONCLUSIVE: Aevum RPC unreachable" >> "$GITHUB_STEP_SUMMARY"
+            echo "eth_chainId on https://rpc-test.qday.info did not return 0xabe5. Fork tests were not run; this is not a pass." >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Fork tests (real tUSD8 on Aevum)
-        # Uses the public RPC; skip with a failing network rather than block the PR.
-        continue-on-error: true
+        # Runs only when the RPC answered as 44005; then any failure fails the build.
+        if: steps.aevum.outputs.reachable == 'true'
         run: cd contracts && forge test --match-path 'test/fork/*' --fork-url https://rpc-test.qday.info -vv
 
   web:
