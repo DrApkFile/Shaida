@@ -1,8 +1,13 @@
 # Third-party notices
 
-Aevum Starter Kit is MIT licensed (see [LICENSE](LICENSE)). It builds on the open-source projects below.
-None of their code is copied into this repository: the Solidity libraries are git submodules that keep
-their own LICENSE files, and the JavaScript packages are installed from npm.
+Shaida is MIT licensed (see [LICENSE](LICENSE)). It is based in part on the
+[Aevum Starter Kit](https://github.com/qday-io/aevum-starter-kit) (MIT, (c) 2026 PQA Labs), commit
+`e87bcff10fbaffcc920df658b2fdf79b4586b277`: the repo layout, Makefile, `tools/check-shanghai.mjs`, `packages/aevum`,
+`web/`, `examples/` and the example `Checkout` contract come from it. Files adapted from it carry a source comment.
+
+Third-party Solidity libraries are git submodules that keep their own LICENSE files; JavaScript packages are
+installed from npm. Nothing from them is copied into this repository, except the snippets listed under
+"Borrowed snippets" below.
 
 ## Solidity libraries (`contracts/lib`, git submodules)
 
@@ -10,6 +15,21 @@ their own LICENSE files, and the JavaScript packages are installed from npm.
 |---|---|---|---|
 | forge-std | v1.9.6 | MIT or Apache-2.0 | https://github.com/foundry-rs/forge-std |
 | OpenZeppelin Contracts | v5.1.0 | MIT | https://github.com/OpenZeppelin/openzeppelin-contracts |
+| Gloam (shielded pool, final ceremony verifiers, pay memo, PoseidonT3 bytecode) | commit `d8db1e6c805c5887678fa2c6c82ea617efe1659c` (2026-11-19) | MIT, (c) 2026 Gloam; snarkjs-generated verifiers inside it are GPL-3.0 (0KIMS) | https://github.com/gloamtrade/gloam |
+
+### What Shaida deploys from Gloam
+Imported from `contracts/lib/gloam/contracts/` by `contracts/script/DeployStack.s.sol`, unmodified:
+`ShieldPoolPoseidon` (+ `ShieldPoolCore`, `ChangeTimelock`, `IncrementalMerkleTreePoseidon`), `GloamPayMemo`,
+`DualProofVerifier`, `{Shield,Unshield,Transfer}VerifierFinal` (GPL-3.0, snarkjs) and their `*IVerifierFinal` adapters,
+and `KeyCheckProofs` (deploy-time key check only). PoseidonT3 is deployed from Gloam's fixture
+`test/fixtures/Poseidon2.json` (circomlibjs bytecode, read at deploy time, not copied).
+
+### Borrowed snippets
+| Where | Source | Licence |
+|---|---|---|
+| `contracts/script/DeployStack.s.sol` `_deployFinalVerifiers`, `_requireCeremonyKeys` | gloamtrade/gloam `contracts/script/MainnetDeploy.sol` | MIT, (c) 2026 Gloam |
+| `tools/check-shanghai.mjs` (extended to Gloam sources and raw PoseidonT3 bytecode) | qday-io/aevum-starter-kit `tools/check-shanghai.mjs` | MIT, (c) 2026 PQA Labs |
+| `Makefile` (`fork`, `deal`, throwaway-deployer pattern in `deploy-fork`) | qday-io/aevum-starter-kit `Makefile` | MIT, (c) 2026 PQA Labs |
 
 ## JavaScript packages (direct dependencies)
 
