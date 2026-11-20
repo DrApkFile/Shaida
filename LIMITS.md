@@ -15,3 +15,10 @@ the live token. tUSD8 is a FiatTokenV2_2 behind an upgradeable proxy.
 | Replace the token code | proxy admin (EOA `0x6032E6e660d5C05846B7F305F8A186fA59C6fb88`) | Any behaviour above can change at any time, in one transaction. |
 
 These are trust assumptions about the token issuer, not bugs Shaida can fix. Listed as "Not defended" in PRD §8.
+
+## Payments that can go uncounted (by design of Gloam's open pool)
+Gloam's pool accepts `transfer` from any sender. If someone copies a pending `vouchedPay` or `sweep` from the mempool
+and sends the same proof to the pool directly first, the note is spent without a vouch or sweep leaf in `ShaidaLedger`.
+This never creates a false leaf (only the ledger writes V and S), so it cannot inflate income; it can only leave a
+real payment out of every income proof. Shown in `test_GAS_baseline_same_payment_sent_to_the_pool_directly`
+(a direct transfer adds no leaf). Not mitigated in v1.

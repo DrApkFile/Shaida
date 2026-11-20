@@ -28,7 +28,8 @@
 - **Legacy transactions only:** `--legacy` (forge), `type: "legacy"` (viem).
 - **`eth_getLogs`:** the rule is `toBlock − fromBlock ≤ 1000`. Use chunked reads with retry, backoff and a persisted cursor. ~85,000 blocks/day (1.01 s blocks), so never rescan from the deploy block on page load.
 - **No WebSocket.** Poll over HTTPS.
-- **Gas price is 1 gwei.** Our txs: deposit ~1.1M, transfer/sweep ~1.8M (+ ledger insert), unshield ~0.32M, Groth16 check ~258k.
+- **Gas price is 1 gwei.** Our txs (measured, evidence/fork-gas.md): gasless deposit 1.35M, vouchedPay 2.74M, sweep 2.70M (ledger adds ~0.9M to a 1.84M pool transfer), unshield ~0.32M, Groth16 check ~258k.
+- **Gloam zkeys:** use `app/public/circuits/final/*_final.zkey`. The same-named files in `app/public/circuits/` are a different key and fail on the `*VerifierFinal` contracts (measured).
 - **snarkjs verifiers return `false` when short of gas** (they don't revert), so `eth_estimateGas` under-reports (~30k vs ~258k). Wrap with `require(verifier.verifyProof(...))` and set gas explicitly on verification txs.
 - **snarkjs keeps Node alive after proving.** CLI scripts must `process.exit`.
 - **Local Merkle tree** = rebuilt from chain events in order: `Shielded` (has leafIndex), then each `Transferred` inserts `newCommitments[0]` then `[1]`. A missing leaf gives `UnknownRoot`.

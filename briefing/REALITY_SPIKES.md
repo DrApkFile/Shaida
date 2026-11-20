@@ -15,6 +15,13 @@ Run in order. Each is the smallest call that settles the claim. Nothing in the p
 | S10 | Explorer contract verification on 44005 | AEVUM_INTEGRATION.md open Q1 | `forge verify-contract --verifier blockscout` after first deploy | open | | If it works, verified contracts in the submission |
 | S8 | Browser proving time for N ≤ 8 | EVAL C5 | Time snarkjs in Chrome on the real circuit | open: Node baseline is Groth16 3.4 s at 4 slots; run in browser during the build | | |
 
+Measured during step 1 (2026-11-20):
+- Gloam ships two sets of `shield_final.zkey` / `transfer_final.zkey`. Only `app/public/circuits/final/` matches the IC
+  constants of `ShieldVerifierFinal` / `TransferVerifierFinal` (exported vkeys compared); the copies one directory up do
+  not. `packages/gloam-fixtures` pins the `final/` files by sha256.
+- Step-1 exit check passed on a fork with real tUSD8 and final verifiers (`contracts/test/fork/ExitCheckFork.t.sol`).
+  Gas in evidence/fork-gas.md.
+
 Conflicts on record:
 - AA/paymaster: qday.io says live; kit (2026-11-18) says unsupported. Decision: don't depend on them.
 - ERC-8004: brief lists it as integration evidence; kit (2026-11-20) says it's not open. Decision: our own payer registry.
