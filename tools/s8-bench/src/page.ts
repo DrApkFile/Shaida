@@ -103,6 +103,8 @@ async function runAll(): Promise<void> {
   $<HTMLButtonElement>("start").disabled = false;
   (window as Window & { __s8?: S8Report }).__s8 = report;
   // serve.ts saves it into results/; a plain static server answers 404/405 and the JSON stays on this page.
+  // headless.ts passes nosave=1: it saves the report itself, with the host's CPU and RAM.
+  if (params.get("nosave") === "1") return;
   try {
     const res = await fetch("results", { method: "POST", headers: { "content-type": "application/json" }, body: $("json").textContent });
     $("saved").textContent = res.ok ? "Saved to tools/s8-bench/results/ on the server." : `Not saved (${res.status}): use Download JSON.`;

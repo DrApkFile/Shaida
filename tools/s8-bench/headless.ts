@@ -54,7 +54,7 @@ function cdp<T>(method: string, params: object = {}, sessionId?: string): Promis
 const version = await cdp<{ product: string }>("Browser.getVersion");
 const cpu = cpus();
 const label = `${hostname()}: ${cpu[0]?.model.replace(/\s+/g, " ")}, headless ${version.product}`;
-const url = `http://127.0.0.1:${PORT}/?auto=1&runs=${RUNS}&label=${encodeURIComponent(label)}`;
+const url = `http://127.0.0.1:${PORT}/?auto=1&nosave=1&runs=${RUNS}&label=${encodeURIComponent(label)}`;
 const { targetId } = await cdp<{ targetId: string }>("Target.createTarget", { url });
 const { sessionId } = await cdp<{ sessionId: string }>("Target.attachToTarget", { targetId, flatten: true });
 
