@@ -44,6 +44,33 @@ jobs:
         if: steps.aevum.outputs.reachable == 'true'
         run: cd contracts && forge test --match-path 'test/fork/*' --fork-url https://rpc-test.qday.info -vv
 
+  proofs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive # tests read Gloam's tree constants and the contracts' vector fixture
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install circom 2.2.3 (official release binary, sha256-pinned)
+        # Same r1cs and wasm as a `cargo install --tag v2.2.3` build (sha256-compared 2026-11-20).
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          curl -sSfL --retry 3 -o "$HOME/.local/bin/circom" \
+            https://github.com/iden3/circom/releases/download/v2.2.3/circom-linux-amd64
+          echo "85342c7ff332d948df7c0c50ecf201e6129349aef550ce873f3c811b79fe53a3  $HOME/.local/bin/circom" | sha256sum -c -
+          chmod +x "$HOME/.local/bin/circom"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @shaida/proofs typecheck
+      - name: Compile the income circuit
+        run: pnpm --filter @shaida/proofs compile
+      - name: Circuit and witness tests (Groth16 proving needs the local ptau, so it reports INCONCLUSIVE here)
+        run: pnpm --filter @shaida/proofs test
+
   web:
     runs-on: ubuntu-latest
     steps:

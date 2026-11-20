@@ -25,7 +25,7 @@ STACK_SCRIPT := script/DeployStack.s.sol:DeployStack
 # PayerRegistry owner on `make fork`: anvil account 0, so payers can be registered locally. On 44005: ATTESTOR=0x... (required).
 FORK_ATTESTOR := $(ANVIL_0)
 
-.PHONY: help install build test test-fork check anvil fork deploy-fork deploy-aevum deal dev
+.PHONY: help install build test test-fork test-groth16 bench-circuit check anvil fork deploy-fork deploy-aevum deal dev
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36mmake %-14s\033[0m %s\n", $$1, $$2}'
@@ -34,12 +34,22 @@ install: ## Fetch Solidity libs and JS packages
 	git submodule update --init --recursive
 	pnpm install
 
-build: ## Compile contracts and check they are Shanghai-safe
+build: ## Compile contracts (Shanghai-checked) and the income circuit
 	cd contracts && forge build
 	node tools/check-shanghai.mjs contracts/out
+	pnpm --filter @shaida/proofs compile
 
-test: ## Unit tests (local, no network)
+test: ## Unit tests: contracts, circuit and witness builder (local, no network)
 	cd contracts && forge test --no-match-path 'test/fork/*' -vv
+	pnpm --filter @shaida/proofs test
+
+test-groth16: ## Full Groth16 proofs with a THROWAWAY local key. Needs PTAU_PATH=<Hermez 2^17 ptau>
+	@test -n "$(PTAU_PATH)" || (echo "INCONCLUSIVE: set PTAU_PATH=/path/to/powersOfTau28_hez_final_17.ptau" && exit 1)
+	cd packages/shaida-proofs && PTAU_PATH=$(abspath $(PTAU_PATH)) node --import tsx --test --test-reporter=spec test/income.groth16.test.ts
+
+bench-circuit: ## Write evidence/income-circuit.md (constraints, throwaway zkey, Node proving time). Needs PTAU_PATH
+	@test -n "$(PTAU_PATH)" || (echo "INCONCLUSIVE: set PTAU_PATH=/path/to/powersOfTau28_hez_final_17.ptau" && exit 1)
+	PTAU_PATH=$(abspath $(PTAU_PATH)) pnpm --filter @shaida/proofs bench
 
 test-fork: ## Tests against the real tUSD8 on a local fork of Aevum (no funds needed)
 	cd contracts && forge test --match-path 'test/fork/*' --fork-url $(AEVUM_RPC) -vv
