@@ -1,0 +1,23 @@
+{
+  "name": "@shaida/gloam-fixtures",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Generates real Gloam proofs (final ceremony keys) for Shaida's Foundry fork tests.",
+  "scripts": {
+    "gen:fork-flow": "tsx src/gen-fork-flow.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@gloamtrade/sdk": "0.8.0",
+    "snarkjs": "0.7.6",
+    "viem": "2.57.12",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}
