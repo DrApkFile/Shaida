@@ -18,3 +18,7 @@ contracts/broadcast/
 
 # local fork deployments (the Aevum 44005 record, deployments/aevum.json, is committed)
 deployments/fork.json
+
+# Hermez phase-1 ptau (~144 MB; builder's machine only, hash in briefing/CEREMONY.md) and throwaway circuit builds
+powers/
+*.ptau

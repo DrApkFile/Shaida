@@ -24,6 +24,19 @@ const forkBlock = (() => {
   return out.stdout.trim();
 })();
 
+// Aevum's own block gas limit, read from the live chain's latest block (not the fork's anvil default).
+const liveBlock = (() => {
+  const out = spawnSync("cast", ["rpc", "eth_getBlockByNumber", "latest", "false", "--rpc-url", RPC], {
+    encoding: "utf8",
+  });
+  if (out.status !== 0) fail(`eth_getBlockByNumber: ${out.stderr.trim()}`);
+  const block = JSON.parse(out.stdout);
+  if (typeof block.gasLimit !== "string" || typeof block.number !== "string") fail("latest block has no gasLimit");
+  return { number: BigInt(block.number), gasLimit: Number(BigInt(block.gasLimit)) };
+})();
+// The largest transaction of the stack is the pool deploy, measured in spike S2 (not in this run).
+const POOL_DEPLOY_GAS_S2 = 5_040_000;
+
 const run = spawnSync("forge", args, { cwd: join(ROOT, "contracts"), encoding: "utf8" });
 const output = `${run.stdout}\n${run.stderr}`;
 if (run.status !== 0) {
@@ -45,6 +58,7 @@ if (!passed) fail("no test summary in the forge output");
 const forgeVersion = execFileSync("forge", ["--version"], { encoding: "utf8" }).split("\n")[0];
 const overhead = byName.vouchedPay.tx - byName["pool.transfer (no ledger)"].tx;
 const fmt = (n) => n.toLocaleString("en-US");
+const pct = (gas) => `${((gas / liveBlock.gasLimit) * 100).toFixed(1)}%`;
 const lines = [
   "# Gas: step-1 exit check (fork)",
   "",
@@ -64,9 +78,14 @@ const lines = [
   "`call` = execution gas of the call (forge `lastCallGas`, each call isolated as its own transaction).",
   "`tx` = call + 21,000 + calldata gas (16 per non-zero byte, 4 per zero byte): a legacy transaction's gasUsed.",
   "",
-  "| Operation | call gas | tx gas |",
-  "|---|---:|---:|",
-  ...rows.map((r) => `| ${r.name} | ${fmt(r.call)} | ${fmt(r.tx)} |`),
+  `Block gas limit on 44005: **${fmt(liveBlock.gasLimit)}** (live latest block ${liveBlock.number}, read by this script).`,
+  "",
+  "| Operation | call gas | tx gas | share of a block |",
+  "|---|---:|---:|---:|",
+  ...rows.map((r) => `| ${r.name} | ${fmt(r.call)} | ${fmt(r.tx)} | ${pct(r.tx)} |`),
+  "",
+  `Largest transaction of the stack: the Gloam pool deploy, ${fmt(POOL_DEPLOY_GAS_S2)} gas (spike S2, Aevum-rules`,
+  `anvil, not this run) = ${pct(POOL_DEPLOY_GAS_S2)} of a block.`,
   "",
   `Ledger overhead per vouched pay (vouchedPay tx − pool.transfer tx, same proof): **${fmt(overhead)} gas**.`,
   "",
