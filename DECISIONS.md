@@ -218,3 +218,24 @@ Tests: contracts/test/IncomeVerifier.t.sol (13: AssetMismatch, UnknownRoot, Proo
 event and no event on refusal, zero addresses, key A accepts its proof, key B refuses it, X12 raised threshold, bare
 verifier returns false short of gas, gas fit). ceremony/test/ceremony.test.ts (8).
 Where: contracts/src/IncomeVerifier.sol, ceremony/, briefing/CEREMONY.md
+
+## D15: superseding a verified contribution, never deleting it
+Context: contribution #1 (commit `e7b116e`, zkey sha256 `18f2ec26…`) was made under the placeholder name "Your Real
+Name". The name is stored inside the zkey for good, and the record had no way to drop a contribution.
+Decision (the builder's): `ceremony/supersede.ts` (`make ceremony-supersede SHA256=… REASON=…`) marks the latest
+active verified zkey `superseded: {reason, movedTo, at}` in record.json, keeps the entry and its verify log, moves
+the file to `work/superseded/`, and shows it as SUPERSEDED with the reason in TRANSCRIPT.md. Every "latest zkey"
+rule (contribute, verify's chain check, beacon announce, finalize) uses active entries only, so the redo starts from
+`income_0000.zkey` and nothing can build on the superseded key. Refused for any zkey but the latest active one and
+once the beacon is announced. Records written before this field read it as null (schema default), so the committed
+record and the announcement-commit lookup still parse.
+Applied 2026-11-21 to contribution #1 above; the builder redoes it under their real name.
+Found on the way: option names with digits were refused by the argument parser (so `contribute --in-sha256` never
+worked), and Makefile targets broke on a double quote in NAME/REASON/EXPECT. Both fixed; free text now reaches the
+scripts as environment variables.
+Rejected: deleting the entry or rewriting the commit (history stays); restarting the record (loses the setup
+record and the log).
+Tests: ceremony/test/supersede.test.ts (5), parseArgs digits case. Rehearsed on a dry copy of the real record:
+short reason, double supersede and a contribution to the superseded zkey refused; redo from income_0000 contributed
+and verified.
+Where: ceremony/supersede.ts, ceremony/src/{record.ts,supersede-rules.ts}, briefing/CEREMONY.md

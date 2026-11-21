@@ -8,6 +8,7 @@ import { ceremonyPaths, requireFile } from "./src/config.js";
 import { readEntropy } from "./src/entropy.js";
 import { sha256File } from "./src/files.js";
 import { main, parseArgs, required } from "./src/main.js";
+import { cannotContributeTo } from "./src/supersede-rules.js";
 import { readRecord } from "./src/record.js";
 import { assertSnarkjsVersion, CapturingLogger, contribute } from "./src/snarkjs.js";
 
@@ -29,10 +30,8 @@ main("contribute", async () => {
   } else {
     const r = readRecord(paths);
     if (r.beaconAnnouncement !== null) throw new Error("the beacon is announced: the contributions are closed. Nothing was written.");
-    const known = [r.setup.zkey.sha256, ...r.verified.map((v) => v.zkey.sha256)];
-    if (!known.includes(inSha)) throw new Error(`input sha256 ${inSha} is neither the setup nor a verified zkey in the record. Verify it first, or pass --in-sha256.`);
-    const last = r.verified.at(-1)?.zkey.sha256 ?? r.setup.zkey.sha256;
-    if (inSha !== last) throw new Error(`input is not the latest zkey (${last}); contributing to it would fork the chain.`);
+    const why = cannotContributeTo(r, inSha);
+    if (why) throw new Error(`${why} Nothing was written.`);
   }
   console.log(`✓ input sha256 ${inSha}`);
 

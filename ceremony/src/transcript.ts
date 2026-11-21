@@ -25,7 +25,14 @@ export function renderTranscript(r: CeremonyRecord): string {
   out.push("## Verified zkeys", "");
   if (r.verified.length === 0) out.push("None yet.", "");
   for (const v of r.verified) {
-    out.push(`### \`${v.zkey.path}\``, "");
+    out.push(`### \`${v.zkey.path}\`${v.superseded ? " (SUPERSEDED)" : ""}`, "");
+    if (v.superseded) {
+      out.push(
+        `> **Superseded ${v.superseded.at}**: ${v.superseded.reason} Not on the chain: no later contribution, beacon or final key builds on it.` +
+          (v.superseded.movedTo ? ` File moved to \`${v.superseded.movedTo}\`.` : ""),
+        "",
+      );
+    }
     out.push(`sha256 \`${v.zkey.sha256}\`, verified ${v.at} against the r1cs and ptau above (log: \`${v.log}\`).`, "");
     out.push("| # | Name in the zkey | Kind | Contribution hash |", "|---|---|---|---|", ...contributionRows(v.contributions), "");
     for (const c of v.contributions) out.push(`Contribution #${c.n} hash:`, "```", block(c.hash), "```");

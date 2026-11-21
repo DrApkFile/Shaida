@@ -25,7 +25,7 @@ STACK_SCRIPT := script/DeployStack.s.sol:DeployStack
 # PayerRegistry owner on `make fork`: anvil account 0, so payers can be registered locally. On 44005: ATTESTOR=0x... (required).
 FORK_ATTESTOR := $(ANVIL_0)
 
-.PHONY: help install build test test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum deal dev
+.PHONY: help install build test test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-supersede ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum deal dev
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36mmake %-14s\033[0m %s\n", $$1, $$2}'
@@ -116,13 +116,26 @@ ceremony-prepare: ## Ceremony step 0: groth16 setup after the ptau/r1cs hash che
 	@test -n "$(PTAU_PATH)" || (echo "set PTAU_PATH=/path/to/powersOfTau28_hez_final_17.ptau" && exit 1)
 	PTAU_PATH=$(abspath $(PTAU_PATH)) $(CEREMONY) prepare-setup
 
+# Free text (names, reasons, hashes) reaches the scripts as environment variables, so quotes in it are safe.
+ceremony-contribute ceremony-verify ceremony-supersede: export IN := $(IN)
+ceremony-contribute ceremony-verify ceremony-supersede: export OUT := $(OUT)
+ceremony-contribute ceremony-verify ceremony-supersede: export NAME := $(NAME)
+ceremony-contribute ceremony-verify ceremony-supersede: export ZKEY := $(ZKEY)
+ceremony-contribute ceremony-verify ceremony-supersede: export EXPECT := $(EXPECT)
+ceremony-contribute ceremony-verify ceremony-supersede: export SHA256 := $(SHA256)
+ceremony-contribute ceremony-verify ceremony-supersede: export REASON := $(REASON)
+
 ceremony-contribute: ## Ceremony: one contribution. IN=work/… OUT=work/… NAME="…" (entropy at a hidden prompt)
-	@test -n "$(IN)" -a -n "$(OUT)" -a -n "$(NAME)" || (echo 'usage: make ceremony-contribute IN=work/income_0000.zkey OUT=work/income_0001.zkey NAME="Your name"' && exit 1)
-	$(CEREMONY) contribute --in "$(IN)" --out "$(OUT)" --name "$(NAME)"
+	@test -n "$$IN" -a -n "$$OUT" -a -n "$$NAME" || (echo 'usage: make ceremony-contribute IN=work/income_0000.zkey OUT=work/income_0001.zkey NAME="Your name"' && exit 1)
+	$(CEREMONY) contribute --in "$$IN" --out "$$OUT" --name "$$NAME"
 
 ceremony-verify: ## Ceremony: snarkjs zkey verify + record. ZKEY=work/… [EXPECT="n:hash"]. Needs PTAU_PATH
-	@test -n "$(ZKEY)" -a -n "$(PTAU_PATH)" || (echo 'usage: make ceremony-verify ZKEY=work/income_0001.zkey PTAU_PATH=… [EXPECT="2:<hash>"]' && exit 1)
-	PTAU_PATH=$(abspath $(PTAU_PATH)) $(CEREMONY) verify --zkey "$(ZKEY)" $(if $(EXPECT),--expect "$(EXPECT)")
+	@test -n "$$ZKEY" -a -n "$(PTAU_PATH)" || (echo 'usage: make ceremony-verify ZKEY=work/income_0001.zkey PTAU_PATH=… [EXPECT="2:<hash>"]' && exit 1)
+	PTAU_PATH=$(abspath $(PTAU_PATH)) $(CEREMONY) verify --zkey "$$ZKEY" $(if $(EXPECT),--expect "$$EXPECT")
+
+ceremony-supersede: ## Ceremony: take the latest verified zkey off the chain (kept on record). SHA256=… REASON="…"
+	@test -n "$$SHA256" -a -n "$$REASON" || (echo 'usage: make ceremony-supersede SHA256=<zkey sha256> REASON="why"' && exit 1)
+	$(CEREMONY) supersede --sha256 "$$SHA256" --reason "$$REASON"
 
 ceremony-beacon-announce: ## Ceremony: fix the beacon block (~2 h ahead on 44005). Commit and push right after
 	$(CEREMONY) beacon announce

@@ -33,7 +33,12 @@
         }
       ],
       "log": "ceremony/logs/verify-18f2ec268e904799-2026-11-21T13-47-15-690Z.txt",
-      "at": "2026-11-21T13:47:15.692Z"
+      "at": "2026-11-21T13:47:15.692Z",
+      "superseded": {
+        "reason": "Contribution #1 (commit e7b116e) was made under the placeholder name \"Your Real Name\" by mistake; the name is stored in the zkey. Redone from income_0000.zkey under the builder's real name.",
+        "movedTo": "ceremony/work/superseded/income_0001-18f2ec26.zkey",
+        "at": "2026-11-21T14:07:47.008Z"
+      }
     }
   ],
   "beaconAnnouncement": null,

@@ -118,6 +118,7 @@ describe("ceremony: entropy, paths and arguments", () => {
   it("refuses unknown options", () => {
     assert.deepEqual([...parseArgs(["--in", "a", "--name=Jo Do"], ["in", "name"])], [["in", "a"], ["name", "Jo Do"]]);
     assert.throws(() => parseArgs(["--entropy", "x"], ["in"]), /unknown option --entropy/);
+    assert.deepEqual([...parseArgs(["--in-sha256", "ab", "--sha256=cd"], ["in-sha256", "sha256"])], [["in-sha256", "ab"], ["sha256", "cd"]]);
   });
 
   it("labels a dry-run transcript and shows every contribution hash", () => {

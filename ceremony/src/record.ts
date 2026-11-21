@@ -30,6 +30,21 @@ const verifiedSchema = z
     /** Full `zkey verify` output, kept as evidence. */
     log: z.string(),
     at,
+    /**
+     * Set by `supersede` when this zkey is taken off the chain (e.g. a contribution made under the wrong name). The
+     * entry and its log stay; later contributions start again from the previous active zkey. Absent in records
+     * written before supersede existed, which reads as null.
+     */
+    superseded: z
+      .object({
+        reason: z.string().min(10, "give a reason of at least 10 characters"),
+        /** Where the zkey file was moved (inside work/, gitignored), or null if it was not on this machine. */
+        movedTo: z.string().nullable(),
+        at,
+      })
+      .strict()
+      .nullable()
+      .default(null),
   })
   .strict();
 
@@ -117,8 +132,14 @@ export function writeRecord(paths: CeremonyPaths, record: CeremonyRecord): void 
   writeFileSync(paths.transcript, renderTranscript(checked));
 }
 
-/** The latest verified zkey, or null. */
-export const lastVerified = (r: CeremonyRecord): Verified | null => r.verified.at(-1) ?? null;
+/** Verified zkeys still on the chain (not superseded), in order. */
+export const activeVerified = (r: CeremonyRecord): Verified[] => r.verified.filter((v) => v.superseded === null);
+
+/** The latest active verified zkey, or null. */
+export const lastVerified = (r: CeremonyRecord): Verified | null => activeVerified(r).at(-1) ?? null;
+
+/** The sha256 the next contribution must start from: the latest active verified zkey, else the setup. */
+export const latestZkeySha = (r: CeremonyRecord): string => lastVerified(r)?.zkey.sha256 ?? r.setup.zkey.sha256;
 
 /** Contributions before the beacon. */
 export const humanContributions = (v: Verified): Contribution[] => v.contributions.filter((c) => c.beacon === null);

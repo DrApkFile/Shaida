@@ -14,7 +14,7 @@ export function main(step: string, run: () => Promise<void>): void {
 export function parseArgs(argv: readonly string[], known: readonly string[]): Map<string, string> {
   const out = new Map<string, string>();
   for (let i = 0; i < argv.length; i++) {
-    const m = /^--([a-z-]+)(?:=(.*))?$/.exec(argv[i]!);
+    const m = /^--([a-z][a-z0-9-]*)(?:=(.*))?$/.exec(argv[i]!);
     if (!m) throw new Error(`unexpected argument "${argv[i]}"`);
     const key = m[1]!;
     if (!known.includes(key)) throw new Error(`unknown option --${key} (known: ${known.map((k) => `--${k}`).join(", ")})`);

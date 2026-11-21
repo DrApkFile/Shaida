@@ -72,6 +72,7 @@ main("verify", async () => {
     contributions: outcome.contributions,
     log: recordedPath(logFile),
     at: new Date().toISOString(),
+    superseded: null,
   });
   writeRecord(paths, record);
   console.log(`✓ verified; ${outcome.contributions.length} contribution(s) recorded${expect.size ? `, reported hash(es) for #${[...expect.keys()].join(", #")} match` : ""}.`);

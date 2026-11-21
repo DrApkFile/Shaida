@@ -10,6 +10,7 @@
     "contribute": "tsx contribute.ts",
     "beacon": "tsx beacon.ts",
     "verify": "tsx verify.ts",
+    "supersede": "tsx supersede.ts",
     "finalize": "tsx finalize.ts",
     "test": "node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'",
     "typecheck": "tsc --noEmit"
