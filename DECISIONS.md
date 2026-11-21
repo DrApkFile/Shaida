@@ -416,6 +416,32 @@ advisory stop), and PRD §11 acts 2–3 against `next start` (production): evide
 evidence/next-upgrade/ui-fork/ (390 px, 0 px overflow). One UI run failed because Chromium's debugging port took
 longer than the tool's 10 s wait (kept); the wait is now 60 s.
 
+## D23: `make gate`, the lint it runs, and CLAIMS.md
+Context: BUILD_CONTRACT "Gate" (seven steps) and "README claims ⊆ PROVEN".
+Decision:
+- `tools/gate.sh` (`make gate`) clones HEAD into a temp dir (committed work only; submodules from .gitmodules) and
+  runs: 1 `pnpm install --frozen-lockfile` + Gloam artifacts sha256-pinned; 2 forge build + Shanghai check; 3 circuit
+  compile + `tools/check-artifacts.mjs` (income.r1cs = the r1cs the ceremony is bound to in ceremony/record.json;
+  after finalize, vkey, verifier, the deployed verifier copy and, if present, the final zkey); 4 `pnpm -r typecheck` +
+  `tools/lint.mjs`; 5 every unit suite; 6 fork tests against real tUSD8 when `eth_chainId` on the Aevum RPC is 0xabe5,
+  otherwise INCONCLUSIVE (exit 3; never a pass, and printed in the summary); 7 `tools/check-claims.mjs`. The first
+  failing step stops the gate. CI runs it in place (`GATE_IN_PLACE=1`) and reports INCONCLUSIVE as a warning.
+- Lint: the repo has no ESLint. `tools/lint.mjs` runs `forge lint` and fails on any finding not in
+  `tools/lint-allow.json` (matched by lint id, file and exact source line, with a count; today only D16's two
+  `block-timestamp` deadline checks), and enforces the CLAUDE.md rules tsc cannot: no `any`, no empty `catch`. It found
+  three in kit code, now fixed: an `as any` in `packages/aevum/src/logs.ts` (now viem's own parameter type) and two empty
+  catches in `web/src/lib/network.tsx` (now say what they fall back to).
+- CLAIMS.md lists every README claim (CL01–CL24, PROVEN with paths or test IDs that the checker resolves; `absent:`
+  for "not deployed") and four claims a reader might assume but that are NOT PROVEN (CL30–CL33). README statements
+  carry `<!-- CLnn -->` markers; the intro now states the product as an aim. The checker fails on an unmarked
+  statement, a cited NOT PROVEN claim, missing evidence, or a `make` target README lists that does not exist.
+- To prove the vault backup claim (CL23), `tools/ui-flow-fork.mjs` now exports Ada's backup after the sweep and
+  restores it in a third, fresh browser profile: a wrong passphrase is refused, the right one restores the same
+  receive address and the swept payment (evidence/ui-fork/08-restored-from-backup.png).
+Rejected: adding ESLint now (a new toolchain and config for two rules); `forge lint` with `block-timestamp` excluded
+globally (would hide a new misuse). Mutation-checked: an added `any`, an empty catch, a README line citing CL31, and
+an unmarked README line each fail the gate.
+
 ## D24: the ceremony's income verifier in the deploy
 Context: the ceremony finalized (e370842): final zkey sha256 cbcb06fe…, verifier
 `contracts/src/generated/IncomeGroth16Verifier.sol` (96db550b…). DeployStack had no IncomeVerifier ("not built yet").

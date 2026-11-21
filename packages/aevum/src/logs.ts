@@ -27,8 +27,7 @@ export async function getLogsChunked<E extends AbiEvent>(
   const out: unknown[] = [];
   for (let start = fromBlock; start <= end; start += step) {
     const stop = start + step - 1n > end ? end : start + step - 1n;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const logs = await client.getLogs({ address, event, args, fromBlock: start, toBlock: stop } as any);
+    const logs = await client.getLogs({ address, event, args, fromBlock: start, toBlock: stop } as Parameters<PublicClient["getLogs"]>[0]);
     out.push(...logs);
     onProgress?.(stop - fromBlock + 1n, total);
   }

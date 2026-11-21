@@ -1,0 +1,10 @@
+[
+  {
+    "lint": "block-timestamp",
+    "file": "src/ShaidaLedger.sol",
+    "code": "if (block.timestamp > deadline) revert SignatureExpired(deadline);",
+    "count": 2,
+    "decision": "D16",
+    "why": "Signature deadlines (Vouch, LateVouch): a validator's few seconds of timestamp drift cannot extend a signature meaningfully."
+  }
+]

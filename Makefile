@@ -25,7 +25,7 @@ STACK_SCRIPT := script/DeployStack.s.sol:DeployStack
 # PayerRegistry owner on `make fork`: anvil account 0, so payers can be registered locally. On 44005: ATTESTOR=0x... (required).
 FORK_ATTESTOR := $(ANVIL_0)
 
-.PHONY: help install build test test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-supersede ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum deal register-payer dev
+.PHONY: help install build gate test test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-supersede ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum deal register-payer dev
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36mmake %-14s\033[0m %s\n", $$1, $$2}'
@@ -39,6 +39,9 @@ build: ## Compile contracts (Shanghai-checked) and the income circuit
 	cd contracts && forge build
 	node tools/check-shanghai.mjs contracts/out
 	pnpm --filter @shaida/proofs compile
+
+gate: ## BUILD_CONTRACT gate in a fresh clone of HEAD (exit 0 PASS, 1 FAIL, 3 INCONCLUSIVE). GATE_IN_PLACE=1: this tree
+	bash tools/gate.sh
 
 test: ## Unit tests: contracts, circuit and witness builder (local, no network)
 	cd contracts && forge test --no-match-path 'test/fork/*' -vv
@@ -103,6 +106,7 @@ deal: ## `make fork` only: give TO AMOUNT tUSD8 and 10 tQDAY for gas
 register-payer: ## `make fork` only: the fork's attestor (anvil account 0) registers TO as a payer named NAME
 	@test -n "$(TO)" || (echo 'Usage: make register-payer TO=0x... [NAME="Acme Studio (demo)"]' && exit 1)
 	@test "$$(cast chain-id --rpc-url $(FORK_RPC))" = "$(FORK_CHAIN)" || (echo "This only works on 'make fork'." && exit 1)
+	@test -f deployments/fork.json || (echo "deployments/fork.json not found: run make deploy-fork" && exit 1)
 	@cast rpc anvil_impersonateAccount $(FORK_ATTESTOR) --rpc-url $(FORK_RPC) > /dev/null
 	@cast send $$(node -p 'require("./deployments/fork.json").contracts.PayerRegistry.address') "register(address,bytes32)" $(TO) $$(cast keccak "$(or $(NAME),Acme Studio (demo))") \
 	  --from $(FORK_ATTESTOR) --unlocked --legacy --rpc-url $(FORK_RPC) > /dev/null

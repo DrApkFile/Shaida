@@ -23,8 +23,9 @@ const NetworkContext = createContext<NetworkState | null>(null);
 function remember(key: NetworkKey) {
   try {
     localStorage.setItem(STORAGE_KEY, key);
-  } catch {
-    // Storage can be blocked (private mode, previews). Not remembering the choice is fine.
+  } catch (e) {
+    // Storage can be blocked (private mode, previews). Not remembering the choice is fine; say so.
+    console.info(`network choice not remembered: storage blocked (${e instanceof Error ? e.name : "error"})`);
   }
 }
 
@@ -46,8 +47,9 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
     try {
       const saved = networkByKey(localStorage.getItem(STORAGE_KEY));
       if (saved) setKey(saved.key);
-    } catch {
-      // See remember().
+    } catch (e) {
+      // See remember(): the default network is used.
+      console.info(`saved network choice not read: storage blocked (${e instanceof Error ? e.name : "error"})`);
     }
   }, []);
 

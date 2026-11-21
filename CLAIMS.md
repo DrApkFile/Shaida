@@ -1,0 +1,37 @@
+# Claims
+
+Every claim README.md makes, and the claims a reader might assume but that are not shown yet. `make gate` (step 7,
+`tools/check-claims.mjs`) fails if README cites a claim that is not PROVEN, if a README statement carries no claim
+marker, or if any evidence below does not resolve (a path that exists, or `test:ID`: a test with that ID in its
+title). Refuted or demoted claims stay here, marked NOT PROVEN, with the reason (BUILD_CONTRACT).
+
+| ID | Claim | Status | Evidence |
+|---|---|---|---|
+| CL01 | Shaida is built on the Aevum Starter Kit (MIT) and on Gloam (MIT) as a pinned submodule; credits and licences are in NOTICE.md. | PROVEN | `NOTICE.md` `.gitmodules` `contracts/lib/gloam/LICENSE` |
+| CL02 | PRD §11 acts 2–3 run on a local fork of Aevum: a registered payer with no gas deposits gaslessly, pays a recipient 3× privately, the recipient sweeps all three, and the payer's clawback is refused with AlreadySpent. | PROVEN | `evidence/acts-2-3-fork.md` `evidence/acts-2-3-fork.json` `test:test_EXIT_gasless_deposit_then_vouchedPay_then_sweep_on_real_tUSD8` |
+| CL03 | Nothing is deployed on Aevum testnet yet. | PROVEN | `absent:deployments/aevum.json` |
+| CL04 | `PayerRegistry`: an attestor registers and revokes payers; a revoked payer can never be registered again. | PROVEN | `test:test_X03_revocation_is_immediate_and_permanent` `test:test_only_the_attestor_registers_or_revokes` `test:R05` |
+| CL05 | `ShaidaDepositor`: gasless EIP-3009 deposit and standard deposit, both through the pool's `shieldBound`. | PROVEN | `test:test_S6_gasless_deposit_moves_exactly_the_signed_amount_into_the_note` `test:test_standard_deposit_pulls_from_the_caller_into_the_pool` `contracts/test/fork/AevumFork.t.sol` |
+| CL06 | `ShaidaLedger` writes vouch and sweep leaves, allows one vouch per payment, and `lateVouch` repairs a front-run pay (D9). | PROVEN | `contracts/test/ShaidaLedger.t.sol` `contracts/test/ShaidaLedgerLateVouch.t.sol` `test:test_D9_lateVouch_by_the_payer_repairs_a_copied_vouchedPay` `test:test_D9_X04_refuses_a_second_lateVouch_for_the_same_commitment` |
+| CL07 | The contracts run on Gloam's pool with its final-ceremony verifiers (the deploy refuses Gloam's dev keys). | PROVEN | `contracts/script/DeployChecks.sol` `test:test_EXIT_a_tampered_payment_proof_is_refused_by_the_final_verifier` `test:P07` |
+| CL08 | The income circuit has 4 slots per proof and 44,687 constraints (D12). | PROVEN | `evidence/income-circuit.md` `packages/shaida-proofs/circuits/income.circom` |
+| CL09 | A pure witness builder splits a period into a bundle of up to 8 proofs over disjoint leaf ranges. | PROVEN | `packages/shaida-proofs/test/split.property.test.ts` `test:X14` `test:X15` |
+| CL10 | The pure verification core (PRD §5) checks bundles: it refuses overlapping ranges, mixed readers, expiries and roots. | PROVEN | `packages/shaida-proofs/test/verify.bundle.test.ts` `test:X14` `test:X16` `test:X17` `test:X18` |
+| CL11 | The circuit refuses the cheats of EVAL_DESIGN X04–X09 and public-signal tampering; property tests over random honest and cheating witnesses pass. | PROVEN | `packages/shaida-proofs/test/income.cheats.test.ts` `packages/shaida-proofs/test/income.property.test.ts` `test:X04` `test:X05` `test:X06` `test:X07` `test:X08` `test:X09` `test:X12` |
+| CL12 | Each proof's threshold share is rounded down to whole tUSD8 (D13). | PROVEN | `test:C3` |
+| CL13 | The income proving key so far is a throwaway local key, for tests and timing only. | PROVEN | `ceremony/record.json` `packages/shaida-proofs/scripts/throwaway.ts` |
+| CL14 | The ceremony: contribution 1 (Kene) and contribution 2 (Gunroar) are verified, and the beacon block is announced. | PROVEN | `ceremony/TRANSCRIPT.md` `ceremony/record.json` `ceremony/logs` |
+| CL15 | The throwaway income key works on local chains only and is refused on Aevum 44005. | PROVEN | `test:P01` `packages/shaida-pay/src/config.ts` |
+| CL16 | `IncomeVerifier` checks one proof on chain (tUSD8, known ledger root, gas guard, Groth16; optional attest), unit-tested with a placeholder and two throwaway verifiers. | PROVEN | `contracts/test/IncomeVerifier.t.sol` `test:test_X12_key_A_refuses_its_proof_with_the_threshold_raised` `test:test_GAS_verifyProof_fits_within_MIN_VERIFY_GAS` |
+| CL17 | `make test-fork` runs against the real tUSD8, including deposit → vouched pay → sweep with real Gloam proofs; measured gas is in evidence/fork-gas.md. | PROVEN | `contracts/test/fork/ExitCheckFork.t.sol` `evidence/fork-gas.md` |
+| CL18 | The issuer and front-running limits are written down. | PROVEN | `LIMITS.md` |
+| CL19 | Indexer: chunked `eth_getLogs` (≤ 999 blocks a page), retry with backoff, a persisted cursor, reads pinned to one block; the browser recomputes both roots, checks `isKnownRoot` and refuses with `UnknownRoot`. | PROVEN | `test:I01` `test:I02` `test:I03` `test:I04` `test:I05` |
+| CL20 | Relayer: one route per contract function, rails before simulation, a daily gas budget, persisted records, unknown outcomes never resent (D19, D20). | PROVEN | `web/src/app/api/relay` `test:R01` `test:R04` `test:R08` `test:R10` `test:R12` `test:R13` `test:R15` `test:R17` `test:R18` |
+| CL21 | Pay and inbox work in the browser: gasless deposit, vouched private pay with a sealed memo, inbox and sweep, at 390 px. | PROVEN | `evidence/ui-fork/report.md` `test:P03` `test:P05` |
+| CL22 | Proofs are made in the browser with Gloam's final keys, checked by sha256 before use. | PROVEN | `test:P07` `packages/shaida-pay/gloam-artifacts.json` `evidence/ui-fork/report.md` |
+| CL23 | Secrets are kept in an encrypted browser vault (never in clear), and its exported backup restores in a fresh browser with the passphrase (and not without it). | PROVEN | `test:P02` `evidence/ui-fork/report.md` `evidence/ui-fork/08-restored-from-backup.png` |
+| CL24 | `make gate` runs the BUILD_CONTRACT gate from a clean clone, and CI runs it. | PROVEN | `tools/gate.sh` `.github/workflows/ci.yml` |
+| CL30 | A recipient can prove to one named reader that they earn at least a threshold, revealing nothing else. | NOT PROVEN | Not built end to end: no income-proof pages, and no final income key until the ceremony ends. |
+| CL31 | Income proofs verify on Aevum testnet with the ceremony's final key. | NOT PROVEN | Not deployed. |
+| CL32 | The chain shows only that a registered payer paid someone, not who or how much. | NOT PROVEN | Follows from Gloam's pool design and our events, but no test or analysis here measures what an observer learns. |
+| CL33 | The app works on Aevum testnet (44005) end to end. | NOT PROVEN | Only the fork has been exercised. |
