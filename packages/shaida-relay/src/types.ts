@@ -18,6 +18,8 @@ export interface RequestRecord {
   readonly fn: RelayFn;
   /** Idempotency key: the nullifier or commitment the call consumes. One live record per key. */
   readonly key: string;
+  /** keccak256 of the function and its parsed body: only an identical request gets this record back. */
+  readonly requestHash: `0x${string}`;
   readonly payer: Address | null;
   readonly state: RecordState;
   readonly nonce: number;

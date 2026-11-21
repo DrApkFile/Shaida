@@ -104,8 +104,8 @@ export function makeEnv(opts: { limits?: Partial<RelayLimits>; signerKey?: Hex; 
     return { chainId: CHAIN_ID, payer: payer.address, amount: amount.toString(), commitment, shieldProof: rand(256), validAfter: "0", validBefore: validBefore.toString(), signature };
   }
 
-  async function vouchedPayBody(over: { deadline?: bigint } = {}) {
-    const transfer = { proof: rand(256), root: rand(32), nullifier: rand(32), newCommitments: [rand(32), rand(32)] as [Hex, Hex] };
+  async function vouchedPayBody(over: { deadline?: bigint; nullifier?: Hex } = {}) {
+    const transfer = { proof: rand(256), root: rand(32), nullifier: over.nullifier ?? rand(32), newCommitments: [rand(32), rand(32)] as [Hex, Hex] };
     chain.knownRoots.add(transfer.root);
     const deadline = over.deadline ?? nowSec() + 600n;
     const signature = await payer.signTypedData(vouchTypedData(CHAIN_ID, CONTRACTS.ledger, transfer, deadline));

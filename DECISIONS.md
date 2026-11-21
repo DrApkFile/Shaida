@@ -348,3 +348,23 @@ hash, R13 nonce used by another → dropped → resubmit allowed, node refusal r
 log lines carry no body, R15 each function calls only its contract function, R16 anvil keys). Mutation check:
 removing the one-live-record guard fails R12.
 Where: packages/shaida-relay, web/src/server/{relayer,relay-chain,relay-route}.ts, web/src/app/api/relay/
+
+## D20: relayer corrections found by the first fork run of acts 2–3
+Context: the first runs of `pnpm --filter @shaida/pay exit:acts-2-3` (evidence/acts-2-3-fork-FAILED-2026-11-21T16-*.md)
+against the D19 relayer.
+Found and fixed:
+1. **A mined tx recorded as dropped.** `status` read the receipt (none yet), the block landed, then it read the
+   relayer nonce (already past) and moved the record to `dropped` (tx 0xd826…8511, mined in block 3631935). Dropped is
+   terminal, so the record stayed wrong. Now the nonce is read BEFORE the receipt: if the nonce had already moved
+   past ours and a receipt read made after that finds nothing, the nonce went to another tx. Test R17 (fails on the
+   old order).
+2. **Someone else's record returned.** The one-live-record guard keyed on the nullifier answered Acme's clawback
+   (a vouched pay spending payment 1) with Ada's mined sweep record of the same nullifier. Nothing was sent (and
+   the chain would have reverted AlreadySpent), but the reply was another request's record. Records now carry
+   `requestHash` = keccak256(function, parsed body); only an identical request gets the record back. A different
+   request on a live key is refused with what the key protects (nullifier → `AlreadySpent` 409, vouch →
+   `AlreadyVouched`, deposit commitment / memo → `InputRejected`). A mined-and-reverted record frees its key, as a
+   dropped one does (a revert spent nothing). Tests R18 ×2.
+3. A pay that spends a whole note has a zero-value change note; the flow's note schema refused amount "0". Test P06.
+Consequences: relay-state files written before (2) fail the strict schema and are refused; the dev one was moved
+aside. The failed runs stay in evidence/.

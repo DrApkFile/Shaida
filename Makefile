@@ -44,6 +44,7 @@ test: ## Unit tests: contracts, circuit and witness builder (local, no network)
 	pnpm --filter @shaida/proofs test
 	pnpm --filter @shaida/index test
 	pnpm --filter @shaida/relay test
+	pnpm --filter @shaida/pay test
 	pnpm --filter @shaida/ceremony test
 
 test-groth16: ## Full Groth16 proofs with a THROWAWAY local key. Needs PTAU_PATH=<Hermez 2^17 ptau>

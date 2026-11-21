@@ -1,0 +1,98 @@
+{
+  "at": "2026-11-21T16:14:44.898Z",
+  "commit": "798fc1803c27a1431a0c4da7ecccf88e9ac18fdc",
+  "dirty": true,
+  "rows": [
+    {
+      "act": "setup",
+      "what": "attestor registers Acme Studio (demo) as payer #2",
+      "fn": "register",
+      "hash": "0x9521a8594dadc75ba5522eaffaed10161539af418b3c24a2de0db3a39411f137",
+      "block": "—",
+      "gasUsed": "—"
+    },
+    {
+      "act": "2",
+      "what": "gasless deposit 10 tUSD8 (Acme signs EIP-3009 only)",
+      "fn": "deposit",
+      "hash": "0x2717b58bad7da3929e04d6b9e9bf0b76b602ae7680f2f576b751def901148332",
+      "block": "3631939",
+      "gasUsed": "1180360"
+    },
+    {
+      "act": "2",
+      "what": "vouched pay 1 (amount and recipient not on chain)",
+      "fn": "vouchedPay",
+      "hash": "0x18c719236dbe882e47efa538ed17f3c3152fb34df96181411817447e50c67436",
+      "block": "3631940",
+      "gasUsed": "2679619"
+    },
+    {
+      "act": "2",
+      "what": "sealed memo 1 on the pay-memo board",
+      "fn": "memo",
+      "hash": "0x1d770b984f844f830338afdbc92c3792c22e83ddde197b71b29f3644670e395c",
+      "block": "3631941",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "2",
+      "what": "vouched pay 2 (amount and recipient not on chain)",
+      "fn": "vouchedPay",
+      "hash": "0x7c3693861984134dbd83289a8df028267be8513cf12d5d659e89ef401aafe7cd",
+      "block": "3631942",
+      "gasUsed": "2679806"
+    },
+    {
+      "act": "2",
+      "what": "sealed memo 2 on the pay-memo board",
+      "fn": "memo",
+      "hash": "0x4b30f68867479d28f6b7aa7a2642e42214b16ce48193528ee7c148b4b6d14056",
+      "block": "3631943",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "2",
+      "what": "vouched pay 3 (amount and recipient not on chain)",
+      "fn": "vouchedPay",
+      "hash": "0x5c33ca6d95f6ec18d2ea70fd6fd29a1016d440f3adcbc43aa4067fbb231cb152",
+      "block": "3631944",
+      "gasUsed": "2679619"
+    },
+    {
+      "act": "2",
+      "what": "sealed memo 3 on the pay-memo board",
+      "fn": "memo",
+      "hash": "0x37f06ce523af11faf3f9da206c50d165ccaf50af3ec933daf39fd93b572d59de",
+      "block": "3631945",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "3",
+      "what": "Ada sweeps payment 1 (3 tUSD8) into a fresh note",
+      "fn": "sweep",
+      "hash": "0x4812df028ff25cae82b09a7827663f9f8e4ead3a48841b4987710cf8ed95601f",
+      "block": "3631946",
+      "gasUsed": "2634802"
+    },
+    {
+      "act": "3",
+      "what": "Ada sweeps payment 2 (4 tUSD8) into a fresh note",
+      "fn": "sweep",
+      "hash": "0x4599b00fefe785afd48ef505962253585d1df30270c00f0ed5efa9d0af964ec7",
+      "block": "3631947",
+      "gasUsed": "2629576"
+    },
+    {
+      "act": "3",
+      "what": "Ada sweeps payment 3 (2 tUSD8) into a fresh note",
+      "fn": "sweep",
+      "hash": "0x83d866f5d0c3baef88dd476195711a2ca0c2afa11502b3ef3458c65ac9d1c2b3",
+      "block": "3631948",
+      "gasUsed": "2634905"
+    }
+  ],
+  "failure": "[\n  {\n    \"validation\": \"regex\",\n    \"code\": \"invalid_string\",\n    \"message\": \"Invalid\",\n    \"path\": [\n      \"amountWei\"\n    ]\n  }\n]",
+  "rpc": "http://127.0.0.1:8555",
+  "base": "http://localhost:3100"
+}

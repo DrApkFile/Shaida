@@ -1,0 +1,30 @@
+{
+  "name": "@shaida/pay",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Shaida's payer and recipient flows over the Gloam SDK: gasless deposit, vouched pay with a sealed memo, inbox, sweep, and an encrypted secret vault. Prover, storage, RPC and clock are injected; used by the web app and the exit-check script.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'",
+    "typecheck": "tsc --noEmit",
+    "exit:acts-2-3": "tsx scripts/exit-acts-2-3.ts"
+  },
+  "dependencies": {
+    "@gloamtrade/sdk": "0.8.0",
+    "@shaida/index": "workspace:*",
+    "@shaida/proofs": "workspace:*",
+    "@shaida/relay": "workspace:*",
+    "viem": "2.57.12",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "snarkjs": "0.7.6",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

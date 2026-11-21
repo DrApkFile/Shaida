@@ -20,6 +20,10 @@ export async function status(requestId: string, deps: RelayDeps): Promise<RelayR
   if (!isNetwork(net)) return { ok: true, status: 200, record, repeated: true };
   let next: RequestRecord = record;
   try {
+    // Nonce BEFORE receipt: if the nonce had already moved past ours and a receipt read made after that still finds
+    // nothing, the nonce went to another tx and ours can never land. Read the other way round, a block landing
+    // between the two reads makes a mined tx look dropped (seen on the fork, 2026-11-21: R17).
+    const nonceBefore = await net.chain.nonce(net.signer.address, "latest");
     const receipt = await net.chain.receipt(record.hash);
     if (receipt) {
       const reverted = receipt.status === "reverted";
@@ -28,7 +32,7 @@ export async function status(requestId: string, deps: RelayDeps): Promise<RelayR
         block: receipt.blockNumber.toString(),
         reverted,
       });
-    } else if ((await net.chain.nonce(net.signer.address, "latest")) > record.nonce) {
+    } else if (nonceBefore > record.nonce) {
       next = await moveTo(deps, record, "dropped", shaidaError("TxRejected", "This transaction never landed: the relayer's nonce was used by another transaction. Nothing changed; you may submit again."));
     } else if (record.state === "accepted" && deps.nowMs() - Date.parse(record.history[0]?.at ?? "") > ACCEPTED_STALE_MS) {
       next = await moveTo(deps, record, "unknown", shaidaError("TxOutcomeUnknown", "The relayer stopped before it heard back from the node. It is checked by its hash and never sent again."));

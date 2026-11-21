@@ -7,7 +7,7 @@ import { gasCommitted, hit, utcDay } from "./limits";
 import { pinnedReader } from "./reads";
 import { refusalOf } from "./revert-codes";
 import { withChainLock } from "./lock";
-import { recordKey, withState } from "./records";
+import { keyIsLive, recordKey, requestHashOf, takenRefusal, withState } from "./records";
 import { SendError, type LegacyTx, type Refusal, type RelayFn, type RelayReply, type RequestRecord } from "./types";
 
 const STATUS: Partial<Record<ErrorCode, number>> = { RateLimited: 429, RelayerBudgetExceeded: 503, RelayerUnavailable: 503, NotConfigured: 503, AlreadySpent: 409, AlreadyVouched: 409 };
@@ -57,7 +57,12 @@ async function railsAndSend<B extends { chainId: number }>(spec: FnSpec<B>, body
     const id = s.byKey[key];
     return id ? s.records[id] : undefined;
   });
-  if (existing && existing.state !== "dropped") return { ok: true, status: 200, record: existing, repeated: true };
+  const requestHash = requestHashOf(spec.fn, body);
+  if (existing && keyIsLive(existing)) {
+    // The same request again (a retry after a lost reply): its record, never a second send.
+    if (existing.requestHash === requestHash) return { ok: true, status: 200, record: existing, repeated: true };
+    return refuse(takenRefusal(key, existing));
+  }
 
   const payer = spec.payer(body);
   const nowMs = deps.nowMs();
@@ -101,7 +106,7 @@ async function railsAndSend<B extends { chainId: number }>(spec: FnSpec<B>, body
 
   const at = new Date(deps.nowMs()).toISOString();
   const accepted: RequestRecord = {
-    requestId: deps.newId(), chainId: net.chainId, fn: spec.fn, key, payer, state: "accepted", nonce: tx.nonce, hash: keccak256(raw),
+    requestId: deps.newId(), chainId: net.chainId, fn: spec.fn, key, requestHash, payer, state: "accepted", nonce: tx.nonce, hash: keccak256(raw),
     gas: tx.gas.toString(), gasPrice: tx.gasPrice.toString(), gasUsed: null, block: null, reverted: null, error: null,
     budgetDay: utcDay(nowMs), history: [{ state: "accepted", at }],
   };

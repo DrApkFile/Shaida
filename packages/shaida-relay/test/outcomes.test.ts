@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { status, submit, type RelayReply } from "../src/index";
 import { makeEnv, req } from "./helpers/env";
+import type { Hex } from "viem";
 
 const recordOf = (r: RelayReply) => {
   if (!r.ok) assert.fail(`${r.error.code}: ${r.error.message}`);
@@ -72,6 +73,46 @@ describe("relayer: persisted records and unknown outcomes", () => {
     const retry = recordOf(await submit("sweep", req(body), env.deps));
     assert.notEqual(retry.requestId, first.requestId);
     assert.equal(retry.state, "pending");
+  });
+
+  it("R17 a tx that is mined between the nonce read and the receipt read is mined, not dropped", async () => {
+    const env = makeEnv();
+    const r = recordOf(await submit("sweep", req(env.sweepBody()), env.deps));
+    const realNonce = env.chain.nonce.bind(env.chain);
+    // The block with our tx lands right after whichever read status makes first.
+    let landed = false;
+    const land = () => { if (!landed) { landed = true; env.chain.mine(r.hash, "success", 2_700_000n); } };
+    env.chain.nonce = async (a, tag) => { const n = await realNonce(a, tag); land(); return n; };
+    const realReceipt = env.chain.receipt.bind(env.chain);
+    env.chain.receipt = async (h) => { const x = await realReceipt(h); land(); return x; };
+    const s = recordOf(await status(r.requestId, env.deps));
+    assert.notEqual(s.state, "dropped", "a mined tx must never be recorded as dropped");
+    assert.equal(recordOf(await status(r.requestId, env.deps)).state, "mined");
+  });
+
+  it("R18 a different request on a note another record already spent is AlreadySpent, not that record", async () => {
+    const env = makeEnv();
+    const sweep = recordOf(await submit("sweep", req(env.sweepBody()), env.deps));
+    env.chain.mine(sweep.hash, "success", 2_700_000n);
+    assert.equal(recordOf(await status(sweep.requestId, env.deps)).state, "mined");
+    const sends = env.chain.sent.length;
+    const claw = await submit("vouchedPay", req(await env.vouchedPayBody({ nullifier: sweep.key.split(":")[2] as Hex })), env.deps);
+    assert.equal(claw.ok, false);
+    assert.equal(claw.ok ? "" : claw.error.code, "AlreadySpent");
+    assert.equal(claw.status, 409);
+    assert.equal(env.chain.sent.length, sends, "nothing sent");
+  });
+
+  it("R18 an identical retry still gets its own record; a reverted record frees the key", async () => {
+    const env = makeEnv();
+    const body = env.sweepBody();
+    const first = recordOf(await submit("sweep", req(body), env.deps));
+    const again = await submit("sweep", req(body), env.deps);
+    assert.equal(again.ok && again.repeated ? again.record.requestId : "", first.requestId);
+    env.chain.mine(first.hash, "reverted", 300_000n);
+    await status(first.requestId, env.deps);
+    const retry = recordOf(await submit("sweep", req(body), env.deps));
+    assert.notEqual(retry.requestId, first.requestId, "a reverted tx spent nothing: the payment may be sent again");
   });
 
   it("R13 a node refusal drops the record (nothing sent) and releases its reservation", async () => {

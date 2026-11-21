@@ -78,6 +78,10 @@ jobs:
         run: |
           pnpm --filter @shaida/relay typecheck
           pnpm --filter @shaida/relay test
+      - name: Pay flow tests
+        run: |
+          pnpm --filter @shaida/pay typecheck
+          pnpm --filter @shaida/pay test
       - name: Ceremony script tests (pure parts; the snarkjs steps need the ptau and run locally)
         run: |
           pnpm --filter @shaida/ceremony typecheck

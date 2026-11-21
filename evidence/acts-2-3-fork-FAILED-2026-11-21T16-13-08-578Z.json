@@ -1,0 +1,42 @@
+{
+  "at": "2026-11-21T16:13:08.578Z",
+  "commit": "798fc1803c27a1431a0c4da7ecccf88e9ac18fdc",
+  "dirty": true,
+  "rows": [
+    {
+      "act": "setup",
+      "what": "attestor registers Acme Studio (demo) as payer #1",
+      "fn": "register",
+      "hash": "0xaadc4cdd2973251787c23a7acf6311325d6162f05caea547d4ef207f8c72ca45",
+      "block": "—",
+      "gasUsed": "—"
+    },
+    {
+      "act": "2",
+      "what": "gasless deposit 10 tUSD8 (Acme signs EIP-3009 only)",
+      "fn": "deposit",
+      "hash": "0xddafbf1116d5cd14aa34d3a022498bbe0f0b13a98ec295e51b6ed972fd9b5b4d",
+      "block": "3631932",
+      "gasUsed": "1258842"
+    },
+    {
+      "act": "2",
+      "what": "vouched pay 1 (amount and recipient not on chain)",
+      "fn": "vouchedPay",
+      "hash": "0xa4aa1ca740afdc36bf5a02736578dd81871bc1728a679b03c7bafe97f7064fa4",
+      "block": "3631933",
+      "gasUsed": "2729047"
+    },
+    {
+      "act": "2",
+      "what": "sealed memo 1 on the pay-memo board",
+      "fn": "memo",
+      "hash": "0x797792c4ac8c3ace09f800d5fd5a0c336996f8ab29360dd23f5fcd2e53d0f9c5",
+      "block": "3631934",
+      "gasUsed": "44923"
+    }
+  ],
+  "failure": "2 vouched pay 2 (amount and recipient not on chain): dropped TxRejected",
+  "rpc": "http://127.0.0.1:8555",
+  "base": "http://localhost:3100"
+}

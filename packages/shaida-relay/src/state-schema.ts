@@ -11,7 +11,7 @@ const dec = z.string().regex(/^(0|[1-9][0-9]*)$/);
 
 const recordSchema = z
   .object({
-    requestId: z.string(), chainId: z.number().int(), fn: z.enum(RELAY_FNS), key: z.string(), payer: hex(40).nullable(), state,
+    requestId: z.string(), chainId: z.number().int(), fn: z.enum(RELAY_FNS), key: z.string(), requestHash: hex(64), payer: hex(40).nullable(), state,
     nonce: z.number().int().nonnegative(), hash: hex(64), gas: dec, gasPrice: dec, gasUsed: dec.nullable(), block: dec.nullable(),
     reverted: z.boolean().nullable(), error: errorSchema.nullable(), budgetDay: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     history: z.array(z.object({ state, at: z.string() }).strict()),
