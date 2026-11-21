@@ -48,7 +48,7 @@ contract ShaidaLedgerLateVouchTest is ShaidaBase {
         vm.prank(payer);
         ledger.lateVouch(c);
 
-        uint256 deadline = block.timestamp + 1 hours;
+        uint256 deadline = vm.getBlockTimestamp() + 1 hours;
         bytes memory sig = _signLate(payerKey, c, deadline);
         vm.expectRevert(abi.encodeWithSelector(PayerRegistry.PayerRevoked.selector, id));
         vm.prank(relayer);
@@ -94,7 +94,7 @@ contract ShaidaLedgerLateVouchTest is ShaidaBase {
         vm.prank(recipient);
         ledger.lateVouch(own);
 
-        uint256 deadline = block.timestamp + 1 hours;
+        uint256 deadline = vm.getBlockTimestamp() + 1 hours;
         bytes memory selfSigned = _signLate(strangerKey, own, deadline);
         vm.expectRevert(abi.encodeWithSelector(PayerRegistry.PayerNotRegistered.selector, recipient));
         vm.prank(relayer);
@@ -110,7 +110,7 @@ contract ShaidaLedgerLateVouchTest is ShaidaBase {
         uint32 id = _register(payer);
         bytes32 signedFor = _copiedPayment();
         bytes32 other = _copiedPayment();
-        uint256 deadline = block.timestamp + 1 hours;
+        uint256 deadline = vm.getBlockTimestamp() + 1 hours;
         bytes memory sig = _signLate(payerKey, signedFor, deadline);
 
         vm.expectRevert(abi.encodeWithSelector(ShaidaLedger.BadPayerSignature.selector, payer));
@@ -131,7 +131,7 @@ contract ShaidaLedgerLateVouchTest is ShaidaBase {
     function test_D9_refuses_a_relayed_lateVouch_after_its_deadline() public {
         _register(payer);
         bytes32 c = _copiedPayment();
-        uint256 deadline = block.timestamp + 1 hours;
+        uint256 deadline = vm.getBlockTimestamp() + 1 hours;
         bytes memory sig = _signLate(payerKey, c, deadline);
         vm.warp(deadline + 1);
         vm.expectRevert(abi.encodeWithSelector(ShaidaLedger.SignatureExpired.selector, deadline));

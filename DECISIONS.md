@@ -239,3 +239,28 @@ Tests: ceremony/test/supersede.test.ts (5), parseArgs digits case. Rehearsed on 
 short reason, double supersede and a contribution to the superseded zkey refused; redo from income_0000 contributed
 and verified.
 Where: ceremony/supersede.ts, ceremony/src/{record.ts,supersede-rules.ts}, briefing/CEREMONY.md
+
+## D16: ledger and depositor write and emit before the external call; deadline timestamps accepted
+Context: `forge lint` (1.10.0) flagged `reentrancy-events` in ShaidaDepositor (both `Deposited` emits) and
+ShaidaLedger (`Swept`, `Vouched`), `block-timestamp` on the two signature deadlines, and
+`environment-read-across-mutation` in two deadline tests.
+Decision:
+- **Depositor:** `Deposited` is emitted right after the paused/blacklist checks, before the token pull and the
+  pool call. Every field is a call argument, so nothing needs the calls' results; a revert undoes the event.
+- **Ledger, checks-effects-interactions:** `sweep` and `vouchedPay`/`vouchedPayFor` now insert the leaf and emit
+  before `pool.transfer`. The leaf index comes from our own tree (`_tree.insert`), not from the pool, so no event
+  needs a value known only after the external call; none kept the old order. Gloam's `transfer` reverts
+  `DuplicateCommitment` on a seen commitment (`ShieldPoolCore.sol:434`), so a V leaf written first survives only
+  for a fresh payment note, and the `commitmentSeen` read after the transfer is no longer needed on this path.
+  `lateVouch` keeps both checks (`AlreadyVouched`, then `UnknownCommitment`, a view call) before writing.
+- **Revert order kept:** on `vouchedPay` the `AlreadyVouched` flag is read before the pool call and acted on after
+  it, so a replayed relayed pay still reverts with the pool's `AlreadySpent`, as before (the X02 test is unchanged).
+- **`block.timestamp > deadline` accepted.** Signature windows are hours long (the app uses 1 h), and a validator
+  can move a timestamp by seconds; the worst case is a signature accepted or refused a few seconds off its edge.
+  The two warnings stay.
+- Tests use `vm.getBlockTimestamp()` for deadlines that are later `vm.warp`ed past.
+Gas (evidence/fork-gas.md, fork, re-run after the change): vouchedPay tx 2,766,976 (−905, the dropped
+`commitmentSeen` call), depositWithAuthorization 1,346,538 (+44), sweep 2,697,283 (+38); ledger overhead per
+vouched pay 926,923 (was 927,828). The +44/+38 come from the reordered code, with the same calls and storage writes.
+Tests: forge unit 52/52, fork 12/12 with unchanged expectations.
+Where: contracts/src/{ShaidaLedger,ShaidaDepositor}.sol, contracts/test/{ShaidaLedger,ShaidaLedgerLateVouch}.t.sol

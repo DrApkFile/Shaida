@@ -57,6 +57,8 @@ contract ShaidaDepositor {
         Authorization calldata auth
     ) external {
         _refuseUnusableToken(payer, amount);
+        // Every field is known up front; a revert below undoes the event.
+        emit Deposited(payer, commitment, amount, true);
         uint256 balanceBefore = token.balanceOf(address(this));
         // receiveWithAuthorization requires msg.sender == to, so nobody else can redirect the signature.
         IFiatTokenV2(address(token)).receiveWithAuthorization(
@@ -71,15 +73,14 @@ contract ShaidaDepositor {
             auth.s
         );
         _shield(amount, commitment, shieldProof, balanceBefore);
-        emit Deposited(payer, commitment, amount, true);
     }
 
     function deposit(uint256 amount, bytes32 commitment, bytes calldata shieldProof) external {
         _refuseUnusableToken(msg.sender, amount);
+        emit Deposited(msg.sender, commitment, amount, false);
         uint256 balanceBefore = token.balanceOf(address(this));
         token.safeTransferFrom(msg.sender, address(this), amount);
         _shield(amount, commitment, shieldProof, balanceBefore);
-        emit Deposited(msg.sender, commitment, amount, false);
     }
 
     function _refuseUnusableToken(address payer, uint256 amount) internal view {

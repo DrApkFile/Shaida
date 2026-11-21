@@ -91,7 +91,7 @@ contract ShaidaLedger is EIP712 {
     ///         the pool without a V leaf. Safe because a V leaf counts only together with an S leaf, and
     ///         S leaves come only from a real sweep through this ledger (D9).
     function lateVouch(bytes32 paymentCommitment) external returns (uint256 leafIndex) {
-        return _vouch(registry.activeIdOf(msg.sender), paymentCommitment);
+        return _lateVouch(registry.activeIdOf(msg.sender), paymentCommitment);
     }
 
     /// @notice Relayer path for lateVouch: `payer` signed this commitment (EIP-712 LateVouch).
@@ -103,15 +103,16 @@ contract ShaidaLedger is EIP712 {
         if (!SignatureChecker.isValidSignatureNow(payer, lateVouchDigest(paymentCommitment, deadline), signature)) {
             revert BadPayerSignature(payer);
         }
-        return _vouch(registry.activeIdOf(payer), paymentCommitment);
+        return _lateVouch(registry.activeIdOf(payer), paymentCommitment);
     }
 
     /// @notice The recipient moves a received payment note into newCommitments[0], a note only they know.
+    /// @dev Leaf and event first, pool call last: if the pool refuses the transfer, the revert undoes both.
     function sweep(TransferArgs calldata t) external returns (uint256 leafIndex) {
-        pool.transfer(t.proof, t.root, t.nullifier, t.newCommitments);
         bytes32 leaf = _hash3(SWEEP_TAG, uint256(t.nullifier), uint256(t.newCommitments[0]));
         leafIndex = _tree.insert(uint256(leaf));
         emit Swept(t.nullifier, t.newCommitments[0], leafIndex, leaf);
+        pool.transfer(t.proof, t.root, t.nullifier, t.newCommitments);
     }
 
     function vouchDigest(TransferArgs calldata t, uint256 deadline) public view returns (bytes32) {
@@ -138,16 +139,27 @@ contract ShaidaLedger is EIP712 {
         return _tree.nextIndex;
     }
 
+    /// @dev Leaf and event first, pool call last; a revert in the pool undoes both. The AlreadyVouched
+    ///      flag is read before and acted on after the pool call, so a replay still reports the pool's
+    ///      error (AlreadySpent) as before. The pool also refuses a seen commitment (DuplicateCommitment),
+    ///      so this check fires only if that ever stops being true.
     function _vouchedPay(uint32 payerId, TransferArgs calldata t) internal returns (uint256 leafIndex) {
+        bytes32 paymentCommitment = t.newCommitments[0];
+        bool alreadyVouched = vouched[paymentCommitment];
+        leafIndex = _writeVouch(payerId, paymentCommitment);
         pool.transfer(t.proof, t.root, t.nullifier, t.newCommitments);
-        return _vouch(payerId, t.newCommitments[0]);
+        if (alreadyVouched) revert AlreadyVouched(paymentCommitment);
     }
 
-    /// @dev The only place a V leaf is written. The pool refuses a commitment it has seen before, so
-    ///      after a transfer the commitment is always fresh here; lateVouch needs both checks.
-    function _vouch(uint32 payerId, bytes32 paymentCommitment) internal returns (uint256 leafIndex) {
+    /// @dev A late vouch has no transfer to prove the note exists, so it asks the pool (a view call).
+    function _lateVouch(uint32 payerId, bytes32 paymentCommitment) internal returns (uint256 leafIndex) {
         if (vouched[paymentCommitment]) revert AlreadyVouched(paymentCommitment);
         if (!pool.commitmentSeen(paymentCommitment)) revert UnknownCommitment(paymentCommitment);
+        return _writeVouch(payerId, paymentCommitment);
+    }
+
+    /// @dev The only place a V leaf is written. Callers enforce at most one per payment commitment.
+    function _writeVouch(uint32 payerId, bytes32 paymentCommitment) internal returns (uint256 leafIndex) {
         vouched[paymentCommitment] = true;
         bytes32 leaf = _hash3(VOUCH_TAG, payerId, uint256(paymentCommitment));
         leafIndex = _tree.insert(uint256(leaf));

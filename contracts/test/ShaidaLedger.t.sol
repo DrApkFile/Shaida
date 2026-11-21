@@ -32,7 +32,7 @@ contract ShaidaLedgerTest is ShaidaBase {
 
     function test_X02_refuses_a_relayed_pay_signed_by_an_unregistered_key() public {
         ShaidaLedger.TransferArgs memory t = _transfer();
-        uint256 deadline = block.timestamp + 1 hours;
+        uint256 deadline = vm.getBlockTimestamp() + 1 hours;
         bytes memory sig = _sign(strangerKey, t, deadline);
         vm.expectRevert(abi.encodeWithSelector(PayerRegistry.PayerNotRegistered.selector, stranger));
         vm.prank(relayer);
@@ -43,7 +43,7 @@ contract ShaidaLedgerTest is ShaidaBase {
     function test_X02_refuses_a_registered_payers_signature_moved_to_another_transfer() public {
         _register(payer);
         ShaidaLedger.TransferArgs memory signed = _transfer();
-        uint256 deadline = block.timestamp + 1 hours;
+        uint256 deadline = vm.getBlockTimestamp() + 1 hours;
         bytes memory sig = _sign(payerKey, signed, deadline);
 
         ShaidaLedger.TransferArgs memory swapped = _transfer(); // e.g. the recipient's self-pay
@@ -60,7 +60,7 @@ contract ShaidaLedgerTest is ShaidaBase {
     function test_X02_a_relayed_pay_signed_by_an_active_payer_is_vouched_once() public {
         _register(payer);
         ShaidaLedger.TransferArgs memory t = _transfer();
-        uint256 deadline = block.timestamp + 1 hours;
+        uint256 deadline = vm.getBlockTimestamp() + 1 hours;
         bytes memory sig = _sign(payerKey, t, deadline);
 
         vm.prank(relayer);
@@ -77,7 +77,7 @@ contract ShaidaLedgerTest is ShaidaBase {
     function test_refuses_a_relayed_pay_after_its_deadline() public {
         _register(payer);
         ShaidaLedger.TransferArgs memory t = _transfer();
-        uint256 deadline = block.timestamp + 1 hours;
+        uint256 deadline = vm.getBlockTimestamp() + 1 hours;
         bytes memory sig = _sign(payerKey, t, deadline);
         vm.warp(deadline + 1);
         vm.expectRevert(abi.encodeWithSelector(ShaidaLedger.SignatureExpired.selector, deadline));
@@ -94,7 +94,7 @@ contract ShaidaLedgerTest is ShaidaBase {
         vm.prank(payer);
         ledger.vouchedPay(t);
 
-        uint256 deadline = block.timestamp + 1 hours;
+        uint256 deadline = vm.getBlockTimestamp() + 1 hours;
         bytes memory sig = _sign(payerKey, t, deadline);
         vm.expectRevert(abi.encodeWithSelector(PayerRegistry.PayerRevoked.selector, id));
         vm.prank(relayer);
