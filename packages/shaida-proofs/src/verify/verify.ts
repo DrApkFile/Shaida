@@ -5,11 +5,11 @@
 // has exactly one V leaf (D9), and the ranges are strictly disjoint (step 2c). So no payment is counted by two
 // proofs, and Σ thresholds is a lower bound on distinct vouched, swept income. All proofs must use one ledger root
 // (D13): the builder never mixes roots, so a mixed bundle was assembled from separate builds and is refused.
-import { PUBLIC_SIGNAL_ORDER } from "../circuit-input.js";
-import { type ErrorCode, type ShaidaError, shaidaError } from "../errors.js";
-import { TUSD8_FIELD } from "../field.js";
-import { contextOf } from "../hash.js";
-import { decodeFragment, type Groth16Proof, incomeLinkSchema } from "./link.js";
+import { PUBLIC_SIGNAL_ORDER } from "../circuit-input";
+import { type ErrorCode, type ShaidaError, shaidaError } from "../errors";
+import { TUSD8_FIELD } from "../field";
+import { contextOf } from "../hash";
+import { decodeFragment, type Groth16Proof, incomeLinkSchema } from "./link";
 
 export interface VerifyDeps {
   /** hash(this reader's id), computed by the caller from the signed-in reader. */

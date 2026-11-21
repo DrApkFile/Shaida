@@ -7,9 +7,9 @@ import {
   circuitInput,
   FIELD_ORDER,
     LedgerTree,
-} from "../src/index.js";
-import { CONSTRAINT, runCircuit } from "./helpers/circuit.js";
-import { buildSingleProof, honestRequest, makeScenario, Rng, type Scenario, type SingleProof } from "./helpers/scenario.js";
+} from "../src/index";
+import { CONSTRAINT, runCircuit } from "./helpers/circuit";
+import { buildSingleProof, honestRequest, makeScenario, Rng, type Scenario, type SingleProof } from "./helpers/scenario";
 
 function honest(seed: number, payments: number, opts: { unswept?: number[] } = {}) {
   const rng = new Rng(seed);

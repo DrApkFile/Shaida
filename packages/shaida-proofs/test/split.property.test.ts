@@ -4,8 +4,8 @@
 import assert from "node:assert/strict";
 import { randomInt } from "node:crypto";
 import { describe, it } from "node:test";
-import { MAX_BUNDLE_PROOFS, SHARE_STEP, showableTotal, splitThreshold } from "../src/index.js";
-import { Rng } from "./helpers/scenario.js";
+import { MAX_BUNDLE_PROOFS, SHARE_STEP, showableTotal, splitThreshold } from "../src/index";
+import { Rng } from "./helpers/scenario";
 
 const SEED = process.env.SPLIT_SEED === undefined ? randomInt(2 ** 31) : Number(process.env.SPLIT_SEED);
 const CASES = 5_000;

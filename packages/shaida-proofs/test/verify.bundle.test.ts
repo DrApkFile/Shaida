@@ -10,9 +10,9 @@ import {
   TUSD8_FIELD,
   verifyIncomeBundle,
   verifyIncomeLink,
-} from "../src/index.js";
-import { contextFor, depsFor, fragment, type LinkProof, type Opening, WitnessBackedProver } from "./helpers/link.js";
-import { buildSingleProof, honestRequest, makeScenario, Rng, type Scenario, showableThreshold } from "./helpers/scenario.js";
+} from "../src/index";
+import { contextFor, depsFor, fragment, type LinkProof, type Opening, WitnessBackedProver } from "./helpers/link";
+import { buildSingleProof, honestRequest, makeScenario, Rng, type Scenario, showableThreshold } from "./helpers/scenario";
 
 const READER = 0x5eade5n;
 const OTHER_READER = 0xb0ba5n;

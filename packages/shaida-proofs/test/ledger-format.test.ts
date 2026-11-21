@@ -4,10 +4,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
-import { TUSD8_FIELD, zeroHashes } from "../src/index.js";
-import { ledgerVectors } from "../scripts/ledger-vectors.js";
-import { PKG, runCircuit } from "./helpers/circuit.js";
-import { buildSingleProof } from "./helpers/scenario.js";
+import { TUSD8_FIELD, zeroHashes } from "../src/index";
+import { ledgerVectors } from "../scripts/ledger-vectors";
+import { PKG, runCircuit } from "./helpers/circuit";
+import { buildSingleProof } from "./helpers/scenario";
 
 const GLOAM_IMT = join(PKG, "../../contracts/lib/gloam/contracts/src/lib/IncrementalMerkleTreePoseidon.sol");
 const VECTORS = join(PKG, "../../contracts/test/fixtures/income-vectors.json");

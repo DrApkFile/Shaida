@@ -1,7 +1,7 @@
 // How the witness builder splits one period into a bundle of proofs (D12): payments in V-leaf order, at most
 // INCOME_SLOTS per proof, over disjoint leaf ranges that tile the asked period, with thresholds that add up to the
 // asked threshold, each a multiple of the share step (D13). Pure arithmetic, no hashing.
-import { INCOME_SLOTS, SHARE_STEP } from "./field.js";
+import { INCOME_SLOTS, SHARE_STEP } from "./field";
 
 export interface ChunkRange {
   readonly fromIndex: bigint;

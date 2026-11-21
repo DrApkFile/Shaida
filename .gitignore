@@ -22,3 +22,6 @@ deployments/fork.json
 # Hermez phase-1 ptau (~144 MB; builder's machine only, hash in briefing/CEREMONY.md) and throwaway circuit builds
 powers/
 *.ptau
+
+# server-side state of the web app (index cursor, relayer records; public data only)
+web/.data/

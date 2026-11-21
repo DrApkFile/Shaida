@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
 import { createReadStream, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { BUILD, PKG } from "../test/helpers/circuit.js";
+import { BUILD, PKG } from "../test/helpers/circuit";
 
 /** Hermez powersOfTau28_hez_final_17.ptau, blake2b-512 as listed by snarkjs and checked in briefing/CEREMONY.md. */
 export const PTAU_17_BLAKE2B =

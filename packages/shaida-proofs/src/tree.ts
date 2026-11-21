@@ -1,7 +1,7 @@
 // Gloam's IncrementalMerkleTreePoseidon, rebuilt from an ordered list of leaves (depth 20, zero leaf = 0,
 // zeros[i+1] = Poseidon(zeros[i], zeros[i])). ShaidaLedger uses that library for its V/S tree.
-import { MAX_LEAVES, TREE_DEPTH } from "./field.js";
-import { hashPair } from "./hash.js";
+import { MAX_LEAVES, TREE_DEPTH } from "./field";
+import { hashPair } from "./hash";
 
 export interface MerklePath {
   readonly pathElements: readonly bigint[];

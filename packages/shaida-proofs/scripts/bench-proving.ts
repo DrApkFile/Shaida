@@ -7,10 +7,10 @@ import { mkdirSync, readFileSync, statSync, writeFileSync, copyFileSync } from "
 import { cpus, totalmem } from "node:os";
 import { join } from "node:path";
 import * as snarkjs from "snarkjs";
-import { type CircuitInput, INCOME_SLOTS } from "../src/index.js";
-import { BUILD, endSnarkjs, PKG } from "../test/helpers/circuit.js";
-import { buildSingleProof, honestRequest, makeScenario, Rng } from "../test/helpers/scenario.js";
-import { ensureThrowawayKey, THROWAWAY } from "./throwaway.js";
+import { type CircuitInput, INCOME_SLOTS } from "../src/index";
+import { BUILD, endSnarkjs, PKG } from "../test/helpers/circuit";
+import { buildSingleProof, honestRequest, makeScenario, Rng } from "../test/helpers/scenario";
+import { ensureThrowawayKey, THROWAWAY } from "./throwaway";
 
 const REPO = join(PKG, "../..");
 const RUNS = 3;

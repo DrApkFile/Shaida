@@ -9,8 +9,8 @@ import {
   type IncomeProofWitness,
   PUBLIC_SIGNAL_ORDER,
   type VerifyDeps,
-} from "../../src/index.js";
-import { runCircuit } from "./circuit.js";
+} from "../../src/index";
+import { runCircuit } from "./circuit";
 
 export interface Opening {
   readonly readerIdHash: bigint;

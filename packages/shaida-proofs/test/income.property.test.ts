@@ -4,9 +4,9 @@
 import assert from "node:assert/strict";
 import { randomInt } from "node:crypto";
 import { describe, it } from "node:test";
-import { buildIncomeBundle, type CircuitInput, FIELD_ORDER, type IncomeProofWitness, INCOME_SLOTS, SHARE_STEP } from "../src/index.js";
-import { runCircuit } from "./helpers/circuit.js";
-import { honestRequest, makeScenario, Rng, roundDown, showableThreshold } from "./helpers/scenario.js";
+import { buildIncomeBundle, type CircuitInput, FIELD_ORDER, type IncomeProofWitness, INCOME_SLOTS, SHARE_STEP } from "../src/index";
+import { runCircuit } from "./helpers/circuit";
+import { honestRequest, makeScenario, Rng, roundDown, showableThreshold } from "./helpers/scenario";
 
 const RUNS = Number(process.env.PROPERTY_RUNS ?? 24);
 const BASE_SEED = process.env.PROPERTY_SEED === undefined ? randomInt(2 ** 31) : Number(process.env.PROPERTY_SEED);

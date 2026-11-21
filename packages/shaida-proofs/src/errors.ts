@@ -33,6 +33,14 @@ export const ERROR_CODES = {
   MixedContexts: { retryable: "no", nextAction: "ask for a new link; its proofs were made for different readers or expiries" },
   // D13
   MixedRoots: { retryable: "no", nextAction: "ask for a new link; all proofs of a bundle must use one ledger root" },
+  // D17 (relayer, pay and inbox flows)
+  AlreadySpent: { retryable: "no", nextAction: "nothing was sent; this note was already spent (swept or moved)" },
+  AlreadyVouched: { retryable: "no", nextAction: "nothing to do; this payment already has its vouch" },
+  SignatureInvalid: { retryable: "no", nextAction: "sign again; nothing was sent" },
+  RateLimited: { retryable: "later", nextAction: "wait a minute and try again; nothing was sent" },
+  RelayerUnavailable: { retryable: "later", nextAction: "try later or pay the gas yourself; nothing was sent" },
+  TxRejected: { retryable: "no", nextAction: "the chain refused this call; check the message" },
+  NotConfigured: { retryable: "no", nextAction: "this network isn't set up in the app; nothing was read or sent" },
 } as const satisfies Record<string, CodeSpec>;
 
 export type ErrorCode = keyof typeof ERROR_CODES;

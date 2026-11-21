@@ -2,7 +2,7 @@
 // both use circomlibjs Poseidon (Gloam fixtures Poseidon2.json / Poseidon3.json). poseidon-lite (MIT) implements
 // the same circomlib parameters; test/ledger-vectors.test.ts checks that against the contract's own output.
 import { poseidon2, poseidon3 } from "poseidon-lite";
-import { SWEEP_TAG, VOUCH_TAG } from "./field.js";
+import { SWEEP_TAG, VOUCH_TAG } from "./field";
 
 /** Gloam note commitment: Poseidon(secret, amount, asset). */
 export const noteCommitment = (secret: bigint, amount: bigint, asset: bigint): bigint =>

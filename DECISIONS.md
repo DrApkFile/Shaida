@@ -264,3 +264,44 @@ Gas (evidence/fork-gas.md, fork, re-run after the change): vouchedPay tx 2,766,9
 vouched pay 926,923 (was 927,828). The +44/+38 come from the reordered code, with the same calls and storage writes.
 Tests: forge unit 52/52, fork 12/12 with unchanged expectations.
 Where: contracts/src/{ShaidaLedger,ShaidaDepositor}.sol, contracts/test/{ShaidaLedger,ShaidaLedgerLateVouch}.t.sol
+
+## D17: closed codes for the relayer, pay and inbox flows
+Context: PRD §4 had no code for a spent note (the exit check refuses a clawback with `AlreadySpent`), a duplicate
+vouch, a bad payer signature, rate limits, an unusable relayer, a simulation revert, or a network with no Shaida
+contracts. Every refusal must be a closed code (BUILD_CONTRACT "No silent fallback").
+Decision: add `AlreadySpent`, `AlreadyVouched`, `SignatureInvalid`, `RateLimited`, `RelayerUnavailable`, `TxRejected`
+and `NotConfigured` to PRD §4 and `packages/shaida-proofs/src/errors.ts`. The names of the first two match the
+contracts' own errors (Gloam `AlreadySpent`, ShaidaLedger `AlreadyVouched`). `TxRejected` is only for a revert that
+no other code names; the relayer decodes known custom errors first. An explicit per-function gas cap that the
+estimate exceeds is `RelayerBudgetExceeded` (same next action: pay the gas yourself).
+Rejected: HTTP statuses alone (the UI and bot need the same names); one generic `RelayFailed` (says nothing about
+whether anything changed).
+Where: PRD §4, packages/shaida-proofs/src/errors.ts
+
+## D18: the indexer serves one whole snapshot and starts over on any gap
+Context: PRD §3 asks for leaf snapshots with chunked reads, retry and a persisted cursor; FAILURE_MODES asks for
+the tree to be marked incomplete on any partial result.
+Decision (`packages/shaida-index`, served by `GET /api/index?chainId=`):
+- Pages of `toBlock − fromBlock ≤ 999`, one `eth_getLogs` per page for the pool, the ledger and the memo board
+  together, read in order; each page is retried with exponential backoff (5 tries, 0.5 s doubling to 8 s). A page
+  that keeps failing stops the sync; the cursor stays at the last good page.
+- The snapshot is the cursor: it is saved (atomic file write, `web/.data/index-<chainId>.json`) after every page.
+  At most 10,000 blocks are read per request, so a cold start on 44005 takes several polls, never one long call.
+- After reading, both leaf counts are compared with `nextIndex()` of the pool and the ledger, read **at the cursor
+  block**. A leaf index that is not its position, or a count mismatch, is recorded in `problems`; such a snapshot is
+  incomplete, the client refuses it (`UnknownRoot`), and the next sync rescans from the deploy block (the only case
+  that does).
+- The memo board's `PaymentMemo` events ride in the same snapshot (no tree; the recipient checks each one).
+- Client check (`checkSnapshot`): schema, chain id, complete, every ledger leaf recomputed from its event fields,
+  both roots rebuilt and `isKnownRoot` on both contracts at the snapshot block. Any failure → `UnknownRoot`.
+Rejected: incremental "rewind to the last good block" on a mismatch (needs per-block history; a gap should be rare);
+browser-side log sync from the deploy block (S3: ~85 pages a day of chain).
+Consequences: the file store is per process and per disk. On serverless hosts it is lost on a cold start, which
+costs a rescan, not correctness (ROADMAP: KV store). No reorg handling beyond the count check; `confirmations` can
+keep the index behind the head.
+Tests: packages/shaida-index/test/index.test.ts (11: I01 page boundary, I02 cursor resume and redeploy, I03 retry
+and a page that keeps failing, I04 gap → incomplete → UnknownRoot → full resync, I05 honest snapshot, altered pool
+leaf, altered ledger fields, wrong chain, extra field, I06 memos).
+Also: relative imports in the TypeScript packages are now extensionless (`./x`, not `./x.js`): Next 16's Turbopack
+does not map `.js` to `.ts`; tsc (`moduleResolution: bundler`), tsx and esbuild resolve both.
+Where: packages/shaida-index, web/src/server/{indexer,chain,json-file}.ts, web/src/app/api/index/route.ts

@@ -1,0 +1,25 @@
+{
+  "name": "@shaida/index",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Leaf snapshots of the Gloam pool tree, the Shaida ledger tree and the pay-memo board, read in ≤1,000-block pages. Network and storage are injected.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@shaida/proofs": "workspace:*",
+    "viem": "2.57.12",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

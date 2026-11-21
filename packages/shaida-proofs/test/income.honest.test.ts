@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { after, describe, it } from "node:test";
-import { buildIncomeBundle, type IncomeBundleWitness, INCOME_SLOTS, type Result, SHARE_STEP } from "../src/index.js";
-import { endSnarkjs, r1csHolds, runCircuit } from "./helpers/circuit.js";
-import { buildSingleProof, honestRequest, makeScenario, Rng, roundDown, showableThreshold } from "./helpers/scenario.js";
+import { buildIncomeBundle, type IncomeBundleWitness, INCOME_SLOTS, type Result, SHARE_STEP } from "../src/index";
+import { endSnarkjs, r1csHolds, runCircuit } from "./helpers/circuit";
+import { buildSingleProof, honestRequest, makeScenario, Rng, roundDown, showableThreshold } from "./helpers/scenario";
 
 after(endSnarkjs);
 

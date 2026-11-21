@@ -1,8 +1,8 @@
 // Fixed ShaidaLedger vectors: two payments by payer id 1, vouched then swept (V1, V2, S1, S2). The JS test proves
 // an income witness over these leaves (circuit hashes = JS hashes); contracts/test/IncomeVectors.t.sol replays them
 // through the real ShaidaLedger (contract leaves and roots = JS). Test-only secrets from a fixed seed.
-import { LedgerTree, noteCommitment, nullifierOf, type PaymentRecord, sweepLeaf, TUSD8_FIELD, vouchLeaf } from "../src/index.js";
-import { Rng } from "../test/helpers/scenario.js";
+import { LedgerTree, noteCommitment, nullifierOf, type PaymentRecord, sweepLeaf, TUSD8_FIELD, vouchLeaf } from "../src/index";
+import { Rng } from "../test/helpers/scenario";
 
 export const VECTORS_SEED = 44005;
 

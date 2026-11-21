@@ -1,6 +1,6 @@
 // Strict input schema for the witness builder: callers pass BigInt base units and field elements.
 import { z } from "zod";
-import { AMOUNT_LIMIT, FIELD_ORDER, MAX_LEAVES, SHARE_STEP, THRESHOLD_LIMIT } from "./field.js";
+import { AMOUNT_LIMIT, FIELD_ORDER, MAX_LEAVES, SHARE_STEP, THRESHOLD_LIMIT } from "./field";
 
 const field = z.bigint().nonnegative().lt(FIELD_ORDER);
 const nonZeroField = field.refine((v) => v !== 0n, "must be non-zero");

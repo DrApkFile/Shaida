@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { CircuitInput } from "../../src/index.js";
+import type { CircuitInput } from "../../src/index";
 
 export const PKG = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const BUILD = join(PKG, "build");

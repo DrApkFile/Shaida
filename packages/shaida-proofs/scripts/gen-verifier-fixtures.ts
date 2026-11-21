@@ -6,10 +6,10 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import * as snarkjs from "snarkjs";
-import { PUBLIC_SIGNAL_ORDER, SHARE_STEP } from "../src/index.js";
-import { BUILD, PKG } from "../test/helpers/circuit.js";
-import { buildSingleProof, honestRequest, makeScenario, Rng } from "../test/helpers/scenario.js";
-import { ensureThrowawayKey, INCOME_MAIN } from "./throwaway.js";
+import { PUBLIC_SIGNAL_ORDER, SHARE_STEP } from "../src/index";
+import { BUILD, PKG } from "../test/helpers/circuit";
+import { buildSingleProof, honestRequest, makeScenario, Rng } from "../test/helpers/scenario";
+import { ensureThrowawayKey, INCOME_MAIN } from "./throwaway";
 
 const OUT = resolve(PKG, "../../contracts/test/fixtures/income");
 

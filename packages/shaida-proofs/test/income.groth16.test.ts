@@ -15,11 +15,11 @@ import {
   PUBLIC_SIGNAL_ORDER,
   SHARE_STEP,
   verifyIncomeLink,
-} from "../src/index.js";
-import { ensureThrowawayKey, type ThrowawayKey } from "../scripts/throwaway.js";
-import { BUILD, endSnarkjs } from "./helpers/circuit.js";
-import { contextFor, depsFor, type LinkProof, type Opening } from "./helpers/link.js";
-import { buildSingleProof, honestRequest, makeScenario, Rng, type SingleProof, showableThreshold } from "./helpers/scenario.js";
+} from "../src/index";
+import { ensureThrowawayKey, type ThrowawayKey } from "../scripts/throwaway";
+import { BUILD, endSnarkjs } from "./helpers/circuit";
+import { contextFor, depsFor, type LinkProof, type Opening } from "./helpers/link";
+import { buildSingleProof, honestRequest, makeScenario, Rng, type SingleProof, showableThreshold } from "./helpers/scenario";
 
 const PTAU = process.env.PTAU_PATH;
 const SKIP = PTAU ? false : "INCONCLUSIVE: PTAU_PATH unset; Groth16 proving tests not run (see briefing/CEREMONY.md)";

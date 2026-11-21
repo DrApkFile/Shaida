@@ -1,6 +1,6 @@
 // income.circom's input layout: public signals in their frozen order, then 8 slots (unused ones padded).
-import { INCOME_SLOTS, TREE_DEPTH } from "./field.js";
-import type { MerklePath } from "./tree.js";
+import { INCOME_SLOTS, TREE_DEPTH } from "./field";
+import type { MerklePath } from "./tree";
 
 export interface IncomePublicSignals {
   readonly ledgerRoot: bigint;

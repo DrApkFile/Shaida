@@ -119,6 +119,13 @@ Disclosure cost: each proof's threshold, count and range are public, so a bundle
 | `RangesOverlap` | two proofs of a bundle share a leaf index (D12) | no | ask for a new link |
 | `MixedContexts` | the proofs of a bundle were made for different readers or expiries (D12) | no | ask for a new link |
 | `MixedRoots` | the proofs of a bundle were made against different ledger roots (D13) | no | ask for a new link |
+| `AlreadySpent` | the note was already spent: swept by the recipient, or moved (D17) | no | nothing was sent |
+| `AlreadyVouched` | the payment already has its vouch leaf (D17) | no | nothing to do |
+| `SignatureInvalid` | a payer signature is malformed, for another call, or outside its window (D17) | no | sign again; nothing was sent |
+| `RateLimited` | too many relay requests from this address or IP (D17) | later | wait a minute; nothing was sent |
+| `RelayerUnavailable` | the relayer has no usable key, no gas, or cannot read the chain (D17) | later | try later or pay gas yourself |
+| `TxRejected` | the chain refused the call in simulation, or the tx mined and reverted (D17) | no | read the message; a mined revert cost gas, nothing else changed |
+| `NotConfigured` | the app has no Shaida contracts for this network (D17) | no | the operator sets them; nothing was read or sent |
 
 Before every deposit, pay and withdraw, the app reads `paused()` and `isBlacklisted(address)` on tUSD8 and refuses
 with the codes above before asking for a signature (D7). `ShaidaDepositor` repeats the deposit checks on chain.

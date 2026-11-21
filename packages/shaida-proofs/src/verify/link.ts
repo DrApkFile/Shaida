@@ -1,8 +1,8 @@
 // The proof link payload (PRD §3 "Proof link", D12): a bundle of 1..MAX_BUNDLE_PROOFS Groth16 proofs plus the one
 // context opening they share. Lives in the URL fragment as base64url(JSON); the server never sees it.
 import { z } from "zod";
-import { FIELD_ORDER, MAX_BUNDLE_PROOFS } from "../field.js";
-import { PUBLIC_SIGNAL_ORDER } from "../circuit-input.js";
+import { FIELD_ORDER, MAX_BUNDLE_PROOFS } from "../field";
+import { PUBLIC_SIGNAL_ORDER } from "../circuit-input";
 
 /** A canonical decimal string below the field order (what snarkjs emits and takes). */
 const fieldString = z

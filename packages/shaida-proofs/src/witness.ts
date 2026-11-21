@@ -2,13 +2,13 @@
 // inputs (or a named refusal) out. A period with more than INCOME_SLOTS payments is split into proofs over
 // disjoint leaf ranges (D12, src/split.ts), each proof's threshold share
 // rounded to the share step (D13). No network, no clock, no randomness.
-import { type CircuitInput, type CircuitSlot, circuitInput, type IncomePublicSignals } from "./circuit-input.js";
-import { INCOME_SLOTS, MAX_BUNDLE_PROOFS } from "./field.js";
-import { type Result, shaidaError } from "./errors.js";
-import { noteCommitment, nullifierOf, sweepLeaf, vouchLeaf } from "./hash.js";
-import { type IncomeRequest, incomeRequestSchema, type PaymentRecord } from "./schema.js";
-import { chunk, chunkRanges, showableTotal, splitThreshold } from "./split.js";
-import { LedgerTree } from "./tree.js";
+import { type CircuitInput, type CircuitSlot, circuitInput, type IncomePublicSignals } from "./circuit-input";
+import { INCOME_SLOTS, MAX_BUNDLE_PROOFS } from "./field";
+import { type Result, shaidaError } from "./errors";
+import { noteCommitment, nullifierOf, sweepLeaf, vouchLeaf } from "./hash";
+import { type IncomeRequest, incomeRequestSchema, type PaymentRecord } from "./schema";
+import { chunk, chunkRanges, showableTotal, splitThreshold } from "./split";
+import { LedgerTree } from "./tree";
 
 /** Why a payment record is not counted. Not an error: the builder counts what it can and says what it left out. */
 export type SkipReason =

@@ -15,7 +15,7 @@ import {
   sweepLeaf,
   TUSD8_FIELD,
   vouchLeaf,
-} from "../../src/index.js";
+} from "../../src/index";
 
 /** splitmix64: small, seedable, good enough to pick test cases (not for secrets). */
 export class Rng {
