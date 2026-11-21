@@ -1,2 +1,4 @@
 # zkeys (25 MiB each): published with the release, hashes in record.json. Never commit entropy notes.
 work/
+# The zip and zkey sent to an outside contributor. Never commit.
+outbox/

@@ -27,7 +27,7 @@ Paths below are relative to `ceremony/`. `PTAU=$PWD/powers/powersOfTau28_hez_fin
 | 1 | builder | `make ceremony-contribute IN=work/income_0000.zkey OUT=work/income_0001.zkey NAME="<builder name>"` | input = the recorded setup; entropy typed at a hidden prompt (≥ 32 chars, mixed by snarkjs with 64 OS-random bytes; never stored); prints the contribution hash and output sha256 |
 | 1v | builder | `make ceremony-verify ZKEY=work/income_0001.zkey PTAU_PATH=$PTAU` | `snarkjs zkey verify` against r1cs + ptau; records the contribution hashes read from the file; log kept |
 | 1c | builder | commit + push record.json, TRANSCRIPT.md, logs/ | publishes the sha256 of `income_0001.zkey` before it is sent |
-| 2 | independent person | `ceremony/CONTRIBUTE.md`: `snarkjs zkey contribute income_0001.zkey income_0002.zkey --name="…"` | they check the input sha256, contribute with their own entropy, send back the file, its sha256 and the contribution hash |
+| 2 | independent person | by hand, `ceremony/CONTRIBUTE.md`: `snarkjs zkey contribute income_0001.zkey income_0002.zkey --name="…"` (typed entropy at the prompt); or with their own coding agent, `ceremony/CONTRIBUTE-FOR-AGENT.md`: `npx -y snarkjs@0.7.6 zkey contribute … -e="$(node -p "require('crypto').randomBytes(64).toString('hex')")"` (entropy generated inside the command, never shown) | they check the input sha256 against the one sent through another app (never shipped in the package), contribute, send back the file, its sha256 and the contribution hash. Package: `ceremony/outbox/shaida-ceremony-contribution-2.zip` (gitignored) = income_0001.zkey + CONTRIBUTE.md + CONTRIBUTE-FOR-AGENT.md + README.txt |
 | 2v | builder | `make ceremony-verify ZKEY=work/income_0002.zkey EXPECT="2:<hash they sent>" PTAU_PATH=$PTAU` | as 1v, plus: the zkey must extend `income_0001`'s contributions and contribution #2 must equal the hash they reported |
 | S | builder (only if needed) | `make ceremony-supersede SHA256=<zkey sha256> REASON="…"` | takes the **latest** active verified zkey off the chain before the beacon is announced (e.g. a wrong name in the zkey). Nothing is deleted: the record entry and its verify log stay, marked superseded with the reason and time; the file moves to `work/superseded/`. The next contribution must start from the previous active zkey (or the setup); `contribute` and `verify` refuse the superseded zkey and anything built on it. Commit + push after |
 | B1 | builder | `make ceremony-beacon-announce`, then commit + push at once | refuses unless the last verified zkey has ≥ 2 contributions and no beacon. Reads the Aevum head (chain 44005) and fixes block = head + ⌈7,200 s / 1.012 s⌉ = head + 7,115 (~2 h after the last contribution) in record.json |
@@ -70,6 +70,14 @@ Checked 2026-11-21 in the pinned snarkjs 0.7.6 (`node_modules/.pnpm/snarkjs@0.7.
   `getRandomBytes(64)` at 257, which calls `randomFillSync` at 229. The CLI an outside contributor runs,
   `build/cli.cjs` (sha256 `6d787e37…`): lines 5006 / 5021 / 351 / 323. (`src/misc.js` sha256 `9f58cbff…`,
   `src/zkey_contribute.js` `abd0bac0…`.)
+- With `-e` / `--entropy` on the command line (what an agent-run contribution uses), the text takes the same path:
+  `cli.js:1053` (`build/cli.cjs:13536`) passes `options.entropy` into `zkey.contribute` / `phase2contribute`, which
+  calls `getRandomRng(entropy)`; the `while (!entropy)` prompt is skipped but `getRandomBytes(64)` is still hashed in
+  first. So `-e` does **not** replace the OS randomness, it is added to it.
+- The agent route's bash command was run 2026-11-21 on a scratch copy of `income_0001.zkey` (Linux, Node 24,
+  fresh `npx` fetch of 0.7.6, `npm view` integrity matched the lockfile's sha512-4uH1…): contribution in 49 s, no
+  128-hex string (the entropy's form) anywhere in its output, and the output passed `zkey verify`. The PowerShell
+  command was not run (no PowerShell on the builder's machine).
 Consequence: a contribution stays secret if either the typed entropy or the 64 OS-random bytes stay unknown. A
 contributor's typed text alone does not determine their contribution, so they cannot reproduce it later either.
 

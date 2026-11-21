@@ -20,7 +20,10 @@ install (you can go offline before you contribute).
    snarkjs --help | head -1
    ```
    The second command must print `snarkjs@0.7.6`. If it prints another version, run the install again with the
-   exact version.
+   exact version. On Windows PowerShell use `snarkjs --help | Select-Object -First 1`; if PowerShell refuses to
+   run `npm` or `snarkjs` scripts, call `npm.cmd` / `snarkjs.cmd` instead.
+   (No global install wanted? Use `npx -y snarkjs@0.7.6` in place of `snarkjs` in every command below; on
+   Windows PowerShell `npx.cmd -y snarkjs@0.7.6`.)
 
 ## 2. Check the file you received
 In the folder that holds `income_0001.zkey`, run the command for your system:
@@ -46,7 +49,9 @@ snarkjs zkey contribute income_0001.zkey income_0002.zkey --name="Your name or h
 - It asks `Enter a random text. (Entropy):`. Type a long, random string: mash the keyboard for a while (100+
   characters). Do not use a password or anything you could remember. Press Enter.
   snarkjs also mixes in randomness from your operating system.
-- Never put the randomness on the command line (do not use `-e`): it would stay in your shell history.
+- Never type your own random text on the command line (with `-e`): it would stay in your shell history. (The
+  agent route, `CONTRIBUTE-FOR-AGENT.md`, does use `-e`, but with 64 random bytes generated inside the command, so
+  no one ever sees or types them.)
 - It takes a minute or two, then prints `Contribution Hash:` followed by four lines of hex.
 
 ## 4. Send back
