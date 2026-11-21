@@ -1,0 +1,114 @@
+{
+  "at": "2026-11-21T16:59:43.079Z",
+  "commit": "86f27fd0a7e17d20993e3bda7c16103357b3fff4",
+  "dirty": false,
+  "rows": [
+    {
+      "act": "setup",
+      "what": "attestor registers Acme Studio (demo) as payer #1",
+      "fn": "register",
+      "hash": "0x6e85885ecdb80b4098a840907e61a51ed6f279db37558308ef9643211aedbd8c",
+      "block": "—",
+      "gasUsed": "—"
+    },
+    {
+      "act": "2",
+      "what": "gasless deposit 10 tUSD8 (Acme signs EIP-3009 only)",
+      "fn": "deposit",
+      "hash": "0xcfc8e68ae0d574cad4fcecd60e3f6f41ad3d2f74e6274a6ce034f599938dc1bb",
+      "block": "3632003",
+      "gasUsed": "1258850"
+    },
+    {
+      "act": "2",
+      "what": "vouched pay 1 (amount and recipient not on chain)",
+      "fn": "vouchedPay",
+      "hash": "0xb3decb9c761deb533cd3b42fe68568db6aa723c3c146c6cc4ef1b20897de302f",
+      "block": "3632004",
+      "gasUsed": "2729059"
+    },
+    {
+      "act": "2",
+      "what": "sealed memo 1 on the pay-memo board",
+      "fn": "memo",
+      "hash": "0x28e8d672c229343a187717a3068f2467c6a93caacef5462feb13f3eded22c5ed",
+      "block": "3632005",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "2",
+      "what": "vouched pay 2 (amount and recipient not on chain)",
+      "fn": "vouchedPay",
+      "hash": "0x32caa264763f6ef5abb593be9b7a0e2b6d088850f12154aeed83391ae65e2b8a",
+      "block": "3632006",
+      "gasUsed": "2689509"
+    },
+    {
+      "act": "2",
+      "what": "sealed memo 2 on the pay-memo board",
+      "fn": "memo",
+      "hash": "0x24d8542b3189af2a2760f07b9418796e0c680c0ac3595e2341943d5422d77c6f",
+      "block": "3632007",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "2",
+      "what": "vouched pay 3 (amount and recipient not on chain)",
+      "fn": "vouchedPay",
+      "hash": "0xc5920b1f851e85283606b05eb969a594b4f23af70e61398d6f89c6a77b07800b",
+      "block": "3632008",
+      "gasUsed": "2684582"
+    },
+    {
+      "act": "2",
+      "what": "sealed memo 3 on the pay-memo board",
+      "fn": "memo",
+      "hash": "0x2b8daeb05265862b7da9dccd4de1aafcdd2e7254374a89b29e9cd906c910c748",
+      "block": "3632009",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "3",
+      "what": "Ada sweeps payment 1 (3 tUSD8) into a fresh note",
+      "fn": "sweep",
+      "hash": "0x16782288838303c91d94c60f938ca01ec0d35c6bf43df81f16c18d990a6b3219",
+      "block": "3632010",
+      "gasUsed": "2644453"
+    },
+    {
+      "act": "3",
+      "what": "Ada sweeps payment 2 (4 tUSD8) into a fresh note",
+      "fn": "sweep",
+      "hash": "0x74905823ddebc2cfbbc7f1493626e5a30648a361861328a5ee2dd27633c739a8",
+      "block": "3632011",
+      "gasUsed": "2644744"
+    },
+    {
+      "act": "3",
+      "what": "Ada sweeps payment 3 (2 tUSD8) into a fresh note",
+      "fn": "sweep",
+      "hash": "0x5b0caf9384f613eca7ce62694844e0a397dfb7b68dc45ea785ac31c4ec85e6a3",
+      "block": "3632012",
+      "gasUsed": "2639478"
+    }
+  ],
+  "dep": {
+    "pool": "0xe4be0b522bb302cae006194d2c06fa8f394d1c6f",
+    "ledger": "0xc31c1df86e390eabfc8c42eb3ce73189f4855fb7",
+    "depositor": "0x679936a94bb6d54ac2ef9865a61eb6335a7f2df5",
+    "registry": "0x0e179fbd7a58b8f3bcc38d9f6c423f041e9ba020",
+    "memo": "0x662fed7564cde43537e62545750a39b01d05ecc2",
+    "gitCommit": "86f27fd0a7e17d20993e3bda7c16103357b3fff4",
+    "gitDirty": false,
+    "poolDeployBlock": 3631991
+  },
+  "rpc": "http://127.0.0.1:8555",
+  "base": "http://localhost:3100",
+  "checks": [
+    "Acme's tQDAY balance: 0 before, 0 after the deposit and 3 pays (all gas paid by the relayer)",
+    "Acme's public tUSD8 balance after: 10000000 base units (10 tUSD8 moved into the pool)",
+    "Ada's inbox (memos opened with her receive key in this process): 3 payments, 3 + 4 + 2 tUSD8",
+    "Clawback of payment 1 by Acme: relayer refused with AlreadySpent; eth_call of ShaidaLedger.sweep from Acme reverts AlreadySpent",
+    "Ledger tree after: 6 leaves (3 V + 3 S, this run added 3 V + 3 S), root known on chain at block 3632012; pool tree 13 leaves"
+  ]
+}

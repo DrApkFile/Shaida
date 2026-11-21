@@ -7,7 +7,7 @@ Based in part on the [Aevum Starter Kit](https://github.com/qday-io/aevum-starte
 Private payments run on [Gloam](https://github.com/gloamtrade/gloam) (MIT), a pinned submodule. See [NOTICE.md](NOTICE.md).
 
 ## Status
-Build steps 1 and 2 of PRD §11 are done locally; nothing is deployed on Aevum testnet yet.
+PRD §11 steps 1–2 and acts 2–3 run on a local fork; nothing is deployed on Aevum testnet yet.
 - Contracts: `PayerRegistry`, `ShaidaDepositor` (gasless EIP-3009 + standard deposit), `ShaidaLedger` (vouch and
   sweep leaves, one vouch per payment, `lateVouch` repair for a front-run pay: DECISIONS D9), on Gloam's pool with its
   final-ceremony verifiers.
@@ -17,17 +17,29 @@ Build steps 1 and 2 of PRD §11 are done locally; nothing is deployed on Aevum t
   public-signal tampering), the bundle refusals (X14–X18) and property tests. Each proof's threshold share is
   rounded down to whole tUSD8 (D13).
   Proving keys so far are a **throwaway local key** for tests and timing only.
-- Ceremony (step 3): scripts and contributor instructions are ready (`ceremony/`, `briefing/CEREMONY.md`,
-  rehearsed in a dry run); **no contribution has been made yet**, so there is no final key.
+- Ceremony (step 3): in progress. Contribution 1 is done and contribution 2 is with an outside contributor; then
+  the beacon. Until it ends there is **no final income key**: `NEXT_PUBLIC_SHAIDA_INCOME_KEY=throwaway` works on local
+  chains only and is refused on Aevum 44005 (D21).
 - `IncomeVerifier` (on-chain check of one proof: tUSD8, known ledger root, gas guard, Groth16; optional attest):
   unit-tested with a placeholder and two throwaway verifiers. Not deployed; it waits for the ceremony's verifier.
 - Tests: `make test` (contracts, circuit, witness builder) and `make test-fork` (real tUSD8 on a fork, including
   deposit → vouched pay → sweep with real proofs). Gas: [evidence/fork-gas.md](evidence/fork-gas.md).
   Issuer and front-running limits: [LIMITS.md](LIMITS.md).
 
-Not built yet: the ceremony itself (final key), the browser prover, the chain-reading side of verification
-(`isKnownRoot`, dates; injected into the pure core), indexer, Shaida relayer and UI.
-`web/` and `examples/` are still the starter kit's checkout demo and will be replaced.
+- Indexer (`packages/shaida-index`, `/api/index`): pool and ledger leaf snapshots from chunked `eth_getLogs` (≤ 999
+  blocks a page, retry with backoff, persisted cursor, reads pinned to one block); the browser recomputes both roots
+  and checks `isKnownRoot` on chain, refusing with `UnknownRoot`.
+- Relayer (`packages/shaida-relay`, `/api/relay/<fn>`): one route per contract function (deposit, vouched-pay,
+  late-vouch, sweep, memo), rails before simulation, a daily gas budget, persisted records, unknown outcomes never
+  resent (D19, D20).
+- Pay and inbox (`/pay`, `/inbox`, `packages/shaida-pay`): gasless deposit, vouched private pay with a sealed memo,
+  inbox and sweep, proofs made in the browser with Gloam's final keys, secrets in an encrypted browser vault with an
+  exportable backup (D21).
+- PRD §11 acts 2–3 on the fork: [evidence/acts-2-3-fork.md](evidence/acts-2-3-fork.md) (script, tx hashes) and
+  [evidence/ui-fork/](evidence/ui-fork/report.md) (the same flow through the UI at 390 px).
+
+Not built yet: the income-proof pages (prove, share, verify), the final income key (ceremony), deployment on Aevum
+testnet, `make gate`.
 
 ## Commands
 ```bash
