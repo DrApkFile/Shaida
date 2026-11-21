@@ -3,7 +3,7 @@
 // - packages/shaida-proofs/build/income.r1cs must hash to ceremony/record.json circuit.r1csSha256
 //   (a circuit change invalidates the ceremony: CLAUDE.md invariant).
 // - once the ceremony is finalized: the exported vkey and Solidity verifier must hash as recorded, and every
-//   deployed copy of the verifier (contracts/src/verifiers/IncomeGroth16Verifier.sol) must equal it byte for byte.
+//   deploy script must import that same file (contracts/src/generated/IncomeGroth16Verifier.sol).
 // - the final zkey, when present locally (gitignored; a release asset), must hash as recorded.
 // Gloam's circuits are checked by tools/copy-gloam-artifacts.mjs (also a gate step).
 import { createHash } from "node:crypto";
@@ -32,9 +32,11 @@ if (record.final === null) {
 } else {
   check("final vkey", record.final.vkey.path, record.final.vkey.sha256);
   check("final verifier (ceremony output)", record.final.verifier.path, record.final.verifier.sha256);
-  const deployed = "contracts/src/verifiers/IncomeGroth16Verifier.sol";
-  if (existsSync(join(repo, deployed))) check("deployed verifier = ceremony output", deployed, record.final.verifier.sha256);
-  else bad(`${deployed} is missing: the deploy script must use the ceremony's verifier`);
+  // The deploy script must deploy exactly that file (finalize writes it to contracts/src/generated/).
+  const deployScript = readFileSync(join(repo, "contracts/script/DeployStack.s.sol"), "utf8");
+  const importPath = record.final.verifier.path.replace(/^contracts\//, "../");
+  if (deployScript.includes(`"${importPath}"`)) ok(`deploy script imports the ceremony verifier (${importPath})`);
+  else bad(`contracts/script/DeployStack.s.sol does not import ${importPath}: deploys must use the ceremony's verifier`);
   const zkey = join(repo, record.final.zkey.path);
   if (existsSync(zkey)) check("final zkey", record.final.zkey.path, record.final.zkey.sha256);
   else console.log(`· final zkey not present locally (${record.final.zkey.path}; release asset ceremony-v1): hash not checked here`);
