@@ -37,7 +37,7 @@
 - **Gloam SDK on chain 44005:** always pass `chainId` + `poolAddress`, and `artifactProver({wasm, zkey})` with final keys.
 - **`make deal` mints on top** of real fork balances (master minter impersonation). In Solidity fork tests use `deal(...)`.
 - **tUSD8 is a FiatTokenV2 proxy:** possible blacklist/pause (spike S9). Handle a paused token as a named error.
-- **Next.js:** the kit pins Next 16. That is NOT the version in your training data: check installed docs and APIs before using any Next feature. `next build` aborts once with a security advisory and passes on re-run; plan an upgrade.
+- **Next.js:** pinned to 16.4.6 (D22). That is NOT the version in your training data: read `web/node_modules/next/dist/docs/` before using any Next feature. At 16.4.3 `next dev`/`next build` stopped once with a security advisory; at 16.4.6 `next build` passes on the first run (measured). Route handlers: Web `Request`/`Response`, `params` is a Promise, `export const runtime = "nodejs"`. Turbopack does not map `./x.js` imports to `.ts` (D18). A runtime path built from `process.cwd()` must carry `/*turbopackIgnore: true*/` or the whole repo is traced into the server bundle.
 - **`NEXT_PUBLIC_*` values are build-time.** Rebuild after changing addresses. Production: `NEXT_PUBLIC_NETWORKS=aevum`.
 - **Contract verification on the explorer** is documented as broken. Try `forge verify-contract --verifier blockscout` once (S10). Otherwise publish addresses + commit.
 - `contracts/broadcast/` is gitignored; write `deployments/aevum.json` from the deploy script (addresses, block, git SHA).

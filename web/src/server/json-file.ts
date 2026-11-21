@@ -3,7 +3,7 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 
 /** Server-side state (index cursor, relayer records). Never holds user secrets. Gitignored. */
-export const dataDir = (): string => resolve(process.env.SHAIDA_DATA_DIR?.trim() || join(process.cwd(), ".data"));
+export const dataDir = (): string => resolve(/*turbopackIgnore: true*/ process.env.SHAIDA_DATA_DIR?.trim() || join(process.cwd(), ".data"));
 
 /** The parsed file, or null when it does not exist yet. Any other read error is thrown. */
 export async function readJson(path: string): Promise<unknown> {
