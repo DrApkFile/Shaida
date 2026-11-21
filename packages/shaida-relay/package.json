@@ -1,0 +1,26 @@
+{
+  "name": "@shaida/relay",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Shaida's gasless relayer core: one handler per contract function, rails before simulation, a gas budget, explicit gas caps, legacy txs and persisted request records. Chain, signer, store and clock are injected.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@shaida/proofs": "workspace:*",
+    "viem": "2.57.12",
+    "zod": "3.25.76",
+    "@aevum-kit/aevum": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

@@ -305,3 +305,46 @@ leaf, altered ledger fields, wrong chain, extra field, I06 memos).
 Also: relative imports in the TypeScript packages are now extensionless (`./x`, not `./x.js`): Next 16's Turbopack
 does not map `.js` to `.ts`; tsc (`moduleResolution: bundler`), tsx and esbuild resolve both.
 Where: packages/shaida-index, web/src/server/{indexer,chain,json-file}.ts, web/src/app/api/index/route.ts
+
+## D19: the relayer: five routes, rails before simulation, a gas budget, records before the send
+Context: PRD §3/§8 A5 and AEVUM_INTEGRATION §4 (the kit's relay route plus ten hardening items).
+Decision (`packages/shaida-relay`, routes `web/src/app/api/relay/<fn>/route.ts`):
+- **One route per contract function:** `deposit` → `ShaidaDepositor.depositWithAuthorization`, `vouched-pay` →
+  `ShaidaLedger.vouchedPayFor`, `late-vouch` → `lateVouchFor`, `sweep` → `sweep`, `memo` → `GloamPayMemo.postMemo`.
+  Each encodes its single call from a strict body; no route takes calldata or a target. `memo` is a fifth route the
+  task list did not name: the recipient's inbox reads the memo board, and a payer on the gasless path has no gas to
+  post it. It only posts for a commitment the ledger has vouched, at most once per commitment, ≤ 2,048 bytes.
+- **Rails, in order:** per-IP limit (20/min) before the body is read; strict schema; network configured and a
+  usable key (anvil keys only on 31337/440050); one live record per key (nullifier or commitment, chain-scoped: a
+  repeat returns the existing record); per-payer limit (6/min); off-chain checks (signature windows ≤ 1 h and ≥ 1 min
+  left, EIP-712 signer recovered locally); chain checks at **one pinned block** (tUSD8 `paused`, payer
+  `isBlacklisted` on deposit and pay (D7), `activeIdOf` = registered and active payers only (hardening item 8), note
+  unspent, pool root known, output notes unseen, not already vouched); budget; balance floor (0.01 tQDAY);
+  simulation (revert decoded to a closed code, D17); `estimateGas` ≤ the function's explicit cap; gas limit =
+  min(estimate × 1.3, cap). Caps from evidence/fork-gas.md: deposit 1.6M, vouchedPay 3.2M, lateVouch 1.2M, sweep 3.1M,
+  memo 0.25M.
+- **Gas budget, not a tx count:** per UTC day, every in-flight record holds its gas limit and every mined one its
+  gasUsed (default 150M gas/day, `RELAYER_DAILY_GAS_BUDGET`); dropped ones hold nothing.
+- **Records before the send:** the legacy tx is signed locally (nonce = the relayer's pending count; one submission
+  per chain at a time), its hash is computed and the record persisted as `accepted`; then `sendRawTransaction`.
+  Node answered with an error → `dropped` (budget released); no answer or an unclear HTTP failure → `unknown`
+  (`TxOutcomeUnknown`). `unknown` never resends: `GET /api/relay/status?id=` settles it by its receipt (→ `mined`,
+  reverted or not) or by the relayer's latest nonce passing it with no receipt (→ `dropped`, the nonce went to another
+  tx, so this one can never land). Only a dropped key may be submitted again. No code path re-broadcasts.
+- State (records, key index, rate windows) is one JSON file under `web/.data`, written atomically and checked with a
+  strict schema when read. Each state change logs request id, function, state, hash, nonce, gas, never bodies.
+Rejected: the kit's in-memory maps (lost on restart; hardening item 3 asks for a store; a shared KV is on ROADMAP);
+a viem nonce manager (a process-local counter drifts from the chain after an unknown send; the pending count from
+the node does not); resubmitting with a higher gas price (a dropped-and-resent proof could double-submit; on Aevum's
+fixed 1 gwei it buys nothing).
+Consequences: one relayer key per process and one submission per chain at a time (enough for the demo; a key pool is
+on ROADMAP). A stuck pending tx blocks the next ones on the same nonce until it lands or the node drops it.
+Tests: packages/shaida-relay/test (22: R01 IP limit before parsing, R02 schema/unknown field/not JSON/unknown chain,
+R03 payer limit, R04 TokenPaused/PayerBlacklisted before simulation with reads pinned to one block, R05 X02
+unregistered/revoked payer, R06 foreign signer/long window/redirected payment, R07 AlreadySpent clawback, unknown
+root, seen output, AlreadyVouched, memo for an unvouched payment, R08 revert mapping, R09 gas cap, R10 budget
+reserve/settle/balance floor, R11 legacy tx with explicit gas, R12 unknown → same record, no second send → mined by
+hash, R13 nonce used by another → dropped → resubmit allowed, node refusal releases the budget, R14 mined-reverted,
+log lines carry no body, R15 each function calls only its contract function, R16 anvil keys). Mutation check:
+removing the one-live-record guard fails R12.
+Where: packages/shaida-relay, web/src/server/{relayer,relay-chain,relay-route}.ts, web/src/app/api/relay/

@@ -74,6 +74,10 @@ jobs:
         run: |
           pnpm --filter @shaida/index typecheck
           pnpm --filter @shaida/index test
+      - name: Relayer tests
+        run: |
+          pnpm --filter @shaida/relay typecheck
+          pnpm --filter @shaida/relay test
       - name: Ceremony script tests (pure parts; the snarkjs steps need the ptau and run locally)
         run: |
           pnpm --filter @shaida/ceremony typecheck
