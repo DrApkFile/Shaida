@@ -15,6 +15,7 @@
     "bench": "tsx scripts/bench-proving.ts",
     "vectors": "tsx scripts/gen-ledger-vectors.ts",
     "fixtures:verifier": "tsx scripts/gen-verifier-fixtures.ts",
+    "fixtures:final": "tsx scripts/gen-final-fixture.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

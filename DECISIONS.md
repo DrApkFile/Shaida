@@ -397,3 +397,24 @@ Verified: `node tools/ui-flow-fork.mjs` drives both pages in headless Chromium a
 profiles (deposit, vouched pay + memo, sweep), checks for horizontal overflow, writes evidence/ui-fork/.
 Rejected: a server-side inbox scan (the receive key would leave the browser); a viem nonce manager in the UI (the
 payer never sends).
+
+## D24: the ceremony's income verifier in the deploy
+Context: the ceremony finalized (e370842): final zkey sha256 cbcb06fe…, verifier
+`contracts/src/generated/IncomeGroth16Verifier.sol` (96db550b…). DeployStack had no IncomeVerifier ("not built yet").
+Decision:
+- DeployStack deploys `IncomeGroth16Verifier` (imported from `src/generated/`, the finalize output, never copied) and
+  `IncomeVerifier(groth16, ShaidaLedger, tUSD8)`. `DeployChecks.requireIncomeKey` then refuses the deploy unless the
+  verifier accepts `contracts/script/fixtures/income-final-proof.json` (an honest proof made with the final zkey by
+  `packages/shaida-proofs/scripts/gen-final-fixture.ts`, which checks the zkey and vkey hashes against
+  ceremony/record.json first) and rejects `test/fixtures/income/throwaway-proof.json`, a throwaway-key proof of the
+  same seven public signals, and unless IncomeVerifier points at that verifier, the ledger and tUSD8. Same shape as
+  Gloam's final-accept/dev-reject check (D2).
+- `tools/write-deployment.mjs` expects both creates, drops `notBuiltYet: ["IncomeVerifier"]`, and records
+  `incomeKey` (zkey sha256 and verifier file from ceremony/record.json); it refuses when the ceremony has no final key.
+- The throwaway-key switch (`NEXT_PUBLIC_SHAIDA_INCOME_KEY`) is read only by the browser flows (web/src/lib/flows.ts),
+  where `incomeKeyFor` refuses it on 44005 (P01). No deploy target, script or recorder reads it, and the throwaway
+  Solidity verifiers exist only under contracts/test/fixtures/.
+Verified: forge tests K01–K05 (contracts/test/IncomeFinalKey.t.sol), including K04: the deploy check refuses a
+throwaway verifier. `make deploy-fork` on `make fork` passed every check; on the fork node, `cast call verifyProof`
+returned true for the final-key proof and false for the throwaway one; deployed runtime 1,909 bytes; `make test-fork`
+12 passed.

@@ -18,6 +18,7 @@ remappings = [
 fs_permissions = [
   { access = "read", path = "./lib/gloam/contracts/test/fixtures" },
   { access = "read", path = "./test/fixtures" },
+  { access = "read", path = "./script/fixtures" },
 ]
 
 [rpc_endpoints]

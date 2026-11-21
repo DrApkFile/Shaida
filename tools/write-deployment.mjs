@@ -25,6 +25,8 @@ const EXPECTED_CREATES = [
   "PayerRegistry",
   "ShaidaLedger",
   "ShaidaDepositor",
+  "IncomeGroth16Verifier",
+  "IncomeVerifier",
 ];
 const EXPECTED_SETUP_CALLS = [
   "turnOnDepositLimits()",
@@ -99,6 +101,17 @@ async function confirmed(tx) {
   return { txHash: tx.hash, block: Number(receipt.blockNumber), gasUsed: Number(receipt.gasUsed) };
 }
 
+// The income verifier comes from the Shaida ceremony's final key; record which one (ceremony/record.json).
+function incomeKey() {
+  const final = JSON.parse(readFileSync(join(ROOT, "ceremony/record.json"), "utf8")).final;
+  if (!final) fail("ceremony/record.json has no final key: the income verifier cannot be the ceremony's");
+  return {
+    zkeySha256: final.zkey.sha256,
+    verifier: final.verifier,
+    check: "IncomeGroth16Verifier accepted a final-key proof and rejected a throwaway-key proof at deploy",
+  };
+}
+
 const contracts = {};
 const pool = creates.find((t) => t.contractName === "ShieldPoolPoseidon");
 if (!pool) fail("no ShieldPoolPoseidon create in the broadcast");
@@ -136,12 +149,12 @@ const record = {
   gitDirty,
   gloamCommit: git(["rev-parse", "HEAD"], join(ROOT, "contracts/lib/gloam")),
   verifierKeys: "gloam ceremony-final (src/verifiers/final), checked final-accept and dev-reject at deploy",
+  incomeKey: incomeKey(),
   poolDeployBlock: contracts.ShieldPoolPoseidon.block,
   contracts,
   setupTxs,
   attestor,
   ledgerDeployBlock: contracts.ShaidaLedger.block,
-  notBuiltYet: ["IncomeVerifier"],
   broadcastFile: broadcastFile.slice(ROOT.length + 1),
   recordedAt: new Date().toISOString(),
 };

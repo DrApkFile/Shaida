@@ -8,6 +8,16 @@ import {KeyCheckProofs} from "gloam/script/KeyCheckProofs.sol";
 import {PayerRegistry} from "../src/PayerRegistry.sol";
 import {ShaidaDepositor} from "../src/ShaidaDepositor.sol";
 import {ShaidaLedger} from "../src/ShaidaLedger.sol";
+import {IncomeVerifier, IIncomeGroth16Verifier} from "../src/IncomeVerifier.sol";
+import {Vm} from "forge-std/Vm.sol";
+
+/// One income proof in snarkjs calldata order, read from a fixture file.
+struct IncomeProof {
+    uint256[2] a;
+    uint256[2][2] b;
+    uint256[2] c;
+    uint256[7] signals;
+}
 
 /// Everything DeployStack deployed, and the read-back checks it must pass before anyone uses it.
 struct Stack {
@@ -20,6 +30,8 @@ struct Stack {
     address registry;
     address ledger;
     address depositor;
+    address incomeGroth16;
+    address incomeVerifier;
 }
 
 library DeployChecks {
@@ -60,6 +72,40 @@ library DeployChecks {
         ShaidaDepositor depositor = ShaidaDepositor(s.depositor);
         require(address(depositor.token()) == TUSD8, "depositor token mismatch");
         require(address(depositor.pool()) == s.pool, "depositor pool mismatch");
+    }
+
+    /// @dev The income verifier must be the ceremony's: it accepts a proof made with the final key and rejects a proof
+    /// of the same public signals made with a throwaway key. Gas is set explicitly (snarkjs returns false when short).
+    function requireIncomeKey(Stack memory s, IncomeProof memory finalKey, IncomeProof memory throwaway) internal view {
+        IIncomeGroth16Verifier g = IIncomeGroth16Verifier(s.incomeGroth16);
+        require(
+            g.verifyProof{gas: 400_000}(finalKey.a, finalKey.b, finalKey.c, finalKey.signals),
+            "income verifier rejects a final-key proof"
+        );
+        require(
+            !g.verifyProof{gas: 400_000}(throwaway.a, throwaway.b, throwaway.c, throwaway.signals),
+            "income verifier accepts a THROWAWAY-key proof"
+        );
+        IncomeVerifier v = IncomeVerifier(s.incomeVerifier);
+        require(address(v.groth16()) == s.incomeGroth16, "IncomeVerifier groth16 mismatch");
+        require(address(v.ledger()) == s.ledger, "IncomeVerifier ledger mismatch");
+        require(v.asset() == uint256(uint160(TUSD8)), "IncomeVerifier asset is not tUSD8");
+    }
+
+    function readIncomeProof(Vm vm, string memory path) internal view returns (IncomeProof memory p) {
+        string memory json = vm.readFile(string.concat(vm.projectRoot(), "/", path));
+        uint256[] memory a = vm.parseJsonUintArray(json, ".a");
+        uint256[] memory b0 = vm.parseJsonUintArray(json, ".b[0]");
+        uint256[] memory b1 = vm.parseJsonUintArray(json, ".b[1]");
+        uint256[] memory c = vm.parseJsonUintArray(json, ".c");
+        uint256[] memory sig = vm.parseJsonUintArray(json, ".signals");
+        require(a.length == 2 && b0.length == 2 && b1.length == 2 && c.length == 2 && sig.length == 7, "bad proof file");
+        p.a = [a[0], a[1]];
+        p.b = [[b0[0], b0[1]], [b1[0], b1[1]]];
+        p.c = [c[0], c[1]];
+        for (uint256 i = 0; i < 7; i++) {
+            p.signals[i] = sig[i];
+        }
     }
 
     // Source: gloamtrade/gloam contracts/script/MainnetDeploy.sol `_requireCeremonyKeys` (MIT, (c) 2026 Gloam).

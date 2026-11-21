@@ -16,12 +16,14 @@ PRD §11 steps 1–2 and acts 2–3 run on a local fork; nothing is deployed on 
   (PRD §5) checks bundles. Tested with honest cases, the circuit cheats of EVAL_DESIGN (X04–X09 and
   public-signal tampering), the bundle refusals (X14–X18) and property tests. Each proof's threshold share is
   rounded down to whole tUSD8 (D13).
-  Proving keys so far are a **throwaway local key** for tests and timing only.
-- Ceremony (step 3): in progress. Contribution 1 is done and contribution 2 is with an outside contributor; then
-  the beacon. Until it ends there is **no final income key**: `NEXT_PUBLIC_SHAIDA_INCOME_KEY=throwaway` works on local
-  chains only and is refused on Aevum 44005 (D21).
-- `IncomeVerifier` (on-chain check of one proof: tUSD8, known ledger root, gas guard, Groth16; optional attest):
-  unit-tested with a placeholder and two throwaway verifiers. Not deployed; it waits for the ceremony's verifier.
+  Circuit tests and timings use a **throwaway local key**.
+- Ceremony (step 3): done. Two contributions (Kene, Gunroar) and a beacon from Aevum block 3772100, verified; final
+  zkey sha256 `cbcb06fe…` as release asset `ceremony-v1` ([ceremony/TRANSCRIPT.md](ceremony/TRANSCRIPT.md)). The
+  throwaway key (`NEXT_PUBLIC_SHAIDA_INCOME_KEY=throwaway`) works on local chains only and is refused on Aevum 44005
+  (D21).
+- `IncomeVerifier` (on-chain check of one proof: tUSD8, known ledger root, gas guard, Groth16; optional attest), over
+  the ceremony's verifier: part of the fork deploy, which refuses a verifier that rejects a final-key proof or
+  accepts a throwaway-key one (D24). Not deployed on Aevum testnet.
 - Tests: `make test` (contracts, circuit, witness builder) and `make test-fork` (real tUSD8 on a fork, including
   deposit → vouched pay → sweep with real proofs). Gas: [evidence/fork-gas.md](evidence/fork-gas.md).
   Issuer and front-running limits: [LIMITS.md](LIMITS.md).

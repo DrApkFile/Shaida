@@ -20,6 +20,9 @@ import {TransferIVerifierFinal} from "gloam/src/verifiers/final/TransferIVerifie
 import {PayerRegistry} from "../src/PayerRegistry.sol";
 import {ShaidaDepositor} from "../src/ShaidaDepositor.sol";
 import {ShaidaLedger} from "../src/ShaidaLedger.sol";
+import {IncomeVerifier, IIncomeGroth16Verifier, ILedgerRoots} from "../src/IncomeVerifier.sol";
+// Written by ceremony/finalize.ts from the final ceremony key (ceremony/record.json `final`). Never a throwaway key.
+import {IncomeGroth16Verifier} from "../src/generated/IncomeGroth16Verifier.sol";
 import {IGloamPool} from "../src/interfaces/IGloamPool.sol";
 import {DeployChecks, Stack} from "./DeployChecks.sol";
 
@@ -33,8 +36,8 @@ import {DeployChecks, Stack} from "./DeployChecks.sol";
  *      deposits go through shieldBound), tUSD8 listed, setup ended (D8)
  *   4. GloamPayMemo
  *   5. PayerRegistry (owned by ATTESTOR), ShaidaLedger, ShaidaDepositor
- *
- * Not built yet: IncomeVerifier (waits for the circuit and its ceremony, PRD §11 steps 2-3).
+ *   6. IncomeGroth16Verifier (the ceremony's final key) and IncomeVerifier over ShaidaLedger and tUSD8, refused
+ *      unless the verifier accepts a final-key proof and rejects a throwaway-key proof of the same public signals
  *
  * Environment (all required; the Makefile sets them, nothing has a silent default):
  *   TUSD8_PER_DEPOSIT   pool deposit limit per deposit, tUSD8 base units (6 decimals)
@@ -51,6 +54,9 @@ contract DeployStack is Script {
     uint256 internal constant AEVUM_FORK = 440050;
     address internal constant TUSD8 = 0x456569838f1d43009A91ebA4263147Afd7233483;
     string internal constant FIXTURES = "lib/gloam/contracts/test/fixtures/";
+    /// From packages/shaida-proofs/scripts/gen-final-fixture.ts (final key) and gen-verifier-fixtures.ts (throwaway A).
+    string internal constant INCOME_FINAL_PROOF = "script/fixtures/income-final-proof.json";
+    string internal constant INCOME_THROWAWAY_PROOF = "test/fixtures/income/throwaway-proof.json";
     string internal constant ANVIL_MNEMONIC = "test test test test test test test test test test test junk";
 
     function run() external returns (Stack memory s) {
@@ -90,9 +96,18 @@ contract DeployStack is Script {
             new ShaidaLedger(IGloamPool(s.pool), registry, IPoseidon2(s.poseidon2), IPoseidon3(s.poseidon3))
         );
         s.depositor = address(new ShaidaDepositor(IERC20(TUSD8), IGloamPool(s.pool)));
+        s.incomeGroth16 = address(new IncomeGroth16Verifier());
+        s.incomeVerifier = address(
+            new IncomeVerifier(IIncomeGroth16Verifier(s.incomeGroth16), ILedgerRoots(s.ledger), TUSD8)
+        );
         vm.stopBroadcast();
 
         DeployChecks.check(s, perDeposit, total, attestor);
+        DeployChecks.requireIncomeKey(
+            s,
+            DeployChecks.readIncomeProof(vm, INCOME_FINAL_PROOF),
+            DeployChecks.readIncomeProof(vm, INCOME_THROWAWAY_PROOF)
+        );
         _log(s);
     }
 
@@ -137,6 +152,8 @@ contract DeployStack is Script {
         console2.log("PayerRegistry     ", s.registry);
         console2.log("ShaidaLedger      ", s.ledger);
         console2.log("ShaidaDepositor   ", s.depositor);
-        console2.log("All checks passed: final keys, limits on, setup ended, Shaida contracts wired.");
+        console2.log("IncomeGroth16     ", s.incomeGroth16);
+        console2.log("IncomeVerifier    ", s.incomeVerifier);
+        console2.log("All checks passed: final keys (Gloam and income), limits on, setup ended, Shaida contracts wired.");
     }
 }
