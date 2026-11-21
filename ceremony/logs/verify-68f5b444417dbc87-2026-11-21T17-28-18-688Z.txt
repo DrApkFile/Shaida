@@ -1,0 +1,112 @@
+zkey ceremony/work/income_0002.zkey sha256 68f5b444417dbc87f3a319e6d1484a959c3501c5b1a96515bd8447525f148b13
+RESULT: ZKey Ok, recorded
+
+[INFO] Reading r1cs
+[INFO] Reading tauG1
+[INFO] Reading tauG2
+[INFO] Reading alphatauG1
+[INFO] Reading betatauG1
+[DEBUG] processing constraints: 0/44687
+[DEBUG] processing constraints: 10000/44687
+[DEBUG] processing constraints: 20000/44687
+[DEBUG] processing constraints: 30000/44687
+[DEBUG] processing constraints: 40000/44687
+[DEBUG] writing coeffs: 0/182283
+[DEBUG] writing coeffs: 100000/182283
+[DEBUG] Writing points start IC: 0/8
+[DEBUG] Configuring big array IC: 10000/17578
+[DEBUG] Writing points end IC: 0/8
+[DEBUG] splitting buffer: 0/65536
+[DEBUG] splitting buffer: 10000/65536
+[DEBUG] splitting buffer: 20000/65536
+[DEBUG] splitting buffer: 30000/65536
+[DEBUG] splitting buffer: 40000/65536
+[DEBUG] splitting buffer: 50000/65536
+[DEBUG] splitting buffer: 60000/65536
+[DEBUG] HashingHPoints: 0/65536
+[DEBUG] HashingHPoints: 16384/65536
+[DEBUG] HashingHPoints: 32768/65536
+[DEBUG] HashingHPoints: 49152/65536
+[DEBUG] Writing points start C: 0/44825
+[DEBUG] Writing points start C: 3059/44825
+[DEBUG] Writing points start C: 5764/44825
+[DEBUG] Writing points start C: 8421/44825
+[DEBUG] Writing points end C: 0/44825
+[DEBUG] Writing points end C: 8421/44825
+[DEBUG] Writing points end C: 3059/44825
+[DEBUG] Writing points end C: 5764/44825
+[DEBUG] Writing points start C: 11098/44825
+[DEBUG] Writing points start C: 13758/44825
+[DEBUG] Writing points start C: 16439/44825
+[DEBUG] Writing points start C: 19173/44825
+[DEBUG] Writing points end C: 11098/44825
+[DEBUG] Writing points end C: 16439/44825
+[DEBUG] Writing points end C: 13758/44825
+[DEBUG] Writing points end C: 19173/44825
+[DEBUG] Writing points start C: 21935/44825
+[DEBUG] Writing points start C: 24563/44825
+[DEBUG] Writing points start C: 27225/44825
+[DEBUG] Writing points start C: 29886/44825
+[DEBUG] Writing points end C: 24563/44825
+[DEBUG] Writing points end C: 21935/44825
+[DEBUG] Writing points end C: 27225/44825
+[DEBUG] Writing points end C: 29886/44825
+[DEBUG] Writing points start C: 32568/44825
+[DEBUG] Writing points start C: 35309/44825
+[DEBUG] Writing points start C: 38066/44825
+[DEBUG] Writing points start C: 40744/44825
+[DEBUG] Writing points end C: 38066/44825
+[DEBUG] Writing points end C: 32568/44825
+[DEBUG] Writing points end C: 35309/44825
+[DEBUG] Writing points end C: 40744/44825
+[DEBUG] Writing points start C: 43407/44825
+[DEBUG] Writing points end C: 43407/44825
+[DEBUG] Writing points start A: 0/44833
+[DEBUG] Writing points start A: 18089/44833
+[DEBUG] Writing points start A: 37911/44833
+[DEBUG] Writing points end A: 37911/44833
+[DEBUG] Writing points end A: 0/44833
+[DEBUG] Writing points end A: 18089/44833
+[DEBUG] Writing points start B1: 0/44833
+[DEBUG] Writing points start B1: 12786/44833
+[DEBUG] Writing points start B1: 27006/44833
+[DEBUG] Writing points start B1: 41527/44833
+[DEBUG] Writing points end B1: 41527/44833
+[DEBUG] Writing points end B1: 12786/44833
+[DEBUG] Writing points end B1: 0/44833
+[DEBUG] Writing points end B1: 27006/44833
+[DEBUG] Writing points start B2: 0/44833
+[DEBUG] Writing points start B2: 12786/44833
+[DEBUG] Writing points start B2: 27006/44833
+[DEBUG] Writing points start B2: 41527/44833
+[DEBUG] Writing points end B2: 41527/44833
+[DEBUG] Writing points end B2: 0/44833
+[DEBUG] Writing points end B2: 27006/44833
+[DEBUG] Writing points end B2: 12786/44833
+[INFO] Circuit hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+[DEBUG] Same ratio check L section:  0/44825
+[DEBUG] H Verification(tau):  0/65536
+[DEBUG] H Verification(lagrange):  0/65536
+[INFO] Circuit Hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+[INFO] -------------------------
+[INFO] contribution #2 Gunroar:
+		cfc250b4 c8d131fe c4f2464e c79b8c90
+		05de9b2b 2669e55a 79141fd0 f32946ba
+		0d696885 f8346633 ab65adb0 ffbed876
+		c1ef6114 10661889 5b75cfd2 723e1296
+[INFO] -------------------------
+[INFO] contribution #1 Kene:
+		65ae2edb c81c50e9 a0bf0206 14874eab
+		ab2ab840 e494c01f 5f2c94b6 2fa2ed95
+		9aa1e917 da482f5c 1e025eb7 85cb37aa
+		3bc2fdfc 61a4668a 0de43015 40e445e3
+[INFO] -------------------------
+[INFO] ZKey Ok!

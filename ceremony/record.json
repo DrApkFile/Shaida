@@ -57,9 +57,45 @@
       "log": "ceremony/logs/verify-f68a5fa8b4aac9b9-2026-11-21T14-29-49-321Z.txt",
       "at": "2026-11-21T14:29:49.393Z",
       "superseded": null
+    },
+    {
+      "zkey": {
+        "path": "ceremony/work/income_0002.zkey",
+        "sha256": "68f5b444417dbc87f3a319e6d1484a959c3501c5b1a96515bd8447525f148b13"
+      },
+      "circuitHash": "2c23ce107abf99aedcbabaf6bdaf4cdb317e512a8bcba07cfdc1004279251a1d61ac0fc67809d721429b4e13a2e914b1595aa5dbf47ef36b6585e83cf825688c",
+      "contributions": [
+        {
+          "n": 1,
+          "name": "Kene",
+          "hash": "65ae2edbc81c50e9a0bf020614874eabab2ab840e494c01f5f2c94b62fa2ed959aa1e917da482f5c1e025eb785cb37aa3bc2fdfc61a4668a0de4301540e445e3",
+          "beacon": null
+        },
+        {
+          "n": 2,
+          "name": "Gunroar",
+          "hash": "cfc250b4c8d131fec4f2464ec79b8c9005de9b2b2669e55a79141fd0f32946ba0d696885f8346633ab65adb0ffbed876c1ef6114106618895b75cfd2723e1296",
+          "beacon": null
+        }
+      ],
+      "log": "ceremony/logs/verify-68f5b444417dbc87-2026-11-21T17-28-18-688Z.txt",
+      "at": "2026-11-21T17:28:18.729Z",
+      "superseded": null
     }
   ],
-  "beaconAnnouncement": null,
+  "beaconAnnouncement": {
+    "chainId": 44005,
+    "blockNumber": 3772100,
+    "forZkey": {
+      "path": "ceremony/work/income_0002.zkey",
+      "sha256": "68f5b444417dbc87f3a319e6d1484a959c3501c5b1a96515bd8447525f148b13"
+    },
+    "headAtAnnouncement": 3764985,
+    "headTimestamp": 1795282113,
+    "blockSeconds": 1.012,
+    "expectedTimestamp": 1795289313,
+    "at": "2026-11-21T17:28:34.600Z"
+  },
   "beacon": null,
   "final": null
 }

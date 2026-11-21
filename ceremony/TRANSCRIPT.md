@@ -47,9 +47,33 @@ ab2ab840e494c01f5f2c94b62fa2ed95
 3bc2fdfc61a4668a0de4301540e445e3
 ```
 
+### `ceremony/work/income_0002.zkey`
+
+sha256 `68f5b444417dbc87f3a319e6d1484a959c3501c5b1a96515bd8447525f148b13`, verified 2026-11-21T17:28:18.729Z against the r1cs and ptau above (log: `ceremony/logs/verify-68f5b444417dbc87-2026-11-21T17-28-18-688Z.txt`).
+
+| # | Name in the zkey | Kind | Contribution hash |
+|---|---|---|---|
+| 1 | Kene | contribution | `65ae2edbc81c50e9…` |
+| 2 | Gunroar | contribution | `cfc250b4c8d131fe…` |
+
+Contribution #1 hash:
+```
+65ae2edbc81c50e9a0bf020614874eab
+ab2ab840e494c01f5f2c94b62fa2ed95
+9aa1e917da482f5c1e025eb785cb37aa
+3bc2fdfc61a4668a0de4301540e445e3
+```
+Contribution #2 hash:
+```
+cfc250b4c8d131fec4f2464ec79b8c90
+05de9b2b2669e55a79141fd0f32946ba
+0d696885f8346633ab65adb0ffbed876
+c1ef6114106618895b75cfd2723e1296
+```
+
 ## Beacon
 
-Not announced yet.
+Announced 2026-11-21T17:28:34.600Z: block **3772100** on chain 44005, for zkey sha256 `68f5b444417dbc87f3a319e6d1484a959c3501c5b1a96515bd8447525f148b13`. Head was 3764985 (timestamp 1795282113); at 1.012 s per block the block is expected near unix 1795289313.
 
 ## Final key
 
