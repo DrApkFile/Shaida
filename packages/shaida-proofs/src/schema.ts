@@ -1,6 +1,6 @@
 // Strict input schema for the witness builder: callers pass BigInt base units and field elements.
 import { z } from "zod";
-import { AMOUNT_LIMIT, FIELD_ORDER, MAX_LEAVES, THRESHOLD_LIMIT } from "./field.js";
+import { AMOUNT_LIMIT, FIELD_ORDER, MAX_LEAVES, SHARE_STEP, THRESHOLD_LIMIT } from "./field.js";
 
 const field = z.bigint().nonnegative().lt(FIELD_ORDER);
 const nonZeroField = field.refine((v) => v !== 0n, "must be non-zero");
@@ -32,9 +32,20 @@ export const incomeRequestSchema = z
     toIndex: leafIndex,
     context: field,
     payments: z.array(paymentRecordSchema),
+    /** Each proof's threshold share is a multiple of this (D13). Default whole tUSD8; coarser steps reveal less. */
+    shareStep: z
+      .bigint()
+      .positive()
+      .refine((v) => v % SHARE_STEP === 0n, `must be a multiple of ${SHARE_STEP} (whole tUSD8)`)
+      .default(SHARE_STEP),
   })
   .strict()
-  .refine((r) => r.fromIndex <= r.toIndex, { message: "fromIndex must be <= toIndex", path: ["toIndex"] });
+  .refine((r) => r.fromIndex <= r.toIndex, { message: "fromIndex must be <= toIndex", path: ["toIndex"] })
+  // zod still runs this after a failed field check, so guard the division (shareStep 0 is refused above)
+  .refine((r) => r.shareStep > 0n && r.threshold % r.shareStep === 0n, {
+    message: "must be a multiple of shareStep, since every proof's share is (D13)",
+    path: ["threshold"],
+  });
 
 export type PaymentRecord = z.infer<typeof paymentRecordSchema>;
 export type IncomeRequest = z.infer<typeof incomeRequestSchema>;

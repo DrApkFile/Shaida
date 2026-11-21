@@ -8,7 +8,7 @@
 - D5 Proof data in the URL fragment only
 - D6 Licence mix
 - Chain 44005, tUSD8 only; Shanghai; legacy txs.
-- Circuit: 4 slots per proof (D12), depth 20, public signals exactly `ledgerRoot, asset, threshold, count, fromIndex, toIndex, context`. A period is a bundle of 1–8 proofs with one context and strictly disjoint leaf ranges.
+- Circuit: 4 slots per proof (D12), depth 20, public signals exactly `ledgerRoot, asset, threshold, count, fromIndex, toIndex, context`. A period is a bundle of 1–8 proofs with one context, one ledger root (D13) and strictly disjoint leaf ranges.
 
 ## Never fabricate
 - No placeholder data shown as real. Show `—` until a real value exists.

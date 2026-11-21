@@ -11,6 +11,12 @@ export const INCOME_SLOTS = 4 as const;
 /** Proofs in one bundle (D12): a period holds at most INCOME_SLOTS × MAX_BUNDLE_PROOFS = 32 payments. */
 export const MAX_BUNDLE_PROOFS = 8 as const;
 
+/**
+ * Default rounding step for each proof's threshold share in a bundle (D13): whole tUSD8 (6 decimals). A share capped
+ * at its proof's sum then shows that sum only to the step. A request may ask for a coarser step (a multiple of this).
+ */
+export const SHARE_STEP = 1_000_000n;
+
 /** Leaf tags, equal to ShaidaLedger.VOUCH_TAG / SWEEP_TAG and the circuit's VOUCH_TAG() / SWEEP_TAG(). */
 export const VOUCH_TAG = 1n;
 export const SWEEP_TAG = 2n;

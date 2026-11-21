@@ -31,6 +31,8 @@ export const ERROR_CODES = {
   // D12 (bundles of proofs)
   RangesOverlap: { retryable: "no", nextAction: "ask for a new link; a bundle must not count a leaf range twice" },
   MixedContexts: { retryable: "no", nextAction: "ask for a new link; its proofs were made for different readers or expiries" },
+  // D13
+  MixedRoots: { retryable: "no", nextAction: "ask for a new link; all proofs of a bundle must use one ledger root" },
 } as const satisfies Record<string, CodeSpec>;
 
 export type ErrorCode = keyof typeof ERROR_CODES;

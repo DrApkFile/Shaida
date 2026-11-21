@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { after, describe, it } from "node:test";
-import { buildIncomeBundle, type IncomeBundleWitness, INCOME_SLOTS, type Result } from "../src/index.js";
+import { buildIncomeBundle, type IncomeBundleWitness, INCOME_SLOTS, type Result, SHARE_STEP } from "../src/index.js";
 import { endSnarkjs, r1csHolds, runCircuit } from "./helpers/circuit.js";
-import { buildSingleProof, honestRequest, makeScenario, Rng } from "./helpers/scenario.js";
+import { buildSingleProof, honestRequest, makeScenario, Rng, roundDown, showableThreshold } from "./helpers/scenario.js";
 
 after(endSnarkjs);
 
@@ -14,8 +14,9 @@ function built<T>(r: Result<T>): T {
 describe("income circuit: honest proofs (C2)", () => {
   it("H1 accepts one vouched, swept payment at exactly the threshold", async () => {
     const rng = new Rng(101);
-    const s = makeScenario(rng, { payments: 1, noise: 2 });
-    const w = built(buildSingleProof(honestRequest(s, rng, { threshold: s.payments[0]!.amount })));
+    const s = makeScenario(rng, { payments: 1, noise: 2, amounts: [7_000_000n] });
+    const w = built(buildSingleProof(honestRequest(s, rng, { threshold: 7_000_000n })));
+    assert.equal(w.publicSignals.threshold, 7_000_000n);
     assert.equal(w.publicSignals.count, 1n);
     assert.deepEqual((await runCircuit(w.input)).accepted, true);
     assert.equal(await r1csHolds(w.input), true, "every R1CS constraint holds");
@@ -25,7 +26,7 @@ describe("income circuit: honest proofs (C2)", () => {
     const rng = new Rng(202);
     const s = makeScenario(rng, { payments: 3, noise: 4 });
     const total = s.payments.reduce((a, p) => a + p.amount, 0n);
-    const all = built(buildSingleProof(honestRequest(s, rng, { threshold: total / 2n })));
+    const all = built(buildSingleProof(honestRequest(s, rng, { threshold: roundDown(total / 2n) })));
     assert.equal(all.publicSignals.count, 3n);
     assert.equal((await runCircuit(all.input)).accepted, true);
 
@@ -73,22 +74,36 @@ describe("witness builder: bundles over disjoint ranges (D12)", () => {
     it(`splits ${payments} payments into proofs of ${sizes.join(" + ")}`, async () => {
       const rng = new Rng(500 + payments);
       const s = makeScenario(rng, { payments, noise: 2 });
-      const total = s.payments.reduce((a, p) => a + p.amount, 0n);
-      const req = honestRequest(s, rng, { threshold: (total * 9n) / 10n });
+      const base = honestRequest(s, rng);
+      const req = { ...base, threshold: roundDown((showableThreshold(base) * 9n) / 10n) };
       const b = built(buildIncomeBundle(req));
       assert.deepEqual(b.proofs.map((p) => p.counted.length), [...sizes]);
       await assertHonestBundle(b, req.fromIndex, req.toIndex, req.threshold);
     });
   }
 
-  it("splits a threshold equal to the total into each proof's exact sum", async () => {
+  it("C3 splits the largest showable threshold into each proof's sum rounded down to whole tUSD8", async () => {
     const rng = new Rng(77);
     const s = makeScenario(rng, { payments: 6 });
-    const total = s.payments.reduce((a, p) => a + p.amount, 0n);
-    const req = honestRequest(s, rng, { threshold: total });
+    const base = honestRequest(s, rng);
+    const req = { ...base, threshold: showableThreshold(base) };
     const b = built(buildIncomeBundle(req));
-    for (const p of b.proofs) assert.equal(p.publicSignals.threshold, p.counted.reduce((a, c) => a + c.amount, 0n));
-    await assertHonestBundle(b, req.fromIndex, req.toIndex, total);
+    for (const p of b.proofs) {
+      assert.equal(p.publicSignals.threshold, roundDown(p.counted.reduce((a, c) => a + c.amount, 0n)));
+    }
+    await assertHonestBundle(b, req.fromIndex, req.toIndex, req.threshold);
+  });
+
+  it("C3 rounds shares to a coarser step when asked (5 tUSD8): a capped share shows its sum only to 5 tUSD8", () => {
+    const step = 5_000_000n;
+    const amounts = [3_100_000n, 4_200_000n, 2_300_000n, 1_400_000n, 9_900_000n]; // chunks 11.0 and 9.9 tUSD8
+    const rng = new Rng(78);
+    const s = makeScenario(rng, { payments: 5, amounts, noise: 1 });
+    const b = built(buildIncomeBundle(honestRequest(s, rng, { threshold: 15_000_000n, shareStep: step })));
+    const shares = b.proofs.map((p) => p.publicSignals.threshold);
+    assert.deepEqual(shares, [10_000_000n, 5_000_000n], "11.0 → 10, 9.9 → 5: both capped, both rounded down to 5");
+    const r = buildIncomeBundle(honestRequest(s, rng, { threshold: 16_000_000n, shareStep: step }));
+    assert.equal(r.ok ? "built" : r.error.code, "InputRejected", "a threshold that is not a multiple of the step");
   });
 
   it("builds the largest bundle: 32 payments in 8 proofs", () => {
@@ -120,8 +135,18 @@ describe("witness builder: named refusals (PRD §4, D10)", () => {
     const rng = new Rng(2);
     const s = makeScenario(rng, { payments: 2 });
     const total = s.payments.reduce((a, p) => a + p.amount, 0n);
-    const r = buildSingleProof(honestRequest(s, rng, { threshold: total + 1n }));
+    const r = buildSingleProof(honestRequest(s, rng, { threshold: roundDown(total) + SHARE_STEP }));
     assert.equal(r.ok ? "built" : r.error.code, "BelowThreshold");
+  });
+
+  it("BelowThreshold: refuses a threshold the payments reach only before rounding each proof's share (D13)", () => {
+    // chunks of 4 × 0.6 and 1 × 0.6 tUSD8: 3.0 in total, but whole-tUSD8 shares can show only 2 + 0
+    const rng = new Rng(22);
+    const s = makeScenario(rng, { payments: 5, amounts: Array(5).fill(600_000n), noise: 1 });
+    const r = buildIncomeBundle(honestRequest(s, rng, { threshold: 3_000_000n }));
+    assert.equal(r.ok ? "built" : r.error.code, "BelowThreshold");
+    assert.match(r.ok ? "" : r.error.message, /at most 2000000/);
+    assert.equal(buildIncomeBundle(honestRequest(s, rng, { threshold: 2_000_000n })).ok, true);
   });
 
   it("UnknownRoot: refuses leaves that do not give the checked root (incomplete sync)", () => {
@@ -132,7 +157,7 @@ describe("witness builder: named refusals (PRD §4, D10)", () => {
     assert.equal(r.ok ? undefined : r.error.retryable, "yes");
   });
 
-  it("InputRejected: refuses an amount of 2^64, a zero sweep secret, reversed range and unknown keys", () => {
+  it("InputRejected: refuses an amount of 2^64, a zero sweep secret, reversed range, unknown keys and off-step thresholds", () => {
     const rng = new Rng(4);
     const s = makeScenario(rng, { payments: 1 });
     const p = s.payments[0]!;
@@ -141,6 +166,10 @@ describe("witness builder: named refusals (PRD §4, D10)", () => {
       { payments: [{ ...p, secretS: 0n }] },
       { fromIndex: 5n, toIndex: 4n },
       { extra: 1 },
+      { threshold: 1n },
+      { threshold: SHARE_STEP + 1n },
+      { shareStep: 0n },
+      { shareStep: 1_500_000n, threshold: 3_000_000n },
     ];
     for (const c of cases) {
       const r = buildSingleProof(honestRequest(s, rng, c));

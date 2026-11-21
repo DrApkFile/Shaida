@@ -47,6 +47,10 @@ A period with more than 4 payments is proved by several proofs (at most 8, so at
 public signals are visible to the reader, so a bundle shows more than one proof would:
 - each proof's leaf range, threshold share and count. The boundaries fall halfway between the last vouch leaf of one
   proof and the first of the next, so they narrow where payments sit among the public `Vouched` events;
-- a proof's exact sum when it is below the even share of the threshold (water-filling split, `src/split.ts`).
+- for a proof whose sum (rounded down to the share step) is below the even share of the threshold: that sum, rounded
+  down to the step (D13). The step is 1 tUSD8 by default, so such a share narrows the proof's sum to a 1 tUSD8 window
+  [share, share + 1 tUSD8); a coarser step (e.g. 10 tUSD8) widens the window and needs a threshold that is a multiple
+  of it. Shares are never the unrounded sum, so a share never pins a sum to the base unit. Other shares show only
+  that their proof's sum is at least the share.
 Not shown: amounts per payment, payer per payment, the recipient's notes. A period of more than 32 payments must be
 split into shorter periods (`NotEnoughSlots`).

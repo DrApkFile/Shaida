@@ -142,7 +142,7 @@ sha256 `d866695ca2473e70408d288feafaec7181983480a688acac30b42156d305d82a` is byt
 measured, and replaces D11's `4f4af7bd…` as the phase-2 candidate. A period is proved by a bundle of 1–8 proofs:
 - Verification (PRD §5, `src/verify/`): every proof has the same `context` (so reader and expiry) and `asset`; every
   root passes `isKnownRoot`; leaf ranges strictly disjoint; total = Σ thresholds, count = Σ counts. New codes
-  `RangesOverlap` and `MixedContexts`. Roots may differ (append-only tree: an index names the same leaf under every
+  `RangesOverlap` and `MixedContexts`. (Superseded by D13: one root per bundle.) Roots may differ (append-only tree: an index names the same leaf under every
   known root); the builder uses one root for all proofs.
 - Builder (`buildIncomeBundle`, `src/split.ts`): payments in V-leaf order, ≤ 4 per proof; ranges tile the asked
   period with each boundary halfway between neighbouring proofs' V leaves; the threshold is split by water-filling
@@ -157,3 +157,33 @@ payments sit (EVAL C3 rev. 3, LIMITS). Proving a period takes ⌈N/4⌉ proofs. 
 Tests: test/verify.bundle.test.ts (9, Groth16 replaced by a witness-checked stand-in), income.honest.test.ts bundle
 cases (5), property test over 1–13 payments, income.groth16.test.ts real 2-proof bundle (3, local).
 Where: packages/shaida-proofs/{circuits/income.circom,src/split.ts,src/witness.ts,src/verify/}, PRD §3–§5, EVAL_DESIGN rev. 3
+
+## D13: one root per bundle, shares in whole tUSD8, cap kept, circuit frozen
+Context: D12 left three questions to the builder: whether a bundle may mix ledger roots, whether to keep the cap of
+8 proofs, and how much a capped threshold share may reveal (the water-filling split showed a chunk's exact sum).
+Decision (the builder's):
+- **One ledger root per bundle.** Every proof of a bundle must have the same `ledgerRoot`, in addition to that root
+  passing `isKnownRoot`. New closed code `MixedRoots` (not retryable, "ask for a new link"), checked as PRD §5 step 2b,
+  before the range check (ranges are now 2c). Mixed roots were sound under D12 (append-only tree), but the builder
+  never produces them, so a mixed bundle was joined from separate builds; refusing it is the narrower rule and
+  makes step 6 one `isKnownRoot` read. Test X18 (EVAL rev. 4): two builds of the same period before and after one more
+  leaf, both roots known, each build alone VALID, the joined bundle `INVALID(MixedRoots)`.
+- **Cap kept at 8 proofs / 32 payments** (D12 unchanged).
+- **Threshold shares rounded down to a step.** The builder's water-filling runs in whole steps: each share is a
+  multiple of `shareStep`, at most its proof's sum rounded down to the step. Default step 1 tUSD8 (1,000,000 base
+  units, `SHARE_STEP`); a request may set `shareStep` to any positive multiple of it. So a capped share shows a
+  proof's sum only to the step, never to the base unit. Consequences: the asked threshold must be a multiple of the
+  step (`InputRejected` otherwise; the UI asks for whole tUSD8), and a threshold the raw sums reach but the rounded
+  sums do not is refused with `BelowThreshold` (the message gives the most the bundle can show). The verifier does
+  not check the rounding: it is a privacy choice of the recipient's builder, not a soundness rule.
+- **Circuit frozen for the ceremony.** `income.circom` = `Income(4, 20)`, r1cs sha256
+  `d866695ca2473e70408d288feafaec7181983480a688acac30b42156d305d82a`. D13 changes only the pure core, not the circuit.
+Rejected: allowing mixed roots (sound, but no honest use); a raised cap (longer links, more verification work, no
+demand yet); unrounded water-filling (pins a capped proof's sum to the base unit); rounding the bundle total down
+silently when the threshold is off-step (a silent change to what the user asked for).
+Tests: verify.bundle.test.ts X18; split.property.test.ts "C3 no share ever equals an unrounded chunk sum" (5,000
+random cases per run, steps 1–10 tUSD8) plus a refusal case; income.property.test.ts checks every proof's share is a
+multiple of the step and never its unrounded sum; income.honest.test.ts coarser step (5 tUSD8), rounding
+`BelowThreshold`, off-step `InputRejected`. Mutation check: dropping the root check fails X18; `SHARE_STEP = 1n`
+fails both C3 property tests.
+Where: packages/shaida-proofs/src/{split.ts,schema.ts,witness.ts,verify/verify.ts,errors.ts}, PRD §3–§5, LIMITS, EVAL rev. 4

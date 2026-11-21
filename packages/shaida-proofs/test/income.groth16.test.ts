@@ -13,12 +13,13 @@ import {
   type Groth16Proof,
   type IncomeVerification,
   PUBLIC_SIGNAL_ORDER,
+  SHARE_STEP,
   verifyIncomeLink,
 } from "../src/index.js";
 import { ensureThrowawayKey, type ThrowawayKey } from "../scripts/throwaway.js";
 import { BUILD, endSnarkjs } from "./helpers/circuit.js";
 import { contextFor, depsFor, type LinkProof, type Opening } from "./helpers/link.js";
-import { buildSingleProof, honestRequest, makeScenario, Rng, type SingleProof } from "./helpers/scenario.js";
+import { buildSingleProof, honestRequest, makeScenario, Rng, type SingleProof, showableThreshold } from "./helpers/scenario.js";
 
 const PTAU = process.env.PTAU_PATH;
 const SKIP = PTAU ? false : "INCONCLUSIVE: PTAU_PATH unset; Groth16 proving tests not run (see briefing/CEREMONY.md)";
@@ -39,7 +40,7 @@ describe("income circuit: Groth16 with a throwaway key (local)", { skip: SKIP },
     vkey = JSON.parse(readFileSync(key.vkey, "utf8")) as snarkjs.VerificationKey;
     const rng = new Rng(16);
     const s = makeScenario(rng, { payments: 3 });
-    const r = buildSingleProof(honestRequest(s, rng, { threshold: 1n }));
+    const r = buildSingleProof(honestRequest(s, rng, { threshold: SHARE_STEP }));
     if (!r.ok) throw new Error(r.error.code);
     w = r.value;
     ({ proof, publicSignals: signals } = await snarkjs.groth16.fullProve(w.input, WASM, key.zkey));
@@ -87,8 +88,9 @@ describe("verifyIncomeLink with real Groth16 proofs: a 2-proof bundle (D12, loca
     const vkey = JSON.parse(readFileSync(key.vkey, "utf8")) as snarkjs.VerificationKey;
     const rng = new Rng(26);
     const s = makeScenario(rng, { payments: 6 });
-    total = s.payments.reduce((a, p) => a + p.amount, 0n);
-    const r = buildIncomeBundle(honestRequest(s, rng, { threshold: total, context: contextFor(opening) }));
+    const base = honestRequest(s, rng, { context: contextFor(opening) });
+    total = showableThreshold(base);
+    const r = buildIncomeBundle({ ...base, threshold: total });
     if (!r.ok) throw new Error(r.error.code);
     proofs = [];
     for (const p of r.value.proofs) {

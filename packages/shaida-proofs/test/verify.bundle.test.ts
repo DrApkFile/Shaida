@@ -6,12 +6,13 @@ import {
   buildIncomeBundle,
   type IncomeBundleWitness,
   type IncomeVerification,
+  LedgerTree,
   TUSD8_FIELD,
   verifyIncomeBundle,
   verifyIncomeLink,
 } from "../src/index.js";
 import { contextFor, depsFor, fragment, type LinkProof, type Opening, WitnessBackedProver } from "./helpers/link.js";
-import { buildSingleProof, honestRequest, makeScenario, Rng, type Scenario } from "./helpers/scenario.js";
+import { buildSingleProof, honestRequest, makeScenario, Rng, type Scenario, showableThreshold } from "./helpers/scenario.js";
 
 const READER = 0x5eade5n;
 const OTHER_READER = 0xb0ba5n;
@@ -21,9 +22,10 @@ async function setup(seed: number, payments: number) {
   const rng = new Rng(seed);
   const s = makeScenario(rng, { payments, noise: 2 });
   const prover = new WitnessBackedProver();
-  const total = s.payments.reduce((a, p) => a + p.amount, 0n);
+  /** The largest threshold the bundle can show (D13: shares in whole tUSD8). */
+  const total = showableThreshold(honestRequest(s, new Rng(seed)));
   const request = (o: Opening, extra: Record<string, unknown> = {}) =>
-    honestRequest(s, new Rng(seed), { threshold: total - 1n, context: contextFor(o), ...extra });
+    honestRequest(s, new Rng(seed), { threshold: total, context: contextFor(o), ...extra });
   const bundle = async (o: Opening, extra: Record<string, unknown> = {}) => {
     const r = buildIncomeBundle(request(o, extra));
     if (!r.ok) assert.fail(`builder refused: ${r.error.code}`);
@@ -49,22 +51,22 @@ describe("verifyIncomeLink: honest bundles (D12, C2)", () => {
     const t = await setup(21, 6);
     const { b, proofs } = await t.bundle(opening);
     assert.equal(proofs.length, 2);
-    assertValidFor(await verifyIncomeLink(fragment(proofs, opening), t.deps), b, t.s, t.total - 1n);
+    assertValidFor(await verifyIncomeLink(fragment(proofs, opening), t.deps), b, t.s, t.total);
   });
 
   it("accepts an honest 3-proof bundle, in any order", async () => {
     const t = await setup(31, 10);
     const { b, proofs } = await t.bundle(opening);
     assert.equal(proofs.length, 3);
-    assertValidFor(await verifyIncomeLink(`#${fragment(proofs, opening)}`, t.deps), b, t.s, t.total - 1n);
+    assertValidFor(await verifyIncomeLink(`#${fragment(proofs, opening)}`, t.deps), b, t.s, t.total);
     const shuffled = [proofs[2]!, proofs[0]!, proofs[1]!];
-    assertValidFor(await verifyIncomeLink(fragment(shuffled, opening), t.deps), b, t.s, t.total - 1n);
+    assertValidFor(await verifyIncomeLink(fragment(shuffled, opening), t.deps), b, t.s, t.total);
   });
 
   it("accepts a single proof as a bundle of one", async () => {
     const t = await setup(11, 3);
     const { b, proofs } = await t.bundle(opening);
-    assertValidFor(await verifyIncomeLink(fragment(proofs, opening), t.deps), b, t.s, t.total - 1n);
+    assertValidFor(await verifyIncomeLink(fragment(proofs, opening), t.deps), b, t.s, t.total);
   });
 });
 
@@ -102,6 +104,20 @@ describe("verifyIncomeLink: bundle refusals (D12, C1)", () => {
     const later = await t.bundle({ ...opening, expiry: opening.expiry + 86_400n });
     const mixed = [later.proofs[0]!, mine.proofs[1]!];
     assert.equal(code(await verifyIncomeLink(fragment(mixed, opening), t.deps)), "INVALID(MixedContexts)");
+  });
+
+  it("X18 MixedRoots: refuses a bundle that joins proofs made against two known ledger roots (D13)", async () => {
+    const t = await setup(75, 6);
+    const now = await t.bundle(opening);
+    // the same period built again after one more leaf of someone else: same ranges, another (also known) root
+    const grown = [...t.s.leaves, 0x1234n];
+    const laterRoot = new LedgerTree(grown).root;
+    const later = await t.bundle(opening, { ledgerLeaves: grown, ledgerRoot: laterRoot });
+    const deps = depsFor(t.prover.verify, READER, [t.s.tree.root, laterRoot]);
+    assert.equal(code(await verifyIncomeLink(fragment(now.proofs, opening), deps)), "VALID", "each build alone");
+    assert.equal(code(await verifyIncomeLink(fragment(later.proofs, opening), deps)), "VALID");
+    const mixed = [now.proofs[0]!, later.proofs[1]!];
+    assert.equal(code(await verifyIncomeLink(fragment(mixed, opening), deps)), "INVALID(MixedRoots)");
   });
 
   it("ProofInvalid: one tampered proof in an otherwise honest bundle fails the whole bundle", async () => {

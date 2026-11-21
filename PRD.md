@@ -63,16 +63,20 @@ Why this is sound (map to EVAL_DESIGN):
 
 ### Bundles: periods with more than 4 payments (D12)
 A period is proved by a **bundle** of 1–8 proofs (at most 32 payments). Every proof in a bundle has the same
-`context` (so the same reader and expiry) and `asset`, its root passes `isKnownRoot`, and the proofs' leaf ranges
+`context` (so the same reader and expiry), `asset` and `ledgerRoot` (D13), that root passes `isKnownRoot`, and the proofs' leaf ranges
 `[fromIndex, toIndex]` are **strictly disjoint**. The bundle proves `total = Σ thresholds` over `count = Σ counts`
 payments, from the lowest `fromIndex` to the highest `toIndex`.
 Why this is sound: each proof counts only V leaves inside its own range (circuit), a payment has exactly one V leaf
 (D9), and disjoint ranges share no leaf, so no payment is counted by two proofs (X14, X15). Proofs made for another
-reader or expiry have another context and are refused as a set (X16, X17). Roots may differ between proofs: the
-tree is append-only, so a leaf index names the same leaf under every known root.
+reader or expiry have another context and are refused as a set (X16, X17). Proofs against different roots are
+refused too (`MixedRoots`, X18, D13): the builder makes every proof of a bundle against one root, so a mixed bundle was
+joined from separate builds.
 The witness builder splits automatically: payments in V-leaf order, at most 4 per proof; the first range starts at the
 asked `fromIndex`, the last ends at the asked `toIndex`, each boundary is halfway between the last V leaf of one proof
-and the first of the next; the asked threshold is split by water-filling (equal shares, capped at each proof's sum).
+and the first of the next; the asked threshold is split by water-filling in whole steps (equal shares, capped at each
+proof's sum rounded down to the share step; D13). The step is 1 tUSD8 (1,000,000 base units) by default, or a coarser
+multiple the recipient picks; the asked threshold must be a multiple of it (`InputRejected` otherwise), and
+`BelowThreshold` if the rounded sums cannot reach it.
 Disclosure cost: each proof's threshold, count and range are public, so a bundle shows sub-totals over sub-ranges
 (EVAL C3, LIMITS).
 
@@ -114,6 +118,7 @@ Disclosure cost: each proof's threshold, count and range are public, so a bundle
 | `InputRejected` | the proof request failed the strict schema (D10) | no | fix the input; nothing was built |
 | `RangesOverlap` | two proofs of a bundle share a leaf index (D12) | no | ask for a new link |
 | `MixedContexts` | the proofs of a bundle were made for different readers or expiries (D12) | no | ask for a new link |
+| `MixedRoots` | the proofs of a bundle were made against different ledger roots (D13) | no | ask for a new link |
 
 Before every deposit, pay and withdraw, the app reads `paused()` and `isBlacklisted(address)` on tUSD8 and refuses
 with the codes above before asking for a signature (D7). `ShaidaDepositor` repeats the deposit checks on chain.
@@ -125,11 +130,12 @@ the reader's id hash and the clock are injected. Retryable codes (`UnknownRoot`,
 1. Decode the fragment and parse it as `unknown`; strict schema (`.strict()`, canonical decimal strings, 1–8 proofs). → `ProofInvalid`
 2. Every proof's `asset == tUSD8`. → `AssetMismatch`
    - 2a. Every proof has the same `context`. → `MixedContexts`
-   - 2b. Leaf ranges are strictly disjoint (sorted by `fromIndex`, each `toIndex` < the next `fromIndex`; a duplicated proof overlaps itself). → `RangesOverlap`
+   - 2b. Every proof has the same `ledgerRoot` (D13). → `MixedRoots`
+   - 2c. Leaf ranges are strictly disjoint (sorted by `fromIndex`, each `toIndex` < the next `fromIndex`; a duplicated proof overlaps itself). → `RangesOverlap`
 3. `context == Poseidon(readerIdHash, expiry, salt)`. → `ContextMismatch`
 4. `readerIdHash == hash(this reader's id)`. → `WrongReader`
 5. `now ≤ expiry`. → `ProofExpired`
-6. `ledger.isKnownRoot(ledgerRoot)` at a pinned block, for every proof's root. → `UnknownRoot`
+6. `ledger.isKnownRoot(ledgerRoot)` at a pinned block, for the bundle's one root. → `UnknownRoot`
 7. Groth16 verify every proof (off-chain), and optionally `IncomeVerifier.check` on-chain. → `ProofInvalid`
 8. Map the lowest `fromIndex` and highest `toIndex` to block timestamps via ledger `Vouched` events. → `RangeUnresolvable`
 9. Result `VALID{threshold = Σ thresholds, count = Σ counts, fromDate, toDate, expiry, proofs}`.
@@ -173,7 +179,7 @@ the reader's id hash and the clock are injected. Retryable codes (`UnknownRoot`,
 - Circuit: H1, H2, X04–X07, X08 (no S leaf), X09 (wrong Cs secret), threshold, count, root, gap, zero, 4-slot full.
 - Witness builder: bundle split (5, 9, 12 and 32 payments; threshold = total), `NotEnoughSlots` (33 payments), property test over 1–13 payments.
 - Contracts: X01/X02 `PayerNotRegistered` (direct and relayed), X03 `PayerRevoked`, gasless deposit replay/amount/commitment binding (from S6), `sweep` inserts S, roots known, legacy-tx fork test on real tUSD8, tUSD8 blacklist/pause probe (S9), Shanghai opcode check over all artifacts.
-- Verifier: every §4 code reachable; tamper threshold/count/range/context → refused; bundles: honest 2- and 3-proof, X14 overlapping ranges, X15 duplicate proof, X16 mixed reader, X17 mixed expiry.
+- Verifier: every §4 code reachable; tamper threshold/count/range/context → refused; bundles: honest 2- and 3-proof, X14 overlapping ranges, X15 duplicate proof, X16 mixed reader, X17 mixed expiry, X18 mixed roots.
 - Relayer: each rail, budget, unknown-outcome handling (no double submit).
 - Indexer: retry, cursor resume, root-mismatch refusal.
 

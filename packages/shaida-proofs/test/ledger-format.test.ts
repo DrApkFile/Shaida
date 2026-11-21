@@ -33,7 +33,7 @@ describe("ledger format: circuit = JS = ShaidaLedger", () => {
       ledgerLeaves: v.leaves,
       ledgerRoot: v.root,
       asset: TUSD8_FIELD,
-      threshold: 4_250_000n,
+      threshold: 4_000_000n,
       fromIndex: 0n,
       toIndex: 3n,
       context: 7n,

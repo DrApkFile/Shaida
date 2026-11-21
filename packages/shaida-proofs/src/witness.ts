@@ -1,12 +1,13 @@
 // Pure witness builder for income.circom: ledger leaves + the recipient's payment records in, a bundle of circuit
 // inputs (or a named refusal) out. A period with more than INCOME_SLOTS payments is split into proofs over
-// disjoint leaf ranges (D12, src/split.ts). No network, no clock, no randomness.
+// disjoint leaf ranges (D12, src/split.ts), each proof's threshold share
+// rounded to the share step (D13). No network, no clock, no randomness.
 import { type CircuitInput, type CircuitSlot, circuitInput, type IncomePublicSignals } from "./circuit-input.js";
 import { INCOME_SLOTS, MAX_BUNDLE_PROOFS } from "./field.js";
 import { type Result, shaidaError } from "./errors.js";
 import { noteCommitment, nullifierOf, sweepLeaf, vouchLeaf } from "./hash.js";
 import { type IncomeRequest, incomeRequestSchema, type PaymentRecord } from "./schema.js";
-import { chunk, chunkRanges, splitThreshold } from "./split.js";
+import { chunk, chunkRanges, showableTotal, splitThreshold } from "./split.js";
 import { LedgerTree } from "./tree.js";
 
 /** Why a payment record is not counted. Not an error: the builder counts what it can and says what it left out. */
@@ -113,8 +114,16 @@ export function buildIncomeBundle(raw: unknown): Result<IncomeBundleWitness> {
   }
 
   const chunks = chunk(counted);
+  const sums = chunks.map((c) => c.reduce((s, x) => s + x.payment.amount, 0n));
+  const showable = showableTotal(sums, request.shareStep);
+  if (showable < request.threshold) {
+    return refuse(
+      "BelowThreshold",
+      `${counted.length} payments in ${range} add up to ${total}, but with each of the ${chunks.length} proofs' shares rounded down to a multiple of ${request.shareStep} the bundle can show at most ${showable}, below ${request.threshold}.`,
+    );
+  }
   const ranges = chunkRanges(chunks.map((c) => c.map((x) => x.payment.vouchIndex)), request.fromIndex, request.toIndex);
-  const shares = splitThreshold(chunks.map((c) => c.reduce((s, x) => s + x.payment.amount, 0n)), request.threshold);
+  const shares = splitThreshold(sums, request.threshold, request.shareStep);
   const proofs = chunks.map((c, k): IncomeProofWitness => {
     const publicSignals: IncomePublicSignals = {
       ledgerRoot: request.ledgerRoot,

@@ -10,6 +10,8 @@ import {
   nullifierOf,
   type PaymentRecord,
   type Result,
+  SHARE_STEP,
+  showableTotal,
   sweepLeaf,
   TUSD8_FIELD,
   vouchLeaf,
@@ -63,12 +65,14 @@ export interface ScenarioOptions {
   readonly unvouched?: readonly number[];
   /** Up to this many leaves of other people between our events. */
   readonly noise?: number;
+  /** Fixed amounts (one per payment) instead of random ones. */
+  readonly amounts?: readonly bigint[];
 }
 
 export function makeScenario(rng: Rng, opts: ScenarioOptions): Scenario {
   const asset = TUSD8_FIELD;
-  const payments: PaymentRecord[] = Array.from({ length: opts.payments }, () => {
-    const amount = rng.amount();
+  const payments: PaymentRecord[] = Array.from({ length: opts.payments }, (_, i) => {
+    const amount = opts.amounts?.[i] ?? rng.amount();
     return { secretP: rng.field(), amount, payerId: BigInt(1 + rng.int(5)), secretS: rng.field(), amountS: amount };
   });
   const leaves: bigint[] = [];
@@ -132,4 +136,17 @@ export function buildSingleProof(raw: unknown): Result<SingleProof> {
   if (!r.ok) return r;
   if (r.value.proofs.length !== 1) throw new Error(`expected one proof, the builder made ${r.value.proofs.length}`);
   return { ok: true, value: { ...r.value.proofs[0]!, skipped: r.value.skipped } };
+}
+
+/** x rounded down to a multiple of `step` (D13). */
+export const roundDown = (x: bigint, step: bigint = SHARE_STEP): bigint => x - (x % step);
+
+/**
+ * The largest threshold this request can ask for: the builder's own chunking (built once at threshold 0), each
+ * chunk's sum rounded down to the share step (D13).
+ */
+export function showableThreshold(request: Record<string, unknown>, step: bigint = SHARE_STEP): bigint {
+  const r = buildIncomeBundle({ ...request, threshold: 0n });
+  if (!r.ok) throw new Error(`builder refused at threshold 0: ${r.error.code}: ${r.error.message}`);
+  return showableTotal(r.value.proofs.map((p) => p.counted.reduce((a, c) => a + c.amount, 0n)), step);
 }

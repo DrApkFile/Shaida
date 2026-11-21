@@ -4,9 +4,9 @@
 import assert from "node:assert/strict";
 import { randomInt } from "node:crypto";
 import { describe, it } from "node:test";
-import { buildIncomeBundle, type CircuitInput, FIELD_ORDER, type IncomeProofWitness, INCOME_SLOTS } from "../src/index.js";
+import { buildIncomeBundle, type CircuitInput, FIELD_ORDER, type IncomeProofWitness, INCOME_SLOTS, SHARE_STEP } from "../src/index.js";
 import { runCircuit } from "./helpers/circuit.js";
-import { honestRequest, makeScenario, Rng } from "./helpers/scenario.js";
+import { honestRequest, makeScenario, Rng, roundDown, showableThreshold } from "./helpers/scenario.js";
 
 const RUNS = Number(process.env.PROPERTY_RUNS ?? 24);
 const BASE_SEED = process.env.PROPERTY_SEED === undefined ? randomInt(2 ** 31) : Number(process.env.PROPERTY_SEED);
@@ -88,9 +88,10 @@ describe("income circuit: property over random honest and cheating witnesses", (
       const unswept = rng.int(3) === 0 ? [rng.int(payments)] : [];
       const s = makeScenario(rng, { payments, unswept, noise: rng.int(4) });
       const countable = s.payments.filter((_, k) => s.vouchIndex[k]! >= 0 && s.sweepIndex[k]! >= 0);
-      const total = countable.reduce((a, p) => a + p.amount, 0n);
-      const threshold = total === 0n ? 0n : (total * BigInt(rng.int(101))) / 100n;
-      const request = honestRequest(s, rng, { threshold });
+      const base = honestRequest(s, rng);
+      const showable = countable.length === 0 ? 0n : showableThreshold(base);
+      const threshold = roundDown((showable * BigInt(rng.int(101))) / 100n);
+      const request = { ...base, threshold };
       const r = buildIncomeBundle(request);
 
       const expected = countable.length === 0 ? "NoSweptPayments" : "ok";
@@ -107,6 +108,12 @@ describe("income circuit: property over random honest and cheating witnesses", (
       if (ps.some((p, k) => k > 0 && p.fromIndex !== ps[k - 1]!.toIndex + 1n)) failures.push({ seed, what: "bundle: ranges not contiguous" });
       if (ps.reduce((a, p) => a + p.threshold, 0n) !== threshold) failures.push({ seed, what: "bundle: Σ thresholds ≠ threshold" });
       if (ps.reduce((a, p) => a + p.count, 0n) !== BigInt(countable.length)) failures.push({ seed, what: "bundle: Σ counts wrong" });
+      for (const [k, p] of b.proofs.entries()) {
+        const sum = p.counted.reduce((a, c) => a + c.amount, 0n);
+        const share = p.publicSignals.threshold;
+        if (share % SHARE_STEP !== 0n) failures.push({ seed, what: `C3 proof ${k + 1}: share ${share} is not whole tUSD8` });
+        if (sum % SHARE_STEP !== 0n && share === sum) failures.push({ seed, what: `C3 proof ${k + 1}: share equals its unrounded sum` });
+      }
 
       for (const [k, p] of b.proofs.entries()) {
         if (!(await runCircuit(p.input)).accepted) failures.push({ seed, what: `honest proof ${k + 1} refused` });

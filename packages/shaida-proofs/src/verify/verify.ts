@@ -2,9 +2,9 @@
 // reader's identity and the clock are injected. The first failing step returns its code.
 //
 // Why a bundle is sound: every proof counts only V leaves inside its own [fromIndex, toIndex] (circuit), a payment
-// has exactly one V leaf (D9), and the ranges are strictly disjoint (step 2b). So no payment is counted by two
-// proofs, and Σ thresholds is a lower bound on distinct vouched, swept income. Roots may differ between proofs: the
-// tree is append-only, so a leaf index means the same leaf under every known root.
+// has exactly one V leaf (D9), and the ranges are strictly disjoint (step 2c). So no payment is counted by two
+// proofs, and Σ thresholds is a lower bound on distinct vouched, swept income. All proofs must use one ledger root
+// (D13): the builder never mixes roots, so a mixed bundle was assembled from separate builds and is refused.
 import { PUBLIC_SIGNAL_ORDER } from "../circuit-input.js";
 import { type ErrorCode, type ShaidaError, shaidaError } from "../errors.js";
 import { TUSD8_FIELD } from "../field.js";
@@ -86,7 +86,11 @@ export async function verifyIncomeBundle(raw: unknown, deps: VerifyDeps): Promis
   const mixed = proofs.find((p) => p.context !== proofs[0]!.context);
   if (mixed) return fail("MixedContexts", `Proof ${mixed.k + 1} was made for another reader or expiry than proof 1.`);
 
-  // 2b. strictly disjoint leaf ranges (a duplicated proof overlaps itself)
+  // 2b. one ledger root for the whole bundle (D13)
+  const otherRoot = proofs.find((p) => p.root !== proofs[0]!.root);
+  if (otherRoot) return fail("MixedRoots", `Proof ${otherRoot.k + 1} was made against another ledger root than proof 1.`);
+
+  // 2c. strictly disjoint leaf ranges (a duplicated proof overlaps itself)
   const byRange = [...proofs].sort((a, b) => (a.fromIndex < b.fromIndex ? -1 : a.fromIndex > b.fromIndex ? 1 : a.k - b.k));
   for (let i = 0; i < byRange.length; i++) {
     const p = byRange[i]!;
@@ -111,12 +115,9 @@ export async function verifyIncomeBundle(raw: unknown, deps: VerifyDeps): Promis
   // 5. expiry
   if (deps.now() > expiry) return fail("ProofExpired", `The link expired at ${expiry} (unix seconds).`);
 
-  // 6. every root known on chain
-  for (const root of new Set(proofs.map((p) => p.root))) {
-    if (!(await deps.isKnownRoot(root))) {
-      return fail("UnknownRoot", `Ledger root ${root} is not a known root at the pinned block.`);
-    }
-  }
+  // 6. the bundle's one root (2b) is known on chain
+  const root = proofs[0]!.root;
+  if (!(await deps.isKnownRoot(root))) return fail("UnknownRoot", `Ledger root ${root} is not a known root at the pinned block.`);
   // 7. every proof
   for (const p of proofs) {
     if (!(await deps.verifyGroth16(p.publicSignals, p.proof))) {
