@@ -17,7 +17,25 @@
     },
     "at": "2026-11-21T13:28:32.189Z"
   },
-  "verified": [],
+  "verified": [
+    {
+      "zkey": {
+        "path": "ceremony/work/income_0001.zkey",
+        "sha256": "18f2ec268e90479919f13e24e6854d47a972d719d10a3fecc742b1d7da035bea"
+      },
+      "circuitHash": "2c23ce107abf99aedcbabaf6bdaf4cdb317e512a8bcba07cfdc1004279251a1d61ac0fc67809d721429b4e13a2e914b1595aa5dbf47ef36b6585e83cf825688c",
+      "contributions": [
+        {
+          "n": 1,
+          "name": "Your Real Name",
+          "hash": "5c7f620c59a32006e83d80587c468b658b390af550d4661e2bc377c4af86080f1302f2a4356078a00e2806a733ff20f0a3f06b2e8537691376129b47fb8a794c",
+          "beacon": null
+        }
+      ],
+      "log": "ceremony/logs/verify-18f2ec268e904799-2026-11-21T13-47-15-690Z.txt",
+      "at": "2026-11-21T13:47:15.692Z"
+    }
+  ],
   "beaconAnnouncement": null,
   "beacon": null,
   "final": null
