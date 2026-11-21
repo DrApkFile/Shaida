@@ -1,0 +1,27 @@
+{
+  "name": "@shaida/ceremony",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Phase-2 Groth16 ceremony scripts for the income circuit: prepare, contribute, beacon, verify, finalize.",
+  "scripts": {
+    "prepare-setup": "tsx prepare.ts",
+    "contribute": "tsx contribute.ts",
+    "beacon": "tsx beacon.ts",
+    "verify": "tsx verify.ts",
+    "finalize": "tsx finalize.ts",
+    "test": "node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@shaida/proofs": "workspace:*",
+    "snarkjs": "0.7.6",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

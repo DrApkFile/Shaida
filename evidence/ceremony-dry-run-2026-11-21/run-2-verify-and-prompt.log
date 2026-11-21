@@ -1,0 +1,99 @@
+== wrong hash
+verifying <dry-run-2-dir>/work/income_0002.zkey (sha256 3eea5c294e3bfddeec6c2d1d2be21536c4ebea924c32491b4dd6e2d8a7144aee); this takes a few minutes…
+Reading r1cs
+Reading tauG1
+Reading tauG2
+Reading alphatauG1
+Reading betatauG1
+Circuit hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+Circuit Hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+-------------------------
+contribution #2 dry outsider:
+		2ad1a7e9 7792a98e e880b873 14f57f09
+		37066931 b8111111 e17205cc f8af87be
+		78610675 76f7e2b5 28a97b32 71801adb
+		3635d423 0d7e55db b3afee32 8e59e04a
+-------------------------
+contribution #1 dry builder:
+		fdc82598 b8f5cd3c 357b1040 b671d881
+		a7094c83 20aede2d 145df67e 2262b619
+		26acdb76 1344ae9d e49f0a31 6405c7ca
+		9461d500 89ed21e4 e17d20e3 a03289e6
+-------------------------
+ZKey Ok!
+✗ verify: contribution #2 in the zkey is 2ad1a7e97792a98ee880b87314f57f0937066931b8111111e17205ccf8af87be7861067576f7e2b528a97b3271801adb3635d4230d7e55dbb3afee328e59e04a, not the hash its contributor reported. Log: <dry-run-2-dir>/logs/verify-3eea5c294e3bfdde-2026-11-21T12-46-54-806Z.txt. Nothing was recorded.
+== right hash
+verifying <dry-run-2-dir>/work/income_0002.zkey (sha256 3eea5c294e3bfddeec6c2d1d2be21536c4ebea924c32491b4dd6e2d8a7144aee); this takes a few minutes…
+Reading r1cs
+Reading tauG1
+Reading tauG2
+Reading alphatauG1
+Reading betatauG1
+Circuit hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+Circuit Hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+-------------------------
+contribution #2 dry outsider:
+		2ad1a7e9 7792a98e e880b873 14f57f09
+		37066931 b8111111 e17205cc f8af87be
+		78610675 76f7e2b5 28a97b32 71801adb
+		3635d423 0d7e55db b3afee32 8e59e04a
+-------------------------
+contribution #1 dry builder:
+		fdc82598 b8f5cd3c 357b1040 b671d881
+		a7094c83 20aede2d 145df67e 2262b619
+		26acdb76 1344ae9d e49f0a31 6405c7ca
+		9461d500 89ed21e4 e17d20e3 a03289e6
+-------------------------
+ZKey Ok!
+✓ verified; 2 contribution(s) recorded, reported hash(es) for #2 match.
+  #1 dry builder: fdc82598b8f5cd3c357b1040b671d881a7094c8320aede2d145df67e2262b61926acdb761344ae9de49f0a316405c7ca9461d50089ed21e4e17d20e3a03289e6
+  #2 dry outsider: 2ad1a7e97792a98ee880b87314f57f0937066931b8111111e17205ccf8af87be7861067576f7e2b528a97b3271801adb3635d4230d7e55dbb3afee328e59e04a
+verify-3eea5c294e3bfdde-2026-11-21T12-46-54-806Z.txt
+verify-3eea5c294e3bfdde-2026-11-21T12-52-48-787Z.txt
+==> <dry-run-2-dir>/logs/verify-3eea5c294e3bfdde-2026-11-21T12-46-54-806Z.txt <==
+zkey <dry-run-2-dir>/work/income_0002.zkey sha256 3eea5c294e3bfddeec6c2d1d2be21536c4ebea924c32491b4dd6e2d8a7144aee
+RESULT: NOT RECORDED (contribution #2 in the zkey is 2ad1a7e97792a98ee880b87314f57f0937066931b8111111e17205ccf8af87be7861067576f7e2b528a97b3271801adb3635d4230d7e55dbb3afee328e59e04a, not the hash its contributor reported)
+
+==> <dry-run-2-dir>/logs/verify-3eea5c294e3bfdde-2026-11-21T12-52-48-787Z.txt <==
+zkey <dry-run-2-dir>/work/income_0002.zkey sha256 3eea5c294e3bfddeec6c2d1d2be21536c4ebea924c32491b4dd6e2d8a7144aee
+RESULT: ZKey Ok, recorded
+== hidden prompt through a pty (short entropy, must refuse)
+tooshort
+✓ input sha256 3eea5c294e3bfddeec6c2d1d2be21536c4ebea924c32491b4dd6e2d8a7144aee
+Type at least 32 random characters (mash the keyboard), then Enter. Nothing is shown or stored.
+Entropy: 
+✗ contribute: only 8 characters; type at least 32. Nothing was written.
+== hidden prompt through a pty (long entropy)
+kq3j4h5gk2j3h4g5kj23h4g5kj2h3g4k5jh23g4k5jh2g3k4j5h2g3k4jh5g2k3j4h5g
+✓ input sha256 3eea5c294e3bfddeec6c2d1d2be21536c4ebea924c32491b4dd6e2d8a7144aee
+Type at least 32 random characters (mash the keyboard), then Enter. Nothing is shown or stored.
+Entropy: 
+
+✓ contribution written: <dry-run-2-dir>/work/income_0003.zkey
+  output sha256: dd76c849d324e10cb15517fec661cae72c3a9033cbba4741941d921ceca92287
+  Contribution Hash:
+		22dbad5e 46f855ed fc8ab020 bc8ad310
+		ccb58587 fcf11372 98bbfeef ab6deb3d
+		81c14063 dd47ba47 ae0f777f 4472b94e
+		6607aeb1 b85a1659 8bea7ff9 0ef7e7a5
+
+Send the output file and both hashes. Delete any note of your entropy; it was not saved anywhere.
+0003 written
+DONE
+exit 0

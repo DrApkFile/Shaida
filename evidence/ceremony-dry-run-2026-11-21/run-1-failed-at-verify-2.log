@@ -1,0 +1,109 @@
+== prepare
+checking blake2b of <repo>/powers/powersOfTau28_hez_final_17.ptau (~144 MB)…
+✓ ptau blake2b matches briefing/CEREMONY.md
+✓ income.r1cs sha256 matches the frozen circuit
+Reading r1cs
+Reading tauG1
+Reading tauG2
+Reading alphatauG1
+Reading betatauG1
+Circuit hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+✓ <dry-run-dir>/work/income_0000.zkey
+  sha256 f0479fc691bcc842b150dadd6d92417b32918ea24da1ba810d8e213dfb149a46
+  record: <dry-run-dir>/record.json (DRY RUN)
+
+real	7m27.608s
+user	12m24.988s
+sys	0m3.916s
+== contribute 1 (our script)
+✓ input sha256 f0479fc691bcc842b150dadd6d92417b32918ea24da1ba810d8e213dfb149a46
+
+✓ contribution written: <dry-run-dir>/work/income_0001.zkey
+  output sha256: a836b28a51036e2f0a83216b3aeb676209f4aee5fc496007026a5a3fe888f249
+  Contribution Hash:
+		fdc82598 b8f5cd3c 357b1040 b671d881
+		a7094c83 20aede2d 145df67e 2262b619
+		26acdb76 1344ae9d e49f0a31 6405c7ca
+		9461d500 89ed21e4 e17d20e3 a03289e6
+
+Send the output file and both hashes. Delete any note of your entropy; it was not saved anywhere.
+== verify 1
+verifying <dry-run-dir>/work/income_0001.zkey (sha256 a836b28a51036e2f0a83216b3aeb676209f4aee5fc496007026a5a3fe888f249); this takes a few minutes…
+Reading r1cs
+Reading tauG1
+Reading tauG2
+Reading alphatauG1
+Reading betatauG1
+Circuit hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+Circuit Hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+-------------------------
+contribution #1 dry builder:
+		fdc82598 b8f5cd3c 357b1040 b671d881
+		a7094c83 20aede2d 145df67e 2262b619
+		26acdb76 1344ae9d e49f0a31 6405c7ca
+		9461d500 89ed21e4 e17d20e3 a03289e6
+-------------------------
+ZKey Ok!
+✓ verified; 1 contribution(s) recorded.
+  #1 dry builder: fdc82598b8f5cd3c357b1040b671d881a7094c8320aede2d145df67e2262b61926acdb761344ae9de49f0a316405c7ca9461d50089ed21e4e17d20e3a03289e6
+
+real	5m3.275s
+user	12m56.827s
+sys	0m3.848s
+== contribute 2 (plain snarkjs CLI, as CONTRIBUTE.md)
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit Hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Hash: 
+		2ad1a7e9 7792a98e e880b873 14f57f09
+		37066931 b8111111 e17205cc f8af87be
+		78610675 76f7e2b5 28a97b32 71801adb
+		3635d423 0d7e55db b3afee32 8e59e04a
+reported hash: 2ad1a7e97792a98ee880b87314f57f0937066931b8111111e17205ccf8af87be7861067576f7e2b528a97b3271801adb3635d4230d7e55dbb3afee328e59e04a
+== verify 2 --expect
+verifying <dry-run-dir>/work/income_0002.zkey (sha256 3eea5c294e3bfddeec6c2d1d2be21536c4ebea924c32491b4dd6e2d8a7144aee); this takes a few minutes…
+Reading r1cs
+Reading tauG1
+Reading tauG2
+Reading alphatauG1
+Reading betatauG1
+Circuit hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+Circuit Hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+-------------------------
+contribution #2 dry outsider:
+		2ad1a7e9 7792a98e e880b873 14f57f09
+		37066931 b8111111 e17205cc f8af87be
+		78610675 76f7e2b5 28a97b32 71801adb
+		3635d423 0d7e55db b3afee32 8e59e04a
+-------------------------
+contribution #1 dry builder:
+		fdc82598 b8f5cd3c 357b1040 b671d881
+		a7094c83 20aede2d 145df67e 2262b619
+		26acdb76 1344ae9d e49f0a31 6405c7ca
+		9461d500 89ed21e4 e17d20e3 a03289e6
+-------------------------
+ZKey Ok!
+✗ verify: the zkey did not verify: contributions are not numbered 1..n. Log: <dry-run-dir>/logs/verify-3eea5c294e3bfdde.txt. Nothing was recorded.
+exit 1

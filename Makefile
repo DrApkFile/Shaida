@@ -25,7 +25,7 @@ STACK_SCRIPT := script/DeployStack.s.sol:DeployStack
 # PayerRegistry owner on `make fork`: anvil account 0, so payers can be registered locally. On 44005: ATTESTOR=0x... (required).
 FORK_ATTESTOR := $(ANVIL_0)
 
-.PHONY: help install build test test-fork test-groth16 bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum deal dev
+.PHONY: help install build test test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum deal dev
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36mmake %-14s\033[0m %s\n", $$1, $$2}'
@@ -42,6 +42,7 @@ build: ## Compile contracts (Shanghai-checked) and the income circuit
 test: ## Unit tests: contracts, circuit and witness builder (local, no network)
 	cd contracts && forge test --no-match-path 'test/fork/*' -vv
 	pnpm --filter @shaida/proofs test
+	pnpm --filter @shaida/ceremony test
 
 test-groth16: ## Full Groth16 proofs with a THROWAWAY local key. Needs PTAU_PATH=<Hermez 2^17 ptau>
 	@test -n "$(PTAU_PATH)" || (echo "INCONCLUSIVE: set PTAU_PATH=/path/to/powersOfTau28_hez_final_17.ptau" && exit 1)
@@ -107,6 +108,30 @@ s8-headless: ## Spike S8: run the bench in headless Chromium on this machine (RU
 
 s8-record: ## Spike S8: write evidence/s8-browser.md from tools/s8-bench/results/
 	pnpm --filter @shaida/s8-bench record
+
+# Phase-2 ceremony (briefing/CEREMONY.md). Zkey paths are relative to ceremony/.
+CEREMONY := pnpm --silent --filter @shaida/ceremony
+
+ceremony-prepare: ## Ceremony step 0: groth16 setup after the ptau/r1cs hash checks. Needs PTAU_PATH
+	@test -n "$(PTAU_PATH)" || (echo "set PTAU_PATH=/path/to/powersOfTau28_hez_final_17.ptau" && exit 1)
+	PTAU_PATH=$(abspath $(PTAU_PATH)) $(CEREMONY) prepare-setup
+
+ceremony-contribute: ## Ceremony: one contribution. IN=work/… OUT=work/… NAME="…" (entropy at a hidden prompt)
+	@test -n "$(IN)" -a -n "$(OUT)" -a -n "$(NAME)" || (echo 'usage: make ceremony-contribute IN=work/income_0000.zkey OUT=work/income_0001.zkey NAME="Your name"' && exit 1)
+	$(CEREMONY) contribute --in "$(IN)" --out "$(OUT)" --name "$(NAME)"
+
+ceremony-verify: ## Ceremony: snarkjs zkey verify + record. ZKEY=work/… [EXPECT="n:hash"]. Needs PTAU_PATH
+	@test -n "$(ZKEY)" -a -n "$(PTAU_PATH)" || (echo 'usage: make ceremony-verify ZKEY=work/income_0001.zkey PTAU_PATH=… [EXPECT="2:<hash>"]' && exit 1)
+	PTAU_PATH=$(abspath $(PTAU_PATH)) $(CEREMONY) verify --zkey "$(ZKEY)" $(if $(EXPECT),--expect "$(EXPECT)")
+
+ceremony-beacon-announce: ## Ceremony: fix the beacon block (~2 h ahead on 44005). Commit and push right after
+	$(CEREMONY) beacon announce
+
+ceremony-beacon-apply: ## Ceremony: apply the announced block's hash (2^10 iterations) → work/income_final.zkey
+	$(CEREMONY) beacon apply
+
+ceremony-finalize: ## Ceremony: export vkey + Solidity verifier, Shanghai check, sample proof, hashes
+	$(CEREMONY) finalize
 
 dev: ## Start the web app on http://localhost:3000
 	pnpm dev

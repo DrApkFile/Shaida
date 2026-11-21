@@ -12,6 +12,28 @@ importers:
 
   .: {}
 
+  ceremony:
+    dependencies:
+      '@shaida/proofs':
+        specifier: workspace:*
+        version: link:../packages/shaida-proofs
+      snarkjs:
+        specifier: 0.7.6
+        version: 0.7.6
+      zod:
+        specifier: 3.25.76
+        version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.0
+        version: 22.20.5
+      tsx:
+        specifier: 4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
   examples:
     dependencies:
       '@aevum-kit/aevum':

@@ -1,0 +1,138 @@
+== verify 2 with a WRONG reported hash (must refuse)
+verifying <dry-run-dir>/work/income_0002.zkey (sha256 3eea5c294e3bfddeec6c2d1d2be21536c4ebea924c32491b4dd6e2d8a7144aee); this takes a few minutes…
+Reading r1cs
+Reading tauG1
+Reading tauG2
+Reading alphatauG1
+Reading betatauG1
+Circuit hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+Circuit Hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+-------------------------
+contribution #2 dry outsider:
+		2ad1a7e9 7792a98e e880b873 14f57f09
+		37066931 b8111111 e17205cc f8af87be
+		78610675 76f7e2b5 28a97b32 71801adb
+		3635d423 0d7e55db b3afee32 8e59e04a
+-------------------------
+contribution #1 dry builder:
+		fdc82598 b8f5cd3c 357b1040 b671d881
+		a7094c83 20aede2d 145df67e 2262b619
+		26acdb76 1344ae9d e49f0a31 6405c7ca
+		9461d500 89ed21e4 e17d20e3 a03289e6
+-------------------------
+ZKey Ok!
+✗ verify: contribution #2 in the zkey is 2ad1a7e97792a98ee880b87314f57f0937066931b8111111e17205ccf8af87be7861067576f7e2b528a97b3271801adb3635d4230d7e55dbb3afee328e59e04a, not the hash its contributor reported. Nothing was recorded.
+== contribute to a stale input (must refuse)
+✗ contribute: input is not the latest zkey (a836b28a51036e2f0a83216b3aeb676209f4aee5fc496007026a5a3fe888f249); contributing to it would fork the chain.
+== verify 2 --expect
+verifying <dry-run-dir>/work/income_0002.zkey (sha256 3eea5c294e3bfddeec6c2d1d2be21536c4ebea924c32491b4dd6e2d8a7144aee); this takes a few minutes…
+Reading r1cs
+Reading tauG1
+Reading tauG2
+Reading alphatauG1
+Reading betatauG1
+Circuit hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+Circuit Hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+-------------------------
+contribution #2 dry outsider:
+		2ad1a7e9 7792a98e e880b873 14f57f09
+		37066931 b8111111 e17205cc f8af87be
+		78610675 76f7e2b5 28a97b32 71801adb
+		3635d423 0d7e55db b3afee32 8e59e04a
+-------------------------
+contribution #1 dry builder:
+		fdc82598 b8f5cd3c 357b1040 b671d881
+		a7094c83 20aede2d 145df67e 2262b619
+		26acdb76 1344ae9d e49f0a31 6405c7ca
+		9461d500 89ed21e4 e17d20e3 a03289e6
+-------------------------
+ZKey Ok!
+✓ verified; 2 contribution(s) recorded, reported hash(es) for #2 match.
+  #1 dry builder: fdc82598b8f5cd3c357b1040b671d881a7094c8320aede2d145df67e2262b61926acdb761344ae9de49f0a316405c7ca9461d50089ed21e4e17d20e3a03289e6
+  #2 dry outsider: 2ad1a7e97792a98ee880b87314f57f0937066931b8111111e17205ccf8af87be7861067576f7e2b528a97b3271801adb3635d4230d7e55dbb3afee328e59e04a
+== beacon announce (0.02 h, real Aevum RPC)
+✓ beacon block 3747371 on chain 44005 (head 3747299; expected near 2026-11-21T12:31:13.000Z).
+== beacon announce again (must refuse)
+✗ beacon: block 3747371 is already announced; an announcement is never changed. Nothing was changed.
+== beacon apply too early (must refuse)
+✗ beacon: not yet: block 3747371 is not mined yet (head 3747304, ~2 min left). Nothing was written.
+== beacon apply
+applying block 3747371 hash 0x94936e59719e5e3426e98c592f2287eac48ed6dac3fd53a88b5c325e0e060063, 2^10 iterations…
+Contribution Hash: 
+		9d439e53 b930acd5 565ef53f 364c3bc3
+		1f620fc1 cdd3e6f9 3ee8549d bc53f13b
+		e96a5b22 65eeadef ec6b17f6 9e36de4f
+		b19c1653 379dcb79 e0105379 2848fec3
+✓ <dry-run-dir>/work/income_final.zkey sha256 ddf6c6dcfd24479bed49364f5790fe3a6b1e62365e0053d91f6ba69a3960ac38
+  next: verify it, then finalize.
+== verify final
+verifying <dry-run-dir>/work/income_final.zkey (sha256 ddf6c6dcfd24479bed49364f5790fe3a6b1e62365e0053d91f6ba69a3960ac38); this takes a few minutes…
+Reading r1cs
+Reading tauG1
+Reading tauG2
+Reading alphatauG1
+Reading betatauG1
+Circuit hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+Circuit Hash: 
+		2c23ce10 7abf99ae dcbabaf6 bdaf4cdb
+		317e512a 8bcba07c fdc10042 79251a1d
+		61ac0fc6 7809d721 429b4e13 a2e914b1
+		595aa5db f47ef36b 6585e83c f825688c
+-------------------------
+contribution #3 Aevum 44005 block 3747371:
+		9d439e53 b930acd5 565ef53f 364c3bc3
+		1f620fc1 cdd3e6f9 3ee8549d bc53f13b
+		e96a5b22 65eeadef ec6b17f6 9e36de4f
+		b19c1653 379dcb79 e0105379 2848fec3
+Beacon generator: 94936e59719e5e3426e98c592f2287eac48ed6dac3fd53a88b5c325e0e060063
+Beacon iterations Exp: 10
+-------------------------
+contribution #2 dry outsider:
+		2ad1a7e9 7792a98e e880b873 14f57f09
+		37066931 b8111111 e17205cc f8af87be
+		78610675 76f7e2b5 28a97b32 71801adb
+		3635d423 0d7e55db b3afee32 8e59e04a
+-------------------------
+contribution #1 dry builder:
+		fdc82598 b8f5cd3c 357b1040 b671d881
+		a7094c83 20aede2d 145df67e 2262b619
+		26acdb76 1344ae9d e49f0a31 6405c7ca
+		9461d500 89ed21e4 e17d20e3 a03289e6
+-------------------------
+ZKey Ok!
+✓ verified; 3 contribution(s) recorded.
+  #1 dry builder: fdc82598b8f5cd3c357b1040b671d881a7094c8320aede2d145df67e2262b61926acdb761344ae9de49f0a316405c7ca9461d50089ed21e4e17d20e3a03289e6
+  #2 dry outsider: 2ad1a7e97792a98ee880b87314f57f0937066931b8111111e17205ccf8af87be7861067576f7e2b528a97b3271801adb3635d4230d7e55dbb3afee328e59e04a
+  #3 Aevum 44005 block 3747371: 9d439e53b930acd5565ef53f364c3bc31f620fc1cdd3e6f93ee8549dbc53f13be96a5b2265eeadefec6b17f69e36de4fb19c1653379dcb79e01053792848fec3
+== finalize
+✓ verifier compiled (1,908 bytes runtime), Shanghai check passed
+✓ sample proof verified with the exported vkey; tampered threshold refused (prove 17926 ms)
+✓ finalized. zkey ddf6c6dcfd24479bed49364f5790fe3a6b1e62365e0053d91f6ba69a3960ac38
+  vkey <dry-run-dir>/out/income_final_vkey.json c41f90ae49a49fd36a1109fcbced79fa0581a2add074dc5822372d31ba2d1b93
+  verifier <dry-run-dir>/out/IncomeGroth16Verifier.sol c71d5636126d8383af0fd5508539443d3341eb8830ef6401de157639251bbeb8
+
+real	0m28.408s
+user	1m2.020s
+sys	0m1.837s
+DRY RUN COMPLETE
+exit 0

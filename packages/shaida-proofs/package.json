@@ -14,6 +14,7 @@
     "test:groth16": "node --import tsx --test --test-reporter=spec 'test/**/*.groth16.ts'",
     "bench": "tsx scripts/bench-proving.ts",
     "vectors": "tsx scripts/gen-ledger-vectors.ts",
+    "fixtures:verifier": "tsx scripts/gen-verifier-fixtures.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -187,3 +187,34 @@ multiple of the step and never its unrounded sum; income.honest.test.ts coarser 
 `BelowThreshold`, off-step `InputRejected`. Mutation check: dropping the root check fails X18; `SHARE_STEP = 1n`
 fails both C3 property tests.
 Where: packages/shaida-proofs/src/{split.ts,schema.ts,witness.ts,verify/verify.ts,errors.ts}, PRD §3–§5, LIMITS, EVAL rev. 4
+
+## D14: IncomeVerifier checks more than the pairing; ceremony tooling
+Context: PRD §3 asked for a snarkjs verifier wrapped with `require`, explicit gas guidance and an optional attest
+event. A Groth16 proof is valid over any Merkle root its prover chose, so an on-chain "proof checked" is only
+meaningful if the root is ShaidaLedger's. Step 3 also needed scripts for the phase-2 ceremony.
+Decision:
+- `IncomeVerifier.check(proof, signals)` (view) requires asset = tUSD8 (`AssetMismatch`), `ledger.isKnownRoot(root)`
+  (`UnknownRoot`), at least `MIN_VERIFY_GAS` = 320,000 gas left before the pairing call (`InsufficientGas`, so a short
+  gas limit is never reported as `ProofInvalid`), then the generated verifier's `true` (`ProofInvalid`). It never
+  returns false. `attest` = `check` + `IncomeProofChecked(context, threshold, count)`. Callers set gas explicitly:
+  400k for `check`, 420k for `attest`. Measured 2026-11-21 (forge, throwaway key): `verifyProof` 262,573 gas with
+  the 7 public signals; the test asserts 1.1 × that < 63/64 × MIN_VERIFY_GAS. One proof per call; on-chain bundles
+  are on ROADMAP.md. The generated verifier is reached through `IIncomeGroth16Verifier` (its `verifyProof`
+  signature); unit tests use a placeholder and two THROWAWAY verifiers (`contracts/test/fixtures/income/`, made by
+  `scripts/gen-verifier-fixtures.ts`). `DeployStack` does not deploy IncomeVerifier yet: the real verifier comes from
+  `ceremony/finalize.ts`.
+- Ceremony scripts in `ceremony/` (TypeScript, snarkjs 0.7.6 as a library so contribution hashes and the verify
+  result are return values, not scraped output, except contribution names and hashes read from the `zkey verify`
+  log, which the parser checks completely). `record.json` (strict schema) is the single record, extended by each
+  step and rendered to TRANSCRIPT.md. The contributor list is taken from the verified zkey itself, and a contributor's
+  reported hash is compared with it (`--expect`). Entropy is read at a hidden prompt, ≥ 32 characters, never stored.
+  The beacon block (head + 7,115 blocks ≈ 2 h at 1.012 s) is announced in record.json, must be in a commit in
+  origin/master dated before the block, and is used only after 64 confirmations, with the hash read twice. A
+  DRY RUN mode (`CEREMONY_DIR`) rehearses every step outside the repo.
+Rejected: a bare `require(verifyProof(...))` (accepts proofs over any root; a short gas limit reads as invalid);
+shelling out to the snarkjs CLI and parsing its stdout for hashes (the prompt and the output share stdout);
+entropy on the command line (stays in shell history).
+Tests: contracts/test/IncomeVerifier.t.sol (13: AssetMismatch, UnknownRoot, ProofInvalid, InsufficientGas, attest
+event and no event on refusal, zero addresses, key A accepts its proof, key B refuses it, X12 raised threshold, bare
+verifier returns false short of gas, gas fit). ceremony/test/ceremony.test.ts (8).
+Where: contracts/src/IncomeVerifier.sol, ceremony/, briefing/CEREMONY.md

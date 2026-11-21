@@ -13,14 +13,19 @@ Build steps 1 and 2 of PRD §11 are done locally; nothing is deployed on Aevum t
   final-ceremony verifiers.
 - Income circuit (`packages/shaida-proofs`): 4 slots per proof, 44,687 constraints (DECISIONS D12). A pure witness
   builder splits a period into a bundle of up to 8 proofs over disjoint leaf ranges, and the pure verification core
-  (PRD §5) checks bundles. Tested with honest cases, the circuit cheats of EVAL_DESIGN (X04–X09, X14–X17 and
-  public-signal tampering) and a property test.
-  Proving keys so far are a **throwaway local key** for tests and timing only; the ceremony (step 3) is not done.
+  (PRD §5) checks bundles. Tested with honest cases, the circuit cheats of EVAL_DESIGN (X04–X09 and
+  public-signal tampering), the bundle refusals (X14–X18) and property tests. Each proof's threshold share is
+  rounded down to whole tUSD8 (D13).
+  Proving keys so far are a **throwaway local key** for tests and timing only.
+- Ceremony (step 3): scripts and contributor instructions are ready (`ceremony/`, `briefing/CEREMONY.md`,
+  rehearsed in a dry run); **no contribution has been made yet**, so there is no final key.
+- `IncomeVerifier` (on-chain check of one proof: tUSD8, known ledger root, gas guard, Groth16; optional attest):
+  unit-tested with a placeholder and two throwaway verifiers. Not deployed; it waits for the ceremony's verifier.
 - Tests: `make test` (contracts, circuit, witness builder) and `make test-fork` (real tUSD8 on a fork, including
   deposit → vouched pay → sweep with real proofs). Gas: [evidence/fork-gas.md](evidence/fork-gas.md).
   Issuer and front-running limits: [LIMITS.md](LIMITS.md).
 
-Not built yet: the phase-2 ceremony, IncomeVerifier, the browser prover, the chain-reading side of verification
+Not built yet: the ceremony itself (final key), the browser prover, the chain-reading side of verification
 (`isKnownRoot`, dates; injected into the pure core), indexer, Shaida relayer and UI.
 `web/` and `examples/` are still the starter kit's checkout demo and will be replaced.
 

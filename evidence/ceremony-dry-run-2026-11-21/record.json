@@ -1,0 +1,147 @@
+{
+  "v": 1,
+  "dryRun": true,
+  "snarkjs": "0.7.6",
+  "circuit": {
+    "r1cs": "packages/shaida-proofs/build/income.r1cs",
+    "r1csSha256": "d866695ca2473e70408d288feafaec7181983480a688acac30b42156d305d82a"
+  },
+  "ptau": {
+    "name": "powersOfTau28_hez_final_17.ptau",
+    "blake2b": "6247a3433948b35fbfae414fa5a9355bfb45f56efa7ab4929e669264a0258976741dfbe3288bfb49828e5df02c2e633df38d2245e30162ae7e3bcca5b8b49345"
+  },
+  "setup": {
+    "zkey": {
+      "path": "<dry-run-dir>/work/income_0000.zkey",
+      "sha256": "f0479fc691bcc842b150dadd6d92417b32918ea24da1ba810d8e213dfb149a46"
+    },
+    "at": "2026-11-21T06:41:41.280Z"
+  },
+  "verified": [
+    {
+      "zkey": {
+        "path": "<dry-run-dir>/work/income_0001.zkey",
+        "sha256": "a836b28a51036e2f0a83216b3aeb676209f4aee5fc496007026a5a3fe888f249"
+      },
+      "circuitHash": "2c23ce107abf99aedcbabaf6bdaf4cdb317e512a8bcba07cfdc1004279251a1d61ac0fc67809d721429b4e13a2e914b1595aa5dbf47ef36b6585e83cf825688c",
+      "contributions": [
+        {
+          "n": 1,
+          "name": "dry builder",
+          "hash": "fdc82598b8f5cd3c357b1040b671d881a7094c8320aede2d145df67e2262b61926acdb761344ae9de49f0a316405c7ca9461d50089ed21e4e17d20e3a03289e6",
+          "beacon": null
+        }
+      ],
+      "log": "<dry-run-dir>/logs/verify-a836b28a51036e2f.txt",
+      "at": "2026-11-21T06:48:36.901Z"
+    },
+    {
+      "zkey": {
+        "path": "<dry-run-dir>/work/income_0002.zkey",
+        "sha256": "3eea5c294e3bfddeec6c2d1d2be21536c4ebea924c32491b4dd6e2d8a7144aee"
+      },
+      "circuitHash": "2c23ce107abf99aedcbabaf6bdaf4cdb317e512a8bcba07cfdc1004279251a1d61ac0fc67809d721429b4e13a2e914b1595aa5dbf47ef36b6585e83cf825688c",
+      "contributions": [
+        {
+          "n": 1,
+          "name": "dry builder",
+          "hash": "fdc82598b8f5cd3c357b1040b671d881a7094c8320aede2d145df67e2262b61926acdb761344ae9de49f0a316405c7ca9461d50089ed21e4e17d20e3a03289e6",
+          "beacon": null
+        },
+        {
+          "n": 2,
+          "name": "dry outsider",
+          "hash": "2ad1a7e97792a98ee880b87314f57f0937066931b8111111e17205ccf8af87be7861067576f7e2b528a97b3271801adb3635d4230d7e55dbb3afee328e59e04a",
+          "beacon": null
+        }
+      ],
+      "log": "<dry-run-dir>/logs/verify-3eea5c294e3bfdde.txt",
+      "at": "2026-11-21T12:29:52.505Z"
+    },
+    {
+      "zkey": {
+        "path": "<dry-run-dir>/work/income_final.zkey",
+        "sha256": "ddf6c6dcfd24479bed49364f5790fe3a6b1e62365e0053d91f6ba69a3960ac38"
+      },
+      "circuitHash": "2c23ce107abf99aedcbabaf6bdaf4cdb317e512a8bcba07cfdc1004279251a1d61ac0fc67809d721429b4e13a2e914b1595aa5dbf47ef36b6585e83cf825688c",
+      "contributions": [
+        {
+          "n": 1,
+          "name": "dry builder",
+          "hash": "fdc82598b8f5cd3c357b1040b671d881a7094c8320aede2d145df67e2262b61926acdb761344ae9de49f0a316405c7ca9461d50089ed21e4e17d20e3a03289e6",
+          "beacon": null
+        },
+        {
+          "n": 2,
+          "name": "dry outsider",
+          "hash": "2ad1a7e97792a98ee880b87314f57f0937066931b8111111e17205ccf8af87be7861067576f7e2b528a97b3271801adb3635d4230d7e55dbb3afee328e59e04a",
+          "beacon": null
+        },
+        {
+          "n": 3,
+          "name": "Aevum 44005 block 3747371",
+          "hash": "9d439e53b930acd5565ef53f364c3bc31f620fc1cdd3e6f93ee8549dbc53f13be96a5b2265eeadefec6b17f69e36de4fb19c1653379dcb79e01053792848fec3",
+          "beacon": {
+            "value": "94936e59719e5e3426e98c592f2287eac48ed6dac3fd53a88b5c325e0e060063",
+            "iterationsExp": 10
+          }
+        }
+      ],
+      "log": "<dry-run-dir>/logs/verify-ddf6c6dcfd24479b.txt",
+      "at": "2026-11-21T12:39:02.812Z"
+    }
+  ],
+  "beaconAnnouncement": {
+    "chainId": 44005,
+    "blockNumber": 3747371,
+    "forZkey": {
+      "path": "<dry-run-dir>/work/income_0002.zkey",
+      "sha256": "3eea5c294e3bfddeec6c2d1d2be21536c4ebea924c32491b4dd6e2d8a7144aee"
+    },
+    "headAtAnnouncement": 3747299,
+    "headTimestamp": 1795264200,
+    "blockSeconds": 1.012,
+    "expectedTimestamp": 1795264273,
+    "at": "2026-11-21T12:30:01.815Z"
+  },
+  "beacon": {
+    "chainId": 44005,
+    "blockNumber": 3747371,
+    "blockHash": "0x94936e59719e5e3426e98c592f2287eac48ed6dac3fd53a88b5c325e0e060063",
+    "blockTimestamp": 1795264273,
+    "iterationsExp": 10,
+    "announcementCommit": null,
+    "in": {
+      "path": "<dry-run-dir>/work/income_0002.zkey",
+      "sha256": "3eea5c294e3bfddeec6c2d1d2be21536c4ebea924c32491b4dd6e2d8a7144aee"
+    },
+    "out": {
+      "path": "<dry-run-dir>/work/income_final.zkey",
+      "sha256": "ddf6c6dcfd24479bed49364f5790fe3a6b1e62365e0053d91f6ba69a3960ac38"
+    },
+    "contributionHash": "9d439e53b930acd5565ef53f364c3bc31f620fc1cdd3e6f93ee8549dbc53f13be96a5b2265eeadefec6b17f69e36de4fb19c1653379dcb79e01053792848fec3",
+    "at": "2026-11-21T12:33:55.482Z"
+  },
+  "final": {
+    "zkey": {
+      "path": "<dry-run-dir>/work/income_final.zkey",
+      "sha256": "ddf6c6dcfd24479bed49364f5790fe3a6b1e62365e0053d91f6ba69a3960ac38"
+    },
+    "vkey": {
+      "path": "<dry-run-dir>/out/income_final_vkey.json",
+      "sha256": "c41f90ae49a49fd36a1109fcbced79fa0581a2add074dc5822372d31ba2d1b93"
+    },
+    "verifier": {
+      "path": "<dry-run-dir>/out/IncomeGroth16Verifier.sol",
+      "sha256": "c71d5636126d8383af0fd5508539443d3341eb8830ef6401de157639251bbeb8"
+    },
+    "verifierRuntimeBytes": 1908,
+    "shanghaiCheck": "pass",
+    "sampleProof": {
+      "verified": true,
+      "tamperedRefused": true,
+      "proveMs": 17926
+    },
+    "at": "2026-11-21T12:39:31.401Z"
+  }
+}

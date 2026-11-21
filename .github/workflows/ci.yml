@@ -70,6 +70,10 @@ jobs:
         run: pnpm --filter @shaida/proofs compile
       - name: Circuit and witness tests (Groth16 proving needs the local ptau, so it reports INCONCLUSIVE here)
         run: pnpm --filter @shaida/proofs test
+      - name: Ceremony script tests (pure parts; the snarkjs steps need the ptau and run locally)
+        run: |
+          pnpm --filter @shaida/ceremony typecheck
+          pnpm --filter @shaida/ceremony test
 
   web:
     runs-on: ubuntu-latest

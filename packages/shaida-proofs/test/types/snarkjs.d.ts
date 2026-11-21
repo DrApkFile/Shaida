@@ -24,5 +24,6 @@ declare module "snarkjs" {
       zkeyFile: string,
     ): Promise<{ proof: Groth16Proof; publicSignals: string[] }>;
     verify(vkey: VerificationKey, publicSignals: string[], proof: Groth16Proof): Promise<boolean>;
+    exportSolidityCallData(proof: Groth16Proof, publicSignals: string[]): Promise<string>;
   };
 }
