@@ -25,7 +25,7 @@ STACK_SCRIPT := script/DeployStack.s.sol:DeployStack
 # PayerRegistry owner on `make fork`: anvil account 0, so payers can be registered locally. On 44005: ATTESTOR=0x... (required).
 FORK_ATTESTOR := $(ANVIL_0)
 
-.PHONY: help install build test test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-supersede ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum deal dev
+.PHONY: help install build test test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-supersede ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum deal register-payer dev
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36mmake %-14s\033[0m %s\n", $$1, $$2}'
@@ -33,6 +33,7 @@ help: ## Show this list
 install: ## Fetch Solidity libs and JS packages
 	git submodule update --init --recursive
 	pnpm install
+	node tools/copy-gloam-artifacts.mjs
 
 build: ## Compile contracts (Shanghai-checked) and the income circuit
 	cd contracts && forge build
@@ -98,6 +99,14 @@ deal: ## `make fork` only: give TO AMOUNT tUSD8 and 10 tQDAY for gas
 	@cast send $(TUSD8) "configureMinter(address,uint256)" $(TUSD8_MM) 1000000000000000 --from $(TUSD8_MM) --unlocked --rpc-url $(FORK_RPC) > /dev/null
 	@cast send $(TUSD8) "mint(address,uint256)" $(TO) $$(cast parse-units $(AMOUNT) 6) --from $(TUSD8_MM) --unlocked --rpc-url $(FORK_RPC) > /dev/null
 	@echo "tUSD8 balance of $(TO): $$(cast call $(TUSD8) 'balanceOf(address)(uint256)' $(TO) --rpc-url $(FORK_RPC))"
+
+register-payer: ## `make fork` only: the fork's attestor (anvil account 0) registers TO as a payer named NAME
+	@test -n "$(TO)" || (echo 'Usage: make register-payer TO=0x... [NAME="Acme Studio (demo)"]' && exit 1)
+	@test "$$(cast chain-id --rpc-url $(FORK_RPC))" = "$(FORK_CHAIN)" || (echo "This only works on 'make fork'." && exit 1)
+	@cast rpc anvil_impersonateAccount $(FORK_ATTESTOR) --rpc-url $(FORK_RPC) > /dev/null
+	@cast send $$(node -p 'require("./deployments/fork.json").contracts.PayerRegistry.address') "register(address,bytes32)" $(TO) $$(cast keccak "$(or $(NAME),Acme Studio (demo))") \
+	  --from $(FORK_ATTESTOR) --unlocked --legacy --rpc-url $(FORK_RPC) > /dev/null
+	@echo "$(TO) is payer #$$(cast call $$(node -p 'require("./deployments/fork.json").contracts.PayerRegistry.address') 'activeIdOf(address)(uint32)' $(TO) --rpc-url $(FORK_RPC))"
 
 s8-build: ## Spike S8: build the browser proving bench (4 vs 8 slots, THROWAWAY keys). Needs PTAU_PATH
 	@test -n "$(PTAU_PATH)" || (echo "INCONCLUSIVE: set PTAU_PATH=/path/to/powersOfTau28_hez_final_17.ptau" && exit 1)

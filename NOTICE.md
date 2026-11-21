@@ -25,6 +25,13 @@ Imported from `contracts/lib/gloam/contracts/` by `contracts/script/DeployStack.
 and `KeyCheckProofs` (deploy-time key check only). PoseidonT3 is deployed from Gloam's fixture
 `test/fixtures/Poseidon2.json` (circomlibjs bytecode, read at deploy time, not copied).
 
+### What the web app serves and runs from Gloam
+`tools/copy-gloam-artifacts.mjs` copies, unmodified and sha256-checked, `app/public/circuits/{shield,transfer}.wasm` and
+`app/public/circuits/final/{shield,transfer}_final.zkey` (Gloam's final ceremony keys) with Gloam's `LICENSE` into
+`web/public/gloam/` for in-browser proving. The app and `packages/shaida-pay` use `@gloamtrade/sdk` 0.8.0 (MIT,
+(c) 2026 Gloam) from npm for note, intent, receive-tag and sealed-memo code. Proving runs snarkjs 0.7.6
+(GPL-3.0, (c) 0KIMS), loaded in the browser bundle; its licence applies to that bundle.
+
 ### Borrowed snippets
 | Where | Source | Licence |
 |---|---|---|
@@ -33,6 +40,7 @@ and `KeyCheckProofs` (deploy-time key check only). PoseidonT3 is deployed from G
 | `Makefile` (`fork`, `deal`, throwaway-deployer pattern in `deploy-fork`) | qday-io/aevum-starter-kit `Makefile` | MIT, (c) 2026 PQA Labs |
 | `contracts/script/DeployStack.s.sol` `_isAnvilAccount` | qday-io/aevum-starter-kit `contracts/script/Deploy.s.sol` | MIT, (c) 2026 PQA Labs |
 | `contracts/src/ShaidaDepositor.sol` gasless pattern (nonce bound to contract + id) | qday-io/aevum-starter-kit `contracts/src/Checkout.sol` | MIT, (c) 2026 PQA Labs |
+| `web/src/app/api/relay/*`, `web/src/server/relay-route.ts` (`clientIp`, route shape) | qday-io/aevum-starter-kit `web/src/app/api/relay/route.ts` | MIT, (c) 2026 PQA Labs |
 | `contracts/test/fork/AevumFork.t.sol` (domain check) | qday-io/aevum-starter-kit same path | MIT, (c) 2026 PQA Labs |
 | `packages/shaida-proofs/circuits/lib/merkle.circom` (Merkle path; root and leaf index as outputs) | gloamtrade/gloam `contracts/circuits/common/merkle_poseidon.circom` (commit `d8db1e6c`) | MIT, (c) 2026 Gloam |
 

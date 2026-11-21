@@ -274,3 +274,34 @@ dl.faq dd { margin: 0; color: var(--text-2); line-height: 1.65; }
   content: ""; position: absolute; left: 0; top: 0.3em; width: 14px; height: 14px;
   border: 1.5px solid var(--text-faint); border-radius: 4px;
 }
+
+/* ---------- shaida: pay and inbox ---------- */
+.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--text-muted); }
+.field input, .field textarea, .field select {
+  font: inherit; font-size: 15px; color: var(--text); background: var(--bg); border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm); padding: 10px 12px; min-height: 44px; width: 100%;
+}
+.field textarea { min-height: 72px; resize: vertical; font-family: var(--font-mono); font-size: 13px; word-break: break-all; }
+.mono { font-family: var(--font-mono); }
+.break { overflow-wrap: anywhere; word-break: break-all; }
+.check-line { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text-muted); }
+.vault-bar { padding: 10px 0; gap: 10px; flex-wrap: wrap; }
+.vault-bar .row { gap: 8px; }
+.demo-tag { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--warn); border: 1px solid var(--warn-line); border-radius: 6px; padding: 1px 6px; }
+.step.failed .step-dot { border-color: var(--bad-chip); background: var(--bad-chip); }
+.step.failed .step-state { color: var(--bad); }
+.step.unknown .step-dot { border-color: var(--warn-chip); background: var(--warn-chip); }
+.step.unknown .step-state { color: var(--warn); }
+.payments { list-style: none; margin: 0; padding: 0; }
+.payment { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; align-items: center; padding: 14px 0; border-top: 1px solid var(--line); }
+.payment:first-child { border-top: 0; }
+.payment-amount { font-family: var(--font-display); font-size: 20px; font-weight: 600; }
+.state { font-size: 13px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--text-2); white-space: nowrap; }
+.state.seen { border-color: var(--line-info); color: var(--accent-text); }
+.state.sweeping { border-color: var(--accent); color: var(--accent-text); }
+.state.swept { border-color: var(--good-line); color: var(--good); }
+.state.unknown, .state.lost { border-color: var(--warn-line); color: var(--warn); }
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.tabs button[aria-pressed="true"] { border-color: var(--accent); color: var(--text); }
+details summary { cursor: pointer; color: var(--text-muted); font-size: 14px; }
+details[open] summary { margin-bottom: 12px; }

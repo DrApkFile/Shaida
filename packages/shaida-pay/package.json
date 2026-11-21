@@ -9,7 +9,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "test": "node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'",
+    "test": "node --import tsx --test --test-force-exit --test-reporter=spec 'test/**/*.test.ts'",
     "typecheck": "tsc --noEmit",
     "exit:acts-2-3": "tsx scripts/exit-acts-2-3.ts"
   },

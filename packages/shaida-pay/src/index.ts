@@ -5,3 +5,4 @@ export * from "./notes";
 export * from "./payer";
 export * from "./recipient";
 export * from "./vault";
+export * from "./prover";

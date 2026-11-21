@@ -1,6 +1,5 @@
 packages:
   - packages/*
   - web
-  - examples
   - tools/s8-bench
   - ceremony

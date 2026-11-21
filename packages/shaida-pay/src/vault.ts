@@ -25,7 +25,7 @@ export const vaultDataSchema = z
     sent: z.array(z.object({ note: noteSchema, to: z.string(), at: z.string(), requestId: z.string().nullable() }).strict()),
     /** The recipient's inbox: one entry per payment, with its sweep state and fresh note. */
     inbox: z.array(inboxEntrySchema),
-    /** Fork only: a demo payer key kept in this browser (D20). Refused on 44005. */
+    /** Fork only: a demo payer key kept in this browser (D21). Refused on 44005. */
     demoPayerKey: z.string().regex(/^0x[0-9a-f]{64}$/).nullable(),
   })
   .strict();

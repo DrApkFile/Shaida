@@ -368,3 +368,32 @@ Found and fixed:
 3. A pay that spends a whole note has a zero-value change note; the flow's note schema refused amount "0". Test P06.
 Consequences: relay-state files written before (2) fail the strict schema and are refused; the dev one was moved
 aside. The failed runs stay in evidence/.
+
+## D21: pay and inbox UI, browser proving, demo payer, memo route, kit pages removed
+Context: PRD §3/§6/§11 acts 2–3, task 3 of the build plan.
+Decision:
+- `/pay` (payer) and `/inbox` (recipient) replace the kit's checkout, receipts, activity and docs pages and
+  `examples/` (they taught the kit's Checkout contract, which Shaida does not deploy). Flows live in
+  `packages/shaida-pay` (pure; prover, storage, RPC, clock injected) and are shared with the exit-check script.
+- **Proving in the browser** with Gloam's shield/transfer circuits and FINAL ceremony keys, copied unchanged with
+  Gloam's LICENSE into `web/public/gloam/` by `tools/copy-gloam-artifacts.mjs` (gitignored; run by `make install`,
+  `predev`, `prebuild`). The browser re-checks each file's sha256 (`packages/shaida-pay/gloam-artifacts.json`) and
+  proves from the checked bytes in memory. The same-named dev key is refused (test P07).
+- **Vault:** every secret (payer notes, sent payment notes, the receive key, the inbox sweep notes) is sealed with
+  AES-256-GCM under a PBKDF2-SHA256 (310,000 iterations) key from the user's passphrase and kept in localStorage per
+  chain; the passphrase is held in memory for the tab only. The sealed blob is the exportable backup. Each note is
+  saved BEFORE the signature or send that could make it the only copy of money.
+- **Memo route:** the sealed memo (`gloam2t.` ticket, the payment note sealed to the recipient's `gloamr1.` tag) is
+  posted by the relayer after the vouched pay (D19). The PRD names four relayed functions; this is the fifth.
+- **Inbox states** follow PRD §6: seen → sweeping → swept | unknown. Swept is set only when the checked ledger tree
+  holds the S leaf for this nullifier with the recipient's own fresh commitment. `unknown` has no resend edge;
+  "Check again" reads the record and the chain only. A payment spent by someone else shows as taken back.
+- **Demo payer (fork only):** `/pay` can create a payer key kept in the vault, labelled "Acme Studio (demo)", and only
+  for chain 440050. `make register-payer TO=…` registers it with the fork's attestor. The inbox shows "Ada (demo)" on
+  the fork; the home page says the personas are not real.
+- **Income-proof key switch:** `NEXT_PUBLIC_SHAIDA_INCOME_KEY` = `final` (default) | `throwaway`; `incomeKeyFor`
+  refuses `throwaway` on 44005 (test P01). The home page shows which key is set. No income-proof UI is built yet.
+Verified: `node tools/ui-flow-fork.mjs` drives both pages in headless Chromium at 390 px with two isolated
+profiles (deposit, vouched pay + memo, sweep), checks for horizontal overflow, writes evidence/ui-fork/.
+Rejected: a server-side inbox scan (the receive key would leave the browser); a viem nonce manager in the UI (the
+payer never sends).

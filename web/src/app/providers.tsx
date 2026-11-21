@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { WagmiProvider } from "wagmi";
 import { NetworkProvider, useNetwork } from "@/lib/network";
+import { VaultProvider } from "@/lib/vault";
 import { wagmiConfig } from "@/lib/wagmi";
 
 const theme = darkTheme({ accentColor: "#0257FF", borderRadius: "medium" });
@@ -14,7 +15,7 @@ const theme = darkTheme({ accentColor: "#0257FF", borderRadius: "medium" });
 function RainbowKit({ children }: { children: ReactNode }) {
   const { net } = useNetwork();
   return (
-    <RainbowKitProvider initialChain={net.chain} locale="en-US" theme={theme} appInfo={{ appName: "Aevum Starter Kit" }}>
+    <RainbowKitProvider initialChain={net.chain} locale="en-US" theme={theme} appInfo={{ appName: "Shaida" }}>
       {children}
     </RainbowKitProvider>
   );
@@ -26,7 +27,9 @@ export function Providers({ children }: { children: ReactNode }) {
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <NetworkProvider>
-          <RainbowKit>{children}</RainbowKit>
+          <VaultProvider>
+            <RainbowKit>{children}</RainbowKit>
+          </VaultProvider>
         </NetworkProvider>
       </QueryClientProvider>
     </WagmiProvider>

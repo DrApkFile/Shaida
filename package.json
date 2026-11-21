@@ -12,7 +12,6 @@
     "dev": "pnpm --filter web dev",
     "build": "pnpm --filter web build",
     "typecheck": "pnpm -r typecheck",
-    "example": "pnpm --filter examples run",
     "check:shanghai": "node tools/check-shanghai.mjs contracts/out"
   },
   "pnpm": {
