@@ -81,6 +81,39 @@
       "log": "ceremony/logs/verify-68f5b444417dbc87-2026-11-21T17-28-18-688Z.txt",
       "at": "2026-11-21T17:28:18.729Z",
       "superseded": null
+    },
+    {
+      "zkey": {
+        "path": "ceremony/work/income_final.zkey",
+        "sha256": "cbcb06fecdf72b47bb7d45d4403eaf69cf78bee65ad41cd50d0c98f4609cc0a5"
+      },
+      "circuitHash": "2c23ce107abf99aedcbabaf6bdaf4cdb317e512a8bcba07cfdc1004279251a1d61ac0fc67809d721429b4e13a2e914b1595aa5dbf47ef36b6585e83cf825688c",
+      "contributions": [
+        {
+          "n": 1,
+          "name": "Kene",
+          "hash": "65ae2edbc81c50e9a0bf020614874eabab2ab840e494c01f5f2c94b62fa2ed959aa1e917da482f5c1e025eb785cb37aa3bc2fdfc61a4668a0de4301540e445e3",
+          "beacon": null
+        },
+        {
+          "n": 2,
+          "name": "Gunroar",
+          "hash": "cfc250b4c8d131fec4f2464ec79b8c9005de9b2b2669e55a79141fd0f32946ba0d696885f8346633ab65adb0ffbed876c1ef6114106618895b75cfd2723e1296",
+          "beacon": null
+        },
+        {
+          "n": 3,
+          "name": "Aevum 44005 block 3772100",
+          "hash": "ab24fa7cb3d98cf729a5745fdc4e61428984b1f0c48e1609406f54cc1fefefcde1a2d1d00ea06a3f2eeab29519c418bb453b5c48f50f61fe4c5c44c2a3614598",
+          "beacon": {
+            "value": "11f312d0241ad9292a4c572c87d0801959b9fa39899ec270176867946867bff0",
+            "iterationsExp": 10
+          }
+        }
+      ],
+      "log": "ceremony/logs/verify-cbcb06fecdf72b47-2026-11-21T22-05-08-402Z.txt",
+      "at": "2026-11-21T22:05:08.404Z",
+      "superseded": null
     }
   ],
   "beaconAnnouncement": {
@@ -96,6 +129,47 @@
     "expectedTimestamp": 1795289313,
     "at": "2026-11-21T17:28:34.600Z"
   },
-  "beacon": null,
-  "final": null
+  "beacon": {
+    "chainId": 44005,
+    "blockNumber": 3772100,
+    "blockHash": "0x11f312d0241ad9292a4c572c87d0801959b9fa39899ec270176867946867bff0",
+    "blockTimestamp": 1795289317,
+    "iterationsExp": 10,
+    "announcementCommit": {
+      "sha": "29b5c68a43fc0656d71705cc80aab7657c18d4ac",
+      "committedAt": 1795282123
+    },
+    "in": {
+      "path": "ceremony/work/income_0002.zkey",
+      "sha256": "68f5b444417dbc87f3a319e6d1484a959c3501c5b1a96515bd8447525f148b13"
+    },
+    "out": {
+      "path": "ceremony/work/income_final.zkey",
+      "sha256": "cbcb06fecdf72b47bb7d45d4403eaf69cf78bee65ad41cd50d0c98f4609cc0a5"
+    },
+    "contributionHash": "ab24fa7cb3d98cf729a5745fdc4e61428984b1f0c48e1609406f54cc1fefefcde1a2d1d00ea06a3f2eeab29519c418bb453b5c48f50f61fe4c5c44c2a3614598",
+    "at": "2026-11-21T22:00:06.448Z"
+  },
+  "final": {
+    "zkey": {
+      "path": "ceremony/work/income_final.zkey",
+      "sha256": "cbcb06fecdf72b47bb7d45d4403eaf69cf78bee65ad41cd50d0c98f4609cc0a5"
+    },
+    "vkey": {
+      "path": "packages/shaida-proofs/keys/income_final_vkey.json",
+      "sha256": "2635a81044a14f06c832803f0d93c1216bde5290de31366517fa615695da69bd"
+    },
+    "verifier": {
+      "path": "contracts/src/generated/IncomeGroth16Verifier.sol",
+      "sha256": "96db550b107ffe22341d1ec3961db32cd91bd44898d0106d20e0796da1564381"
+    },
+    "verifierRuntimeBytes": 1909,
+    "shanghaiCheck": "pass",
+    "sampleProof": {
+      "verified": true,
+      "tamperedRefused": true,
+      "proveMs": 19854
+    },
+    "at": "2026-11-21T22:05:47.551Z"
+  }
 }

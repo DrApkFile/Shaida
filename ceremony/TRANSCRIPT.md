@@ -71,11 +71,53 @@ cfc250b4c8d131fec4f2464ec79b8c90
 c1ef6114106618895b75cfd2723e1296
 ```
 
+### `ceremony/work/income_final.zkey`
+
+sha256 `cbcb06fecdf72b47bb7d45d4403eaf69cf78bee65ad41cd50d0c98f4609cc0a5`, verified 2026-11-21T22:05:08.404Z against the r1cs and ptau above (log: `ceremony/logs/verify-cbcb06fecdf72b47-2026-11-21T22-05-08-402Z.txt`).
+
+| # | Name in the zkey | Kind | Contribution hash |
+|---|---|---|---|
+| 1 | Kene | contribution | `65ae2edbc81c50e9…` |
+| 2 | Gunroar | contribution | `cfc250b4c8d131fe…` |
+| 3 | Aevum 44005 block 3772100 | beacon 11f312d0241ad9292a4c572c87d0801959b9fa39899ec270176867946867bff0, 2^10 | `ab24fa7cb3d98cf7…` |
+
+Contribution #1 hash:
+```
+65ae2edbc81c50e9a0bf020614874eab
+ab2ab840e494c01f5f2c94b62fa2ed95
+9aa1e917da482f5c1e025eb785cb37aa
+3bc2fdfc61a4668a0de4301540e445e3
+```
+Contribution #2 hash:
+```
+cfc250b4c8d131fec4f2464ec79b8c90
+05de9b2b2669e55a79141fd0f32946ba
+0d696885f8346633ab65adb0ffbed876
+c1ef6114106618895b75cfd2723e1296
+```
+Contribution #3 hash:
+```
+ab24fa7cb3d98cf729a5745fdc4e6142
+8984b1f0c48e1609406f54cc1fefefcd
+e1a2d1d00ea06a3f2eeab29519c418bb
+453b5c48f50f61fe4c5c44c2a3614598
+```
+
 ## Beacon
 
 Announced 2026-11-21T17:28:34.600Z: block **3772100** on chain 44005, for zkey sha256 `68f5b444417dbc87f3a319e6d1484a959c3501c5b1a96515bd8447525f148b13`. Head was 3764985 (timestamp 1795282113); at 1.012 s per block the block is expected near unix 1795289313.
 
+Applied 2026-11-21T22:00:06.448Z: block 3772100 hash `0x11f312d0241ad9292a4c572c87d0801959b9fa39899ec270176867946867bff0` (timestamp 1795289317), 2^10 iterations.
+Announced in commit `29b5c68a43fc0656d71705cc80aab7657c18d4ac` (committed at unix 1795282123, before the block).
+Output `ceremony/work/income_final.zkey` sha256 `cbcb06fecdf72b47bb7d45d4403eaf69cf78bee65ad41cd50d0c98f4609cc0a5`, contribution hash `ab24fa7cb3d98cf7…`.
+
 ## Final key
 
-Not finalized yet.
+| File | sha256 |
+|---|---|
+| `ceremony/work/income_final.zkey` | `cbcb06fecdf72b47bb7d45d4403eaf69cf78bee65ad41cd50d0c98f4609cc0a5` |
+| `packages/shaida-proofs/keys/income_final_vkey.json` | `2635a81044a14f06c832803f0d93c1216bde5290de31366517fa615695da69bd` |
+| `contracts/src/generated/IncomeGroth16Verifier.sol` | `96db550b107ffe22341d1ec3961db32cd91bd44898d0106d20e0796da1564381` |
+
+Verifier runtime 1909 bytes, Shanghai check pass. Sample proof with the final key: verified, tampered threshold refused (prove 19.85 s). Finalized 2026-11-21T22:05:47.551Z.
 
