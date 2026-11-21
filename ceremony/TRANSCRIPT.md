@@ -31,6 +31,22 @@ Contribution #1 hash:
 a3f06b2e8537691376129b47fb8a794c
 ```
 
+### `ceremony/work/income_0001.zkey`
+
+sha256 `f68a5fa8b4aac9b92199adcd705ca729a96b87b3a78f4521a729e277a980468c`, verified 2026-11-21T14:29:49.393Z against the r1cs and ptau above (log: `ceremony/logs/verify-f68a5fa8b4aac9b9-2026-11-21T14-29-49-321Z.txt`).
+
+| # | Name in the zkey | Kind | Contribution hash |
+|---|---|---|---|
+| 1 | Kene | contribution | `65ae2edbc81c50e9…` |
+
+Contribution #1 hash:
+```
+65ae2edbc81c50e9a0bf020614874eab
+ab2ab840e494c01f5f2c94b62fa2ed95
+9aa1e917da482f5c1e025eb785cb37aa
+3bc2fdfc61a4668a0de4301540e445e3
+```
+
 ## Beacon
 
 Not announced yet.

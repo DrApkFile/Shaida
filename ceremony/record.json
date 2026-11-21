@@ -39,6 +39,24 @@
         "movedTo": "ceremony/work/superseded/income_0001-18f2ec26.zkey",
         "at": "2026-11-21T14:07:47.008Z"
       }
+    },
+    {
+      "zkey": {
+        "path": "ceremony/work/income_0001.zkey",
+        "sha256": "f68a5fa8b4aac9b92199adcd705ca729a96b87b3a78f4521a729e277a980468c"
+      },
+      "circuitHash": "2c23ce107abf99aedcbabaf6bdaf4cdb317e512a8bcba07cfdc1004279251a1d61ac0fc67809d721429b4e13a2e914b1595aa5dbf47ef36b6585e83cf825688c",
+      "contributions": [
+        {
+          "n": 1,
+          "name": "Kene",
+          "hash": "65ae2edbc81c50e9a0bf020614874eabab2ab840e494c01f5f2c94b62fa2ed959aa1e917da482f5c1e025eb785cb37aa3bc2fdfc61a4668a0de4301540e445e3",
+          "beacon": null
+        }
+      ],
+      "log": "ceremony/logs/verify-f68a5fa8b4aac9b9-2026-11-21T14-29-49-321Z.txt",
+      "at": "2026-11-21T14:29:49.393Z",
+      "superseded": null
     }
   ],
   "beaconAnnouncement": null,
