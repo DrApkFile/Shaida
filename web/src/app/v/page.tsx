@@ -58,7 +58,7 @@ export default function VerifyPage() {
           <label className="field">
             <span>Your name, as the sender wrote it</span>
             <input name="reader" autoComplete="name" placeholder="Landlord Bola" value={reader} onChange={(e) => { setReader(e.target.value); setResult(null); }} />
-            <span className="hint">The link opens only for the name it was made for. Case and spacing don&apos;t matter.</span>
+            <span className="hint">The link is made out to a name, not a login: anyone with it who types that name sees the result. Case and spacing don&apos;t matter.</span>
           </label>
           <button type="button" className="btn big" disabled={!id.ok || !t || busy} onClick={() => void verify()}>
             {busy ? "Checking…" : !t ? (trees.data && !trees.data.ok ? "Ledger unavailable" : "Reading the ledger…") : "Verify"}

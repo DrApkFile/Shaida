@@ -98,7 +98,7 @@ async function main() {
     await ada.shot(name("05-shared"));
     // The overview has no vault form: reach it through its section tab, so the vault opened above stays open.
     await ada.eval(`document.querySelector('.section-tabs a[href="/app"]').click()`);
-    await ada.until(`document.body.innerText.includes("zkey ") && document.querySelectorAll(".big-num")[3]?.innerText === "1"`, 120_000, "dashboard counts");
+    await ada.until(`document.querySelectorAll(".check .chip.ok").length === 5 && document.querySelectorAll(".big-num")[3]?.innerText === "1"`, 120_000, "dashboard counts");
     await ada.shot(name("06-dashboard"));
 
     const bola = await page("bola", { width: WIDTH });

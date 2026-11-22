@@ -97,7 +97,7 @@ export function ProveForm({ w, t, leaves, countable }: { w: Wiring; t: CheckedTr
         <label className="field">
           <span>Reader&apos;s name</span>
           <input name="reader" autoComplete="off" placeholder="Landlord Bola" value={reader} onChange={(e) => setReader(e.target.value)} />
-          <span className="hint">Only this name opens the link. Case and spacing don&apos;t matter.</span>
+          <span className="hint">The link is made out to this name. It is not a login: anyone with the link who types the name sees VALID, so share it only with them.</span>
         </label>
         <label className="field"><span>Expires</span><input type="date" name="expiry" value={expiry} onChange={(e) => setExpiry(e.target.value)} /></label>
       </div>

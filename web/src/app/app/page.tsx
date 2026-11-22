@@ -16,7 +16,7 @@ interface Section { href: string; tone: string; title: string; text: string; cou
 const SECTIONS: readonly Section[] = [
   { href: "/app/pay", tone: "tone-lemon", title: "Pay", text: "As a payer: deposit with a signature, then pay a receive address privately.", count: (d) => d.sent.length, unit: "payments sent" },
   { href: "/app/inbox", tone: "tone-sage", title: "Inbox", text: "Payments sealed to your receive address. Sweep each into a note only you know.", count: (d) => d.inbox.filter((e) => e.state === "swept").length, unit: "payments swept" },
-  { href: "/app/prove", tone: "tone-peach", title: "Prove", text: "Prove you earned at least an amount over a period, for one named reader.", count: (d) => d.inbox.filter((e) => e.state === "swept").length, unit: "swept: the prove screen shows which count" },
+  { href: "/app/prove", tone: "tone-peach", title: "Prove", text: "Prove you earned at least an amount over a period, to a reader you name.", count: (d) => d.inbox.filter((e) => e.state === "swept").length, unit: "swept: the prove screen shows which count" },
   { href: "/app/shared", tone: "tone-rose", title: "Shared proofs", text: "Links made in this browser, with their reader and expiry.", count: (d, now) => d.shared.filter((s) => s.expiry > now).length, unit: "links not expired" },
 ];
 
