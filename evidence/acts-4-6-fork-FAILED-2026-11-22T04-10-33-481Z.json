@@ -1,0 +1,25 @@
+{
+  "at": "2026-11-22T04:10:33.481Z",
+  "commit": "0ec6980d7d30e2d7e35a1dc47e11b164251241da",
+  "dirty": true,
+  "kind": {
+    "slug": "acts-4-6",
+    "title": "acts 4–6",
+    "command": "pnpm --filter @shaida/pay exit:acts-4-6",
+    "personas": "Acme Studio (demo), Mallory (demo, unregistered), Ada (demo) and Landlord Bola (demo)"
+  },
+  "rows": [
+    {
+      "act": "setup",
+      "what": "attestor registers Acme Studio (demo) as payer #1",
+      "fn": "register",
+      "hash": "0xd55aab7dbe6a668e4476c24662600273c1a27f5c800c968ef0d2d96265f4c284",
+      "block": "—",
+      "gasUsed": "—"
+    }
+  ],
+  "failure": "deposit: TxOutcomeUnknown: No answer from the relayer (fetch failed). It may have sent the transaction: check, do not send again.",
+  "rpc": "http://127.0.0.1:8555",
+  "base": "http://localhost:3100",
+  "checks": []
+}

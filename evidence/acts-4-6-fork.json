@@ -1,0 +1,182 @@
+{
+  "at": "2026-11-22T04:13:24.920Z",
+  "commit": "0ec6980d7d30e2d7e35a1dc47e11b164251241da",
+  "dirty": true,
+  "kind": {
+    "slug": "acts-4-6",
+    "title": "acts 4–6",
+    "command": "pnpm --filter @shaida/pay exit:acts-4-6",
+    "personas": "Acme Studio (demo), Mallory (demo, unregistered), Ada (demo) and Landlord Bola (demo)"
+  },
+  "rows": [
+    {
+      "act": "setup",
+      "what": "attestor registers Acme Studio (demo) as payer #2",
+      "fn": "register",
+      "hash": "0x1e56d5126bb31b87e69cef10be8d1a6991e620d8408ca9f54bae4f11fa77d979",
+      "block": "—",
+      "gasUsed": "—"
+    },
+    {
+      "act": "setup",
+      "what": "Acme: gasless deposit 10 tUSD8",
+      "fn": "deposit",
+      "hash": "0xa99c08156edd8731305e07679f1d30c73f6ed00a16ac7b09f7335ad3c7cce974",
+      "block": "3800731",
+      "gasUsed": "1258850"
+    },
+    {
+      "act": "setup",
+      "what": "Acme: vouched pay 1 to Ada",
+      "fn": "vouchedPay",
+      "hash": "0x01906325387a213e0cfe08e85f8468011181b23f493a22416db88267f622be73",
+      "block": "3800732",
+      "gasUsed": "2729047"
+    },
+    {
+      "act": "setup",
+      "what": "sealed memo 1",
+      "fn": "memo",
+      "hash": "0xa0d032768bd99ef846c1dd2bc12ddbe06732c0fc63cf1afa766adc2d28f20a5e",
+      "block": "3800733",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "setup",
+      "what": "Acme: vouched pay 2 to Ada",
+      "fn": "vouchedPay",
+      "hash": "0xc830ef83cf7e90e61b8aea8f607d08dc54db7353a74bbb045ea26f1b24823106",
+      "block": "3800734",
+      "gasUsed": "2689557"
+    },
+    {
+      "act": "setup",
+      "what": "sealed memo 2",
+      "fn": "memo",
+      "hash": "0x3adf863668cccb3ea10d019c0759ecff5760fd3836b759d3da3636dd78665228",
+      "block": "3800735",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "setup",
+      "what": "Acme: vouched pay 3 to Ada",
+      "fn": "vouchedPay",
+      "hash": "0xacc073c61fe992095194740dc41e10e1be0922b584118b00e6e4c03362ed6d13",
+      "block": "3800736",
+      "gasUsed": "2684558"
+    },
+    {
+      "act": "setup",
+      "what": "sealed memo 3",
+      "fn": "memo",
+      "hash": "0x702477c244e4411481450a2bd60e0dc60517c9732000d396f414d779f3dea36f",
+      "block": "3800737",
+      "gasUsed": "44911"
+    },
+    {
+      "act": "setup",
+      "what": "Mallory (unregistered): approve tUSD8",
+      "fn": "direct (own gas)",
+      "hash": "0x3f14c960fb5b35f401c6737840c785ced6bed332251257b2bf4456d9f2a72dfe",
+      "block": "3800740",
+      "gasUsed": "55580"
+    },
+    {
+      "act": "setup",
+      "what": "Mallory (unregistered): deposit 5 tUSD8, own gas",
+      "fn": "direct (own gas)",
+      "hash": "0xbd2e99dd613fa94649ac42a4f72e7d25129d7e991a7ae96b375ebfd4483195f7",
+      "block": "3800741",
+      "gasUsed": "1135560"
+    },
+    {
+      "act": "setup",
+      "what": "Mallory (unregistered): plain pool transfer of 5 tUSD8 to Ada (no vouch)",
+      "fn": "direct (own gas)",
+      "hash": "0xd2d66b9388596bf84cefa09cf35d46b9432df7a7876752382d7220f85ebc7eb2",
+      "block": "3800742",
+      "gasUsed": "1787702"
+    },
+    {
+      "act": "setup",
+      "what": "Mallory (unregistered): sealed memo to Ada",
+      "fn": "direct (own gas)",
+      "hash": "0x444ee4be7b27b01581bf29f4301d3e212cf3eca11e8c34903a6e713f2c1c17c1",
+      "block": "3800743",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "setup",
+      "what": "Ada sweeps 3 tUSD8 (Invoice 1 (demo))",
+      "fn": "sweep",
+      "hash": "0xcf5b9d9f5cc383828eea5e50dd91fc5ad2555a889ce031cd42a4b4f3adb6c43a",
+      "block": "3800744",
+      "gasUsed": "2634802"
+    },
+    {
+      "act": "setup",
+      "what": "Ada sweeps 4 tUSD8 (Invoice 2 (demo))",
+      "fn": "sweep",
+      "hash": "0x862a3f2e2594382073eafb1e934e272966807eeb9cc83771df2038e43add01ba",
+      "block": "3800745",
+      "gasUsed": "2639853"
+    },
+    {
+      "act": "setup",
+      "what": "Ada sweeps 2 tUSD8 (Invoice 3 (demo))",
+      "fn": "sweep",
+      "hash": "0x2a6646d986a570143a296ce50a366eeae284d1477974f8f0107696b205bae705",
+      "block": "3800746",
+      "gasUsed": "2629576"
+    },
+    {
+      "act": "setup",
+      "what": "Ada sweeps 5 tUSD8 (Mallory (demo))",
+      "fn": "sweep",
+      "hash": "0xda299419086fbd936346f666664e396d35cad4c6cd3b762fad278224ec6fe15c",
+      "block": "3800747",
+      "gasUsed": "2639992"
+    },
+    {
+      "act": "6",
+      "what": "Bola records the check: IncomeProofChecked(threshold 9000000, count 3)",
+      "fn": "attest (own gas)",
+      "hash": "0xb5f6840d65dc0fb5cdba3c683e2e496afef245c3a48bda8a7ce7734e4928e5ef",
+      "block": "3800748",
+      "gasUsed": "267017"
+    }
+  ],
+  "dep": {
+    "pool": "0xd37a84b0f057051079d67332448d7e88736d0ffd",
+    "ledger": "0x11a7b2ac29f7dafa120b0f6d2cd2359e94e25aef",
+    "depositor": "0x401727ee1cc14a3505f5b63a62e9f45c2b6dbf62",
+    "registry": "0x3f38216ba4e0ad588f130ccad376e8f0ee77a187",
+    "memo": "0x68bf62fa717bd501a1710c9cfa5ba3ef12bdb637",
+    "incomeVerifier": "0x71451dc36b562b8ba3e965e3be2cc15a69f456da",
+    "gitCommit": "e961ce8da80c79831d7666777d84f435167777ae",
+    "gitDirty": false,
+    "poolDeployBlock": 3800714
+  },
+  "rpc": "http://127.0.0.1:8555",
+  "base": "http://localhost:3100",
+  "checks": [
+    "Mallory (unregistered) through the relayer: deposit refused with PayerNotRegistered, vouched pay refused with PayerNotRegistered; nothing sent",
+    "Ada's payments: 3 countable (3 + 4 + 2 tUSD8); not countable: 5 tUSD8 not-vouched",
+    "Act 4: 1 proof(s) with the final key in node v24.19.0: 14110 ms; link fragment 1604 chars",
+    "Act 5: Bola (typed \" landlord  BOLA \") sees VALID: ≥ 9 tUSD8, 3 payments, 2026-11-22T04:12:30.000Z – 2026-11-22T04:12:39.000Z, expires 2026-12-22T04:13:06.000Z",
+    "Attack: edited threshold (+1 tUSD8 in the public signals) → ProofInvalid",
+    "Attack: a different reader (Tenant Chidi) → WrongReader",
+    "Attack: opened after its expiry (now = expiry + 1 s) → ProofExpired",
+    "Attack: Mallory's swept 5 tUSD8 forced into the witness request as if payer #1 → the builder skips it (no V leaf) and ≥ 14 is BelowThreshold: 3 payments in leaves 0–6 add up to 9000000, below 14000000. Nothing was built.",
+    "Act 6: IncomeVerifier.check (eth_call, gas 400,000) at 0x71451dc36b562b8ba3e965e3be2cc15a69f456da → true",
+    "Machine: Intel(R) Core(TM) i3 CPU       M 370  @ 2.40GHz, 4 threads, 8 GiB RAM"
+  ],
+  "extra": {
+    "link": "/v#eyJ2IjoxLCJwcm9vZnMiOlt7InByb29mIjp7InBpX2EiOlsiNDQ2MjU4NjcxOTU1NTgxMjA2NTc3OTk2MjQxMjU0NzM4Mzk4NTgxNTY3OTIwMTMxMzg0NDAzODcyODk4OTY4Njk5MzgzMDUwNjMxMCIsIjkwNTQ1NDIyNjI3MDgxMzk2ODcwMDIzODM5MTYxOTQwMzg3MjQzMzQ2ODM5OTAwNzIzMzQwNjY4NjQ4OTg0MTkyMDUxMTkxNzc0ODMiLCIxIl0sInBpX2IiOltbIjg5MjQ4OTQ5MDU4NTcxMzM2MTMzOTkyNTgxMjE1NDk0MDkyNDIwOTc3NDU5MDg0MTY5MDY2MzkyODE5NDAyMzYwOTE2NzA0NjM4MDgiLCIxMzg2ODk3MTg5MzYwODk3OTU0MDU2NjYwNjYyNjQxMjYzODUxNDc5MjE2NzY5NTMyNzk2Njc2NjMzMTc5Nzc3NTgwODA3OTc4MjM1MiJdLFsiMjEzNjU4NDc4MDYyMjkzMDMxOTE1NzMyNTE4Nzk5ODUwMjM2MTU2NzE5MDQyMTEzMzI4MjMyNzQyMjAyNTg2Mjg1ODYyMTU5OTQ2MTciLCIxMjk3MDQyNTQyNzI4MTkxNTU3MDQ5NTk3NzY4MzkxMTMxNjQ3NDY4NjkyMDU0MjQ0NzU0MDI4ODEzMDIzMzIxNzIxMDM3OTMzMzU5OCJdLFsiMSIsIjAiXV0sInBpX2MiOlsiMTI5ODA0MzMzMTU5NjIzNzA5OTExMjMzMTI3MjQ5MzI1MzU2NDM0MjI4NjMxNTM0NjU1ODIzOTg0NzU1NzIyMDQ0NDEyODc3NzM3NCIsIjE2MTY0Mzk5Nzk3OTI0MTExODI0NTU0MTAzNDQxMjk3NDQwNjY5NTgxOTExMjU1NjA5NDc1Njg5NzYwMzg2ODIyNzcwOTIzOTkxNjM4IiwiMSJdLCJwcm90b2NvbCI6Imdyb3RoMTYiLCJjdXJ2ZSI6ImJuMTI4In0sInB1YmxpY1NpZ25hbHMiOlsiMTQwNzk2OTQzODUwMjAwMDY1ODU0OTQyMjkzMzg2NTc1OTQxMjgwODMxNTE4NDA4NjE1NDQ1MzIxMjU1NDc1NTAzODYzOTI5MTA1NDMiLCIzOTYxODE5MzAwMDkxNDA5NjA1NTM2Mzk2NjczNTM5ODI1MDQwNjExNjkyNTE0NTkiLCI5MDAwMDAwIiwiMyIsIjAiLCI2IiwiOTcxMzI2Mjk4MjgwNjc4OTI0NzAzNTAzMzY3MTQ1MTYxMDE2MjYyMjM2MjI4NTU5NzQxMzYzODA4MzA2MTM4MDIzNDE2NzAxNzAzIl19XSwicmVhZGVySWRIYXNoIjoiMTAyODU1MDc0MjA5MDI4MTA3NzQxODkyNjA3NTkwNTQ5NDIzMDM5MTMwMTYxMjc2MDYwMTc0MDM4NzkwMjIxNjg2OTk1MjM2MDcyODciLCJleHBpcnkiOiIxNzk3OTEyNzg2Iiwic2FsdCI6IjM1ODE3NjcyMzYzOTY3MTY4MDc2NDU1MjM4MDIzNzEwNzM5NDIxMDU5MjcxNTQwMDQ3Nzk3OTI4MDMxOTI1Mjg2MDk5Njg5ODYwOSJ9",
+    "proveMs": [
+      14110
+    ],
+    "reader": "Landlord Bola",
+    "expiry": "1797912786"
+  }
+}
