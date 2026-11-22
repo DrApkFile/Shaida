@@ -55,8 +55,10 @@ public signals are visible to the reader, so a bundle shows more than one proof 
 Not shown: amounts per payment, payer per payment, the recipient's notes. A period of more than 32 payments must be
 split into shorter periods (`NotEnoughSlots`).
 
-## The reader's name is not authentication (D27)
-A proof link is bound to a reader by `readerIdHash = Poseidon(3, length, name bytes)` of the normalized name (case,
-spacing and Unicode composition do not matter). Anyone who knows or guesses the name can open the link as that reader:
-the binding stops a link being presented as made for someone else, it does not keep the link secret. Keep the link
-itself private; it expires on the date in it. The reader's name is not stored by the server (it is typed on `/v`).
+## The reader's name binds intent, not identity (D27)
+The reader name normalises (trim, case, spaces), so it binds intent, not identity: anyone with the link who types
+"Landlord Bola" gets VALID. The link is bound to `readerIdHash = Poseidon(3, length, name bytes)` of the normalised
+name; nothing checks who is typing it. This stops a link made for one reader being presented as made for another; it
+does not keep the link secret and does not authenticate the reader. Keep the link private; it expires on the date in
+it. The server never receives the name (it is typed on `/v`). A reader code that does authenticate the reader is on
+ROADMAP.md.

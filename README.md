@@ -1,7 +1,7 @@
 # Shaida
 
 The aim: private income proofs on Aevum Testnet (chain 44005, tUSD8). Get paid privately in stablecoins, then prove
-you earn enough to one named reader, and show nothing else. That end-to-end claim is not proven yet (CLAIMS.md CL30).
+you earn enough to a reader you name (a name, not a login: CL36), and show nothing else. That end-to-end claim is not proven yet (CLAIMS.md CL30).
 <!-- not-built -->
 
 Based in part on the [Aevum Starter Kit](https://github.com/qday-io/aevum-starter-kit) (MIT, PQA Labs).

@@ -14,3 +14,8 @@ serverless host each instance has its own copy. Move them to a KV store with ato
 ## Relayer key pool
 One relayer key per process signs every relayed call (D19); a stuck nonce holds the queue. Add a pool of keys with a
 dispatcher, each key with its own nonce lane (AEVUM_INTEGRATION §4 hardening item 6).
+
+## Reader code (authenticated reader)
+- reader code: the reader generates a random code on /v and gives it to the recipient, who binds the proof to it via
+  the existing context field (no circuit change). Today the link is bound to the reader's name only, which anyone can
+  type (LIMITS.md, D27).
