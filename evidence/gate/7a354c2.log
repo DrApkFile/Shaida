@@ -1,0 +1,536 @@
+bash tools/gate.sh
+gate: fresh clone of 7a354c22c7b7 in /home/kingghidorah/.cache/shaida-gate/run.bMLYZc
+
+━━ 1 install
+Scope: all 10 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +482
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 482, reused 1, downloaded 0, added 0
+Progress: resolved 482, reused 2, downloaded 0, added 0
+Progress: resolved 482, reused 3, downloaded 0, added 0
+Progress: resolved 482, reused 4, downloaded 0, added 0
+Progress: resolved 482, reused 7, downloaded 0, added 0
+Progress: resolved 482, reused 9, downloaded 0, added 0
+Progress: resolved 482, reused 13, downloaded 0, added 0
+Progress: resolved 482, reused 18, downloaded 0, added 0
+Progress: resolved 482, reused 21, downloaded 0, added 0
+Progress: resolved 482, reused 24, downloaded 0, added 0
+Progress: resolved 482, reused 26, downloaded 0, added 0
+Progress: resolved 482, reused 34, downloaded 0, added 0
+Progress: resolved 482, reused 35, downloaded 0, added 0
+Progress: resolved 482, reused 36, downloaded 0, added 0
+Progress: resolved 482, reused 40, downloaded 0, added 0
+Progress: resolved 482, reused 41, downloaded 0, added 0
+Progress: resolved 482, reused 42, downloaded 0, added 0
+Progress: resolved 482, reused 43, downloaded 0, added 0
+Progress: resolved 482, reused 46, downloaded 0, added 0
+Progress: resolved 482, reused 47, downloaded 0, added 0
+Progress: resolved 482, reused 48, downloaded 0, added 0
+Progress: resolved 482, reused 49, downloaded 0, added 0
+Progress: resolved 482, reused 50, downloaded 0, added 0
+Progress: resolved 482, reused 51, downloaded 0, added 0
+Progress: resolved 482, reused 53, downloaded 0, added 0
+Progress: resolved 482, reused 54, downloaded 0, added 0
+Progress: resolved 482, reused 55, downloaded 0, added 0
+Progress: resolved 482, reused 56, downloaded 0, added 0
+Progress: resolved 482, reused 57, downloaded 0, added 0
+Progress: resolved 482, reused 59, downloaded 0, added 0
+Progress: resolved 482, reused 64, downloaded 0, added 0
+Progress: resolved 482, reused 69, downloaded 0, added 0
+Progress: resolved 482, reused 80, downloaded 0, added 0
+Progress: resolved 482, reused 91, downloaded 0, added 0
+Progress: resolved 482, reused 103, downloaded 0, added 0
+Progress: resolved 482, reused 112, downloaded 0, added 0
+Progress: resolved 482, reused 120, downloaded 0, added 0
+Progress: resolved 482, reused 129, downloaded 0, added 0
+Progress: resolved 482, reused 144, downloaded 0, added 0
+Progress: resolved 482, reused 153, downloaded 0, added 0
+Progress: resolved 482, reused 158, downloaded 0, added 0
+Progress: resolved 482, reused 174, downloaded 0, added 0
+Progress: resolved 482, reused 199, downloaded 0, added 0
+Progress: resolved 482, reused 232, downloaded 0, added 0
+Progress: resolved 482, reused 282, downloaded 0, added 0
+Progress: resolved 482, reused 320, downloaded 0, added 0
+Progress: resolved 482, reused 372, downloaded 0, added 0
+Progress: resolved 482, reused 395, downloaded 0, added 0
+Progress: resolved 482, reused 442, downloaded 0, added 0
+Progress: resolved 482, reused 468, downloaded 0, added 0
+Progress: resolved 482, reused 473, downloaded 0, added 62
+Progress: resolved 482, reused 473, downloaded 0, added 180
+Progress: resolved 482, reused 473, downloaded 0, added 185
+Progress: resolved 482, reused 473, downloaded 0, added 201
+Progress: resolved 482, reused 473, downloaded 0, added 392
+Progress: resolved 482, reused 473, downloaded 0, added 427
+Progress: resolved 482, reused 473, downloaded 0, added 462
+Progress: resolved 482, reused 473, downloaded 0, added 481
+Progress: resolved 482, reused 473, downloaded 0, added 482, done
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: blake-hash, bufferutil, keccak, utf-8-validate.     │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 1m 9.4s using pnpm v10.8.1
+✓ web/public/gloam/shield.wasm
+✓ web/public/gloam/shield_final.zkey
+✓ web/public/gloam/transfer.wasm
+✓ web/public/gloam/transfer_final.zkey
+
+━━ 2 forge build + Shanghai check
+Compiling 87 files with Solc 0.8.24
+Solc 0.8.24 finished in 24.46s
+Compiler run successful!
+warning[block-timestamp]: usage of `block.timestamp` in a comparison may be manipulated by validators
+   ╭▸ src/ShaidaLedger.sol:83:13
+   │
+83 │         if (block.timestamp > deadline) revert SignatureExpired(deadline);
+   │             ━━━━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://getfoundry.sh/forge/linting/block-timestamp
+
+warning[block-timestamp]: usage of `block.timestamp` in a comparison may be manipulated by validators
+    ╭▸ src/ShaidaLedger.sol:102:13
+    │
+102 │         if (block.timestamp > deadline) revert SignatureExpired(deadline);
+    │             ━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://getfoundry.sh/forge/linting/block-timestamp
+
+warning[inconsistent-type-names]: contract mixes shorthand and explicit integer type names; use `uint256` and `int256` consistently
+   ╭▸ src/generated/IncomeGroth16Verifier.sol:80:26
+   │
+80 │     function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[7] calldata _pubSignals) public vie…
+   │                          ━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://getfoundry.sh/forge/linting/inconsistent-type-names
+
+warning[inconsistent-type-names]: contract mixes shorthand and explicit integer type names; use `uint256` and `int256` consistently
+   ╭▸ src/generated/IncomeGroth16Verifier.sol:80:48
+   │
+80 │     function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[7] calldata _pubSignals) public vie…
+   │                                                ━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://getfoundry.sh/forge/linting/inconsistent-type-names
+
+warning[inconsistent-type-names]: contract mixes shorthand and explicit integer type names; use `uint256` and `int256` consistently
+   ╭▸ src/generated/IncomeGroth16Verifier.sol:80:73
+   │
+80 │     function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[7] calldata _pubSignals) public vie…
+   │                                                                         ━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://getfoundry.sh/forge/linting/inconsistent-type-names
+
+warning[inconsistent-type-names]: contract mixes shorthand and explicit integer type names; use `uint256` and `int256` consistently
+   ╭▸ src/generated/IncomeGroth16Verifier.sol:80:95
+   │
+80 │     function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[7] calldata _pubSignals) public vie…
+   │                                                                                               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://getfoundry.sh/forge/linting/inconsistent-type-names
+
+✓ 33 bytecode blobs checked (23 from Gloam): Shanghai-safe.
+
+━━ 3 circuit compile + artifact hashes
+
+> @shaida/proofs@0.1.0 compile /home/kingghidorah/.cache/shaida-gate/run.bMLYZc/packages/shaida-proofs
+> node scripts/compile.mjs
+
+[32mtemplate instances[0m: 154
+non-linear constraints: 44687
+linear constraints: 0
+public inputs: 7
+private inputs: 344 (342 belong to witness)
+public outputs: 0
+wires: 44833
+labels: 143639
+[32mWritten successfully:[0m build/income.r1cs
+[32mWritten successfully:[0m build/income.sym
+[32mWritten successfully:[0m build/income_js/income.wasm
+[32mEverything went okay[0m
+✓ build/income.r1cs, build/income_js/income.wasm (circom compiler 2.2.3)
+✓ circuit r1cs (ceremony-bound): packages/shaida-proofs/build/income.r1cs d866695ca2473e70…
+✓ final vkey: packages/shaida-proofs/keys/income_final_vkey.json 2635a81044a14f06…
+✓ final verifier (ceremony output): contracts/src/generated/IncomeGroth16Verifier.sol 96db550b107ffe22…
+✓ deploy script imports the ceremony verifier (../src/generated/IncomeGroth16Verifier.sol)
+· final zkey not present locally (ceremony/work/income_final.zkey; release asset ceremony-v1): hash not checked here
+
+━━ 4 typecheck + lint
+Scope: 9 of 10 workspace projects
+packages/gloam-fixtures typecheck$ tsc --noEmit
+packages/shaida-proofs typecheck$ tsc --noEmit
+packages/shaida-proofs typecheck: Done
+packages/gloam-fixtures typecheck: Done
+ceremony typecheck$ tsc --noEmit
+tools/s8-bench typecheck$ tsc --noEmit
+packages/shaida-relay typecheck$ tsc --noEmit
+packages/shaida-index typecheck$ tsc --noEmit
+ceremony typecheck: Done
+tools/s8-bench typecheck: Done
+packages/shaida-index typecheck: Done
+packages/shaida-relay typecheck: Done
+packages/shaida-pay typecheck$ tsc --noEmit
+packages/shaida-pay typecheck: Done
+web typecheck$ tsc --noEmit
+web typecheck: Done
+✓ forge lint [block-timestamp] src/ShaidaLedger.sol: 2/2 accepted by D16
+✓ forge lint [inconsistent-type-names] src/generated/IncomeGroth16Verifier.sol: 4/4 accepted by D24
+✓ forge lint: 6 finding(s), none outside the allowlist
+✓ TypeScript rules over 154 files (no any, no empty catch)
+
+━━ 5 unit, circuit, indexer, relayer, flow tests
+No files changed, compilation skipped
+
+Ran 6 tests for test/PayerRegistry.t.sol:PayerRegistryTest
+[PASS] test_X01_activeIdOf_refuses_an_unregistered_address() (gas: 13469)
+[PASS] test_X03_revocation_is_immediate_and_permanent() (gas: 246115)
+[PASS] test_attestor_cannot_renounce_and_hands_over_in_two_steps() (gas: 120692)
+[PASS] test_only_the_attestor_registers_or_revokes() (gas: 183505)
+[PASS] test_refuses_zero_address_empty_name_and_unknown_ids() (gas: 91812)
+[PASS] test_registers_payers_with_ids_from_one_and_reads_them_back() (gas: 261270)
+Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 129.69ms (2.38ms CPU time)
+
+Ran 5 tests for test/IncomeFinalKey.t.sol:IncomeFinalKeyTest
+[PASS] test_K01_the_final_verifier_accepts_a_final_key_proof() (gas: 270325)
+[PASS] test_K02_the_final_verifier_rejects_a_throwaway_key_proof_of_the_same_signals() (gas: 291753)
+[PASS] test_K03_the_deploy_check_passes_for_the_final_verifier() (gas: 879025)
+[PASS] test_K04_the_deploy_check_refuses_a_throwaway_verifier() (gas: 1142793)
+[PASS] test_K05_IncomeVerifier_over_the_final_key_checks_a_final_proof_on_a_known_root() (gas: 938575)
+Suite result: ok. 5 passed; 0 failed; 0 skipped; finished in 140.62ms (69.89ms CPU time)
+
+Ran 11 tests for test/ShaidaDepositor.t.sol:ShaidaDepositorTest
+[PASS] test_D7_refuses_PayerBlacklisted_on_both_paths() (gas: 216187)
+[PASS] test_D7_refuses_TokenPaused_before_pulling_anything() (gas: 212375)
+[PASS] test_S6_gasless_deposit_moves_exactly_the_signed_amount_into_the_note() (gas: 1135941)
+[PASS] test_S6_refuses_a_replayed_signature() (gas: 1133369)
+[PASS] test_S6_refuses_a_signature_presented_for_another_payer() (gas: 153287)
+[PASS] test_S6_refuses_a_signature_reused_for_another_commitment() (gas: 112989)
+[PASS] test_S6_refuses_an_amount_changed_by_the_relayer() (gas: 110064)
+[PASS] test_a_rejected_shield_proof_moves_nothing() (gas: 262013)
+[PASS] test_refuses_a_zero_amount() (gas: 54090)
+[PASS] test_standard_deposit_pulls_from_the_caller_into_the_pool() (gas: 1104736)
+[PASS] test_tokens_sent_to_the_depositor_directly_do_not_block_deposits() (gas: 1143498)
+Suite result: ok. 11 passed; 0 failed; 0 skipped; finished in 59.09ms (48.85ms CPU time)
+
+Ran 13 tests for test/IncomeVerifier.t.sol:IncomeVerifierTest
+[PASS] test_GAS_verifyProof_fits_within_MIN_VERIFY_GAS() (gas: 776069)
+[PASS] test_X12_key_A_refuses_its_proof_with_the_threshold_raised() (gas: 1111951)
+[PASS] test_a_bare_snarkjs_verifier_short_of_gas_returns_false_for_a_valid_proof() (gas: 904060)
+[PASS] test_a_throwaway_key_A_proof_is_refused_by_key_B_verifier_with_ProofInvalid() (gas: 1111346)
+[PASS] test_a_throwaway_key_A_proof_verifies_under_key_A() (gas: 1111386)
+[PASS] test_attest_emits_IncomeProofChecked_with_context_threshold_and_count() (gas: 84574)
+[PASS] test_attest_emits_nothing_for_a_refused_proof() (gas: 109343)
+[PASS] test_check_passes_for_a_known_root_tUSD8_and_an_accepted_proof() (gas: 53321)
+[PASS] test_check_refuses_a_root_the_ledger_never_had_with_UnknownRoot() (gas: 75284)
+[PASS] test_check_refuses_another_asset_with_AssetMismatch() (gas: 42948)
+[PASS] test_check_refuses_to_start_short_of_gas_with_InsufficientGas_not_ProofInvalid() (gas: 49252)
+[PASS] test_check_reverts_ProofInvalid_where_the_verifier_returns_false() (gas: 79981)
+[PASS] test_constructor_refuses_zero_addresses() (gas: 331108)
+Suite result: ok. 13 passed; 0 failed; 0 skipped; finished in 63.80ms (63.59ms CPU time)
+
+Ran 2 tests for test/IncomeVectors.t.sol:IncomeVectorsTest
+[PASS] test_empty_ledger_root_equals_the_circuit_tree_empty_root() (gas: 125335)
+[PASS] test_ledger_inserts_the_circuit_V_and_S_leaves_and_reaches_the_same_roots() (gas: 10312051)
+Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 264.12ms (136.63ms CPU time)
+
+Ran 11 tests for test/ShaidaLedger.t.sol:ShaidaLedgerTest
+[PASS] test_X01_refuses_vouchedPay_from_an_unregistered_sender() (gas: 96159)
+[PASS] test_X02_a_relayed_pay_signed_by_an_active_payer_is_vouched_once() (gas: 3698149)
+[PASS] test_X02_refuses_a_registered_payers_signature_moved_to_another_transfer() (gas: 276603)
+[PASS] test_X02_refuses_a_relayed_pay_signed_by_an_unregistered_key() (gas: 105113)
+[PASS] test_X03_refuses_a_revoked_payer_direct_and_relayed() (gas: 325701)
+[PASS] test_X03_revocation_leaves_earlier_vouches_in_place() (gas: 2779098)
+[PASS] test_a_refused_pool_transfer_adds_no_leaf() (gas: 1196449)
+[PASS] test_refuses_a_relayed_pay_after_its_deadline() (gas: 214096)
+[PASS] test_sweep_and_vouch_leaves_differ_for_the_same_inputs() (gas: 104736)
+[PASS] test_sweep_inserts_the_sweep_leaf_from_nullifier_and_fresh_note() (gas: 2608630)
+[PASS] test_vouchedPay_by_an_active_payer_inserts_the_vouch_leaf() (gas: 2796007)
+Suite result: ok. 11 passed; 0 failed; 0 skipped; finished in 320.55ms (159.47ms CPU time)
+
+Ran 9 tests for test/ShaidaLedgerLateVouch.t.sol:ShaidaLedgerLateVouchTest
+[PASS] test_D9_X01_a_recipient_who_is_not_a_payer_cannot_vouch_for_their_own_note() (gas: 1923311)
+[PASS] test_D9_X01_refuses_lateVouch_from_an_unregistered_sender() (gas: 1701594)
+[PASS] test_D9_X03_refuses_lateVouch_from_a_revoked_payer_direct_and_relayed() (gas: 1949551)
+[PASS] test_D9_X04_refuses_a_second_lateVouch_for_the_same_commitment() (gas: 2929286)
+[PASS] test_D9_X04_refuses_lateVouch_for_a_payment_already_vouched_by_vouchedPay() (gas: 2746019)
+[PASS] test_D9_a_relayed_lateVouch_works_once_and_only_for_its_commitment() (gas: 4522958)
+[PASS] test_D9_lateVouch_by_the_payer_repairs_a_copied_vouchedPay() (gas: 2827458)
+[PASS] test_D9_refuses_a_relayed_lateVouch_after_its_deadline() (gas: 1834414)
+[PASS] test_D9_refuses_lateVouch_for_a_commitment_the_pool_never_saw() (gas: 197103)
+Suite result: ok. 9 passed; 0 failed; 0 skipped; finished in 131.75ms (245.82ms CPU time)
+
+Ran 7 test suites in 2.96s (1.11s CPU time): 57 tests passed, 0 failed, 0 skipped (57 total tests)
+
+> @shaida/proofs@0.1.0 test /home/kingghidorah/.cache/shaida-gate/run.bMLYZc/packages/shaida-proofs
+> node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'
+
+▶ income circuit: cheating witnesses are refused (C1)
+  ✔ X04 refuses the same payment counted twice (431.117566ms)
+  ✔ X04 refuses payments out of order (217.181328ms)
+  ✔ X05 refuses a payment before fromIndex and one after toIndex (343.500931ms)
+  ✔ X06 refuses an inflated amount (357.580227ms)
+  ✔ X07 refuses a fabricated note that is not in the ledger (123.055993ms)
+  ✔ X08 refuses a vouched payment with no S leaf (never swept, so the payer could claw it back) (179.26499ms)
+  ✔ X09 refuses the payer presenting the recipient's swept payment (cannot open Cs) (105.157986ms)
+  ✔ refuses a zero sweep secret (147.7726ms)
+  ✔ refuses a wrong threshold, and one outside 68 bits (616.946703ms)
+  ✔ refuses a false count, above and below (863.909756ms)
+  ✔ refuses a wrong root: an earlier ledger root and a random one (191.103226ms)
+  ✔ refuses a gap between used slots (502.590253ms)
+  ✔ refuses zero payments (796.247335ms)
+✔ income circuit: cheating witnesses are refused (C1) (4883.934938ms)
+INCONCLUSIVE: PTAU_PATH unset; Groth16 proving tests not run (see briefing/CEREMONY.md)
+﹣ income circuit: Groth16 with a throwaway key (local) (2.219526ms) # INCONCLUSIVE: PTAU_PATH unset; Groth16 proving tests not run (see briefing/CEREMONY.md)
+﹣ verifyIncomeLink with real Groth16 proofs: a 2-proof bundle (D12, local) (0.487616ms) # INCONCLUSIVE: PTAU_PATH unset; Groth16 proving tests not run (see briefing/CEREMONY.md)
+▶ income circuit: honest proofs (C2)
+  ✔ H1 accepts one vouched, swept payment at exactly the threshold (12819.619933ms)
+  ✔ H2 accepts three payments from different payers among other people's leaves, and a sub-period of two (2025.788718ms)
+  ✔ accepts the full 4-slot case (11612.298137ms)
+✔ income circuit: honest proofs (C2) (26463.365908ms)
+▶ witness builder: bundles over disjoint ranges (D12)
+  ✔ splits 5 payments into proofs of 4 + 1 (2382.117216ms)
+  ✔ splits 9 payments into proofs of 4 + 4 + 1 (2490.737462ms)
+  ✔ splits 12 payments into proofs of 4 + 4 + 4 (3170.459792ms)
+  ✔ C3 splits the largest showable threshold into each proof's sum rounded down to whole tUSD8 (1900.155028ms)
+  ✔ C3 rounds shares to a coarser step when asked (5 tUSD8): a capped share shows its sum only to 5 tUSD8 (189.510965ms)
+  ✔ builds the largest bundle: 32 payments in 8 proofs (740.843474ms)
+✔ witness builder: bundles over disjoint ranges (D12) (10880.427085ms)
+▶ witness builder: named refusals (PRD §4, D10)
+  ✔ NotEnoughSlots: refuses 33 payments in one period (more than 8 proofs of 4) (796.122359ms)
+  ✔ NoSweptPayments: zero payments in the period (94.229868ms)
+  ✔ BelowThreshold: refuses a threshold above the swept total (72.242762ms)
+  ✔ BelowThreshold: refuses a threshold the payments reach only before rounding each proof's share (D13) (174.300153ms)
+  ✔ UnknownRoot: refuses leaves that do not give the checked root (incomplete sync) (66.472594ms)
+  ✔ InputRejected: refuses an amount of 2^64, a zero sweep secret, reversed range, unknown keys and off-step thresholds (34.796764ms)
+  ✔ X04 counts a payment listed twice once (61.692434ms)
+  ✔ X08 skips a vouched payment that was never swept, X07 one with no V leaf (90.469807ms)
+✔ witness builder: named refusals (PRD §4, D10) (1391.899376ms)
+property: PROPERTY_SEED=1285355473 PROPERTY_RUNS=24
+property: cheats tried {"X06_inflateAmount":2,"gap":1,"wrongRoot":4,"X04_swap":2,"X07_fabricateNote":4,"X05_fromAfterFirst":1,"thresholdAboveTotal":2,"otherSweepAmount":3,"X05_toBeforeLast":2,"zeroPayments":2}
+▶ income circuit: property over random honest and cheating witnesses
+  ✔ accepts every honest witness and refuses every cheat (24 seeds from 1285355473) (40068.133928ms)
+✔ income circuit: property over random honest and cheating witnesses (40072.163854ms)
+▶ ledger format: circuit = JS = ShaidaLedger
+  ✔ zero hashes and the empty root equal Gloam's IncrementalMerkleTreePoseidon constants (4.441262ms)
+  ✔ the committed vectors are what the generator produces (re-run `pnpm vectors` if not) (212.354805ms)
+  ✔ the circuit proves income over the vector leaves, so its V and S hashes equal the ledger's (1753.749182ms)
+✔ ledger format: circuit = JS = ShaidaLedger (1976.721369ms)
+▶ threshold split: shares rounded to the step (D13)
+  ✔ C3 no share ever equals an unrounded chunk sum (5000 cases, SPLIT_SEED=847651938) (415.63937ms)
+  ✔ refuses a threshold off the step, or above what the rounded sums show (2.554345ms)
+✔ threshold split: shares rounded to the step (D13) (423.227816ms)
+▶ verifyIncomeLink: honest bundles (D12, C2)
+  ✔ accepts an honest 2-proof bundle: total = Σ thresholds, count = Σ counts (2700.409058ms)
+  ✔ accepts an honest 3-proof bundle, in any order (3590.304959ms)
+  ✔ accepts a single proof as a bundle of one (997.817921ms)
+✔ verifyIncomeLink: honest bundles (D12, C2) (7294.096098ms)
+▶ verifyIncomeLink: bundle refusals (D12, C1)
+  ✔ X14 RangesOverlap: refuses two proofs whose leaf ranges share an index (2319.752931ms)
+  ✔ X15 RangesOverlap: refuses the same proof included twice (1371.931699ms)
+  ✔ X16 MixedContexts: refuses a bundle that joins proofs made for two readers (3283.23582ms)
+  ✔ X17 MixedContexts: refuses a bundle that joins proofs with two expiries (3483.177413ms)
+  ✔ X18 MixedRoots: refuses a bundle that joins proofs made against two known ledger roots (D13) (3393.097094ms)
+  ✔ ProofInvalid: one tampered proof in an otherwise honest bundle fails the whole bundle (1781.250143ms)
+✔ verifyIncomeLink: bundle refusals (D12, C1) (15636.142247ms)
+▶ verifyIncomeLink: PRD §5 steps on a bundle
+  ✔ returns the first failing step's code (1495.858292ms)
+✔ verifyIncomeLink: PRD §5 steps on a bundle (1496.848572ms)
+ℹ tests 46
+ℹ suites 12
+ℹ pass 46
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 48763.056437
+
+> @shaida/index@0.1.0 test /home/kingghidorah/.cache/shaida-gate/run.bMLYZc/packages/shaida-index
+> node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'
+
+▶ indexer: pages
+  ✔ I01 never asks for toBlock − fromBlock above 999, and splits 1,001 blocks into two pages (3.599104ms)
+  ✔ I01 reads events on both sides of a 1,000-block page boundary exactly once (41.432507ms)
+✔ indexer: pages (47.615701ms)
+▶ indexer: cursor
+  ✔ I02 resumes from the persisted cursor and never rescans from the deploy block (384.498175ms)
+  ✔ I02 starts over when the stored snapshot is for another deployment (164.085173ms)
+✔ indexer: cursor (549.305109ms)
+▶ indexer: retry
+  ✔ I03 retries a failed page with backoff and loses nothing (156.189429ms)
+  ✔ I03 a page that keeps failing stops the sync at the last good page; the next sync resumes there (154.368148ms)
+✔ indexer: retry (311.405178ms)
+▶ indexer: gaps and roots
+  ✔ I04 a lost log marks the tree incomplete, the client refuses with UnknownRoot, the next sync starts over (158.217491ms)
+  ✔ I05 accepts an honest snapshot: both rebuilt roots are known on chain (190.020832ms)
+  ✔ I05 refuses a snapshot whose pool leaves were altered (root mismatch → UnknownRoot) (190.946353ms)
+  ✔ I05 refuses a ledger leaf that does not match its event fields, and a snapshot for another chain (157.664993ms)
+  ✔ I06 serves memos in chain order with their transaction (157.411726ms)
+✔ indexer: gaps and roots (855.385523ms)
+ℹ tests 11
+ℹ suites 4
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10911.138178
+
+> @shaida/relay@0.1.0 test /home/kingghidorah/.cache/shaida-gate/run.bMLYZc/packages/shaida-relay
+> node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'
+
+▶ relayer budget (gas, not a tx count)
+  ✔ R10 reserves each in-flight call at its gas limit and refuses past the daily gas budget (363.817347ms)
+  ✔ R10 a mined call settles to its gasUsed and frees the rest of its reservation (23.472463ms)
+  ✔ R10 refuses when the relayer's balance is below the floor (7.501416ms)
+✔ relayer budget (gas, not a tx count) (398.958385ms)
+▶ relayer: persisted records and unknown outcomes
+  ✔ R12 a send with no answer is unknown; the same request again returns that record and never resends (14.603507ms)
+  ✔ R13 an unknown tx whose nonce was used by another is dropped; only then may the payment be submitted again (17.822721ms)
+  ✔ R17 a tx that is mined between the nonce read and the receipt read is mined, not dropped (9.662957ms)
+  ✔ R18 a different request on a note another record already spent is AlreadySpent, not that record (27.229707ms)
+  ✔ R18 an identical retry still gets its own record; a reverted record frees the key (15.202645ms)
+  ✔ R13 a node refusal drops the record (nothing sent) and releases its reservation (14.299018ms)
+  ✔ R14 a mined but reverted tx is recorded as mined, reverted, TxRejected (11.153701ms)
+  ✔ R14 logs hash, nonce and gas for each state change, never the body (31.593921ms)
+✔ relayer: persisted records and unknown outcomes (143.764536ms)
+▶ relayer rails (run before any simulation)
+  ✔ R01 rate-limits per IP before the body is parsed (127.981522ms)
+  ✔ R02 refuses a malformed body or an unknown field with InputRejected and no chain call (11.079522ms)
+  ✔ R02 refuses a chain the app has no relayer for (NotConfigured) (9.756084ms)
+  ✔ R03 rate-limits per payer (197.613448ms)
+  ✔ R04 refuses TokenPaused and PayerBlacklisted up front, without simulating (39.099537ms)
+  ✔ R05 X02 refuses an unregistered or revoked payer on the relayed paths (40.273375ms)
+  ✔ R06 refuses a signature by someone else, or with a window over an hour, before any chain read (47.86645ms)
+  ✔ R07 A2 refuses a clawback of a swept note with AlreadySpent, without simulating (18.498065ms)
+  ✔ R07 refuses an unknown pool root, a seen output note, a duplicate vouch and a memo for an unvouched payment (23.037112ms)
+✔ relayer rails (run before any simulation) (520.439539ms)
+▶ relayer: simulate, gas, one call per function
+  ✔ R08 maps a simulation revert to its code and sends nothing (30.676298ms)
+  ✔ R09 refuses an estimate above the function's explicit gas cap (7.194621ms)
+  ✔ R11 sends a legacy tx with an explicit gas limit = min(estimate × 1.3, cap), to the one contract function (60.396714ms)
+  ✔ R15 each function encodes exactly one call to its own contract (55.979499ms)
+  ✔ R16 public anvil keys relay only on local chains (0.391475ms)
+✔ relayer: simulate, gas, one call per function (155.810253ms)
+ℹ tests 25
+ℹ suites 4
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4939.372627
+
+> @shaida/pay@0.1.0 test /home/kingghidorah/.cache/shaida-gate/run.bMLYZc/packages/shaida-pay
+> node --import tsx --test --test-force-exit --test-reporter=spec 'test/**/*.test.ts'
+
+▶ config
+  ✔ P01 refuses the THROWAWAY income key on Aevum 44005 and allows it on the fork (4.142287ms)
+✔ config (13.645659ms)
+▶ vault
+  ✔ P02 round-trips, refuses a wrong passphrase, and never stores a secret in clear (8798.552854ms)
+✔ vault (8799.91363ms)
+▶ inbox
+  ✔ P03 opens only memos sealed to this key that open the commitment they name (69.293628ms)
+  ✔ P04 refuses a pay to a non-address or above the note, before any proving (7.295895ms)
+✔ inbox (78.167394ms)
+▶ sweep states (PRD §6: seen → sweeping → swept | unknown)
+  ✔ P05 unknown has no resend edge, and only the chain (by nullifier) settles it (3.994997ms)
+  ✔ P05 a refusal or a dropped sweep returns to seen; a sweep by someone else is AlreadySpent (3.349646ms)
+✔ sweep states (PRD §6: seen → sweeping → swept | unknown) (8.389055ms)
+▶ notes
+  ✔ P06 keeps a zero-value change note (a pay of a whole note) and refuses a malformed amount (3.918008ms)
+✔ notes (4.554103ms)
+▶ browser prover
+  ✔ P07 refuses a served key that is not Gloam's final ceremony key (the same-named dev key) (138.312648ms)
+  ✔ P07 proves from the checked bytes, and the proof verifies against Gloam's final shield vkey (7761.634951ms)
+✔ browser prover (7903.243039ms)
+ℹ tests 9
+ℹ suites 6
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22246.414026
+
+> @shaida/ceremony@0.1.0 test /home/kingghidorah/.cache/shaida-gate/run.bMLYZc/ceremony
+> node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'
+
+▶ ceremony: zkey verify log
+  ✔ reads the circuit hash and every contribution, with names and the beacon (6.006803ms)
+  ✔ refuses a log with a contribution number missing (0.571437ms)
+  ✔ refuses a log without "ZKey Ok!" and a log with a cut hash (0.498814ms)
+✔ ceremony: zkey verify log (9.876955ms)
+▶ ceremony: beacon rules
+  ✔ picks the block ~2 h ahead at 1.012 s per block (0.676506ms)
+  ✔ announces only after two verified contributions, never twice, never after a beacon (8.306232ms)
+  ✔ waits for the block and its confirmations, and refuses an announcement committed after the block (0.676588ms)
+✔ ceremony: beacon rules (10.374869ms)
+▶ ceremony: entropy, paths and arguments
+  ✔ allows test entropy only in a dry run (2.2213ms)
+  ✔ refuses unknown options (1.03501ms)
+  ✔ labels a dry-run transcript and shows every contribution hash (1.701135ms)
+✔ ceremony: entropy, paths and arguments (6.162765ms)
+▶ ceremony: superseding a verified zkey
+  ✔ reads the record written before supersede existed: no entry is superseded (58.252198ms)
+  ✔ allows only the latest active zkey, and only before the beacon is announced (3.145082ms)
+  ✔ after superseding contribution 1, the redo starts from the setup and the old zkey is refused as input (0.952187ms)
+  ✔ the redone chain counts only active zkeys: superseded #1, new #1, then #2 can be announced (1.029038ms)
+  ✔ the transcript keeps the superseded entry, its log and the reason (1.552819ms)
+✔ ceremony: superseding a verified zkey (68.518941ms)
+ℹ tests 14
+ℹ suites 4
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 790.264208
+
+━━ 6 fork tests (real tUSD8 via https://rpc-test.qday.info)
+No files changed, compilation skipped
+
+Ran 1 test for test/fork/AevumFork.t.sol:AevumForkTest
+[PASS] test_A10_real_tUSD8_has_the_expected_domain_and_decimals() (gas: 35461)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 3.82s (2.10s CPU time)
+
+Ran 8 tests for test/fork/S9Tusd8AdminSurface.t.sol:S9Tusd8AdminSurfaceTest
+[PASS] test_S9_blacklisted_payer_can_still_approve_but_every_pull_reverts() (gas: 259360)
+[PASS] test_S9_blacklisted_pool_freezes_every_payout() (gas: 114731)
+[PASS] test_S9_blacklisted_recipient_cannot_be_paid_out() (gas: 120383)
+[PASS] test_S9_pause_stops_deposits_payouts_and_gasless_pulls() (gas: 193777)
+[PASS] test_S9_proxy_admin_can_swap_the_token_code() (gas: 359494)
+[PASS] test_S9_reports_the_live_admin_roles() (gas: 167961)
+[PASS] test_S9_transfers_move_the_exact_amount_no_fee() (gas: 101412)
+[PASS] test_S9_unpause_restores_payouts() (gas: 189462)
+Suite result: ok. 8 passed; 0 failed; 0 skipped; finished in 5.64s (4.53s CPU time)
+
+Warning: the following cheatcode(s) are deprecated and will be removed in future versions:
+  lastCallGas(): replaced by `lastFrameGas`
+Ran 3 tests for test/fork/ExitCheckFork.t.sol:ExitCheckForkTest
+[PASS] test_EXIT_a_tampered_payment_proof_is_refused_by_the_final_verifier() (gas: 3285947)
+[PASS] test_EXIT_gasless_deposit_then_vouchedPay_then_sweep_on_real_tUSD8() (gas: 10615317)
+[PASS] test_GAS_baseline_same_payment_sent_to_the_pool_directly() (gas: 3983143)
+Suite result: ok. 3 passed; 0 failed; 0 skipped; finished in 10.31s (10.96s CPU time)
+
+Ran 3 test suites in 10.31s (19.76s CPU time): 12 tests passed, 0 failed, 0 skipped (12 total tests)
+
+━━ 7 claims check
+✓ claims: 29 in CLAIMS.md (24 PROVEN, 5 NOT PROVEN); README cites 24
+
+| Step | Result | Seconds |
+|---|---|---:|
+| 1 install | PASS | 83 |
+| 2 forge build + Shanghai check | PASS | 36 |
+| 3 circuit compile + artifact hashes | PASS | 53 |
+| 4 typecheck + lint | PASS | 145 |
+| 5 unit, circuit, indexer, relayer, flow tests | PASS | 100 |
+| 6 fork tests | PASS | 15 |
+| 7 claims check | PASS | 0 |
+
+gate: PASS at 7a354c2 in 527 s
+gate exit 0
