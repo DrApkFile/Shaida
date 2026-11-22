@@ -36,7 +36,7 @@ digest() { docker image inspect --format '{{index .RepoDigests 0}}' "$1"; }
   echo "| Field | Value |"
   echo "|---|---|"
   echo "| Date (UTC) | $(date -u +%Y-%m-%dT%H:%M:%SZ) |"
-  echo "| Commit | \`$(git rev-parse HEAD)\`$( [[ -n "$(git status --porcelain --untracked-files=no -- . ':!evidence/kv-redis.md' ':!tools/test-redis.sh')" ]] && echo ' (uncommitted changes present)') |"
+  echo "| Commit | \`$(git rev-parse HEAD)\`$( [[ -n "$(git status --porcelain --untracked-files=no -- . ':!evidence/kv-redis.md')" ]] && echo ' (uncommitted changes present)') |"
   echo "| Redis | \`$(digest "$REDIS_IMAGE")\` |"
   echo "| REST layer | \`$(digest "$SRH_IMAGE")\` (serverless-redis-http: Upstash's REST protocol, not Upstash itself) |"
   echo "| Client | @upstash/redis $(node -p 'require("./packages/shaida-kv/node_modules/@upstash/redis/package.json").version'), node $(node -v) |"
