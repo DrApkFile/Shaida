@@ -2,6 +2,8 @@ export * from "./circuit-input";
 export * from "./errors";
 export * from "./field";
 export * from "./hash";
+export * from "./period";
+export * from "./reader";
 export * from "./schema";
 export * from "./split";
 export * from "./tree";

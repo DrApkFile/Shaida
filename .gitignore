@@ -26,3 +26,4 @@ powers/
 # server-side state of the web app (index cursor, relayer records; public data only)
 web/.data/
 web/public/gloam/
+web/public/circuits/

@@ -54,3 +54,9 @@ public signals are visible to the reader, so a bundle shows more than one proof 
   that their proof's sum is at least the share.
 Not shown: amounts per payment, payer per payment, the recipient's notes. A period of more than 32 payments must be
 split into shorter periods (`NotEnoughSlots`).
+
+## The reader's name is not authentication (D27)
+A proof link is bound to a reader by `readerIdHash = Poseidon(3, length, name bytes)` of the normalized name (case,
+spacing and Unicode composition do not matter). Anyone who knows or guesses the name can open the link as that reader:
+the binding stops a link being presented as made for someone else, it does not keep the link secret. Keep the link
+itself private; it expires on the date in it. The reader's name is not stored by the server (it is typed on `/v`).

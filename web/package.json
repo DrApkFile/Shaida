@@ -9,8 +9,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "predev": "node ../tools/copy-gloam-artifacts.mjs",
-    "prebuild": "node ../tools/copy-gloam-artifacts.mjs"
+    "predev": "node ../tools/copy-gloam-artifacts.mjs && node ../tools/copy-income-artifacts.mjs",
+    "prebuild": "node ../tools/copy-gloam-artifacts.mjs && node ../tools/copy-income-artifacts.mjs"
   },
   "dependencies": {
     "@aevum-kit/aevum": "workspace:*",

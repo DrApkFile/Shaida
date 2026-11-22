@@ -26,11 +26,16 @@ function check(label, path, expected) {
 }
 
 check("circuit r1cs (ceremony-bound)", record.circuit.r1cs, record.circuit.r1csSha256);
+// The browser proves with this wasm (D27): it must be the compile of that r1cs, as pinned.
+const incomePins = JSON.parse(readFileSync(join(repo, "packages/shaida-pay/income-artifacts.json"), "utf8"));
+check("income wasm (browser prover, D27)", incomePins.wasm.source, incomePins.wasm.sha256);
 
 if (record.final === null) {
   console.log("· ceremony not finalized: no final vkey or verifier to check yet");
 } else {
   check("final vkey", record.final.vkey.path, record.final.vkey.sha256);
+  if (incomePins.zkey.sha256 !== record.final.zkey.sha256 || incomePins.vkey.sha256 !== record.final.vkey.sha256) bad("packages/shaida-pay/income-artifacts.json pins differ from ceremony/record.json final");
+  else ok("browser pins (income-artifacts.json) = ceremony final zkey and vkey");
   check("final verifier (ceremony output)", record.final.verifier.path, record.final.verifier.sha256);
   // The deploy script must deploy exactly that file (finalize writes it to contracts/src/generated/).
   const deployScript = readFileSync(join(repo, "contracts/script/DeployStack.s.sol"), "utf8");

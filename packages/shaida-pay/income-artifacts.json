@@ -1,0 +1,6 @@
+{
+  "note": "Shaida's income circuit with the ceremony's FINAL key (D27). wasm: circom 2.2.3 --O2 output of the ceremony-bound r1cs (sha256 d866695c…), measured 2026-11-22, identical on a recompile. zkey: release ceremony-v1 asset, sha256 = ceremony/record.json final.zkey. vkey: committed, = record.json final.vkey. Served from web/public/circuits/income/ by tools/copy-income-artifacts.mjs; checked again in the browser before proving.",
+  "wasm": { "source": "packages/shaida-proofs/build/income_js/income.wasm", "file": "income.wasm", "sha256": "8fb36f38c220edb2cd5468e8ba676d4d269b9e6665c253b9d6d67e45e3e0d14a" },
+  "zkey": { "source": "release ceremony-v1 (tools/fetch-income-key.mjs)", "file": "income_final.zkey", "sha256": "cbcb06fecdf72b47bb7d45d4403eaf69cf78bee65ad41cd50d0c98f4609cc0a5" },
+  "vkey": { "source": "packages/shaida-proofs/keys/income_final_vkey.json", "sha256": "2635a81044a14f06c832803f0d93c1216bde5290de31366517fa615695da69bd" }
+}
