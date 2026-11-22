@@ -18,8 +18,12 @@ Gas price on 44005 is 1 gwei, so 1,000,000 gas = 0.001 tQDAY.
 |---|---|---:|---:|---:|---:|---:|
 | before deploy | starting balance (derived: balance after deploy + deploy fees) | — | — | — | 1.000000000 | 5 |
 | 2026-11-22, blocks 3810938–3810997 | `make deploy-aevum` (run by the builder): 16 creates and 4 pool setup calls ([evidence/aevum-deployment.md](aevum-deployment.md)) | 20 | 17,030,724 | 0.017030724 | 0.982969276 | 5 |
+| 2026-11-22, block 3822055 | fund the relayer `0xF4945dD5…01422` with 0.0384 tQDAY (sent by the builder) [`0x48471e52…`](https://explorer-test.qday.info/tx/0x48471e529d07dabbb6ba33edaee3eccbb034348cd5fdd9c770e383891eabd352) | 1 | 21,000 | 0.038421 | 0.944527276 | 5 |
+| 2026-11-22, block 3822068 | fund the reader `0xbed994a7…a785E` with 0.00063 tQDAY (sent by the builder) [`0x53eb21eb…`](https://explorer-test.qday.info/tx/0x53eb21eb186f9279c5d76b568250b97fd588da4c53e61aa525748a47caf0d553) | 1 | 21,000 | 0.000651 | 0.943897276 | 5 |
 
-Every row above comes from receipts (`gasUsed × effectiveGasPrice`) and `eth_getBalance` / `balanceOf` at block 3811143.
+Every row above comes from receipts (`gasUsed × effectiveGasPrice`) and `eth_getBalance` / `balanceOf` (deploy rows at block
+3811143; funding rows at block 3822171, when the relayer held 0.0384 tQDAY and the reader 0.00063 tQDAY, as sent).
+"tQDAY spent" on a funding row is the value sent plus its gas; the value is still ours, on the helper account.
 Explorer verification of `PayerRegistry` (S10) cost nothing: it is an explorer API call, not a transaction.
 
 ## Plan for live run 1 (not run; no transaction sent)
