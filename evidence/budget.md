@@ -20,13 +20,19 @@ Gas price on 44005 is 1 gwei, so 1,000,000 gas = 0.001 tQDAY.
 | 2026-11-22, blocks 3810938–3810997 | `make deploy-aevum` (run by the builder): 16 creates and 4 pool setup calls ([evidence/aevum-deployment.md](aevum-deployment.md)) | 20 | 17,030,724 | 0.017030724 | 0.982969276 | 5 |
 | 2026-11-22, block 3822055 | fund the relayer `0xF4945dD5…01422` with 0.0384 tQDAY (sent by the builder) [`0x48471e52…`](https://explorer-test.qday.info/tx/0x48471e529d07dabbb6ba33edaee3eccbb034348cd5fdd9c770e383891eabd352) | 1 | 21,000 | 0.038421 | 0.944527276 | 5 |
 | 2026-11-22, block 3822068 | fund the reader `0xbed994a7…a785E` with 0.00063 tQDAY (sent by the builder) [`0x53eb21eb…`](https://explorer-test.qday.info/tx/0x53eb21eb186f9279c5d76b568250b97fd588da4c53e61aa525748a47caf0d553) | 1 | 21,000 | 0.000651 | 0.943897276 | 5 |
+| 2026-11-22, block 3826477 | register Acme Studio (demo) `0xA1ddEB46…91D4b` as payer #1 (sent by the builder) [`0xbfbf81db…`](https://explorer-test.qday.info/tx/0xbfbf81db8af5387a1b0100f733a6437dc4b8043b1c0a6f2649f574a6a4744ada) | 1 | 117,922 | 0.000117922 | — | 5 |
+| 2026-11-22, block 3826515 | 3 tUSD8 to the payer (sent by the builder) [`0xe986ae47…`](https://explorer-test.qday.info/tx/0xe986ae473388cd5cc9a98ebab912285f65bca8d2639d3a37b1c924c53a27e7d0) | 1 | 62,383 | 0.000062383 | 0.943716971 | 2 |
+| 2026-11-22, blocks 3826680–3826836 | live run 1: 10 relayed txs (relayer pays 0.017420764) and 1 attest (reader pays 0.000267017); per-tx rows in [evidence/live-44005-run1.md](live-44005-run1.md) | 11 | 17,687,781 | 0.017687781 (helpers) | 0.943716971 | 2 |
 
 Every row above comes from receipts (`gasUsed × effectiveGasPrice`) and `eth_getBalance` / `balanceOf` (deploy rows at block
 3811143; funding rows at block 3822171, when the relayer held 0.0384 tQDAY and the reader 0.00063 tQDAY, as sent).
 "tQDAY spent" on a funding row is the value sent plus its gas; the value is still ours, on the helper account.
+The registration row has no balance of its own because the builder sent both deployer transactions before the script
+read balances; the transfer row's balances are read after both (block 3826515 onward). Run 1's helper spend comes out
+of the 0.0384 and 0.00063 already sent, not out of the deployer.
 Explorer verification of `PayerRegistry` (S10) cost nothing: it is an explorer API call, not a transaction.
 
-## Plan for live run 1 (not run; no transaction sent)
+## Plan for live run 1 (run 2026-11-22: see Runs)
 
 Where the gas figures come from:
 - **Relayed transactions:** the largest measured on the fork (evidence/fork-gas.md, evidence/acts-4-6-fork.md).
@@ -74,7 +80,7 @@ The fresh address is funded at that time with 0.000087 tQDAY (57,583 × 1.5), no
 
 Both keystores are in `~/.foundry/keystores/`, with random passwords in `~/.config/shaida/` (mode 600).
 
-### Funding from the deployer (waiting for the builder's yes)
+### Funding from the deployer (sent by the builder, blocks 3822055 and 3822068)
 
 | Account | Planned gas | Funding | Why that amount |
 |---|---:|---:|---|
@@ -98,4 +104,29 @@ in gas.
 
 ## Runs
 
-None yet.
+### Run 1, 2026-11-22, blocks 3826477–3826836: passed
+
+Per-tx hashes, explorer links, gas and balances before and after: [evidence/live-44005-run1.md](live-44005-run1.md).
+Bola's browser check of the same link at 390 px: [evidence/live-44005-ui/report-390.md](live-44005-ui/report-390.md).
+
+| | Planned | Actual |
+|---|---:|---:|
+| registration gas | 117,922 (estimate) | 117,922 |
+| tUSD8 transfer gas | 45,503 (estimate; 62,874 re-estimated before sending) | 62,383 |
+| relayed gas (deposit, 3 pays, 3 memos, 3 sweeps) | 17,874,084 | 17,420,764 |
+| attest gas | 267,017 | 267,017 |
+
+Balances read from the chain at block 3827735, after the run:
+
+| Account | tQDAY | tUSD8 | Expected (plan) |
+|---|---:|---:|---|
+| deployer | 0.943716971 | 2 | 0.943734 / 2 (the transfer cost 16,880 gas more than estimated) |
+| relayer | 0.020979236 | 0 | ≈ 0.020526 |
+| reader | 0.000362983 | 0 | ≈ 0.000363 |
+| payer, Acme Studio (demo) | 0 | 0 | 0 / 0 (all 3 tUSD8 paid out) |
+| Ada (demo) | — | 3, in 3 swept pool notes | 3 |
+
+No withdrawal after the run (rule above). Limits held at every step: the script read them from the chain before each
+transaction (deployer ≥ 0.5 tQDAY and ≥ 2 tUSD8; relayer ≥ its 0.01 floor plus the call's gas limit).
+The relayer can pay for the withdrawal batch (≈ 0.001031 tQDAY) and stay above its 0.01 floor. It can't pay for run 2
+as well (≈ 0.0174 tQDAY), so a top-up is needed before run 2. It will be sized and approved with the builder then.

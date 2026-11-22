@@ -1,0 +1,286 @@
+{
+  "rows": [
+    {
+      "step": "register",
+      "what": "attestor registers Acme Studio (demo) as a payer",
+      "sender": "deployer (builder's terminal)",
+      "hash": "0xbfbf81db8af5387a1b0100f733a6437dc4b8043b1c0a6f2649f574a6a4744ada",
+      "block": "3826477",
+      "gasUsed": "117922",
+      "feeWei": "117922000000000",
+      "before": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "38400000000000000",
+        "readerWei": "630000000000000"
+      },
+      "after": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "38400000000000000",
+        "readerWei": "630000000000000"
+      }
+    },
+    {
+      "step": "transfer",
+      "what": "deployer sends 3 tUSD8 to the payer",
+      "sender": "deployer (builder's terminal)",
+      "hash": "0xe986ae473388cd5cc9a98ebab912285f65bca8d2639d3a37b1c924c53a27e7d0",
+      "block": "3826515",
+      "gasUsed": "62383",
+      "feeWei": "62383000000000",
+      "before": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "38400000000000000",
+        "readerWei": "630000000000000"
+      },
+      "after": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "38400000000000000",
+        "readerWei": "630000000000000"
+      }
+    },
+    {
+      "step": "deposit",
+      "what": "Acme: gasless deposit of 3 tUSD8",
+      "sender": "relayer",
+      "hash": "0x3304a6f52d75143f5c958fae450e62e4f422bc7bf755cf2c40d5d49156e4c9ea",
+      "block": "3826680",
+      "gasUsed": "1254062",
+      "feeWei": "1254062000000000",
+      "before": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "38400000000000000",
+        "readerWei": "630000000000000"
+      },
+      "after": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "37145938000000000",
+        "readerWei": "630000000000000"
+      }
+    },
+    {
+      "step": "pay1",
+      "what": "Acme: vouched pay 1 of 1.5 tUSD8 to Ada",
+      "sender": "relayer",
+      "hash": "0x364428d98fab385d23d2b66b78be1dd24a08133243979e2ff2d8fb254f35ed29",
+      "block": "3826701",
+      "gasUsed": "2729071",
+      "feeWei": "2729071000000000",
+      "before": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "37145938000000000",
+        "readerWei": "630000000000000"
+      },
+      "after": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "34416867000000000",
+        "readerWei": "630000000000000"
+      }
+    },
+    {
+      "step": "memo1",
+      "what": "sealed memo 1",
+      "sender": "relayer",
+      "hash": "0x380024bee3aaa9e8218a03c5348c3f9113326773ab17c022423f84801e2c8268",
+      "block": "3826711",
+      "gasUsed": "44923",
+      "feeWei": "44923000000000",
+      "before": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "34416867000000000",
+        "readerWei": "630000000000000"
+      },
+      "after": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "34371944000000000",
+        "readerWei": "630000000000000"
+      }
+    },
+    {
+      "step": "pay2",
+      "what": "Acme: vouched pay 2 of 1 tUSD8 to Ada",
+      "sender": "relayer",
+      "hash": "0xc111e08a4e9587ac383095c84b61516d4d0a96952b38bb20a942b7affbb7c684",
+      "block": "3826726",
+      "gasUsed": "2689569",
+      "feeWei": "2689569000000000",
+      "before": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "34371944000000000",
+        "readerWei": "630000000000000"
+      },
+      "after": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "31682375000000000",
+        "readerWei": "630000000000000"
+      }
+    },
+    {
+      "step": "memo2",
+      "what": "sealed memo 2",
+      "sender": "relayer",
+      "hash": "0x2a6695dfac2233d0cad3446cea371c71360f490eccbaa9b7c8b2c18da8edeef5",
+      "block": "3826735",
+      "gasUsed": "44923",
+      "feeWei": "44923000000000",
+      "before": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "31682375000000000",
+        "readerWei": "630000000000000"
+      },
+      "after": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "31637452000000000",
+        "readerWei": "630000000000000"
+      }
+    },
+    {
+      "step": "pay3",
+      "what": "Acme: vouched pay 3 of 0.5 tUSD8 to Ada",
+      "sender": "relayer",
+      "hash": "0x9eb24ba7655b534d9b63309449c4af2f9f5f623f14488b0b2d1b733c13b1234a",
+      "block": "3826751",
+      "gasUsed": "2684594",
+      "feeWei": "2684594000000000",
+      "before": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "31637452000000000",
+        "readerWei": "630000000000000"
+      },
+      "after": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "28952858000000000",
+        "readerWei": "630000000000000"
+      }
+    },
+    {
+      "step": "memo3",
+      "what": "sealed memo 3",
+      "sender": "relayer",
+      "hash": "0x1d5a1e9a0ef0c44849c10472a05856c50acc7cca789f5de572e36c9fe29a901c",
+      "block": "3826759",
+      "gasUsed": "44923",
+      "feeWei": "44923000000000",
+      "before": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "28952858000000000",
+        "readerWei": "630000000000000"
+      },
+      "after": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "28907935000000000",
+        "readerWei": "630000000000000"
+      }
+    },
+    {
+      "step": "sweep1",
+      "what": "Ada sweeps 1.5 tUSD8 (Invoice 1 (demo))",
+      "sender": "relayer",
+      "hash": "0x547006565b06880c5164a1b7298065417f9e370106462fe5f41924d035a1fc4e",
+      "block": "3826776",
+      "gasUsed": "2644417",
+      "feeWei": "2644417000000000",
+      "before": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "28907935000000000",
+        "readerWei": "630000000000000"
+      },
+      "after": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "26263518000000000",
+        "readerWei": "630000000000000"
+      }
+    },
+    {
+      "step": "sweep2",
+      "what": "Ada sweeps 1 tUSD8 (Invoice 2 (demo))",
+      "sender": "relayer",
+      "hash": "0x483b0ecedf482a42ac050e1f3dc1512588dd4fc88b1dc8593afe607cb688c1d2",
+      "block": "3826796",
+      "gasUsed": "2644792",
+      "feeWei": "2644792000000000",
+      "before": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "26263518000000000",
+        "readerWei": "630000000000000"
+      },
+      "after": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "23618726000000000",
+        "readerWei": "630000000000000"
+      }
+    },
+    {
+      "step": "sweep3",
+      "what": "Ada sweeps 0.5 tUSD8 (Invoice 3 (demo))",
+      "sender": "relayer",
+      "hash": "0x75d071745bc0b562d4ef3614f8279502a9a46e5010d49418e6c62316d57f5831",
+      "block": "3826810",
+      "gasUsed": "2639490",
+      "feeWei": "2639490000000000",
+      "before": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "23618726000000000",
+        "readerWei": "630000000000000"
+      },
+      "after": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "20979236000000000",
+        "readerWei": "630000000000000"
+      }
+    },
+    {
+      "step": "attest",
+      "what": "Bola records the check: attest from the reader wallet",
+      "sender": "reader 0xbed994a7fD0e7A49DAD09866e86817ccA6Ea785E",
+      "hash": "0xf8c1b89b50c79f2891b254f1ca3b297e1e5bb796af64f292b72a2a28f0645441",
+      "block": "3826836",
+      "gasUsed": "267017",
+      "feeWei": "267017000000000",
+      "before": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "20979236000000000",
+        "readerWei": "630000000000000"
+      },
+      "after": {
+        "deployerWei": "943716971000000000",
+        "deployerTusd8": "2000000",
+        "relayerWei": "20979236000000000",
+        "readerWei": "362983000000000"
+      }
+    }
+  ],
+  "checks": [
+    "Acme Studio (demo) 0xA1ddEB46A1060C8970E68C3dA34427B1a7B91D4b is active payer #1 and holds 3 tUSD8",
+    "Act 4: 1 proof(s) with the final key in node v24.19.0: 13440 ms; countable 1.5 + 1 + 0.5 tUSD8",
+    "Act 6: attest emitted IncomeProofChecked(threshold 3000000, count 3)"
+  ],
+  "link": "/v#eyJ2IjoxLCJwcm9vZnMiOlt7InByb29mIjp7InBpX2EiOlsiMTQzODU2MzAyMTA0ODUxNDgxNzMxNDA0MTE3MjkyNDg0MTA5Mjk1MzQ3OTkwMDAzOTQwNTEyODEyODA1MjM4MjYzOTMyOTQwNzA2NDMiLCI0NTE5Njk0Mzc1OTAxMTQ5NjcyNjM1NjY4NDU1NzE5MzU0OTY1ODg1NTI5MzEyMDM3MTA5NDQ0OTIzMjYwNjE2NjcyNDE5ODYwMzE4IiwiMSJdLCJwaV9iIjpbWyI4OTExODIzOTYyMDIyMTg1OTU2OTc5OTQwNTk2NzEzMDQ2MTEzNDE2MzkwNjY0NjQwMTkyMDA1OTk1NjA1NzM1OTA5NDM1Njg0NDgiLCI4NTMyNzQ0MDU3Njk3NzM1NzY4MjA5MzY3NTc3ODcwNjk2MzM2OTYwNDU4ODU5NzE0NDg3MzgzMzA1NDUxMTQyMDEwMDI5NjAyNiJdLFsiMTYwMTk2MzU4MTU5NzAyMjg5Mjk5MzQzMjA3MTA3ODU5MDg3NTY1MDg1MjI2NDg5OTc4MTA1MDkwODg3MjQyMTUzNjUxMzgxNDI5NTAiLCIyMDgwOTM3NjkyODUyMDQ3Njk3MDQwMzA5MDgxNTgzMzQwMjYyNDA2MjY5MTI3NzczMDM2ODAwODI5NDc5ODI4MzM3NDEwOTQyMDc4MCJdLFsiMSIsIjAiXV0sInBpX2MiOlsiMjc0OTI5MzcyMDAwMjg1MTMwOTIxNzMxODM0ODA1Nzc1MTkwODM1MzQwNjA3NzgyODA0NzE1OTc4MTI4NjkxMDgzNDQyODA1NTUzIiwiNjI0NTExMzAwNTA0NTcwMzE5ODc3MDk1NTA1OTE3MzA4MzMzMDg5NzMzMDc2MDEzNTc0NzU0MDU4MDE1NDA4NzM5NTg4MjcwMzg3NSIsIjEiXSwicHJvdG9jb2wiOiJncm90aDE2IiwiY3VydmUiOiJibjEyOCJ9LCJwdWJsaWNTaWduYWxzIjpbIjkxMzA1MTcxOTAwMjU0MzQzNTg3NzE3NTU2ODAwNjk5MzYxNDIzNTk0NTkzMTY4OTAwNzM2MDk4MjYxMzY0NjI1MTgxOTE4MjU4MTIiLCIzOTYxODE5MzAwMDkxNDA5NjA1NTM2Mzk2NjczNTM5ODI1MDQwNjExNjkyNTE0NTkiLCIzMDAwMDAwIiwiMyIsIjAiLCI1IiwiMjk0NDgwOTQxNDgwNjM4ODU5NDI2MTQ1OTYzOTMyOTUwODc4NzMyOTc0NDIwMzY0NTUwNzY0NTU0MjU1ODg4NTMxNTY1OTIzMDg3MCJdfV0sInJlYWRlcklkSGFzaCI6IjEwMjg1NTA3NDIwOTAyODEwNzc0MTg5MjYwNzU5MDU0OTQyMzAzOTEzMDE2MTI3NjA2MDE3NDAzODc5MDIyMTY4Njk5NTIzNjA3Mjg3IiwiZXhwaXJ5IjoiMTc5NzkzNjcxOCIsInNhbHQiOiIxNjI0MTY3ODk0NjUzNDQyOTM2NDY0MDM3ODk5NzU0NDcwMDk4NzU1Mjg3MjU2NzM5NjY1Njc2MTc1ODA5Njc4MjkwODI2MDQ5MjcifQ",
+  "proveMs": [
+    13440
+  ]
+}

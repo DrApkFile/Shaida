@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit",
     "exit:acts-2-3": "tsx scripts/exit-acts-2-3.ts",
     "exit:acts-4-6": "tsx scripts/exit-acts-4-6.ts",
-    "exit:withdraw": "tsx scripts/exit-withdraw.ts"
+    "exit:withdraw": "tsx scripts/exit-withdraw.ts",
+    "live:44005": "tsx scripts/live-44005.ts"
   },
   "dependencies": {
     "@gloamtrade/sdk": "0.8.0",

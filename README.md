@@ -13,7 +13,10 @@ Every statement here maps to a row in [CLAIMS.md](CLAIMS.md); `make gate` fails 
 
 PRD §11 steps 1–2 and acts 2–6 run on a local fork <!-- CL02 --> <!-- CL35 -->. The stack is deployed on Aevum testnet and checked
 against the chain ([deployments/aevum.json](deployments/aevum.json), [evidence/aevum-deployment.md](evidence/aevum-deployment.md)) <!-- CL03 -->;
-14 of its 16 contracts are verified on the explorer (links below) <!-- CL39 -->. No live run on 44005 yet.
+14 of its 16 contracts are verified on the explorer (links below) <!-- CL39 -->. Acts 2–6 ran once on 44005 with demo
+personas: three vouched payments of 1.5 + 1 + 0.5 tUSD8, swept, proved ≥ 3 tUSD8 with the final key, VALID for
+"Landlord Bola", checked and attested on chain ([evidence/live-44005-run1.md](evidence/live-44005-run1.md), every tx
+linked) <!-- CL31 --> <!-- CL33 -->. The landing page's example link is that run's proof.
 - Contracts: `PayerRegistry` <!-- CL04 -->, `ShaidaDepositor` (gasless EIP-3009 + standard deposit) <!-- CL05 -->,
   `ShaidaLedger` (vouch and sweep leaves, one vouch per payment, `lateVouch` repair for a front-run pay: DECISIONS D9)
   <!-- CL06 -->, on Gloam's pool with its final-ceremony verifiers. <!-- CL07 -->
@@ -57,7 +60,7 @@ against the chain ([deployments/aevum.json](deployments/aevum.json), [evidence/a
 - Web: a landing page `/` and a dashboard `/app` in a design system taken from Muuve's style ([DESIGN.md](DESIGN.md),
   D25, D26). <!-- CL38 -->
 
-Not built yet: a live run of acts 2–6 on Aevum testnet. <!-- not-built -->
+Not done yet on Aevum testnet: acts 2–4 clicked through in a browser (run 1 drove them by script), and a withdrawal. <!-- not-built -->
 
 Secrets: `make gate` scans the git history with gitleaks; keys and keystores are gitignored. <!-- CL41 -->
 
