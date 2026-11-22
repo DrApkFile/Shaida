@@ -3,12 +3,19 @@
 import Link from "next/link";
 import record from "../../../ceremony/record.json";
 import { ArrowRightIcon, ArrowUpRightIcon, InboxIcon, LinkIcon, ProofIcon, SealedLetter } from "@/components/Icons";
-import { repoUrl } from "@/lib/env";
+import { defaultNetwork, repoUrl } from "@/lib/env";
+import examples from "./example-links.json";
 import "./landing.css";
 
 const chain = record.verified.at(-1)?.contributions ?? [];
 const people = chain.filter((c) => !c.name.startsWith("Aevum "));
-const example = process.env.NEXT_PUBLIC_SHAIDA_EXAMPLE_LINK?.trim() || null;
+// The example is a real run's /v link per chain (example-links.json, written by scripts/live-44005.ts); an env value
+// overrides it for chains with no recorded run (the fork). The page is prerendered, so the expiry is checked at build:
+// a build after the expiry offers no example; before a rebuild, /v itself reports the link as expired.
+const recorded = (examples as Record<string, { link: string; expiry: number } | string>)[String(defaultNetwork.chain.id)];
+const fromRun = typeof recorded === "object" && recorded.expiry * 1000 > Date.now() ? recorded : null;
+const example = fromRun?.link ?? (process.env.NEXT_PUBLIC_SHAIDA_EXAMPLE_LINK?.trim() || null);
+const exampleExpires = fromRun ? new Date(fromRun.expiry * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : null;
 
 const STEPS = [
   { icon: <InboxIcon size={22} />, title: "Get paid privately", text: "A registered payer pays your receive address from Gloam's private pool. The chain shows that a registered payer paid someone, not who or how much." },
@@ -45,7 +52,7 @@ export default function LandingPage() {
               <span className="btn big secondary" aria-disabled="true">No live example on this network yet</span>
             )}
           </div>
-          {example && <p className="fine">The example is a real proof on this network for the demo personas Ada (demo) and Landlord Bola (demo): open it and type “Landlord Bola”.</p>}
+          {example && <p className="fine">The example is a real proof on this network for the demo personas Ada (demo) and Landlord Bola (demo): open it and type “Landlord Bola”.{exampleExpires && ` It expires ${exampleExpires}.`}</p>}
         </div>
         <div className="hero-art card tone-ink" aria-hidden="true"><SealedLetter size={180} /></div>
       </section>
