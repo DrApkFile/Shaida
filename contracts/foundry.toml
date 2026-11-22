@@ -19,6 +19,8 @@ fs_permissions = [
   { access = "read", path = "./lib/gloam/contracts/test/fixtures" },
   { access = "read", path = "./test/fixtures" },
   { access = "read", path = "./script/fixtures" },
+  # VerifyDeployment reads the recorded deployment it checks.
+  { access = "read", path = "../deployments" },
 ]
 
 [rpc_endpoints]

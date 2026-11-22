@@ -1,0 +1,109 @@
+#!/usr/bin/env node
+// Read-only check of deployments/aevum.json against Aevum testnet; writes evidence/aevum-deployment.md.
+// Sends nothing and needs no key. Two independent sources:
+//   1. the Aevum node itself (eth_getCode, eth_getTransactionReceipt, eth_call): code at every address, every recorded
+//      tx mined, legacy and from the deployer, the income verifier's answer to a final-key and a throwaway-key proof,
+//      deposit limits and setup mode;
+//   2. `forge script script/VerifyDeployment.s.sol`, which reruns DeployStack's checks (DeployChecks.checkWiring and
+//      requireIncomeKey, Gloam's final-accept/dev-reject proofs) against the live state.
+// Usage: node tools/verify-aevum.mjs (or `make verify-aevum`). Fails, and writes a FAILED report, on any mismatch.
+import { execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const REPO = fileURLToPath(new URL("..", import.meta.url));
+const D = JSON.parse(readFileSync(join(REPO, "deployments/aevum.json"), "utf8"));
+const PER_DEPOSIT = process.env.TUSD8_PER_DEPOSIT;
+const TOTAL = process.env.TUSD8_TOTAL;
+if (!PER_DEPOSIT || !TOTAL) throw new Error("set TUSD8_PER_DEPOSIT and TUSD8_TOTAL (make verify-aevum does)");
+const rows = [];
+const problems = [];
+const row = (what, result, ok) => { rows.push([what, result, ok ? "ok" : "**FAILED**"]); if (!ok) problems.push(what); };
+
+async function rpc(method, params) {
+  const res = await fetch(D.rpc, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) });
+  if (!res.ok) throw new Error(`${method}: HTTP ${res.status}`);
+  const body = await res.json();
+  if (body.error) throw new Error(`${method}: ${body.error.message}`);
+  return body.result;
+}
+const cast = (...a) => execFileSync("cast", [...a, "--rpc-url", D.rpc], { encoding: "utf8" }).trim();
+const proofArgs = (rel) => {
+  const p = JSON.parse(readFileSync(join(REPO, "contracts", rel), "utf8"));
+  const n = (x) => BigInt(x).toString();
+  return [`[${p.a.map(n)}]`, `[[${p.b[0].map(n)}],[${p.b[1].map(n)}]]`, `[${p.c.map(n)}]`, `[${p.signals.map(n)}]`];
+};
+
+async function main() {
+  const chain = Number(await rpc("eth_chainId", []));
+  row("RPC chain id", String(chain), chain === 44005 && D.chainId === 44005);
+  const head = Number(await rpc("eth_blockNumber", []));
+
+  for (const [name, c] of Object.entries(D.contracts)) {
+    const code = await rpc("eth_getCode", [c.address, "latest"]);
+    const r = await rpc("eth_getTransactionReceipt", [c.txHash]);
+    const ok = code !== "0x" && r?.status === "0x1" && r.type === "0x0" && r.from.toLowerCase() === D.deployer && r.contractAddress?.toLowerCase() === c.address.toLowerCase() && Number(r.blockNumber) === c.block;
+    row(`${name} \`${c.address}\``, `${(code.length - 2) / 2} bytes of code; create tx mined in block ${Number(r?.blockNumber)}, legacy, from the deployer`, ok);
+  }
+  for (const t of D.setupTxs) {
+    const r = await rpc("eth_getTransactionReceipt", [t.txHash]);
+    row(`pool.${t.function}`, `tx \`${t.txHash.slice(0, 12)}…\` mined in block ${Number(r?.blockNumber)}`, r?.status === "0x1" && r.type === "0x0" && r.to.toLowerCase() === D.contracts.ShieldPoolPoseidon.address.toLowerCase());
+  }
+
+  const SIG = "verifyProof(uint256[2],uint256[2][2],uint256[2],uint256[7])(bool)";
+  const g = D.contracts.IncomeGroth16Verifier.address;
+  const fin = cast("call", g, SIG, ...proofArgs("script/fixtures/income-final-proof.json"), "--gas-limit", "400000");
+  row("IncomeGroth16Verifier, final-key proof (node eth_call, gas 400,000)", fin, fin === "true");
+  const thr = cast("call", g, SIG, ...proofArgs("test/fixtures/income/throwaway-proof.json"), "--gas-limit", "400000");
+  row("IncomeGroth16Verifier, throwaway-key proof of the same signals (node eth_call, gas 400,000)", thr, thr === "false");
+  const pool = D.contracts.ShieldPoolPoseidon.address;
+  const limitsOn = cast("call", pool, "depositLimitsOn()(bool)");
+  row("pool.depositLimitsOn()", limitsOn, limitsOn === "true");
+  const setup = cast("call", pool, "setupMode()(bool)");
+  row("pool.setupMode() (false = setup ended)", setup, setup === "false");
+  const lim = cast("call", pool, "depositLimit(address)(uint128,uint128)", D.token.address).split("\n").map((l) => l.split(" ")[0]);
+  row("pool.depositLimit(tUSD8): per deposit, total", lim.join(", "), lim[0] === PER_DEPOSIT && lim[1] === TOTAL);
+  const owner = cast("call", D.contracts.PayerRegistry.address, "owner()(address)").toLowerCase();
+  row("PayerRegistry.owner() (attestor)", owner, owner === D.attestor);
+
+  let forgeLog;
+  let forgeOk = true;
+  try {
+    forgeLog = execFileSync("forge", ["script", "script/VerifyDeployment.s.sol", "--rpc-url", D.rpc], {
+      cwd: join(REPO, "contracts"), encoding: "utf8", env: { ...process.env, DEPLOYMENT: "../deployments/aevum.json" },
+    });
+  } catch (e) {
+    forgeOk = false;
+    forgeLog = `${e.stdout ?? ""}${e.stderr ?? ""}`;
+  }
+  const logs = forgeLog.split("== Logs ==")[1]?.trim() ?? forgeLog.trim();
+  row("forge script VerifyDeployment (DeployStack's checks on live state)", forgeOk ? "Script ran successfully" : "reverted", forgeOk && /income key ok/.test(logs));
+
+  const md = `# Aevum testnet deployment, checked against the chain
+
+Generated by \`make verify-aevum\` (\`node tools/verify-aevum.mjs\`). Do not edit by hand. Read-only: no transaction sent.
+
+| Field | Value |
+|---|---|
+| Record | \`deployments/aevum.json\` (deployed from \`${D.gitCommit}\`, recorded ${D.recordedAt}) |
+| Chain | ${D.chainId} via ${D.rpc}, head block ${head} at check |
+| Deployer and attestor | \`${D.deployer}\` / \`${D.attestor}\` |
+| Checked at | ${new Date().toISOString()} from commit \`${execFileSync("git", ["rev-parse", "HEAD"], { cwd: REPO, encoding: "utf8" }).trim()}\` |
+| Result | ${problems.length ? `FAILED: ${problems.join("; ")}` : "passed"} |
+
+| Check | Result | |
+|---|---|---|
+${rows.map((r) => `| ${r.join(" | ")} |`).join("\n")}
+
+Forge's checks (\`contracts/script/VerifyDeployment.s.sol\`), log:
+
+\`\`\`
+${logs}
+\`\`\`
+`;
+  writeFileSync(join(REPO, problems.length ? `evidence/aevum-deployment-FAILED-${Date.now()}.md` : "evidence/aevum-deployment.md"), md);
+  console.log(problems.length ? `✗ verify-aevum: ${problems.join("; ")}` : `✓ evidence/aevum-deployment.md: ${rows.length} checks passed`);
+  process.exit(problems.length ? 1 : 0);
+}
+main().catch((e) => { console.error(`✗ verify-aevum: ${e.message}`); process.exit(1); });

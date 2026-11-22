@@ -42,6 +42,14 @@ library DeployChecks {
 
     /// @dev Reads back from the chain; any mismatch fails the run. Do not use a stack that fails here.
     function check(Stack memory s, uint128 perDeposit, uint128 total, address attestor) internal view {
+        checkWiring(s, perDeposit, total, attestor);
+        require(PayerRegistry(s.registry).payerCount() == 0, "registry not empty");
+        require(ShaidaLedger(s.ledger).nextIndex() == 0, "ledger not empty");
+    }
+
+    /// @dev The checks that stay true after the stack is in use (no emptiness checks); VerifyDeployment reruns these
+    /// against a recorded deployment on the live chain.
+    function checkWiring(Stack memory s, uint128 perDeposit, uint128 total, address attestor) internal view {
         require(IPoseidon2(s.poseidon2).poseidon([uint256(1), uint256(2)]) == POSEIDON_1_2, "PoseidonT3 wrong");
         require(
             IPoseidon3(s.poseidon3).poseidon([uint256(1), uint256(2), uint256(3)]) == POSEIDON_1_2_3,
@@ -63,12 +71,10 @@ library DeployChecks {
 
         PayerRegistry registry = PayerRegistry(s.registry);
         require(registry.owner() == attestor, "registry attestor mismatch");
-        require(registry.payerCount() == 0, "registry not empty");
         ShaidaLedger ledger = ShaidaLedger(s.ledger);
         require(address(ledger.pool()) == s.pool, "ledger pool mismatch");
         require(address(ledger.registry()) == s.registry, "ledger registry mismatch");
         require(address(ledger.poseidon3()) == s.poseidon3, "ledger poseidon mismatch");
-        require(ledger.nextIndex() == 0, "ledger not empty");
         ShaidaDepositor depositor = ShaidaDepositor(s.depositor);
         require(address(depositor.token()) == TUSD8, "depositor token mismatch");
         require(address(depositor.pool()) == s.pool, "depositor pool mismatch");

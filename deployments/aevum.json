@@ -1,0 +1,152 @@
+{
+  "network": "aevum-testnet",
+  "chainId": 44005,
+  "rpc": "https://rpc-test.qday.info",
+  "token": {
+    "symbol": "tUSD8",
+    "address": "0x456569838f1d43009a91eba4263147afd7233483",
+    "decimals": 6
+  },
+  "deployer": "0x5f8066e6e18f6381a0ff593bb6b1a036c5a69698",
+  "gitCommit": "2a10759b3269bc1c81de94d2ced94543152bd0e5",
+  "gitDirty": false,
+  "gloamCommit": "d8db1e6c805c5887678fa2c6c82ea617efe1659c",
+  "verifierKeys": "gloam ceremony-final (src/verifiers/final), checked final-accept and dev-reject at deploy",
+  "incomeKey": {
+    "zkeySha256": "cbcb06fecdf72b47bb7d45d4403eaf69cf78bee65ad41cd50d0c98f4609cc0a5",
+    "verifier": {
+      "path": "contracts/src/generated/IncomeGroth16Verifier.sol",
+      "sha256": "96db550b107ffe22341d1ec3961db32cd91bd44898d0106d20e0796da1564381"
+    },
+    "check": "IncomeGroth16Verifier accepted a final-key proof and rejected a throwaway-key proof at deploy"
+  },
+  "poolDeployBlock": 3810968,
+  "contracts": {
+    "PoseidonT3": {
+      "address": "0x1e771073ac7703772c3717650ca0577e103dfaaf",
+      "txHash": "0x0623a2ea373c2b73dad0b872bffa78d9ce3fc6f6e0d9c2ffa0a81cc813688e6f",
+      "block": 3810938,
+      "gasUsed": 2157126
+    },
+    "PoseidonT4": {
+      "address": "0xc7aa19943815419dc00a6ae835defd59bb2aec69",
+      "txHash": "0x981703589a4ac2162ed3a0838cb2ec5f31df0af0c192e890d51c59dc3b69570d",
+      "block": 3810942,
+      "gasUsed": 2745274
+    },
+    "ShieldVerifierFinal": {
+      "address": "0x6c15d7cc7f05d8fb8fceab9bd7e92c753abe13e7",
+      "txHash": "0x6c8a3e89a1aff0abe1524ac9e3c849819d5757aa286e7cd23eee68750f1867c4",
+      "block": 3810945,
+      "gasUsed": 385529
+    },
+    "ShieldIVerifierFinal": {
+      "address": "0x6f82365a56382206de27afa1f2ee52f073f3b446",
+      "txHash": "0xc1dc2d984af3236b0cf4ccad86adc935bdd14bc20c63e9eb805636e8b489018f",
+      "block": 3810949,
+      "gasUsed": 320988
+    },
+    "UnshieldVerifierFinal": {
+      "address": "0xa25b573404fe423aeb005c9539c79d806199a1f5",
+      "txHash": "0xf70d170f85e3301ee6a3658009db7b93b0c10c780ceb52e3c274cf057eb866da",
+      "block": 3810952,
+      "gasUsed": 425688
+    },
+    "UnshieldIVerifierFinal": {
+      "address": "0xa63d1a26e3906c154bd6c9b18e7e181998f3e843",
+      "txHash": "0x4ad04aa94dd469385e44ebbae1728f76e14061ab3bb430a2bb657920bb7ce3cd",
+      "block": 3810955,
+      "gasUsed": 320976
+    },
+    "TransferVerifierFinal": {
+      "address": "0xf220726b8f177e7347d6b58f0b14b2380a572cda",
+      "txHash": "0x89b167885c02a791e272a99dda1dda8129f53d238af42c6d57f2aa6661ff5eba",
+      "block": 3810959,
+      "gasUsed": 406916
+    },
+    "TransferIVerifierFinal": {
+      "address": "0xfe33467545a106e51394bc3a89ae010cd46d5708",
+      "txHash": "0x8c541cdfca080f00324c4cc39b78f7304799cbd929e14b34c364ce8ebadbe637",
+      "block": 3810962,
+      "gasUsed": 321000
+    },
+    "DualProofVerifier": {
+      "address": "0xd791178ec6a80ac2fcfeb2a236c427d5a818b57c",
+      "txHash": "0xffc0018423ebaaf2114d5a5778457b84d9cfb37835724c0eef4c59c01f7f810c",
+      "block": 3810965,
+      "gasUsed": 239024
+    },
+    "ShieldPoolPoseidon": {
+      "address": "0x0d93a398de615c92b04961dd042471fea4b7eac6",
+      "txHash": "0x9624405b35c47a4d9f0fb84e792f32b570c89008ca01c6eebf8dbc543f8e0250",
+      "block": 3810968,
+      "gasUsed": 5039739
+    },
+    "GloamPayMemo": {
+      "address": "0xe2f7c6310e5ccb87fde4ff887b100236960c4e17",
+      "txHash": "0xf6e83741beff34137d2cb948a7c4d8e820214f0d3b4c624b96400fe242dfe0d8",
+      "block": 3810982,
+      "gasUsed": 152323
+    },
+    "PayerRegistry": {
+      "address": "0xce43b77adc82db336d07f03bd84c3834fd9c5215",
+      "txHash": "0x1f160d28e24e366e74e83360f26044a27b7317f89d82d7e4686b30d0933bed26",
+      "block": 3810984,
+      "gasUsed": 507023
+    },
+    "ShaidaLedger": {
+      "address": "0x677659b068278103f83eff413080cb53be3388ed",
+      "txHash": "0xd4068d5cd2e065f7d528aec5bdc910cec48971ef09f0711856f9e487be0ab228",
+      "block": 3810988,
+      "gasUsed": 2408583
+    },
+    "ShaidaDepositor": {
+      "address": "0x6a6045a64ae911744fcd63b3186277f8958db2ec",
+      "txHash": "0xf7dedafadd479a5a2c3a55b59ff436e332911fa944c46cede41d59d0cc5526c6",
+      "block": 3810991,
+      "gasUsed": 672240
+    },
+    "IncomeGroth16Verifier": {
+      "address": "0xbb79e350e0c27b97f6512173ec7e4dd82bf632af",
+      "txHash": "0x977d8e776a659ececaf02d1e821691b5d7f2dd9f8aec05414fc4beaac7f050a5",
+      "block": 3810994,
+      "gasUsed": 465878
+    },
+    "IncomeVerifier": {
+      "address": "0xc9844a8f058be2d658c972d1d2276b13f308e1c8",
+      "txHash": "0x981a2eee61f336f981f2b7350aa972335c1b5ea5d932cffd99d2d29e93ac8b15",
+      "block": 3810997,
+      "gasUsed": 303368
+    }
+  },
+  "setupTxs": [
+    {
+      "function": "turnOnDepositLimits()",
+      "txHash": "0x7f3df5e1b6853a5350f5b10177178949e13721ff4d3a452f1faa712da424437a",
+      "block": 3810971,
+      "gasUsed": 29361
+    },
+    {
+      "function": "setShieldVerifier(address)",
+      "txHash": "0x8aafd9629c1b803fce14ee3c4ef4d76bac8ca49fa63d0052a1e72fb9d6e5166b",
+      "block": 3810974,
+      "gasUsed": 49621
+    },
+    {
+      "function": "setDepositLimit(address,uint128,uint128)",
+      "txHash": "0xc8254d5ace267fd1f7074008409c1792042d27917d6706f9e5b147546fa7c480",
+      "block": 3810976,
+      "gasUsed": 50706
+    },
+    {
+      "function": "endSetup()",
+      "txHash": "0xd4b0dbea9f073e9d1928f4b332864f4eb183bf1755976813ccc8622ed626104c",
+      "block": 3810979,
+      "gasUsed": 29361
+    }
+  ],
+  "attestor": "0x5f8066e6e18f6381a0ff593bb6b1a036c5a69698",
+  "ledgerDeployBlock": 3810988,
+  "broadcastFile": "contracts/broadcast/DeployStack.s.sol/44005/run-latest.json",
+  "recordedAt": "2026-11-22T06:25:07.357Z"
+}

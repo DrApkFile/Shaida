@@ -11,7 +11,9 @@ Private payments run on [Gloam](https://github.com/gloamtrade/gloam) (MIT), a pi
 Every statement here maps to a row in [CLAIMS.md](CLAIMS.md); `make gate` fails if one is not PROVEN.
 <!-- CL24 -->
 
-PRD §11 steps 1–2 and acts 2–6 run on a local fork <!-- CL02 --> <!-- CL35 -->; nothing is deployed on Aevum testnet yet. <!-- CL03 -->
+PRD §11 steps 1–2 and acts 2–6 run on a local fork <!-- CL02 --> <!-- CL35 -->. The stack is deployed on Aevum testnet and checked
+against the chain ([deployments/aevum.json](deployments/aevum.json), [evidence/aevum-deployment.md](evidence/aevum-deployment.md)) <!-- CL03 -->;
+`PayerRegistry` is verified on the explorer <!-- CL39 -->. No live run on 44005 yet.
 - Contracts: `PayerRegistry` <!-- CL04 -->, `ShaidaDepositor` (gasless EIP-3009 + standard deposit) <!-- CL05 -->,
   `ShaidaLedger` (vouch and sweep leaves, one vouch per payment, `lateVouch` repair for a front-run pay: DECISIONS D9)
   <!-- CL06 -->, on Gloam's pool with its final-ceremony verifiers. <!-- CL07 -->
@@ -29,7 +31,7 @@ PRD §11 steps 1–2 and acts 2–6 run on a local fork <!-- CL02 --> <!-- CL35 
 - `IncomeVerifier` (on-chain check of one proof: tUSD8, known ledger root, gas guard, Groth16; optional attest):
   unit-tested with a placeholder and two throwaway verifiers; over the ceremony's verifier it is part of the fork
   deploy, which refuses a verifier that rejects a final-key proof or accepts a throwaway-key one (D24). <!-- CL16 -->
-  Not deployed on Aevum testnet. <!-- CL03 -->
+  Deployed on Aevum testnet with the ceremony's verifier, which accepts a final-key proof there. <!-- CL03 -->
 - Tests: `make test` (contracts, circuit, witness builder) and `make test-fork` (real tUSD8 on a fork, including
   deposit → vouched pay → sweep with real proofs). Gas: [evidence/fork-gas.md](evidence/fork-gas.md). <!-- CL17 -->
   Issuer and front-running limits: [LIMITS.md](LIMITS.md). <!-- CL18 -->
@@ -53,7 +55,7 @@ PRD §11 steps 1–2 and acts 2–6 run on a local fork <!-- CL02 --> <!-- CL35 
 - Web: a landing page `/` and a dashboard `/app` in a design system taken from Muuve's style ([DESIGN.md](DESIGN.md),
   D25, D26). <!-- CL38 -->
 
-Not built yet: deployment on Aevum testnet. <!-- not-built -->
+Not built yet: withdrawing swept tUSD8 out of the pool (unshield), and a live run of acts 2–6 on Aevum testnet. <!-- not-built -->
 
 ## Commands
 ```bash
@@ -67,5 +69,6 @@ make test-fork    # tests against the real tUSD8 (needs https://rpc-test.qday.in
 make fork         # local Aevum fork, chain 440050 on 127.0.0.1:8555
 make deploy-fork  # deploy the stack to the fork; writes deployments/fork.json
 make deploy-aevum ACCOUNT=<keystore> ATTESTOR=0x...   # real deploy (clean committed tree only); writes deployments/aevum.json
+make verify-aevum # read-only: check deployments/aevum.json against the chain; writes evidence/aevum-deployment.md
 pnpm --filter @shaida/gloam-fixtures gen:fork-flow    # regenerate the fork test's Gloam proofs (final keys)
 ```
