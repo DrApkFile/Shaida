@@ -398,6 +398,24 @@ profiles (deposit, vouched pay + memo, sweep), checks for horizontal overflow, w
 Rejected: a server-side inbox scan (the receive key would leave the browser); a viem nonce manager in the UI (the
 payer never sends).
 
+## D22: Next.js 16.4.3 → 16.4.6 (security)
+Context: `next dev` at 16.4.3 stopped with a security advisory. `pnpm audit` (2026-11-21) lists seven moderate Next
+advisories for `<=16.4.4`, all patched in `>=16.4.5`: GHSA-mfr8-8qww-v76h, GHSA-vc7v-qv4w-wrv8 (`use cache` root
+params), GHSA-7qx7-33qx-rqx2 (image optimizer SVG), GHSA-f3mh-rxg3-f5g2 (HttpOnly cookie on Edge routes),
+GHSA-pc58-hwjq-p385 (self-hosted response forwarding), GHSA-rhh4-g77r-r9qj and GHSA-vvgp-ww4w-46vf (cache).
+Decision: pin `next` 16.4.6 (latest 16.4 patch, released 2026-11-09).
+API differences found (diff of `node_modules/next/dist/docs` 16.4.3 vs 16.4.6): documentation only for the APIs this
+app uses. The upgrade guide now lists `experimental.viewTransition` and `experimental.appNewScrollHandler` as removed
+(we set neither); `use cache`, Proxy, image and navigation guides were reworded. Route handlers, `params`,
+`transpilePackages`, `next/font` and `next/link` are unchanged.
+Also fixed: `next build` warned that `dataDir()` (`process.cwd()` + `.data`) traces the whole project into the server
+output; it now carries `/*turbopackIgnore: true*/`. The build has no warnings.
+Verified on branch chore/next-upgrade (own worktree): make build, make test (forge 52, circuit 46, indexer 11,
+relayer 25, pay 9, ceremony 14), make test-fork 12, web typecheck, `next build` (first run, no
+advisory stop), and PRD §11 acts 2–3 against `next start` (production): evidence/next-upgrade/acts-2-3-fork.md and
+evidence/next-upgrade/ui-fork/ (390 px, 0 px overflow). One UI run failed because Chromium's debugging port took
+longer than the tool's 10 s wait (kept); the wait is now 60 s.
+
 ## D24: the ceremony's income verifier in the deploy
 Context: the ceremony finalized (e370842): final zkey sha256 cbcb06fe…, verifier
 `contracts/src/generated/IncomeGroth16Verifier.sol` (96db550b…). DeployStack had no IncomeVerifier ("not built yet").

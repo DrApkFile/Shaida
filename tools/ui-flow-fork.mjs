@@ -23,7 +23,7 @@ const note = (s) => { log.push(`${new Date().toISOString()} ${s}`); console.log(
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function connect() {
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 300; i++) { // up to 60 s: a loaded machine starts chromium slowly
     try { return (await (await fetch(`http://127.0.0.1:${PORT}/json/version`)).json()).webSocketDebuggerUrl; } catch { await sleep(200); } // not listening yet
   }
   throw new Error("chromium did not open its debugging port");
