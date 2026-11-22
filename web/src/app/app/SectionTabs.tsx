@@ -10,6 +10,7 @@ const SECTIONS = [
   { href: "/app/inbox", label: "Inbox", icon: <InboxIcon size={16} /> },
   { href: "/app/prove", label: "Prove", icon: <ProofIcon size={16} /> },
   { href: "/app/shared", label: "Shared proofs", icon: <LinkIcon size={16} /> },
+  { href: "/app/withdraw", label: "Withdraw", icon: null },
 ] as const;
 
 export function SectionTabs() {

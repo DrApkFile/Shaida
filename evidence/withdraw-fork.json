@@ -1,0 +1,205 @@
+{
+  "at": "2026-11-22T07:06:33.644Z",
+  "commit": "b33f4f26823f8def25ef816c952c9423497c7c8f",
+  "dirty": true,
+  "kind": {
+    "slug": "withdraw",
+    "title": "withdrawals (unshield through the relayer)",
+    "command": "pnpm --filter @shaida/pay exit:withdraw",
+    "personas": "Acme Studio (demo), Mallory (demo, unregistered), Ada (demo) and Landlord Bola (demo)"
+  },
+  "rows": [
+    {
+      "act": "setup",
+      "what": "attestor registers Acme Studio (demo) as payer #1",
+      "fn": "register",
+      "hash": "0x1380f254ef52e8aaa8d8dffabef9e6588c91680f484c098d7ecc01713a286295",
+      "block": "—",
+      "gasUsed": "—"
+    },
+    {
+      "act": "setup",
+      "what": "Acme: gasless deposit 10 tUSD8",
+      "fn": "deposit",
+      "hash": "0xc85ae52bf9d18c921bfada4da0472c0f099b243ad0ed61ef3b7a7e47b8a195ad",
+      "block": "3812588",
+      "gasUsed": "1258826"
+    },
+    {
+      "act": "setup",
+      "what": "Acme: vouched pay 1 to Ada",
+      "fn": "vouchedPay",
+      "hash": "0x4ee73e27260f51d77d10c0b567c6869ac8b962518c911f0c6b527a4776571243",
+      "block": "3812589",
+      "gasUsed": "2729047"
+    },
+    {
+      "act": "setup",
+      "what": "sealed memo 1",
+      "fn": "memo",
+      "hash": "0x2c7390ba659e642018288f85e716d622e37afa875d23f731dbe6d128a4e42fe9",
+      "block": "3812590",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "setup",
+      "what": "Acme: vouched pay 2 to Ada",
+      "fn": "vouchedPay",
+      "hash": "0x440763a2234b7f496d6e65f0568eee604188b5a22794f095f783732cec7c4696",
+      "block": "3812591",
+      "gasUsed": "2689569"
+    },
+    {
+      "act": "setup",
+      "what": "sealed memo 2",
+      "fn": "memo",
+      "hash": "0x87a5b4d581b7c37731c8e0e1d4a9b7a300e1d734a7349585bfbfd9bd0a7679de",
+      "block": "3812592",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "setup",
+      "what": "Acme: vouched pay 3 to Ada",
+      "fn": "vouchedPay",
+      "hash": "0xaf0946890b251d06821b2dd2b42beb6c663733a3ac5950f33fd8f6bde5c741bf",
+      "block": "3812593",
+      "gasUsed": "2684606"
+    },
+    {
+      "act": "setup",
+      "what": "sealed memo 3",
+      "fn": "memo",
+      "hash": "0xf080c9cc2d7c846168c270a67d9b95248de1497f7b623b3e87b3b767350dd104",
+      "block": "3812594",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "setup",
+      "what": "Mallory (unregistered): approve tUSD8",
+      "fn": "direct (own gas)",
+      "hash": "0x9a9f3f3bec5c01f9e2be8f18055890bdbe6cb69b2f760456c62cc73dd1d83eb2",
+      "block": "3812597",
+      "gasUsed": "55580"
+    },
+    {
+      "act": "setup",
+      "what": "Mallory (unregistered): deposit 5 tUSD8, own gas",
+      "fn": "direct (own gas)",
+      "hash": "0xa676374aeca43dab8f5e95324b2a00ec976c9e4011b2832f2bce07e1c81690e4",
+      "block": "3812598",
+      "gasUsed": "1135560"
+    },
+    {
+      "act": "setup",
+      "what": "Mallory (unregistered): plain pool transfer of 5 tUSD8 to Ada (no vouch)",
+      "fn": "direct (own gas)",
+      "hash": "0xea725c6b9520b26891f5f96919d5f2ba09bf65519457cb0504c55b740779e9fb",
+      "block": "3812599",
+      "gasUsed": "1787690"
+    },
+    {
+      "act": "setup",
+      "what": "Mallory (unregistered): sealed memo to Ada",
+      "fn": "direct (own gas)",
+      "hash": "0x88c6b23b999b50273c3abff07b1d5f22cf2057c530252bdf59d3bddc75c9ee4c",
+      "block": "3812600",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "setup",
+      "what": "Ada sweeps 3 tUSD8 (Invoice 1 (demo))",
+      "fn": "sweep",
+      "hash": "0x8f2155877c14a0670529f52e4861a1b25bd345fbebf481ea571a9d25a3147e83",
+      "block": "3812601",
+      "gasUsed": "2634790"
+    },
+    {
+      "act": "setup",
+      "what": "Ada sweeps 4 tUSD8 (Invoice 2 (demo))",
+      "fn": "sweep",
+      "hash": "0x826d1dbccd57daa67734fe058a09610f89715a8ade719eb780cc41b53d566d3b",
+      "block": "3812602",
+      "gasUsed": "2639805"
+    },
+    {
+      "act": "setup",
+      "what": "Ada sweeps 2 tUSD8 (Invoice 3 (demo))",
+      "fn": "sweep",
+      "hash": "0xd7cbc951fdf33d95da003246da7b3e247886181b9658edca6c684c12267a454a",
+      "block": "3812603",
+      "gasUsed": "2629552"
+    },
+    {
+      "act": "setup",
+      "what": "Ada sweeps 5 tUSD8 (Mallory (demo))",
+      "fn": "sweep",
+      "hash": "0x25d96d08d9e06fd5ad9066815456d521736875f5fdd59394730588915d882c8f",
+      "block": "3812604",
+      "gasUsed": "2639992"
+    },
+    {
+      "act": "withdraw",
+      "what": "Ada withdraws 3 tUSD8 to a fresh address",
+      "fn": "unshield",
+      "hash": "0x52bdb5b4afaef1e633e9ef92caf705f44d52737eacee9ea4beaed0e990839dfb",
+      "block": "3812605",
+      "gasUsed": "343698"
+    },
+    {
+      "act": "withdraw",
+      "what": "Ada withdraws 4 tUSD8 to a fresh address",
+      "fn": "unshield",
+      "hash": "0x87c252b9629b86d894d5eb430ba73f86963dccdbb9973d80cb4f1b4ad54460ba",
+      "block": "3812606",
+      "gasUsed": "326598"
+    },
+    {
+      "act": "withdraw",
+      "what": "Ada withdraws 2 tUSD8 to a fresh address",
+      "fn": "unshield",
+      "hash": "0x4d638cf6189ebd9738d8b8c01005ad0616bbbd1e511223a9cdd068f50841037b",
+      "block": "3812607",
+      "gasUsed": "326622"
+    },
+    {
+      "act": "withdraw",
+      "what": "Ada withdraws 5 tUSD8 to a fresh address",
+      "fn": "unshield",
+      "hash": "0x71c3cb191484a26b550846e4997985f98b320058f82308fa5314215665dd23b1",
+      "block": "3812608",
+      "gasUsed": "326598"
+    },
+    {
+      "act": "forward",
+      "what": "fresh address forwards 14 tUSD8 to the treasury",
+      "fn": "tUSD8 transfer (own gas)",
+      "hash": "0x5dd17547ef87cb778af3c81fa8bf6e9629478aa46901e7d8626b45fba11c1e26",
+      "block": "3812609",
+      "gasUsed": "57583"
+    }
+  ],
+  "dep": {
+    "pool": "0x9e8396711638852eed8d2e95fd3f65f94e313998",
+    "ledger": "0x8c051287bbd7a5bd1d9486cfc4dac68d97bae97e",
+    "depositor": "0xef8c7036ca64db8669d623fea5f4b7b73d83b447",
+    "registry": "0xb7ae1e52f224f1c18b175b1a14d92da775fa4b3e",
+    "memo": "0x2b31d940444378b89a4b98f5864e6941504019ab",
+    "incomeVerifier": "0x9525490a1db73c68eca73fa8a09b2047b8e5b364",
+    "gitCommit": "b33f4f26823f8def25ef816c952c9423497c7c8f",
+    "gitDirty": true,
+    "poolDeployBlock": 3812574
+  },
+  "rpc": "http://127.0.0.1:8555",
+  "base": "http://localhost:3100",
+  "checks": [
+    "Before withdrawing: Ada's link (≥ 9 tUSD8, 3 payments, for Landlord Bola) → VALID; IncomeVerifier.check → true",
+    "Batch: 4 swept notes (3 + 4 + 2 + 5 tUSD8) withdrawn to a fresh address, which now holds 14 tUSD8; every note's nullifier is spent",
+    "Identical retry of the first withdrawal → answered from its record (0x52bdb5b4af…), not resent",
+    "Attack: the withdrawn note withdrawn again, to another address → AlreadySpent; nothing sent",
+    "Attack: a withdrawal proof with its recipient changed (and a fresh nullifier) → ProofInvalid; nothing sent",
+    "Attack: a withdrawal to the pool contract itself → InputRejected; nothing sent",
+    "Forward: the treasury holds 14 tUSD8",
+    "After withdrawing: the same link → VALID; IncomeVerifier.check → true (withdrawals spend pool notes; the ledger's V and S leaves stay)",
+    "Machine: Intel(R) Core(TM) i3 CPU       M 370  @ 2.40GHz, 4 threads, 8 GiB RAM"
+  ]
+}

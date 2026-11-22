@@ -62,3 +62,13 @@ name; nothing checks who is typing it. This stops a link made for one reader bei
 does not keep the link secret and does not authenticate the reader. Keep the link private; it expires on the date in
 it. The server never receives the name (it is typed on `/v`). A reader code that does authenticate the reader is on
 ROADMAP.md.
+
+## Withdrawals are public (pool.unshield)
+withdrawals are public and reveal their amounts. A withdrawal (`/app/withdraw`, relayer route `unshield`) spends a
+swept note in full and sends tUSD8 out of the pool in one public transaction: the amount, the recipient address and
+the time are visible to anyone. Withdrawing right after a demo run would show that run's payment amounts (1.5, 1,
+0.5 tUSD8) next to the payments' time. So the app never withdraws by itself, and on Aevum testnet we withdraw only when
+the deployer's tUSD8 would otherwise fall below 2, batching the notes at a quiet time to a fresh address we control,
+which then forwards the tUSD8 (evidence/budget.md). The nullifier still keeps a withdrawal unlinkable to the note's
+payment and sweep, but amounts that match a known run link it by value. The income proof is not affected: it reads
+the ledger's V and S leaves, which a withdrawal does not touch (evidence/withdraw-fork.md).

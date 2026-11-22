@@ -553,3 +553,24 @@ Rejected: a hash of the raw name (two spellings of one name would be two readers
 request per proof, and the pin would be checked on bytes we do not serve); sending proofs to the server to verify (D5).
 Where: packages/shaida-proofs/src/{reader,period}.ts, packages/shaida-pay/src/income.ts, web/src/app/{app/prove,app/shared,v}/,
 web/src/workers/, tools/copy-income-artifacts.mjs, LIMITS.md
+
+## D28: withdrawals (unshield) through the relayer, never automatic
+Context: the Aevum budget (evidence/budget.md) needs the swept tUSD8 back, but Gloam's `unshield` is public: the
+amount, the recipient and the time are on chain. Nothing in the app could withdraw before this.
+Decision:
+- **One relayer route, `unshield`** (`/api/relay/unshield`), calling only `pool.unshield`. The proof binds the asset, recipient
+  and amount, so the relayer cannot redirect it and only decides whether to pay the gas. Rails before simulation:
+  tUSD8 only, amount > 0, the recipient is not zero or one of the app's contracts, tUSD8 not paused, the recipient not
+  blacklisted, the nullifier unspent, the root known (R20–R22). Gas cap 500,000 (measured 326,598–343,698 on the fork).
+- **A whole note at a time**: Gloam's unshield spends one note in full, so a batch is one transaction per swept note.
+- **`/app/withdraw`** lists the vault's swept notes (`sweptNotes`), and the recipient picks notes and an address. It warns
+  that withdrawals are public and reveal their amounts. A sent withdrawal is kept in the vault (`withdrawals`, read
+  as empty in older vaults) and settled by the note's nullifier; it is never resent.
+- **Policy on 44005**: never right after a demo run. Withdraw only when the deployer's tUSD8 would otherwise fall below 2,
+  in one batch at a quiet time, to a fresh address we control, which forwards the tUSD8 (LIMITS.md, evidence/budget.md).
+- The unshield proof uses Gloam's final key, pinned by sha256 like shield and transfer (P09).
+Rejected: withdrawing automatically after each run (it would publish each run's amounts beside its time); a server-side
+withdrawal from an exported vault (the notes' secrets would leave the browser); merging notes first (Gloam's transfer
+takes one input note, so a merge would cost a full transfer per note and still end in one unshield per note).
+Where: packages/shaida-relay/src/{functions,schemas,abi}.ts, packages/shaida-pay/src/withdraw.ts,
+web/src/app/app/withdraw/, web/src/app/api/relay/unshield/, LIMITS.md, evidence/withdraw-fork.md, evidence/ui-withdraw/

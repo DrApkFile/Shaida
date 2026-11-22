@@ -4,6 +4,7 @@ import { z } from "zod";
 import { noteSchema } from "./notes";
 import { inboxEntrySchema } from "./inbox-state";
 import { sharedLinkSchema } from "./income";
+import { withdrawalSchema } from "./withdraw";
 
 const b64 = {
   enc: (u: Uint8Array) => btoa(String.fromCharCode(...u)),
@@ -30,12 +31,14 @@ export const vaultDataSchema = z
     demoPayerKey: z.string().regex(/^0x[0-9a-f]{64}$/).nullable(),
     /** Proof links made in this browser (D27), newest last. Absent in vaults written before D27: read as empty. */
     shared: z.array(sharedLinkSchema).default([]),
+    /** Withdrawals (unshields) sent from this browser, newest last. Absent in older vaults: read as empty. */
+    withdrawals: z.array(withdrawalSchema).default([]),
   })
   .strict();
 export type VaultData = z.output<typeof vaultDataSchema>;
 export type VaultDataInput = z.input<typeof vaultDataSchema>;
 
-export const emptyVault = (chainId: number): VaultData => ({ v: 1, chainId, receiveKey: null, payerNotes: [], sent: [], inbox: [], demoPayerKey: null, shared: [] });
+export const emptyVault = (chainId: number): VaultData => ({ v: 1, chainId, receiveKey: null, payerNotes: [], sent: [], inbox: [], demoPayerKey: null, shared: [], withdrawals: [] });
 
 const blobSchema = z
   .object({ v: z.literal(1), kdf: z.literal("PBKDF2-SHA256"), iterations: z.number().int().min(100_000), salt: z.string(), iv: z.string(), ct: z.string() })

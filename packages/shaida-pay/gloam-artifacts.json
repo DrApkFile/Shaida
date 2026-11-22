@@ -1,11 +1,39 @@
 {
-  "note": "Gloam (github.com/gloamtrade/gloam, MIT) shield and transfer circuits with the FINAL ceremony keys, sha256 measured 2026-11-21 from contracts/lib/gloam/app/public/circuits at the vendored commit. Served from web/public/gloam/ by tools/copy-gloam-artifacts.mjs; checked again in the browser before proving.",
+  "note": "Gloam (github.com/gloamtrade/gloam, MIT) shield, transfer and unshield circuits with the FINAL ceremony keys, sha256 measured 2026-11-21 (unshield 2026-11-22) from contracts/lib/gloam/app/public/circuits at the vendored commit. Served from web/public/gloam/ by tools/copy-gloam-artifacts.mjs; checked again in the browser before proving.",
   "shield": {
-    "wasm": { "source": "app/public/circuits/shield.wasm", "file": "shield.wasm", "sha256": "58157ec90f8af891acfa998bd599511b4d5cd06803cea32ab28a6eea8a9b2336" },
-    "zkey": { "source": "app/public/circuits/final/shield_final.zkey", "file": "shield_final.zkey", "sha256": "3054877c35e2e0e9f76c43aa4791ac2b3ac51b8967d51be2215e89c0a5fbb512" }
+    "wasm": {
+      "source": "app/public/circuits/shield.wasm",
+      "file": "shield.wasm",
+      "sha256": "58157ec90f8af891acfa998bd599511b4d5cd06803cea32ab28a6eea8a9b2336"
+    },
+    "zkey": {
+      "source": "app/public/circuits/final/shield_final.zkey",
+      "file": "shield_final.zkey",
+      "sha256": "3054877c35e2e0e9f76c43aa4791ac2b3ac51b8967d51be2215e89c0a5fbb512"
+    }
   },
   "transfer": {
-    "wasm": { "source": "app/public/circuits/transfer.wasm", "file": "transfer.wasm", "sha256": "081929509c3477ee264cb2422183018c23122d59952ed4a61c4932c95d360872" },
-    "zkey": { "source": "app/public/circuits/final/transfer_final.zkey", "file": "transfer_final.zkey", "sha256": "bdbae966705bc85e76571b4945da74a43fc4503a955fd4e3799358bcff749cdb" }
+    "wasm": {
+      "source": "app/public/circuits/transfer.wasm",
+      "file": "transfer.wasm",
+      "sha256": "081929509c3477ee264cb2422183018c23122d59952ed4a61c4932c95d360872"
+    },
+    "zkey": {
+      "source": "app/public/circuits/final/transfer_final.zkey",
+      "file": "transfer_final.zkey",
+      "sha256": "bdbae966705bc85e76571b4945da74a43fc4503a955fd4e3799358bcff749cdb"
+    }
+  },
+  "unshield": {
+    "wasm": {
+      "source": "app/public/circuits/unshield.wasm",
+      "file": "unshield.wasm",
+      "sha256": "84ac0942b1618c6112a10bfe82ff0a62a80b7a14881565781eb513e9e581c480"
+    },
+    "zkey": {
+      "source": "app/public/circuits/final/unshield_final.zkey",
+      "file": "unshield_final.zkey",
+      "sha256": "5a12073f3f84b52f794feaf862fb1d48301124319db95a9c6d0dc58277fa54ed"
+    }
   }
 }

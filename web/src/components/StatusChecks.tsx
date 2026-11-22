@@ -21,7 +21,7 @@ export function StatusChecks({ net, w }: { net: Network; w: { ok: true; value: W
   const trees = useQuery({ queryKey: ["home-trees", net.chain.id], enabled: w.ok, queryFn: () => (w.ok ? w.value.trees() : Promise.reject(new Error("not configured"))) });
   const circuits = useQuery({
     queryKey: ["circuits"],
-    queryFn: async () => Promise.all((["shield", "transfer"] as const).map((c) => loadCircuit("/gloam", c, fetchBytes))),
+    queryFn: async () => Promise.all((["shield", "transfer", "unshield"] as const).map((c) => loadCircuit("/gloam", c, fetchBytes))),
     staleTime: Infinity,
   });
   const income = useQuery({ queryKey: ["income-artifacts"], queryFn: incomeArtifacts, staleTime: Infinity });
@@ -33,7 +33,7 @@ export function StatusChecks({ net, w }: { net: Network; w: { ok: true; value: W
     !relay.data
       ? { title: "Gasless relayer", status: "idle", value: "—", detail: "Checking…" }
       : relay.data.enabled
-        ? { title: "Gasless relayer", status: "ok", value: `${relay.data.relayer?.slice(0, 10)}…`, detail: "Pays gas for deposits, vouched pays, sweeps and memos. One route per contract function." }
+        ? { title: "Gasless relayer", status: "ok", value: `${relay.data.relayer?.slice(0, 10)}…`, detail: "Pays gas for deposits, vouched pays, sweeps, memos and withdrawals. One route per contract function." }
         : { title: "Gasless relayer", status: "bad", value: relay.data.reason?.code ?? "off", detail: relay.data.reason?.message ?? "Not available." },
     !trees.data
       ? { title: "Pool and ledger trees", status: "idle", value: "—", detail: "Syncing from /api/index and checking both roots on chain…" }
@@ -43,7 +43,7 @@ export function StatusChecks({ net, w }: { net: Network; w: { ok: true; value: W
     !circuits.data
       ? { title: "Gloam circuits (final keys)", status: "idle", value: "—", detail: "Checking the served files' sha256…" }
       : circuits.data.every((c) => c.ok)
-        ? { title: "Gloam circuits (final keys)", status: "ok", value: "sha256 match", detail: `${ARTIFACT_FILES.shield.zkey.file} and ${ARTIFACT_FILES.transfer.zkey.file} from Gloam's ceremony; proofs are made in this browser.` }
+        ? { title: "Gloam circuits (final keys)", status: "ok", value: "sha256 match", detail: `${ARTIFACT_FILES.shield.zkey.file}, ${ARTIFACT_FILES.transfer.zkey.file} and ${ARTIFACT_FILES.unshield.zkey.file} from Gloam's ceremony; proofs are made in this browser.` }
         : { title: "Gloam circuits (final keys)", status: "bad", value: "NotConfigured", detail: circuits.data.map((c) => (c.ok ? "" : c.error.message)).join(" ") },
     !income.data
       ? { title: "Income-proof key (final)", status: "idle", value: "—", detail: "Checking the served wasm and zkey against the pins…" }

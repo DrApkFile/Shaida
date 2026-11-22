@@ -8,3 +8,4 @@ export * from "./payer";
 export * from "./recipient";
 export * from "./vault";
 export * from "./prover";
+export * from "./withdraw";

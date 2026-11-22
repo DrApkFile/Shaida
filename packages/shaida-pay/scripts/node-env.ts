@@ -15,6 +15,7 @@ const CIRCUITS = join(REPO, "contracts/lib/gloam/app/public/circuits");
 export const GLOAM_FINAL = {
   shield: { wasm: join(CIRCUITS, "shield.wasm"), zkey: join(CIRCUITS, "final/shield_final.zkey"), zkeySha256: "3054877c35e2e0e9f76c43aa4791ac2b3ac51b8967d51be2215e89c0a5fbb512" },
   transfer: { wasm: join(CIRCUITS, "transfer.wasm"), zkey: join(CIRCUITS, "final/transfer_final.zkey"), zkeySha256: "bdbae966705bc85e76571b4945da74a43fc4503a955fd4e3799358bcff749cdb" },
+  unshield: { wasm: join(CIRCUITS, "unshield.wasm"), zkey: join(CIRCUITS, "final/unshield_final.zkey"), zkeySha256: "5a12073f3f84b52f794feaf862fb1d48301124319db95a9c6d0dc58277fa54ed" },
 } as const;
 
 function pinned(path: string, sha256: string): string {
@@ -29,6 +30,9 @@ export function finalProvers(): { shield: Prover; transfer: Prover } {
     transfer: artifactProver({ wasm: GLOAM_FINAL.transfer.wasm, zkey: pinned(GLOAM_FINAL.transfer.zkey, GLOAM_FINAL.transfer.zkeySha256) }),
   };
 }
+
+export const finalUnshieldProver = (): Prover =>
+  artifactProver({ wasm: GLOAM_FINAL.unshield.wasm, zkey: pinned(GLOAM_FINAL.unshield.zkey, GLOAM_FINAL.unshield.zkeySha256) });
 
 const isKnownRootAbi = parseAbi(["function isKnownRoot(bytes32 root) view returns (bool)", "function isSpent(bytes32 nullifier) view returns (bool)"]);
 const hex32 = (n: bigint): Hex => `0x${n.toString(16).padStart(64, "0")}`;

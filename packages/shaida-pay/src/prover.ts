@@ -9,8 +9,8 @@ export interface Groth16Lib {
   groth16: { fullProve(input: Record<string, string | string[]>, wasm: Mem, zkey: Mem): Promise<{ proof: unknown; publicSignals: string[] }> };
 }
 
-export type Circuit = "shield" | "transfer";
-export const ARTIFACT_FILES = { shield: pins.shield, transfer: pins.transfer } as const;
+export type Circuit = "shield" | "transfer" | "unshield";
+export const ARTIFACT_FILES = { shield: pins.shield, transfer: pins.transfer, unshield: pins.unshield } as const;
 
 const hexOf = (b: ArrayBuffer) => [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("");
 

@@ -3,7 +3,7 @@
 import type { Prover } from "@gloamtrade/sdk";
 import { createPublicClient, http, parseAbi, type Address, type Hex, type PublicClient } from "viem";
 import type { CheckedTrees, RootReader } from "@shaida/index";
-import { fetchCheckedTrees, incomeKeyFor, loadCircuit, memProver, relayClient, type Circuit, type FlowContext, type Groth16Lib, type IncomeKey } from "@shaida/pay";
+import { fetchCheckedTrees, incomeKeyFor, loadCircuit, memProver, relayClient, type Circuit, type FlowContext, type Groth16Lib, type IncomeKey, type WithdrawContext } from "@shaida/pay";
 import type { Result } from "@shaida/proofs";
 import type { Network } from "./env";
 import { shaidaSetup, type ShaidaContracts } from "./shaida";
@@ -45,6 +45,8 @@ export interface Wiring {
   readonly net: Network;
   readonly contracts: ShaidaContracts;
   readonly ctx: FlowContext;
+  /** Withdrawals (pool.unshield), proved with Gloam's final unshield key on first use. */
+  readonly withdraw: WithdrawContext;
   readonly client: PublicClient;
   readonly relay: ReturnType<typeof relayClient>;
   readonly incomeKey: Result<IncomeKey>;
@@ -80,6 +82,7 @@ export function wiringFor(net: Network): { ok: true; value: Wiring } | { ok: fal
     ok: true,
     value: {
       net, contracts, ctx, client,
+      withdraw: { chainId: net.chain.id, contracts: { pool: contracts.pool }, proveUnshield: lazyProver("unshield") },
       relay: relayClient(origin, browserFetch),
       incomeKey: incomeKeyFor(process.env.NEXT_PUBLIC_SHAIDA_INCOME_KEY, net.chain.id),
       trees: (onProgress) => fetchCheckedTrees(origin, net.chain.id, browserFetch, reader, { sleep, onProgress }),

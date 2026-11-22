@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Copies Gloam's shield and transfer circuits with their FINAL ceremony keys into web/public/gloam/ for in-browser
+// Copies Gloam's shield, transfer and unshield circuits with their FINAL ceremony keys into web/public/gloam/ for in-browser
 // proving, refusing any file whose sha256 differs from packages/shaida-pay/gloam-artifacts.json. Gloam's files are
 // copied unchanged and its LICENSE goes with them (NOTICE.md). The browser checks the same hashes before proving.
 import { createHash } from "node:crypto";
@@ -15,7 +15,7 @@ const sha = (p) => createHash("sha256").update(readFileSync(p)).digest("hex");
 
 mkdirSync(out, { recursive: true });
 let bad = 0;
-for (const circuit of ["shield", "transfer"]) {
+for (const circuit of ["shield", "transfer", "unshield"]) {
   for (const kind of ["wasm", "zkey"]) {
     const a = pins[circuit][kind];
     const from = join(gloam, a.source);
