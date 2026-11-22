@@ -3,12 +3,11 @@ import { keccak256, type Hex } from "viem";
 import { shaidaError, type ErrorCode } from "@shaida/proofs";
 import { isNetwork, type NetworkDeps, type RelayDeps } from "./deps";
 import { SPECS, type BodyOf, type FnSpec } from "./functions";
-import { gasCommitted, hit, utcDay } from "./limits";
+import { utcDay } from "./limits";
 import { pinnedReader } from "./reads";
 import { refusalOf } from "./revert-codes";
-import { withChainLock } from "./lock";
-import { keyIsLive, recordKey, requestHashOf, takenRefusal, withState } from "./records";
-import { SendError, type LegacyTx, type Refusal, type RelayFn, type RelayReply, type RequestRecord } from "./types";
+import { keyIsLive, recordKey, requestHashOf, takenRefusal } from "./records";
+import { ChainBusy, SendError, type LegacyTx, type Refusal, type RelayFn, type RelayReply, type RequestRecord } from "./types";
 
 const STATUS: Partial<Record<ErrorCode, number>> = { RateLimited: 429, RelayerBudgetExceeded: 503, RelayerUnavailable: 503, NotConfigured: 503, AlreadySpent: 409, AlreadyVouched: 409 };
 const refuse = (r: Refusal): RelayReply => ({ ok: false, status: STATUS[r.code] ?? 400, error: shaidaError(r.code, r.message) });
@@ -21,7 +20,7 @@ export interface Incoming {
 
 export async function submit(fn: RelayFn, req: Incoming, deps: RelayDeps): Promise<RelayReply> {
   const now = deps.nowMs();
-  if (await deps.store.update((s) => hit(s, `ip:${req.ip}`, deps.limits.perIpPerMinute, now))) {
+  if (await deps.store.hit(`ip:${req.ip}`, deps.limits.perIpPerMinute, now)) {
     return refuse({ code: "RateLimited", message: "Too many requests from this address. Wait a minute; nothing was sent." });
   }
   let raw: unknown;
@@ -49,25 +48,30 @@ async function run<F extends RelayFn>(spec: FnSpec<BodyOf[F]>, raw: unknown, dep
   const body = parsed.data as BodyOf[F] & { chainId: number };
   const net = deps.network(body.chainId);
   if (!isNetwork(net)) return refuse({ code: net.code, message: net.message });
-  return withChainLock(net.chainId, () => railsAndSend(spec, body, net, deps));
+  try {
+    return await deps.store.withChainLock(net.chainId, () => railsAndSend(spec, body, net, deps));
+  } catch (e) {
+    if (!(e instanceof ChainBusy)) throw e;
+    deps.log({ event: "relay-chain-busy", fn: spec.fn, chainId: net.chainId });
+    return refuse({ code: "RelayerUnavailable", message: "The relayer is busy with another transaction. Nothing was sent; try again shortly." });
+  }
+}
+
+/** The same request again (a retry after a lost reply) gets its record back, never a second send. */
+function againOrTaken(key: string, holder: RequestRecord, requestHash: Hex): RelayReply {
+  if (holder.requestHash === requestHash) return { ok: true, status: 200, record: holder, repeated: true };
+  return refuse(takenRefusal(key, holder));
 }
 
 async function railsAndSend<B extends { chainId: number }>(spec: FnSpec<B>, body: B, net: NetworkDeps, deps: RelayDeps): Promise<RelayReply> {
   const key = recordKey(net.chainId, spec.key(body));
-  const existing = await withState(deps.store, (s) => {
-    const id = s.byKey[key];
-    return id ? s.records[id] : undefined;
-  });
+  const existing = await deps.store.holder(key);
   const requestHash = requestHashOf(spec.fn, body);
-  if (existing && keyIsLive(existing)) {
-    // The same request again (a retry after a lost reply): its record, never a second send.
-    if (existing.requestHash === requestHash) return { ok: true, status: 200, record: existing, repeated: true };
-    return refuse(takenRefusal(key, existing));
-  }
+  if (existing && keyIsLive(existing)) return againOrTaken(key, existing, requestHash);
 
   const payer = spec.payer(body);
   const nowMs = deps.nowMs();
-  if (payer && (await deps.store.update((s) => hit(s, `payer:${net.chainId}:${payer}`, deps.limits.perPayerPerMinute, nowMs)))) {
+  if (payer && (await deps.store.hit(`payer:${net.chainId}:${payer}`, deps.limits.perPayerPerMinute, nowMs))) {
     return refuse({ code: "RateLimited", message: "Too many relayed calls from this payer. Wait a minute; nothing was sent." });
   }
   const ctx = { chainId: net.chainId, contracts: net.contracts, nowSec: BigInt(Math.floor(nowMs / 1000)) };
@@ -82,7 +86,7 @@ async function railsAndSend<B extends { chainId: number }>(spec: FnSpec<B>, body
     if (on) return refuse(on);
 
     const day = utcDay(nowMs);
-    const committed = await withState(deps.store, (s) => gasCommitted(s, day));
+    const committed = await deps.store.gasCommitted(day);
     if (committed + spec.gasCap > deps.limits.dailyGasBudget) {
       return refuse({ code: "RelayerBudgetExceeded", message: `The relayer's gas budget for today is used up (${committed} of ${deps.limits.dailyGasBudget}). Nothing was sent.` });
     }
@@ -111,7 +115,13 @@ async function railsAndSend<B extends { chainId: number }>(spec: FnSpec<B>, body
     gas: tx.gas.toString(), gasPrice: tx.gasPrice.toString(), gasUsed: null, block: null, reverted: null, error: null,
     budgetDay: utcDay(nowMs), history: [{ state: "accepted", at }],
   };
-  await deps.store.update((s) => { s.records[accepted.requestId] = accepted; s.byKey[key] = accepted.requestId; });
+  // Persisted before the send, atomically per key: if another process claimed the key since it was read, this
+  // signed tx is discarded unsent and that process's record answers.
+  if (!(await deps.store.claim(accepted, existing?.requestId ?? null))) {
+    const holder = await deps.store.holder(key);
+    if (holder && keyIsLive(holder)) return againOrTaken(key, holder, requestHash);
+    return refuse({ code: "RelayerUnavailable", message: "Another request for this payment changed state just now. Nothing was sent; try again." });
+  }
   deps.log({ event: "relay", id: accepted.requestId, fn: spec.fn, state: "accepted", hash: accepted.hash, nonce: tx.nonce, gas: accepted.gas });
 
   const sent = await send(net, raw);
@@ -136,7 +146,7 @@ async function send(net: NetworkDeps, raw: Hex): Promise<{ state: "pending" | "d
 
 export async function moveTo(deps: RelayDeps, r: RequestRecord, state: RequestRecord["state"], error: RequestRecord["error"], extra: Partial<Pick<RequestRecord, "gasUsed" | "block" | "reverted">> = {}): Promise<RequestRecord> {
   const next: RequestRecord = { ...r, ...extra, state, error, history: [...r.history, { state, at: new Date(deps.nowMs()).toISOString() }] };
-  await deps.store.update((s) => { s.records[r.requestId] = next; });
+  await deps.store.put(next);
   deps.log({ event: "relay", id: r.requestId, fn: r.fn, state, hash: r.hash, nonce: r.nonce, gas: r.gas, gasUsed: next.gasUsed, code: error?.code ?? null });
   return next;
 }

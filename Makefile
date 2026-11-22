@@ -25,7 +25,7 @@ STACK_SCRIPT := script/DeployStack.s.sol:DeployStack
 # PayerRegistry owner on `make fork`: anvil account 0, so payers can be registered locally. On 44005: ATTESTOR=0x... (required).
 FORK_ATTESTOR := $(ANVIL_0)
 
-.PHONY: help install build gate test test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-supersede ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum verify-aevum secrets deal register-payer dev
+.PHONY: help install build gate test test-redis test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-supersede ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum verify-aevum secrets deal register-payer dev
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36mmake %-14s\033[0m %s\n", $$1, $$2}'
@@ -46,10 +46,14 @@ gate: ## BUILD_CONTRACT gate in a fresh clone of HEAD (exit 0 PASS, 1 FAIL, 3 IN
 test: ## Unit tests: contracts, circuit and witness builder (local, no network)
 	cd contracts && forge test --no-match-path 'test/fork/*' -vv
 	pnpm --filter @shaida/proofs test
+	pnpm --filter @shaida/kv test
 	pnpm --filter @shaida/index test
 	pnpm --filter @shaida/relay test
 	pnpm --filter @shaida/pay test
 	pnpm --filter @shaida/ceremony test
+
+test-redis: ## Relayer store conformance on a real Redis via Upstash's REST protocol (docker); writes evidence/kv-redis.md
+	bash tools/test-redis.sh
 
 test-groth16: ## Full Groth16 proofs with a THROWAWAY local key. Needs PTAU_PATH=<Hermez 2^17 ptau>
 	@test -n "$(PTAU_PATH)" || (echo "INCONCLUSIVE: set PTAU_PATH=/path/to/powersOfTau28_hez_final_17.ptau" && exit 1)

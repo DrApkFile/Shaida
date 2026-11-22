@@ -3,9 +3,19 @@ import { keccak256, toHex, type Address, type Hex } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { shaidaError } from "@shaida/proofs";
 import {
-  DEFAULT_LIMITS, ReadReverted, SendError, depositTypedData, memoryStore, vouchTypedData,
-  type Call, type RelayChain, type RelayContracts, type RelayDeps, type RelayLimits, type Simulation,
+  DEFAULT_LIMITS, ReadReverted, SendError, depositTypedData, kvRelayStore, memoryStore, vouchTypedData,
+  type Call, type RelayChain, type RelayContracts, type RelayDeps, type RelayLimits, type RelayStore, type Simulation,
 } from "../../src/index";
+import { memoryKv, type KvClient } from "@shaida/kv";
+
+/**
+ * Which store the suite runs on: SHAIDA_TEST_STORE=kv runs every test on the Redis store over the in-memory fake
+ * (package.json runs the suite both ways). `kv` passes a shared fake to model several processes on one database.
+ */
+export const STORE_KIND = process.env.SHAIDA_TEST_STORE === "kv" ? "kv" : "state";
+let tokens = 0;
+export const kvStoreOn = (kv: KvClient, lines: Record<string, unknown>[] = []): RelayStore =>
+  kvRelayStore(kv, { newToken: () => `t${++tokens}`, sleep: async () => undefined, lockWaitMs: 2_000, log: (l) => void lines.push(l) });
 
 export const CHAIN_ID = 440050;
 const addr = (n: number) => `0x${n.toString(16).padStart(40, "0")}` as Address;
@@ -73,7 +83,7 @@ export class FakeChain implements RelayChain {
   didSimulate() { return this.log.some((l) => l.startsWith("simulate")); }
 }
 
-export function makeEnv(opts: { limits?: Partial<RelayLimits>; signerKey?: Hex; chainId?: number } = {}) {
+export function makeEnv(opts: { limits?: Partial<RelayLimits>; signerKey?: Hex; chainId?: number; kv?: KvClient } = {}) {
   const chain = new FakeChain();
   const relayer = privateKeyToAccount(opts.signerKey ?? generatePrivateKey());
   const payer = privateKeyToAccount(generatePrivateKey());
@@ -81,7 +91,7 @@ export function makeEnv(opts: { limits?: Partial<RelayLimits>; signerKey?: Hex; 
   let clock = 1_800_000_000_000;
   let ids = 0;
   const lines: Record<string, unknown>[] = [];
-  const store = memoryStore();
+  const store = opts.kv ? kvStoreOn(opts.kv, lines) : STORE_KIND === "kv" ? kvStoreOn(memoryKv(), lines) : memoryStore();
   const deps: RelayDeps = {
     store,
     limits: { ...DEFAULT_LIMITS, ...opts.limits },

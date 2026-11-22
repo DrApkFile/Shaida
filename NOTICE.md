@@ -90,5 +90,6 @@ Generated from the snarkjs 0.7.6 Solidity template (GPL-3.0, (c) 0KIMS associati
 | esbuild | 0.28.2 | MIT | tools/s8-bench (dev: bundles the bench page) |
 | snarkjs | 0.7.6 | GPL-3.0 | ceremony (phase-2 setup, contributions, beacon, verify, export; not shipped) |
 | zod | 3.25.76 | MIT | ceremony (record.json and RPC reply schemas) |
+| @upstash/redis | 1.41.0 | MIT | packages/shaida-kv, web (relayer records and index cursor in Upstash Redis in production) |
 
 Their own dependencies carry their own licenses. To list them all, run `pnpm licenses list` in the repo root.

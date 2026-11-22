@@ -79,6 +79,7 @@ types_and_lint() {
 unit_tests() {
   (cd contracts && forge test --no-match-path 'test/fork/*')
   pnpm --filter @shaida/proofs test
+  pnpm --filter @shaida/kv test
   pnpm --filter @shaida/index test
   pnpm --filter @shaida/relay test
   pnpm --filter @shaida/pay test

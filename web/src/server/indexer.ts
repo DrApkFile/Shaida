@@ -1,20 +1,15 @@
 import "server-only";
-import { join } from "node:path";
-import { isComplete, syncIndex, type Snapshot, type SnapshotStore } from "@shaida/index";
+import { isComplete, syncIndex, type Snapshot } from "@shaida/index";
 import type { Network } from "@/lib/env";
 import type { ShaidaContracts } from "@/lib/shaida";
 import { indexChainFor } from "./chain";
-import { dataDir, readJson, serialized, writeJsonAtomic } from "./json-file";
+import { serialized } from "./json-file";
+import { indexStore } from "./state-store";
 
 /** Blocks read per request at most (10 pages); the client polls until `behind` is 0. */
 const MAX_BLOCKS_PER_REQUEST = 10_000n;
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
-
-function fileStore(chainId: number): SnapshotStore {
-  const path = join(dataDir(), `index-${chainId}.json`);
-  return { load: () => readJson(path), save: (s) => writeJsonAtomic(path, s) };
-}
 
 export interface IndexReply {
   readonly snapshot: Snapshot;
@@ -32,7 +27,7 @@ export function syncFor(net: Network, contracts: ShaidaContracts): Promise<Index
     const out = await syncIndex({
       target: { chainId: net.chain.id, contracts, startBlock: contracts.startBlock },
       chain: indexChainFor(net),
-      store: fileStore(net.chain.id),
+      store: indexStore(net.chain.id),
       sleep,
       maxBlocks: MAX_BLOCKS_PER_REQUEST,
     });

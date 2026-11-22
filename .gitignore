@@ -37,3 +37,4 @@ powers/
 web/.data/
 web/public/gloam/
 web/public/circuits/
+.render-bin/

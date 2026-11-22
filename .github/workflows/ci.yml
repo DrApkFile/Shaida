@@ -70,6 +70,10 @@ jobs:
         run: pnpm --filter @shaida/proofs compile
       - name: Circuit and witness tests (Groth16 proving needs the local ptau, so it reports INCONCLUSIVE here)
         run: pnpm --filter @shaida/proofs test
+      - name: Server store tests (Redis store over the in-memory fake; startup refusal)
+        run: |
+          pnpm --filter @shaida/kv typecheck
+          pnpm --filter @shaida/kv test
       - name: Indexer tests
         run: |
           pnpm --filter @shaida/index typecheck
@@ -88,17 +92,21 @@ jobs:
           pnpm --filter @shaida/ceremony test
 
   web:
+    # The same build Render runs (tools/render-build.sh, DEPLOY_RENDER.md): submodules, pinned circom, the income
+    # circuit, then next build for Aevum testnet with every proving file copied only if its sha256 matches the pins.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+        with:
+          submodules: recursive
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+          node-version: 24.19.0
+      - name: Render build
+        env:
+          NEXT_PUBLIC_NETWORKS: aevum
+        run: bash tools/render-build.sh
       - run: pnpm -r typecheck
-      - run: pnpm build
 
   gate:
     # BUILD_CONTRACT gate (tools/gate.sh) on this clean checkout. Exit 3 = INCONCLUSIVE (Aevum RPC unreachable, fork

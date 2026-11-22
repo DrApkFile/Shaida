@@ -12,7 +12,7 @@ export async function status(requestId: string, deps: RelayDeps): Promise<RelayR
   if (!/^[0-9a-f-]{36}$/.test(requestId)) {
     return { ok: false, status: 400, error: shaidaError("InputRejected", "Malformed request id. Nothing was read.") };
   }
-  const record = (await deps.store.read()).records[requestId];
+  const record = await deps.store.record(requestId);
   if (!record) return { ok: false, status: 404, error: shaidaError("InputRejected", "No relayed request has this id.") };
   if (record.state === "mined" || record.state === "dropped") return { ok: true, status: 200, record, repeated: true };
 

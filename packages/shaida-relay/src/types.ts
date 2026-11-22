@@ -96,7 +96,7 @@ export interface RelaySigner {
   signTransaction(tx: LegacyTx): Promise<Hex>;
 }
 
-/** The relayer's persisted state: records, rate windows, budget. Replaced whole on every change. */
+/** The state-file store's whole document: records, rate windows, budget (store-file.ts). */
 export interface RelayState {
   records: Record<string, RequestRecord>;
   /** key → requestId of its latest record. */
@@ -105,10 +105,35 @@ export interface RelayState {
   rate: Record<string, number[]>;
 }
 
+/**
+ * Where the relayer keeps request records, rate windows and the gas budget, shared by every server process that
+ * uses it. Two implementations: one state file (local dev and tests) and Redis (production, store-kv.ts).
+ */
 export interface RelayStore {
-  /** Runs `change` on the current state and persists the result before resolving. */
-  update<T>(change: (s: RelayState) => T): Promise<T>;
-  read(): Promise<RelayState>;
+  /** Counts one hit in the bucket's one-minute sliding window; true when the bucket is now over `max`. */
+  hit(bucket: string, max: number, nowMs: number): Promise<boolean>;
+  record(requestId: string): Promise<RequestRecord | null>;
+  /** The latest record for a chain-scoped key (nullifier, vouch, deposit commitment, memo), live or not. */
+  holder(key: string): Promise<RequestRecord | null>;
+  /**
+   * Atomically writes a new `accepted` record and points its key at it, but only while the key's latest record is
+   * still `expectedHolder` (null: none). False when another request got there first: nothing was written.
+   */
+  claim(record: RequestRecord, expectedHolder: string | null): Promise<boolean>;
+  /** Replaces an existing record (a state change). Never moves a key. */
+  put(record: RequestRecord): Promise<void>;
+  /** Gas the day's records hold against the budget (limits.ts committedGas). */
+  gasCommitted(day: string): Promise<bigint>;
+  /** One submission per chain at a time, across every process sharing the store (nonce, budget). */
+  withChainLock<T>(chainId: number, task: () => Promise<T>): Promise<T>;
+}
+
+/** Another process held the chain's submission lock for too long. Nothing was sent. */
+export class ChainBusy extends Error {
+  constructor(chainId: number) {
+    super(`chain ${chainId}: the submission lock stayed taken`);
+    this.name = "ChainBusy";
+  }
 }
 
 export type RelayReply =
