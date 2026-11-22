@@ -1,0 +1,18 @@
+[
+  {
+    "lint": "block-timestamp",
+    "file": "src/ShaidaLedger.sol",
+    "code": "if (block.timestamp > deadline) revert SignatureExpired(deadline);",
+    "count": 2,
+    "decision": "D16",
+    "why": "Signature deadlines (Vouch, LateVouch): a validator's few seconds of timestamp drift cannot extend a signature meaningfully."
+  },
+  {
+    "lint": "inconsistent-type-names",
+    "file": "src/generated/IncomeGroth16Verifier.sol",
+    "code": "function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[7] calldata _pubSignals) public view returns (bool) {",
+    "count": 4,
+    "decision": "D24",
+    "why": "snarkjs output written by ceremony/finalize.ts from the final key; its sha256 is pinned in ceremony/record.json and checked by tools/check-artifacts.mjs, so it is never edited (uint vs uint256 is style only)."
+  }
+]

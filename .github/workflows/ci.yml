@@ -99,3 +99,39 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r typecheck
       - run: pnpm build
+
+  gate:
+    # BUILD_CONTRACT gate (tools/gate.sh) on this clean checkout. Exit 3 = INCONCLUSIVE (Aevum RPC unreachable, fork
+    # tests not run): reported as a warning and in the summary, never as a pass of the fork step.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install circom 2.2.3 (official release binary, sha256-pinned)
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          curl -sSfL --retry 3 -o "$HOME/.local/bin/circom" \
+            https://github.com/iden3/circom/releases/download/v2.2.3/circom-linux-amd64
+          echo "85342c7ff332d948df7c0c50ecf201e6129349aef550ce873f3c811b79fe53a3  $HOME/.local/bin/circom" | sha256sum -c -
+          chmod +x "$HOME/.local/bin/circom"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: make gate
+        run: |
+          set +e
+          GATE_IN_PLACE=1 bash tools/gate.sh 2>&1 | tee gate.log
+          code=${PIPESTATUS[0]}
+          sed -n '/^| Step |/,$p' gate.log >> "$GITHUB_STEP_SUMMARY"
+          if [ "$code" = 3 ]; then
+            echo "::warning title=Gate INCONCLUSIVE::fork tests not run (Aevum RPC unreachable); every other step passed"
+            exit 0
+          fi
+          exit "$code"

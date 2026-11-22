@@ -4,7 +4,7 @@
 // Writes screenshots and a report to evidence/ui-fork/. No dependencies: Node's WebSocket speaks CDP.
 // Usage: node tools/ui-flow-fork.mjs [--base http://localhost:3100] [--chromium /usr/bin/chromium]
 import { execFileSync, spawn } from "node:child_process";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -61,6 +61,8 @@ async function page(c, name) {
   };
   const p = {
     name,
+    send: s,
+    browserContextId,
     goto: async (path) => { await s("Page.navigate", { url: BASE + path }); await p.until(`document.readyState === "complete" && !!document.querySelector("main")`, 120_000, `load ${path}`); },
     eval: evaluate,
     until: async (expr, ms, what) => {
@@ -159,6 +161,35 @@ async function main() {
     if (sweepAlert) throw new Error(`sweep refused: ${sweepAlert}`);
     note("sweep: swept (S leaf with Ada's fresh note seen in the checked ledger tree)");
     await ada.shot("07-inbox-swept");
+
+    // The exported backup restores in a fresh browser profile (no local storage), with the passphrase.
+    const downloads = mkdtempSync(join(tmpdir(), "shaida-dl-"));
+    await c.send("Browser.setDownloadBehavior", { behavior: "allow", downloadPath: downloads, browserContextId: ada.browserContextId });
+    await ada.click("Export backup");
+    const backup = join(downloads, "shaida-vault-440050.json");
+    for (let i = 0; i < 50 && !existsSync(backup); i++) await sleep(200);
+    if (!existsSync(backup)) throw new Error("Export backup produced no file");
+    const blob = readFileSync(backup, "utf8");
+    if (!/"kdf":"PBKDF2-SHA256"/.test(blob) || blob.includes(tag.slice(8, 40))) throw new Error("the backup is not a sealed vault blob");
+    note(`backup exported: ${blob.length} bytes, sealed (no receive address or key in clear)`);
+    const restored = await page(c, "ada-restored");
+    await restored.goto("/inbox");
+    await restored.until(`document.querySelector("details summary")`, 60_000, "restore option");
+    await restored.eval(`document.querySelector("details summary").click()`);
+    const { root } = await restored.send("DOM.getDocument", {});
+    const { nodeId } = await restored.send("DOM.querySelector", { nodeId: root.nodeId, selector: "input[type=file]" });
+    await restored.send("DOM.setFileInputFiles", { nodeId, files: [backup] });
+    await restored.type("input[type=password]", "wrong passphrase!");
+    await restored.click("Restore");
+    await restored.until(`document.body.innerText.includes("Wrong passphrase")`, 60_000, "wrong passphrase refused");
+    note("restore with a wrong passphrase: refused");
+    await restored.type("input[type=password]", PASS);
+    await restored.click("Restore");
+    await restored.until(`[...document.querySelectorAll(".payment")].some(p => p.innerText.includes("Invoice 1 (demo)") && p.querySelector(".state.swept"))`, 120_000, "restored inbox");
+    const sameTag = await restored.eval(`document.querySelector(".receive-tag")?.innerText.trim() === ${JSON.stringify(tag)}`);
+    if (!sameTag) throw new Error("restored vault has another receive address");
+    note("backup restored in a fresh profile: same receive address, payment shown as swept");
+    await restored.shot("08-restored-from-backup");
     c.close();
   } finally {
     chrome.kill();
