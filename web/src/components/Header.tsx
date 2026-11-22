@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAccount } from "wagmi";
 import { networks, repoUrl } from "@/lib/env";
-import { GitHubIcon } from "./Icons";
+import { BrandMark, GitHubIcon } from "./Icons";
 import { useNetwork } from "@/lib/network";
 
 const links = [
@@ -25,15 +25,15 @@ export function Header() {
       <header className="topbar">
         <div className="shell">
           <Link href="/" className="brand">
-            <span className="brand-mark" aria-hidden="true" />
-            <span className="brand-name">Shaida</span>
+            <BrandMark />
+            <span className="brand-name">shaida</span>
           </Link>
           <nav className="nav" aria-label="Main">
             {links.map((l) => {
               const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
               return (
                 <Link key={l.href} href={l.href} aria-current={active ? "page" : undefined}>
-                  {l.label}
+                  <span>{l.label}</span>
                 </Link>
               );
             })}
@@ -68,7 +68,7 @@ export function Header() {
       {switchingTo && (
         <div className="banner info" role="status">
           <div className="shell">
-            <span>
+            <span className="banner-box">
               Confirm the switch to <strong>{switchingTo.chain.name}</strong> in your wallet. If no window opened, click the wallet icon in your
               browser toolbar.
             </span>
@@ -78,19 +78,21 @@ export function Header() {
       {switchError && !switchingTo && (
         <div className="banner" role="alert">
           <div className="shell">
-            <span>{switchError}</span>
+            <span className="banner-box">{switchError}</span>
           </div>
         </div>
       )}
       {wrongNetwork && (
         <div className="banner" role="alert">
           <div className="shell">
-            <span>
-              Your wallet is on another network. This app is set to <strong>{net.chain.name} ({net.chain.id})</strong>.
+            <span className="banner-box">
+              <span>
+                Your wallet is on another network. This app is set to <strong>{net.chain.name} ({net.chain.id})</strong>.
+              </span>
+              <button type="button" className="btn small" onClick={() => select(net.key)}>
+                Switch network
+              </button>
             </span>
-            <button type="button" className="btn warn small" onClick={() => select(net.key)}>
-              Switch network
-            </button>
           </div>
         </div>
       )}

@@ -59,11 +59,20 @@ Generated from the snarkjs 0.7.6 Solidity template (GPL-3.0, (c) 0KIMS associati
 | circomlib | 2.0.5 (npm) | GPL-3.0 | included by income.circom |
 | circom | 2.2.3 (cargo build from tag, or the release binary in CI, sha256-pinned) | GPL-3.0 | compiler; not shipped |
 
+## Visual style and fonts
+- The web app follows the visual style of the builder's Muuve project (colours, type sizes, radii, shadows, layout;
+  DESIGN.md, DECISIONS D25). No Muuve file, image or video is copied; Muuve's name and logo are not used.
+- Inter Tight (SIL Open Font License 1.1, (c) The Inter Tight Project Authors) and JetBrains Mono (SIL Open Font
+  License 1.1, (c) The JetBrains Mono Project Authors), served by `next/font/google`, which downloads them at build time
+  and self-hosts them with the app.
+- Shaida's mark and wordmark (`web/public/brand/`) and line icons (`web/src/components/Icons.tsx`) were drawn for this
+  repo (MIT).
+
 ## JavaScript packages (direct dependencies)
 
 | Package | Version | License | Used in |
 |---|---|---|---|
-| next | 16.4.3 | MIT | web |
+| next | 16.4.6 | MIT | web |
 | react, react-dom | 19.2.0 | MIT | web |
 | @rainbow-me/rainbowkit | 2.2.11 | MIT | web |
 | wagmi | 2.19.5 | MIT | web |

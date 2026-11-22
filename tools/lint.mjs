@@ -69,4 +69,30 @@ for (const f of files) {
 }
 console.log(`${failures ? "·" : "✓"} TypeScript rules over ${files.length} files (no any, no empty catch)`);
 
+// ---- colours only in the tokens file (DESIGN.md, D25) ----
+const TOKENS = join(repo, "web/src/app/tokens.css");
+const styled = [];
+const walkWeb = (d) => {
+  for (const n of readdirSync(d)) {
+    const p = join(d, n);
+    if (statSync(p).isDirectory()) walkWeb(p);
+    else if (/\.(css|tsx|ts)$/.test(n) && !n.endsWith(".d.ts") && p !== TOKENS) styled.push(p);
+  }
+};
+walkWeb(join(repo, "web/src"));
+const COLOUR = /(#[0-9a-fA-F]{3,8}\b(?![-\w])|\b(?:rgba?|hsla?|oklch|oklab)\()/;
+let colourFails = 0;
+for (const f of styled) {
+  readFileSync(f, "utf8").split("\n").forEach((line, i) => {
+    // `#` followed by hex is also an id selector or a URL fragment in code: only flag colour-like contexts.
+    const m = COLOUR.exec(line);
+    if (!m) return;
+    if (m[0].startsWith("#") && !/[:,(\s"'`]#[0-9a-fA-F]{3,8}\b/.test(line)) return;
+    if (m[0].startsWith("#") && /href=|url\(#|`#\$\{|"#"|'#'/.test(line)) return;
+    bad(`${relative(repo, f)}:${i + 1}: colour outside web/src/app/tokens.css (D25): ${line.trim().slice(0, 100)}`);
+    colourFails++;
+  });
+}
+console.log(`${colourFails ? "·" : "✓"} colours: ${styled.length} web/src files, only tokens.css writes a colour`);
+
 if (failures) { console.error(`lint: ${failures} failure(s)`); process.exit(1); }

@@ -463,3 +463,25 @@ Verified: forge tests K01–K05 (contracts/test/IncomeFinalKey.t.sol), including
 throwaway verifier. `make deploy-fork` on `make fork` passed every check; on the fork node, `cast call verifyProof`
 returned true for the final-key proof and false for the throwaway one; deployed runtime 1,909 bytes; `make test-fork`
 12 passed.
+
+## D25: Muuve's visual style, Shaida's name and mark
+Context: the builder asked for the UI to use the visual style of their Muuve project (`../Muuve`) and for a written
+design system. Muuve's own guide (`docs/muuve-frontend-guide.md` §7, v0.2) describes a dark aurora-glass theme; its
+shipped code (`apps/web`, commit `49ba25e`) is a light cream/ink theme with four pastel hues and Inter Tight.
+Decision:
+- Follow Muuve's **shipped code**, written down in DESIGN.md with a source path per token and rule. Light only (Muuve
+  has no dark mode). Plain CSS (Shaida has no Tailwind): one tokens file, `web/src/app/tokens.css`; `tools/lint.mjs`
+  fails on a hex, `rgb()`, `hsl()` or `oklch()` colour in any other file under `web/src` (mutation-checked).
+- **Nothing is copied from Muuve.** Its repo has no licence (no LICENSE file, no `license` field), and its hero icons
+  and footer video (commit `5670e1d`, another author) record no source or licence, so they are not reused. Its
+  `glass.css` and `how-it-works.tsx` read like community registry components with no source line, so only their look
+  is followed, in new code. Inter Tight (SIL OFL 1.1) is loaded the way Muuve loads it (`next/font/google`, self-hosted
+  at build). Values (colours, sizes, radii, shadows, easing) are taken as values.
+- Muuve's branding stays Muuve's: no name, dot logo, verbs or copy. Shaida's mark is new: a ring, half filled ("shows
+  half, hides half"), with the lowercase name in Inter Tight 600 (`web/public/brand/`, `BrandMark`).
+- Shaida additions to the system: JetBrains Mono (SIL OFL 1.1) for hashes and addresses; a verdict style
+  (VALID / INVALID / INCONCLUSIVE always in words, never colour alone); done steps stay readable (Muuve strikes them
+  through; ours are evidence).
+Rejected: copying Muuve's components or assets (no licence to copy them); adding Tailwind to match Muuve's source
+(a new toolchain for the same values); Lucide as a dependency (ISC, but a dozen hand-drawn icons in its weight suffice).
+Where: DESIGN.md, web/src/app/{tokens,globals}.css, web/src/components/Icons.tsx, web/public/brand/, tools/lint.mjs
