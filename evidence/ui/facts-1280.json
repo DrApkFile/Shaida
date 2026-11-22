@@ -1,0 +1,111 @@
+{
+  "payTxs": [
+    {
+      "act": "setup",
+      "what": "attestor registers Acme Studio (demo) as payer #7",
+      "fn": "register",
+      "hash": "0xd93a5ce6373d84a52503e91f00682e01684e147bcd2596077d673dbdb2444b77",
+      "block": "—",
+      "gasUsed": "—"
+    },
+    {
+      "act": "setup",
+      "what": "Acme: gasless deposit 10 tUSD8",
+      "fn": "deposit",
+      "hash": "0x96707a1068a1bef8842250756bf3934ca377e2535cae46773c271896d2d179e8",
+      "block": "3800831",
+      "gasUsed": "1175309"
+    },
+    {
+      "act": "setup",
+      "what": "Acme: vouched pay 1 to Ada",
+      "fn": "vouchedPay",
+      "hash": "0xf566230ef2781b84dfcd8796e4ddaa7c8d2048791abb58654e8bbfb0c5273748",
+      "block": "3800832",
+      "gasUsed": "2658913"
+    },
+    {
+      "act": "setup",
+      "what": "sealed memo 1",
+      "fn": "memo",
+      "hash": "0x7b226e87d44b95afaedce7e62e2fa13d4dc6c7a81921d65b7d255271c44c4c27",
+      "block": "3800833",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "setup",
+      "what": "Acme: vouched pay 2 to Ada",
+      "fn": "vouchedPay",
+      "hash": "0x9200dd3525841d90bb09613de39685829908efaa963d27db70c3e1ff9ae04950",
+      "block": "3800834",
+      "gasUsed": "2674190"
+    },
+    {
+      "act": "setup",
+      "what": "sealed memo 2",
+      "fn": "memo",
+      "hash": "0x44ee2d6fe0e08e3cb5daea1fabebade2dd50c9767607fafdbc70bc06e08a1529",
+      "block": "3800835",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "setup",
+      "what": "Acme: vouched pay 3 to Ada",
+      "fn": "vouchedPay",
+      "hash": "0xfe42044d24b559b2e037d07a42774ba7ae67c00e93f4c523c3e395a308adfaa9",
+      "block": "3800836",
+      "gasUsed": "2673863"
+    },
+    {
+      "act": "setup",
+      "what": "sealed memo 3",
+      "fn": "memo",
+      "hash": "0x05855e480784abf6e968416d9eb36e2ea659a8dba699452f0299a4eb3b791424",
+      "block": "3800837",
+      "gasUsed": "44923"
+    },
+    {
+      "act": "setup",
+      "what": "Mallory (unregistered): approve tUSD8",
+      "fn": "direct (own gas)",
+      "hash": "0x800ac134c6548fabec0c339f9ef647bc56e184a29f1cf0af5025b448f065fc1b",
+      "block": "3800840",
+      "gasUsed": "55580"
+    },
+    {
+      "act": "setup",
+      "what": "Mallory (unregistered): deposit 5 tUSD8, own gas",
+      "fn": "direct (own gas)",
+      "hash": "0xe12a9b788339ecd81de0d99fedd5b91129404860a3e462d84b87882ce53104af",
+      "block": "3800841",
+      "gasUsed": "1130485"
+    },
+    {
+      "act": "setup",
+      "what": "Mallory (unregistered): plain pool transfer of 5 tUSD8 to Ada (no vouch)",
+      "fn": "direct (own gas)",
+      "hash": "0xec1cd539ea6298c78e610adc1ce1e82a217fb03114af8cac3d0dc8278e9c8879",
+      "block": "3800842",
+      "gasUsed": "1772084"
+    },
+    {
+      "act": "setup",
+      "what": "Mallory (unregistered): sealed memo to Ada",
+      "fn": "direct (own gas)",
+      "hash": "0xfcc2fecfce85b3f4cd587f5e177dc31464c2eff81905a662646e665b07dd0bdc",
+      "block": "3800843",
+      "gasUsed": "44923"
+    }
+  ],
+  "browserProveMs": [
+    20507
+  ],
+  "link": "/v#eyJ2IjoxLCJwcm9vZnMiOlt7InByb29mIjp7InBpX2EiOlsiMTM1OTk0OTkzNDkyMjI5MTY3NjU3OTU5NTY5Nzg2MTY1MzU5NTEzNjQ3OTM1OTE5MTIwMDYzODYxNTk2MDU3MzcxMDYyNDIxNTEyMDMiLCIzMTQxNDIzODUxMTYwNDg5ODAwMzM3MTIzNDk4NjQ3Nzg5OTE1NTQwODc1NzIzMTg0NzAzODE3NTgyMTk4ODQ2MTUwNTE4NzM5MzI5IiwiMSJdLCJwaV9iIjpbWyIxMDYwMTU5Mjc1MDExMzEwNDgyMTUyMzA0MTc4OTMyMzA5MzE0OTM3ODYwOTA2NTMyMTQ4MDYwNjU3OTQzNzkzNzA4NjE5Mzk3NTcxNiIsIjUzNDUyNjcwNTU2ODU4NDIxODQyOTU5MDg5OTM2Mzc4NTYyNTE0OTUxMTM3MDI0MDY1NjQzNDAwNzUzNjYwOTAxNDA1MDE5NjAzODYiXSxbIjIwNDYxMTcyMjU4NDAwNzIxMTMwMDE1MDUxMjkzMzEzNzI4MzYwNDUzMzA4NTU3MjA0MjMwMjg0MTExODE4ODU5NTMyMTg0MDA1NDc4IiwiOTI4NDc3Mzc3NTYyMjQzNTU0MzAzMDc4NzUyNjMyMzczOTIxNDI3NDA2MTAwODAxMTMzMjQ2MTE3MjM3MTUyNTU5NjYwOTE1NTcxNyJdLFsiMSIsIjAiXV0sInBpX2MiOlsiMTkxOTMxMDEyNTA0ODkwNzE4Mzg4NTE0MDgwMTI2NTk0NDMzNjE2Mjc1NzQ2NzIxODkxMjE1Mzc5MjU2MzEyMTE5NzA4NTc3MDMzMiIsIjE5OTc3OTc4MDQ4MTk4MTA1NTk0MTEyNTI5OTQ1MDgyMjI2NzgyODY2NjExNDQ2OTYyNjY5OTIxMDk4ODU4NTA5NTI3NTcwMDY2MTQ1IiwiMSJdLCJwcm90b2NvbCI6Imdyb3RoMTYiLCJjdXJ2ZSI6ImJuMTI4In0sInB1YmxpY1NpZ25hbHMiOlsiNDQ4NjY5NDY1NzE5MDY5OTI2ODYxNTI1MDUzNTU1NDY2MjA1MjM5NzEwNTE5Mjg1ODE4ODUzNDk2MzE0MzE4NTY1OTg2MjY4NTkyNCIsIjM5NjE4MTkzMDAwOTE0MDk2MDU1MzYzOTY2NzM1Mzk4MjUwNDA2MTE2OTI1MTQ1OSIsIjkwMDAwMDAiLCIzIiwiMCIsIjM2IiwiMTk2NzE3ODQ5NTExMjgwMDc3Mzk1ODExMzQxMzM2OTMzNDQ4NjQ5ODQxNDMxNjM2NzE5NjI5MzcxNTU3MjQ5MDAzODM0OTM2MDUxOTEiXX1dLCJyZWFkZXJJZEhhc2giOiIxMDI4NTUwNzQyMDkwMjgxMDc3NDE4OTI2MDc1OTA1NDk0MjMwMzkxMzAxNjEyNzYwNjAxNzQwMzg3OTAyMjE2ODY5OTUyMzYwNzI4NyIsImV4cGlyeSI6IjE3OTc5ODAzOTkiLCJzYWx0IjoiMjEzNjg5NzI5MjEwNjkwMjM3OTMzMDQ4ODI4OTMwOTg1MTMxODA1NDY4ODQ0NDQ5ODc3MTE2NTEwODMyNTc1NTQ5NDQzODg1NjI3In0",
+  "attest": "Recorded in block 3800847:\n0x6c3b215b5d364a3bce9f6dfbcdbe7ad249699a92ef9eda18c65c11b116ccc49b",
+  "machine": {
+    "cpu": "Intel(R) Core(TM) i3 CPU       M 370  @ 2.40GHz",
+    "threads": "4",
+    "memory": "7916424",
+    "browser": "Chromium 153.0.8010.52 Arch Linux"
+  }
+}

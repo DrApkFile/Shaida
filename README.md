@@ -11,7 +11,7 @@ Private payments run on [Gloam](https://github.com/gloamtrade/gloam) (MIT), a pi
 Every statement here maps to a row in [CLAIMS.md](CLAIMS.md); `make gate` fails if one is not PROVEN.
 <!-- CL24 -->
 
-PRD §11 steps 1–2 and acts 2–3 run on a local fork <!-- CL02 -->; nothing is deployed on Aevum testnet yet. <!-- CL03 -->
+PRD §11 steps 1–2 and acts 2–6 run on a local fork <!-- CL02 --> <!-- CL35 -->; nothing is deployed on Aevum testnet yet. <!-- CL03 -->
 - Contracts: `PayerRegistry` <!-- CL04 -->, `ShaidaDepositor` (gasless EIP-3009 + standard deposit) <!-- CL05 -->,
   `ShaidaLedger` (vouch and sweep leaves, one vouch per payment, `lateVouch` repair for a front-run pay: DECISIONS D9)
   <!-- CL06 -->, on Gloam's pool with its final-ceremony verifiers. <!-- CL07 -->
@@ -39,13 +39,21 @@ PRD §11 steps 1–2 and acts 2–3 run on a local fork <!-- CL02 -->; nothing i
 - Relayer (`packages/shaida-relay`, `/api/relay/<fn>`): one route per contract function (deposit, vouched-pay,
   late-vouch, sweep, memo), rails before simulation, a daily gas budget, persisted records, unknown outcomes never
   resent (D19, D20). <!-- CL20 -->
-- Pay and inbox (`/pay`, `/inbox`, `packages/shaida-pay`): gasless deposit, vouched private pay with a sealed memo,
+- Pay and inbox (`/app/pay`, `/app/inbox`, `packages/shaida-pay`): gasless deposit, vouched private pay with a sealed memo,
   inbox and sweep <!-- CL21 -->, proofs made in the browser with Gloam's final keys <!-- CL22 -->, secrets in an
   encrypted browser vault whose exported backup restores in a fresh browser (D21). <!-- CL23 -->
 - PRD §11 acts 2–3 on the fork: [evidence/acts-2-3-fork.md](evidence/acts-2-3-fork.md) (script, tx hashes) and
   [evidence/ui-fork/](evidence/ui-fork/report.md) (the same flow through the UI at 390 px). <!-- CL02 --> <!-- CL21 -->
 
-Not built yet: the income-proof pages (prove, share, verify), deployment on Aevum testnet. <!-- not-built -->
+- Income proofs (`/app/prove`, `/app/shared`, `/v`): a proof link made in the browser with the ceremony's final key,
+  for a reader name that binds intent, not identity (anyone with the link who types the name sees VALID). <!-- CL36 -->
+  PRD §11 acts 4–6 on the fork: [evidence/acts-4-6-fork.md](evidence/acts-4-6-fork.md) (script) <!-- CL35 --> and
+  [evidence/ui/](evidence/ui/report-390.md) (the same acts through the UI at 390 and 1280 px, with the browser's proving
+  time and screenshots). <!-- CL37 -->
+- Web: a landing page `/` and a dashboard `/app` in a design system taken from Muuve's style ([DESIGN.md](DESIGN.md),
+  D25, D26). <!-- CL38 -->
+
+Not built yet: deployment on Aevum testnet. <!-- not-built -->
 
 ## Commands
 ```bash
