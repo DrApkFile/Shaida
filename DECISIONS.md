@@ -428,7 +428,8 @@ Decision:
   failing step stops the gate. CI runs it in place (`GATE_IN_PLACE=1`) and reports INCONCLUSIVE as a warning.
 - Lint: the repo has no ESLint. `tools/lint.mjs` runs `forge lint` and fails on any finding not in
   `tools/lint-allow.json` (matched by lint id, file and exact source line, with a count; today only D16's two
-  `block-timestamp` deadline checks), and enforces the CLAUDE.md rules tsc cannot: no `any`, no empty `catch`. It found
+  `block-timestamp` deadline checks, plus four `inconsistent-type-names` (`uint`) findings in the generated income
+  verifier, which is hash-pinned ceremony output and never edited: D24), and enforces the CLAUDE.md rules tsc cannot: no `any`, no empty `catch`. It found
   three in kit code, now fixed: an `as any` in `packages/aevum/src/logs.ts` (now viem's own parameter type) and two empty
   catches in `web/src/lib/network.tsx` (now say what they fall back to).
 - CLAIMS.md lists every README claim (CL01–CL24, PROVEN with paths or test IDs that the checker resolves; `absent:`

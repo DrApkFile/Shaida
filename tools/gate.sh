@@ -21,7 +21,12 @@ else
   if [[ -n "$(git -C "$SRC" status --porcelain --untracked-files=no)" ]]; then
     echo "gate: note: uncommitted changes are NOT in the gate; it checks commit ${sha:0:12}"
   fi
-  ROOT="$(mktemp -d "${TMPDIR:-/tmp}/shaida-gate.XXXXXX")"
+  # On disk, not /tmp: a clone with node_modules and build outputs is ~2 GB, and /tmp is often RAM-backed (tmpfs).
+  # Removed on exit, pass or fail; GATE_KEEP=1 keeps it for debugging.
+  GATE_DIR="${GATE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/shaida-gate}"
+  mkdir -p "$GATE_DIR"
+  ROOT="$(mktemp -d "$GATE_DIR/run.XXXXXX")"
+  if [[ "${GATE_KEEP:-0}" != "1" ]]; then trap 'rm -rf -- "$ROOT"' EXIT; fi
   echo "gate: fresh clone of ${sha:0:12} in $ROOT"
   git clone --quiet --no-hardlinks "$SRC" "$ROOT"
   git -C "$ROOT" checkout --quiet "$sha"

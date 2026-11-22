@@ -38,7 +38,8 @@ for (const rule of allow) {
   if (n > rule.count) bad(`forge lint [${rule.lint}] ${rule.file}: ${n} findings, ${rule.decision} accepts ${rule.count}`);
   else console.log(`✓ forge lint [${rule.lint}] ${rule.file}: ${n}/${rule.count} accepted by ${rule.decision}`);
 }
-console.log(`✓ forge lint: ${findings.length} finding(s), none outside the allowlist`.replace(/^✓/, failures ? "·" : "✓"));
+const unlisted = findings.length - [...used.values()].reduce((x, y) => x + y, 0);
+console.log(`${unlisted ? "·" : "✓"} forge lint: ${findings.length} finding(s), ${unlisted ? `${unlisted} outside the allowlist` : "none outside the allowlist"}`);
 
 // ---- TypeScript rules ----
 const ROOTS = ["packages", "web/src", "ceremony", "tools"];
