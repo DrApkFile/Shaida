@@ -13,7 +13,7 @@ Every statement here maps to a row in [CLAIMS.md](CLAIMS.md); `make gate` fails 
 
 PRD §11 steps 1–2 and acts 2–6 run on a local fork <!-- CL02 --> <!-- CL35 -->. The stack is deployed on Aevum testnet and checked
 against the chain ([deployments/aevum.json](deployments/aevum.json), [evidence/aevum-deployment.md](evidence/aevum-deployment.md)) <!-- CL03 -->;
-`PayerRegistry` is verified on the explorer <!-- CL39 -->. No live run on 44005 yet.
+14 of its 16 contracts are verified on the explorer (links below) <!-- CL39 -->. No live run on 44005 yet.
 - Contracts: `PayerRegistry` <!-- CL04 -->, `ShaidaDepositor` (gasless EIP-3009 + standard deposit) <!-- CL05 -->,
   `ShaidaLedger` (vouch and sweep leaves, one vouch per payment, `lateVouch` repair for a front-run pay: DECISIONS D9)
   <!-- CL06 -->, on Gloam's pool with its final-ceremony verifiers. <!-- CL07 -->
@@ -52,10 +52,33 @@ against the chain ([deployments/aevum.json](deployments/aevum.json), [evidence/a
   PRD §11 acts 4–6 on the fork: [evidence/acts-4-6-fork.md](evidence/acts-4-6-fork.md) (script) <!-- CL35 --> and
   [evidence/ui/](evidence/ui/report-390.md) (the same acts through the UI at 390 and 1280 px, with the browser's proving
   time and screenshots). <!-- CL37 -->
+- Withdrawals (`/app/withdraw`, relayer route `unshield`): swept notes leave the pool in one batch, to an address the
+  recipient picks. They are public and reveal their amounts, so they are never automatic (LIMITS.md, D28). <!-- CL40 -->
 - Web: a landing page `/` and a dashboard `/app` in a design system taken from Muuve's style ([DESIGN.md](DESIGN.md),
   D25, D26). <!-- CL38 -->
 
-Not built yet: withdrawing swept tUSD8 out of the pool (unshield), and a live run of acts 2–6 on Aevum testnet. <!-- not-built -->
+Not built yet: a live run of acts 2–6 on Aevum testnet. <!-- not-built -->
+
+Secrets: `make gate` scans the git history with gitleaks; keys and keystores are gitignored. <!-- CL41 -->
+
+## Aevum testnet contracts (chain 44005)
+Deployed from commit `2a10759`; checked against the chain in [evidence/aevum-deployment.md](evidence/aevum-deployment.md),
+which lists all 16 addresses with each verified source's SPDX line. <!-- CL03 --> <!-- CL39 -->
+
+| Contract | Address | Explorer |
+|---|---|---|
+| ShieldPoolPoseidon (Gloam) | [`0x0d93a398de615c92b04961dd042471fea4b7eac6`](https://explorer-test.qday.info/address/0x0d93a398de615c92b04961dd042471fea4b7eac6?tab=contract) | verified |
+| ShaidaLedger | [`0x677659b068278103f83eff413080cb53be3388ed`](https://explorer-test.qday.info/address/0x677659b068278103f83eff413080cb53be3388ed?tab=contract) | verified |
+| ShaidaDepositor | [`0x6a6045a64ae911744fcd63b3186277f8958db2ec`](https://explorer-test.qday.info/address/0x6a6045a64ae911744fcd63b3186277f8958db2ec?tab=contract) | verified |
+| PayerRegistry | [`0xce43b77adc82db336d07f03bd84c3834fd9c5215`](https://explorer-test.qday.info/address/0xce43b77adc82db336d07f03bd84c3834fd9c5215?tab=contract) | verified |
+| GloamPayMemo (Gloam) | [`0xe2f7c6310e5ccb87fde4ff887b100236960c4e17`](https://explorer-test.qday.info/address/0xe2f7c6310e5ccb87fde4ff887b100236960c4e17?tab=contract) | verified |
+| IncomeVerifier | [`0xc9844a8f058be2d658c972d1d2276b13f308e1c8`](https://explorer-test.qday.info/address/0xc9844a8f058be2d658c972d1d2276b13f308e1c8?tab=contract) | verified |
+| IncomeGroth16Verifier | [`0xbb79e350e0c27b97f6512173ec7e4dd82bf632af`](https://explorer-test.qday.info/address/0xbb79e350e0c27b97f6512173ec7e4dd82bf632af?tab=contract) | verified |
+| DualProofVerifier (Gloam) | [`0xd791178ec6a80ac2fcfeb2a236c427d5a818b57c`](https://explorer-test.qday.info/address/0xd791178ec6a80ac2fcfeb2a236c427d5a818b57c?tab=contract) | verified |
+| ShieldVerifierFinal / ShieldIVerifierFinal (Gloam) | [`0x6c15d7cc7f05d8fb8fceab9bd7e92c753abe13e7`](https://explorer-test.qday.info/address/0x6c15d7cc7f05d8fb8fceab9bd7e92c753abe13e7?tab=contract) | verified (adapter `0x6f82…b446` too) |
+| UnshieldVerifierFinal / UnshieldIVerifierFinal (Gloam) | [`0xa25b573404fe423aeb005c9539c79d806199a1f5`](https://explorer-test.qday.info/address/0xa25b573404fe423aeb005c9539c79d806199a1f5?tab=contract) | verified (adapter `0xa63d…e843` too) |
+| TransferVerifierFinal / TransferIVerifierFinal (Gloam) | [`0xf220726b8f177e7347d6b58f0b14b2380a572cda`](https://explorer-test.qday.info/address/0xf220726b8f177e7347d6b58f0b14b2380a572cda?tab=contract) | verified (adapter `0xfe33…5708` too) |
+| PoseidonT3 / PoseidonT4 | [`0x1e771073ac7703772c3717650ca0577e103dfaaf`](https://explorer-test.qday.info/address/0x1e771073ac7703772c3717650ca0577e103dfaaf?tab=contract) | bytecode only (circomlibjs, no source); T4 `0xc7aa…ec69` |
 
 ## Commands
 ```bash
@@ -69,6 +92,7 @@ make test-fork    # tests against the real tUSD8 (needs https://rpc-test.qday.in
 make fork         # local Aevum fork, chain 440050 on 127.0.0.1:8555
 make deploy-fork  # deploy the stack to the fork; writes deployments/fork.json
 make deploy-aevum ACCOUNT=<keystore> ATTESTOR=0x...   # real deploy (clean committed tree only); writes deployments/aevum.json
-make verify-aevum # read-only: check deployments/aevum.json against the chain; writes evidence/aevum-deployment.md
+make verify-aevum # read-only: check deployments/aevum.json against the chain and the explorer; writes evidence/aevum-deployment.md
+make secrets      # gitleaks over the git history and uncommitted changes (.gitleaks.toml; also gate step 8)
 pnpm --filter @shaida/gloam-fixtures gen:fork-flow    # regenerate the fork test's Gloam proofs (final keys)
 ```

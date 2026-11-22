@@ -7,7 +7,10 @@ Gas price on 44005 is 1 gwei, so 1,000,000 gas = 0.001 tQDAY.
 - The deployer never goes below 0.5 tQDAY.
 - The deployer never holds less than 2 tUSD8.
 - Helpers (the relayer and the reader) are funded with the planned need plus 50%, never more.
-- After every live run, Ada withdraws her swept tUSD8 back to the deployer.
+- **Withdrawals (changed 2026-11-22, after the plan below was first written):** a withdrawal is public and shows its
+  amount (LIMITS.md), so it never happens right after a demo run. Ada withdraws only when the deployer's tUSD8 would
+  otherwise fall below 2. Then she withdraws all swept notes in one batch at a quiet time, to a fresh address we
+  control, which forwards the tUSD8 to the deployer.
 
 ## Ledger (actual, read from the chain)
 
@@ -21,11 +24,10 @@ Explorer verification of `PayerRegistry` (S10) cost nothing: it is an explorer A
 
 ## Plan for live run 1 (not run; no transaction sent)
 
-The gas figures are the largest measured on the fork (evidence/fork-gas.md, evidence/acts-4-6-fork.md). Three are
-different:
-- **Registration and the tUSD8 transfer** are `eth_estimateGas` on 44005.
-- **Unshield** is spike S2 on anvil.
-- **The withdraw step is not built yet.**
+Where the gas figures come from:
+- **Relayed transactions:** the largest measured on the fork (evidence/fork-gas.md, evidence/acts-4-6-fork.md).
+- **Unshield and forward:** measured on the fork (evidence/withdraw-fork.md).
+- **Registration and the tUSD8 transfer:** `eth_estimateGas` on 44005.
 
 Payments: **1.5 + 1 + 0.5 = 3 tUSD8**, from one gasless deposit of 3 tUSD8 by a demo payer.
 
@@ -43,14 +45,37 @@ Proof: **≥ 3 tUSD8, step 1**. It is one proof: 3 payments fit its 4 slots, so 
 | sweeps by Ada | relayer | 3 | 2,697,283 | 8,091,849 |
 | check on chain | nobody (eth_call) | 0 | — | 0 |
 | attest (record check) | reader | 1 | 267,017 (gas limit 420,000) | 267,017 |
-| withdraw: 3 unshields to the deployer, one per swept note (**not built**) | relayer | 3 | ~320,000 | 960,000 |
+| withdraw | — | 0 | — | 0 (not after a run: see below) |
 
-### Funding from the deployer
+### Withdrawal batch (before run 2, not after run 1)
+
+After run 1 the deployer holds exactly 2 tUSD8 and Ada holds 3 tUSD8 in 3 swept notes. Run 2 needs 3 tUSD8, which would
+take the deployer below 2. So the batch comes first: at a quiet time, Ada withdraws the 3 notes to a fresh address we
+control, and that address forwards the 3 tUSD8 to the deployer.
+
+| Step | Sender (pays gas) | Txs | Gas each | Gas |
+|---|---|---:|---:|---:|
+| 3 unshields (one per note) | relayer | 3 | 343,698 (fork max) | 1,031,094 |
+| fund the fresh address | deployer | 1 | 21,000 | 21,000 |
+| forward 3 tUSD8 to the deployer | fresh address | 1 | 57,583 (fork) | 57,583 |
+
+The fresh address is funded at that time with 0.000087 tQDAY (57,583 × 1.5), not now.
+
+### Keys (generated 2026-11-22, outside the repo)
+
+| Role | Address | Where the key is |
+|---|---|---|
+| relayer | `0xF4945dD57C8de1C637966179df5b631689901422` | Foundry keystore `shaida-relayer`; the server gets it only as `RELAYER_PRIVATE_KEY` in its environment at start |
+| reader (Bola) | `0xbed994a7fD0e7A49DAD09866e86817ccA6Ea785E` | Foundry keystore `shaida-reader`, to import into the reader's browser wallet for "Record check" |
+
+Both keystores are in `~/.foundry/keystores/`, with random passwords in `~/.config/shaida/` (mode 600).
+
+### Funding from the deployer (waiting for the builder's yes)
 
 | Account | Planned gas | Funding | Why that amount |
 |---|---:|---:|---|
-| relayer (new key, server only) | 18,834,084 | **0.039 tQDAY** | 0.0188 × 1.5 = 0.0283 to spend, plus 0.01: the relayer refuses to send below 0.01 tQDAY (`minBalanceWei`). That 0.01 is never spent and is returned with the rest. |
-| reader, Bola (new browser key) | 267,017 | **0.00063 tQDAY** | The node needs gas limit × price = 0.00042 up front for the 420k attest; × 1.5 |
+| relayer `0xF494…1422` | 18,905,178 (run 1 + the batch) | **0.0384 tQDAY** | 0.018905 × 1.5 = 0.028358, plus 0.01: the relayer refuses to send below 0.01 tQDAY (`minBalanceWei`). That 0.01 is never spent and is returned with the rest. |
+| reader `0xbed9…785E` | 267,017 | **0.00063 tQDAY** | The node needs gas limit × price = 0.00042 up front for the 420k attest; × 1.5 |
 | attestor | — | 0 | It is the deployer itself |
 | payer, Acme Studio (demo) | 0 | 0 tQDAY, 3 tUSD8 | EIP-3009 is gasless for the payer |
 | Ada (demo) | 0 | 0 | The relayer sends her sweeps and withdrawals |
@@ -60,12 +85,12 @@ Proof: **≥ 3 tUSD8, step 1**. It is one proof: 3 payments fit its 4 slots, so 
 | Point | Deployer tQDAY | Deployer tUSD8 | Relayer tQDAY | Reader tQDAY |
 |---|---:|---:|---:|---:|
 | now | 0.982969 | 5 | 0 | 0 |
-| after funding, registration and the tUSD8 transfer | 0.943134 | 2 | 0.039 | 0.00063 |
-| after the run and the withdrawal | 0.943134 | 5 | ≈ 0.0202 | ≈ 0.00036 |
-| after returning the leftovers (2 × 21,000 gas) | ≈ 0.963621 | 5 | 0 | 0 |
+| after funding, registration and the tUSD8 transfer | 0.943734 | 2 | 0.0384 | 0.00063 |
+| after run 1 | 0.943734 | 2 | ≈ 0.020526 | ≈ 0.000363 |
+| after the withdrawal batch (before run 2) | ≈ 0.943626 | 5 | ≈ 0.019495 | ≈ 0.000363 |
 
-The deployer stays ≥ 0.5 tQDAY and ≥ 2 tUSD8 at every point. Net cost of one run: ≈ 0.0193 tQDAY. That leaves
-room for 23 more full runs above the 0.5 reserve.
+The deployer stays ≥ 0.5 tQDAY and ≥ 2 tUSD8 at every point. One run plus its share of a batch costs ≈ 0.0193 tQDAY
+in gas.
 
 ## Runs
 
