@@ -4,8 +4,8 @@ Written by `make test-redis` (tools/test-redis.sh). Do not edit by hand.
 
 | Field | Value |
 |---|---|
-| Date (UTC) | 2026-11-22T12:48:42Z |
-| Commit | `8a52763cc6d5b4f9c8ac3385507f6bee6b07c4b5` (uncommitted changes present) |
+| Date (UTC) | 2026-11-22T12:54:27Z |
+| Commit | `48872c3509b2ca5641d5e05335454cde57db5fef` |
 | Redis | `redis@sha256:c1e88455c85225310bbea54816e9c3f4b5295815e6dbf80c34d40afc6df28275` |
 | REST layer | `hiett/serverless-redis-http@sha256:65128347949bca511e448fd7238780d624573d74c22b79155a7563db19e9b678` (serverless-redis-http: Upstash's REST protocol, not Upstash itself) |
 | Client | @upstash/redis 1.41.0, node v24.19.0 |
