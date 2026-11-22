@@ -22,8 +22,9 @@ PRD §11 steps 1–2 and acts 2–3 run on a local fork <!-- CL02 -->; nothing i
   threshold share is rounded down to whole tUSD8 (D13). <!-- CL12 -->
   Circuit tests and timings use a **throwaway local key**. <!-- CL13 -->
 - Ceremony (step 3): done. Contributions by Kene and Gunroar and a beacon from Aevum block 3772100, verified; final
-  zkey sha256 `cbcb06fe…` ([ceremony/TRANSCRIPT.md](ceremony/TRANSCRIPT.md)), not yet published as a release.
-  <!-- CL14 --> The throwaway key (`NEXT_PUBLIC_SHAIDA_INCOME_KEY=throwaway`) works on local chains only and is refused
+  zkey sha256 `cbcb06fe…` ([ceremony/TRANSCRIPT.md](ceremony/TRANSCRIPT.md)) <!-- CL14 -->, published as the release
+  [`ceremony-v1`](https://github.com/DrApkFile/Shaida/releases/tag/ceremony-v1), whose asset hashes as recorded
+  ([evidence/ceremony-release.md](evidence/ceremony-release.md)). <!-- CL34 --> The throwaway key (`NEXT_PUBLIC_SHAIDA_INCOME_KEY=throwaway`) works on local chains only and is refused
   on Aevum 44005 (D21). <!-- CL15 -->
 - `IncomeVerifier` (on-chain check of one proof: tUSD8, known ledger root, gas guard, Groth16; optional attest):
   unit-tested with a placeholder and two throwaway verifiers; over the ceremony's verifier it is part of the fork
@@ -44,8 +45,7 @@ PRD §11 steps 1–2 and acts 2–3 run on a local fork <!-- CL02 -->; nothing i
 - PRD §11 acts 2–3 on the fork: [evidence/acts-2-3-fork.md](evidence/acts-2-3-fork.md) (script, tx hashes) and
   [evidence/ui-fork/](evidence/ui-fork/report.md) (the same flow through the UI at 390 px). <!-- CL02 --> <!-- CL21 -->
 
-Not built yet: the income-proof pages (prove, share, verify), the `ceremony-v1` release of the final zkey, deployment
-on Aevum testnet. <!-- not-built -->
+Not built yet: the income-proof pages (prove, share, verify), deployment on Aevum testnet. <!-- not-built -->
 
 ## Commands
 ```bash
