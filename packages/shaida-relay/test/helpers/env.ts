@@ -118,7 +118,13 @@ export function makeEnv(opts: { limits?: Partial<RelayLimits>; signerKey?: Hex; 
     return { chainId: CHAIN_ID, transfer };
   }
 
-  return { chain, deps, store, payer, relayer, lines, depositBody, vouchedPayBody, sweepBody, tick: (ms: number) => void (clock += ms) };
+  function unshieldBody(over: { to?: Hex; asset?: Hex; amount?: bigint } = {}) {
+    const root = rand(32);
+    chain.knownRoots.add(root);
+    return { chainId: CHAIN_ID, proof: rand(256), root, nullifier: rand(32), asset: over.asset ?? CONTRACTS.token, to: over.to ?? rand(20), amount: (over.amount ?? 1_500_000n).toString() };
+  }
+
+  return { chain, deps, store, payer, relayer, lines, depositBody, vouchedPayBody, sweepBody, unshieldBody, tick: (ms: number) => void (clock += ms) };
 }
 
 export const req = (body: unknown, ip = "203.0.113.7") => ({ ip, readBody: async () => JSON.parse(JSON.stringify(body)) as unknown });

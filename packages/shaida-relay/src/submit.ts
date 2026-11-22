@@ -36,6 +36,7 @@ export async function submit(fn: RelayFn, req: Incoming, deps: RelayDeps): Promi
     case "lateVouch": return run(SPECS.lateVouch, raw, deps);
     case "sweep": return run(SPECS.sweep, raw, deps);
     case "memo": return run(SPECS.memo, raw, deps);
+    case "unshield": return run(SPECS.unshield, raw, deps);
   }
 }
 

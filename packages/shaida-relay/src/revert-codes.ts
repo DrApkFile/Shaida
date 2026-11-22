@@ -20,6 +20,8 @@ const BY_ERROR_NAME: Record<string, ErrorCode> = {
   InvalidAmount: "InputRejected",
   OverDepositLimit: "InputRejected",
   BadMemo: "InputRejected",
+  ZeroAddress: "InputRejected",
+  InsufficientPoolBalance: "InputRejected",
 };
 
 /** FiatTokenV2_2 revert strings (S9). */

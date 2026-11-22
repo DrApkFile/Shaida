@@ -1,7 +1,7 @@
 // One spec per relayed function: its body, key, gas cap, rails and the single call it may make.
 import { encodeFunctionData, parseSignature, type Address, type Hex } from "viem";
 import type { z } from "zod";
-import { depositorAbi, ledgerAbi, memoBoardAbi } from "./abi";
+import { depositorAbi, ledgerAbi, memoBoardAbi, poolAbi } from "./abi";
 import { payerRefusal, signerRefusal, spendRefusal, tokenRefusal, windowRefusal } from "./checks";
 import type { PinnedReader } from "./reads";
 import * as S from "./schemas";
@@ -106,12 +106,36 @@ const memo: FnSpec<S.MemoBody> = {
   call: (b, c) => ({ to: c.memo, data: encodeFunctionData({ abi: memoBoardAbi, functionName: "postMemo", args: [b.commitment, b.memo as Hex] }) }),
 };
 
+const unshield: FnSpec<S.UnshieldBody> = {
+  fn: "unshield",
+  schema: S.unshieldBody,
+  gasCap: 500_000n, // spike S2: 0.32M on anvil; measured on the fork in evidence/withdraw-fork.md
+  key: (b) => `nullifier:${b.nullifier}`,
+  payer: () => null,
+  offchain: async (b, ctx) => {
+    if (b.asset !== ctx.contracts.token.toLowerCase()) return { code: "InputRejected", message: "The relayer withdraws tUSD8 only. Nothing was sent." };
+    if (b.amount === 0n) return { code: "InputRejected", message: "A withdrawal of 0 moves nothing. Nothing was sent." };
+    const own = Object.values(ctx.contracts).map((a) => a.toLowerCase());
+    if (/^0x0{40}$/.test(b.to) || own.includes(b.to)) return { code: "InputRejected", message: "That address is a contract of this app (or zero): tUSD8 sent there is lost. Withdraw to a wallet you control; nothing was sent." };
+    return null;
+  },
+  onchain: async (b, r, ctx) => {
+    const token = await tokenRefusal(r, ctx.contracts, b.to);
+    if (token) return token.code === "PayerBlacklisted" ? { code: "PayerBlacklisted", message: "The withdrawal address is on tUSD8's blacklist. Nothing was sent." } : token;
+    if (await r.bool(ctx.contracts.pool, "isSpent", [b.nullifier])) return { code: "AlreadySpent", message: "This note was already spent (withdrawn or moved). Nothing was sent." };
+    if (!(await r.bool(ctx.contracts.pool, "isKnownRoot", [b.root]))) return { code: "UnknownRoot", message: "The proof was made against a pool root the chain does not know. Resync and prove again; nothing was sent." };
+    return null;
+  },
+  call: (b, c) => ({ to: c.pool, data: encodeFunctionData({ abi: poolAbi, functionName: "unshield", args: [b.proof, b.root, b.nullifier, b.asset, b.to, b.amount] }) }),
+};
+
 export interface BodyOf {
   deposit: S.DepositBody;
   vouchedPay: S.VouchedPayBody;
   lateVouch: S.LateVouchBody;
   sweep: S.SweepBody;
   memo: S.MemoBody;
+  unshield: S.UnshieldBody;
 }
 
-export const SPECS: { readonly [F in RelayFn]: FnSpec<BodyOf[F]> } = { deposit, vouchedPay, lateVouch, sweep, memo };
+export const SPECS: { readonly [F in RelayFn]: FnSpec<BodyOf[F]> } = { deposit, vouchedPay, lateVouch, sweep, memo, unshield };

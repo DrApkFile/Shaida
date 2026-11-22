@@ -9,11 +9,11 @@ const codes = Object.keys(ERROR_CODES) as [ErrorCode, ...ErrorCode[]];
 const errorSchema = z.object({ code: z.enum(codes), message: z.string(), retryable: z.enum(["yes", "no", "later", "check"]), nextAction: z.string() }).strict();
 const errorReply = z.object({ error: errorSchema }).strict();
 
-const ROUTE: Record<RelayFn, string> = { deposit: "deposit", vouchedPay: "vouched-pay", lateVouch: "late-vouch", sweep: "sweep", memo: "memo" };
+const ROUTE: Record<RelayFn, string> = { deposit: "deposit", vouchedPay: "vouched-pay", lateVouch: "late-vouch", sweep: "sweep", memo: "memo", unshield: "unshield" };
 
 const recordSchema = z
   .object({
-    requestId: z.string(), chainId: z.number(), fn: z.enum(["deposit", "vouchedPay", "lateVouch", "sweep", "memo"]), key: z.string(), requestHash: z.string().regex(/^0x[0-9a-f]{64}$/), payer: z.string().nullable(),
+    requestId: z.string(), chainId: z.number(), fn: z.enum(["deposit", "vouchedPay", "lateVouch", "sweep", "memo", "unshield"]), key: z.string(), requestHash: z.string().regex(/^0x[0-9a-f]{64}$/), payer: z.string().nullable(),
     state: z.enum(["accepted", "pending", "mined", "dropped", "unknown"]), nonce: z.number(), hash: z.string().regex(/^0x[0-9a-f]{64}$/),
     gas: z.string(), gasPrice: z.string(), gasUsed: z.string().nullable(), block: z.string().nullable(), reverted: z.boolean().nullable(),
     error: errorSchema.nullable(), budgetDay: z.string(), history: z.array(z.object({ state: z.string(), at: z.string() }).strict()),

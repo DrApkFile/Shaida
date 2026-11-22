@@ -1,6 +1,6 @@
 import { parseAbi } from "viem";
 
-/** The five functions the relayer may call. Nothing else is ever encoded. */
+/** The six functions the relayer may call. Nothing else is ever encoded. */
 export const depositorAbi = parseAbi([
   "struct Authorization { uint256 validAfter; uint256 validBefore; uint8 v; bytes32 r; bytes32 s; }",
   "function depositWithAuthorization(address payer, uint256 amount, bytes32 commitment, bytes shieldProof, Authorization auth)",
@@ -15,6 +15,8 @@ export const ledgerAbi = parseAbi([
 ]);
 
 export const memoBoardAbi = parseAbi(["function postMemo(bytes32 paymentCommitment, bytes memo)"]);
+
+export const poolAbi = parseAbi(["function unshield(bytes proof, bytes32 root, bytes32 nullifier, address asset, address to, uint256 amount)"]);
 
 /** Reads the rails make, each at one pinned block. */
 export const readsAbi = parseAbi([
@@ -37,6 +39,8 @@ export const relayErrorsAbi = parseAbi([
   "error ZeroCommitment()",
   "error OverDepositLimit()",
   "error InvalidAmount()",
+  "error ZeroAddress()",
+  "error InsufficientPoolBalance()",
   "error Reentrancy()",
   // GloamPayMemo
   "error BadMemo()",

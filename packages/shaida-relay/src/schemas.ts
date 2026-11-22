@@ -29,6 +29,14 @@ export const lateVouchBody = z.object({ chainId, payer: address, commitment: hex
 
 export const sweepBody = z.object({ chainId, transfer: transferSchema }).strict();
 
+/**
+ * pool.unshield: the proof binds root, nullifier, asset, `to` and amount, so the relayer cannot redirect it and the
+ * only thing it decides is whether to pay the gas. Withdrawals are public: amount and recipient show on chain.
+ */
+export const unshieldBody = z
+  .object({ chainId, proof, root: hex(32), nullifier: hex(32), asset: address, to: address, amount: uint })
+  .strict();
+
 /** GloamPayMemo allows 8,192 bytes; a sealed Gloam payment is well under 2,048. */
 export const MAX_MEMO_BYTES = 2048;
 export const memoBody = z
@@ -40,3 +48,4 @@ export type VouchedPayBody = z.output<typeof vouchedPayBody>;
 export type LateVouchBody = z.output<typeof lateVouchBody>;
 export type SweepBody = z.output<typeof sweepBody>;
 export type MemoBody = z.output<typeof memoBody>;
+export type UnshieldBody = z.output<typeof unshieldBody>;

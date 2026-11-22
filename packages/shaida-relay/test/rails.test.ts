@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { decodeFunctionData, parseTransaction, type Hex } from "viem";
-import { depositorAbi, ledgerAbi, memoBoardAbi, signerAllowedOn, submit, type RelayReply } from "../src/index";
+import { depositorAbi, ledgerAbi, memoBoardAbi, poolAbi, signerAllowedOn, submit, type RelayReply } from "../src/index";
 import { CHAIN_ID, CONTRACTS, makeEnv, req } from "./helpers/env";
 
 const codeOf = (r: RelayReply) => (r.ok ? `ok:${r.record.state}` : r.error.code);
@@ -159,5 +159,55 @@ describe("relayer: simulate, gas, one call per function", () => {
     assert.equal(signerAllowedOn(anvil0, 440050), true);
     assert.equal(signerAllowedOn(anvil0, 44005), false);
     assert.equal(signerAllowedOn("0x000000000000000000000000000000000000dEaD", 44005), true);
+  });
+});
+
+describe("relayer: unshield (withdrawals, public by nature)", () => {
+  it("R20 refuses another asset, a zero amount, and an app contract or zero address as recipient, with no chain call", async () => {
+    const env = makeEnv();
+    assert.equal(codeOf(await submit("unshield", req(env.unshieldBody({ asset: "0x000000000000000000000000000000000000dEaD" })), env.deps)), "InputRejected");
+    assert.equal(codeOf(await submit("unshield", req(env.unshieldBody({ amount: 0n })), env.deps)), "InputRejected");
+    assert.equal(codeOf(await submit("unshield", req(env.unshieldBody({ to: CONTRACTS.pool })), env.deps)), "InputRejected");
+    assert.equal(codeOf(await submit("unshield", req(env.unshieldBody({ to: "0x0000000000000000000000000000000000000000" })), env.deps)), "InputRejected");
+    assert.equal(codeOf(await submit("unshield", req({ ...env.unshieldBody(), fee: "1" }), env.deps)), "InputRejected");
+    assert.equal(env.chain.log.length, 0);
+  });
+
+  it("R21 refuses a spent note, an unknown root, a blacklisted recipient and a paused token without simulating", async () => {
+    const env = makeEnv();
+    const spent = env.unshieldBody();
+    env.chain.spent.add(spent.nullifier);
+    const r = await submit("unshield", req(spent), env.deps);
+    assert.equal(codeOf(r), "AlreadySpent");
+    assert.equal(r.ok ? 0 : r.status, 409);
+    const unknownRoot = env.unshieldBody();
+    env.chain.knownRoots.delete(unknownRoot.root);
+    assert.equal(codeOf(await submit("unshield", req(unknownRoot), env.deps)), "UnknownRoot");
+    const black = env.unshieldBody();
+    env.chain.blacklisted.add(black.to.toLowerCase());
+    assert.equal(codeOf(await submit("unshield", req(black), env.deps)), "PayerBlacklisted");
+    env.chain.paused = true;
+    assert.equal(codeOf(await submit("unshield", req(env.unshieldBody()), env.deps)), "TokenPaused");
+    assert.equal(env.chain.didSimulate(), false);
+  });
+
+  it("R22 sends exactly pool.unshield with the proof's own recipient and amount, capped at 500,000 gas, once per nullifier", async () => {
+    const env = makeEnv();
+    env.chain.automine = true;
+    env.chain.estimate = 330_000n;
+    const body = env.unshieldBody({ amount: 1_500_000n });
+    assert.equal(codeOf(await submit("unshield", req(body), env.deps)), "ok:pending");
+    const tx = parseTransaction(env.chain.sent[0] as Hex);
+    assert.equal(tx.to?.toLowerCase(), CONTRACTS.pool);
+    assert.equal(tx.gas, 429_000n);
+    const call = decodeFunctionData({ abi: poolAbi, data: tx.data ?? "0x" });
+    assert.equal(call.functionName, "unshield");
+    assert.deepEqual([String(call.args[4]).toLowerCase(), call.args[5]], [body.to.toLowerCase(), 1_500_000n]);
+    const again = await submit("unshield", req(body), env.deps);
+    assert.ok(again.ok, "answered from its record");
+    assert.equal(env.chain.sent.length, 1, "the same request is answered from its record, not resent");
+    env.chain.estimate = 500_001n;
+    const big = await submit("unshield", req(env.unshieldBody()), env.deps);
+    assert.match(big.ok ? "" : big.error.message, /at most 500000 for unshield/);
   });
 });
