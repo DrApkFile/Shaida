@@ -25,15 +25,33 @@ pay privately → payment vouched by a registered payer → recipient sweeps →
 
 ```
 web (Next.js, from Aevum Starter Kit)          contracts (Foundry, Shanghai)
- /pay   payer: deposit + vouched pay  ───────►  ShaidaDepositor ──► Gloam ShieldPoolPoseidon (final keys)
- /inbox recipient: receive + sweep    ───────►  ShaidaLedger ──────► Gloam pool.transfer
- /prove recipient: build income proof            ├ PayerRegistry
+ /      landing (public, D26)
+ /app   dashboard (D26): overview + the four sections below
+ /app/pay    payer: deposit + vouched pay ──►  ShaidaDepositor ──► Gloam ShieldPoolPoseidon (final keys)
+ /app/inbox  recipient: receive + sweep  ──►  ShaidaLedger ──────► Gloam pool.transfer
+ /app/prove  recipient: build income proof      ├ PayerRegistry
+ /app/shared proof links made in this browser   │
  /v     reader: verify (link fragment)  ──view──►├ IncomeVerifier (Groth16, ceremony keys)
  /api/relay (hardened)                           └ Poseidon tree: vouch + sweep leaves
  /api/index (leaf snapshots, cursor)  ◄──logs── Aevum RPC (≤1,000-block pages)
 packages/shaida-proofs: circuit, witness builder, prover, verifier client (reusable, ecosystem criterion)
 packages/aevum: chain/tUSD8/EIP-3009/logs helpers adapted from the kit
 ```
+
+### Web pages (D26; style: DESIGN.md, D25)
+- **Landing `/`** (public, no wallet): the hook ("Get paid privately, prove you earn enough, show nothing else"); how it
+  works in 3 steps (get paid privately → sweep → share a proof link); who it is for (freelancers, merchants,
+  grantees); the trust story: the ceremony with its named contributors and public beacon (from `ceremony/record.json`),
+  open source (repo link), and the limits stated plainly (LIMITS.md); CTAs to the dashboard and to a live verify
+  example. No stats or testimonials that no command produced; the example link and personas are labelled demo, and the
+  example CTA says so when no example link exists for the configured network.
+- **Dashboard `/app`** (one place for the connected user): an overview with one card per section and real counts
+  (`—` until read): **Pay** (as a payer: deposit, vouched pay; `/app/pay`), **Inbox** (incoming payments, sweep;
+  `/app/inbox`), **Prove** (make a proof link; `/app/prove`), **Shared proofs** (links made in this browser, with their
+  reader and expiry, newest first; `/app/shared`). Every section has an empty state, a loading state, an unknown-tx
+  state (`TxOutcomeUnknown`, check by hash, never resend), an error state with its closed code, and works at 390 px.
+  `/pay` and `/inbox` redirect to `/app/pay` and `/app/inbox`.
+- **Prove `/app/prove`** and **verify `/v`**: PRD §5 and §7 acts 4–6; the details are D27.
 
 ### Contracts (new, ours)
 | Contract | Responsibility | Key functions |
@@ -216,7 +234,7 @@ the reader's id hash and the clock are injected. Retryable codes (`UnknownRoot`,
 | Nov 23–24 | `income.circom` v1 (8 slots; 4 slots + bundles since D12) + witness builder + all circuit tests | **go/no-go Nov 24** (fallback per IDEA_CHECK R7) |
 | Nov 25–26 | Ceremony phase 2 (2+ contributors + beacon); `IncomeVerifier`; Node prover; verification core (§5) | X-suite green; ceremony recorded |
 | Nov 27–29 | Indexer + relayer + pay/inbox flows | acts 2–3 work on fork |
-| Nov 30–Dec 2 | Browser prover + prove/verify UI | acts 4–6 on fork; S8 timing recorded |
+| Nov 30–Dec 2 | Browser prover + prove/verify UI; landing `/` and dashboard `/app` in DESIGN.md's system (D25, D26) | acts 4–6 on fork (script + UI at 390 px and desktop); S8 timing with the final key recorded; screenshots of landing, dashboard, prove and verify in `evidence/ui/` |
 | Dec 3–4 | Deploy to 44005; real run with the faucet tUSD8 | evidence/A02, A04 generated |
 | Dec 5–7 | README, NOTICE, LIMITS, judge path, P1 items if green | clean-clone gate passes |
 | Dec 8–9 | Pre-submit audit; rehearse the live demo | audit checklist done |

@@ -485,3 +485,67 @@ Decision:
 Rejected: copying Muuve's components or assets (no licence to copy them); adding Tailwind to match Muuve's source
 (a new toolchain for the same values); Lucide as a dependency (ISC, but a dozen hand-drawn icons in its weight suffice).
 Where: DESIGN.md, web/src/app/{tokens,globals}.css, web/src/components/Icons.tsx, web/public/brand/, tools/lint.mjs
+
+## D26: a landing page and a dashboard
+Context: the builder asked for a public landing page and one dashboard for the connected user (PRD §3 "Web pages",
+§11). Until now `/` was a status checklist and `/pay`, `/inbox` were separate pages.
+Decision:
+- `/` is the landing page (public, no wallet): hook, how it works in 3 steps, who it is for, the trust story read from
+  `ceremony/record.json` (contributors, beacon block and hash, final key hash) plus the repo link and LIMITS.md, and two
+  CTAs: the dashboard and a live verify example. The example is a real link made by the acts 4–6 run on the configured
+  network, given to the build as `NEXT_PUBLIC_SHAIDA_EXAMPLE_LINK` and labelled demo; without one, the CTA says that no
+  example exists on this network yet (never a made-up link).
+- `/app` is the dashboard: an overview (status checks of the old home page, and one card per section with counts read
+  from the vault and the checked trees, `—` until read) and the sections `/app/pay`, `/app/inbox`, `/app/prove`,
+  `/app/shared`. The pay and inbox screens move there unchanged in behaviour; `/pay` and `/inbox` redirect
+  (`next.config.ts`), so old links and the acts 2–3 UI flow still work.
+- `repoUrl` defaults to this repo (github.com/DrApkFile/Shaida), not the starter kit.
+Rejected: one long `/app` page with all four sections (the pay and prove forms each need a full screen at 390 px);
+a separate verifier app (the reader needs no wallet, and `/v` is already a public route).
+Where: PRD §3, §11; web/src/app/{page.tsx,app/,v/}, web/next.config.ts
+
+## D27: the income-proof screens (prove, share, verify)
+Context: PRD §3, §5 and §7 acts 4–6. Several details were not fixed: how a reader's name becomes `readerIdHash`, how
+dates map to leaf ranges, which keys the browser may use, and where shared links are kept.
+Decision:
+- **Final key only.** The prove and verify screens use only the ceremony's final key: the zkey is a local copy of the
+  `ceremony-v1` release asset (`tools/fetch-income-key.mjs`, sha256 checked against `ceremony/record.json`), the wasm is
+  `build/income_js/income.wasm` from the ceremony-bound r1cs compile, the vkey is the committed
+  `keys/income_final_vkey.json`. `tools/copy-income-artifacts.mjs` copies the zkey and wasm to
+  `web/public/circuits/income/` (gitignored) after checking both pins (`packages/shaida-pay/income-artifacts.json`), and
+  the browser checks them again before proving. No throwaway file is ever served. The prove screen refuses to run unless
+  `incomeKeyFor` says `final` (the throwaway switch stays refused on 44005, P01, and is now also refused by these screens
+  on every network).
+- **Reader id** (`readerIdHashOf`, `packages/shaida-proofs/src/reader.ts`): the name is normalized (Unicode NFC, trimmed,
+  inner whitespace collapsed to one space, lower case), must be 1–96 UTF-8 bytes, is packed big-endian into four 31-byte
+  field elements, and hashed as Poseidon(3, byteLength, c0, c1, c2, c3) (tag 3, next to the ledger's tags 1 and 2). A
+  name is not authentication: anyone who knows the reader's name can open the link as that reader (LIMITS.md). It stops
+  a link being shown as made for someone else.
+- **Period → leaf range** (`leafRangeForPeriod`): the period is two calendar dates in the browser's time zone, from 00:00
+  of the first to 23:59:59 of the last; `fromIndex` is the first ledger leaf whose block time is at or after the start,
+  `toIndex` the last at or before the end. Block times come from `eth_getBlockByNumber` for the leaves' blocks (from the
+  checked index snapshot). No leaf in the period → `NoSweptPayments`.
+- **Dates for the reader** (PRD §5 step 8, `datesForRange`): `fromDate` is the block time of the first V leaf at index ≥
+  `fromIndex`, `toDate` of the last V leaf at index ≤ `toIndex`; none inside the range → `RangeUnresolvable`. The reader
+  sees calendar dates only.
+- **Threshold**: whole multiples of the share step (1 tUSD8 by default, 5 or 10 if the recipient picks a coarser step,
+  D13). An off-step amount is not refused silently: the screen offers the nearest multiples below and above
+  (`nearestValidThresholds`). `BelowThreshold` shows the most the bundle can show.
+- **Expiry**: a date, end of that day in the browser's time zone; 30 days by default; must be in the future and at most
+  365 days away.
+- **Proving**: the witness bundle is built in a Web Worker, then each proof in a fresh Web Worker (terminated after its
+  proof), with a progress bar by stage (artifacts checked, witness, proof k of n, verified). The worker verifies each
+  proof with the vkey before the link is shown. Note secrets go to the worker and nowhere else.
+- **Shared links** are kept in the vault (encrypted, field `shared`, default empty so older vault blobs still open),
+  with the reader name, expiry, threshold, count and period. The link itself is the only copy the reader gets.
+- **Verify `/v`** (no wallet): the reader types their name; the page runs `verifyIncomeLink` with `isKnownRoot` read at
+  one pinned block, Groth16 verify in the browser with the pinned vkey, and dates from the checked index snapshot. It
+  shows VALID (threshold, payment count, period as dates, expiry) or the named refusal in plain words; nothing else.
+  "Check on-chain" calls `IncomeVerifier.check` for each proof with gas 400,000 (D14); "Record check" sends `attest`
+  from a connected wallet (legacy tx, gas 420,000) and links the tx on the explorer on 44005 (hash only on the fork).
+- **The link names no chain** (schema v1 is frozen with the tests): `/v` verifies against the app's configured network.
+Rejected: a hash of the raw name (two spellings of one name would be two readers); sha256 for the reader id
+(Poseidon keeps the core synchronous and in one hash family); fetching the zkey from GitHub at page load (a third-party
+request per proof, and the pin would be checked on bytes we do not serve); sending proofs to the server to verify (D5).
+Where: packages/shaida-proofs/src/{reader,period}.ts, packages/shaida-pay/src/income.ts, web/src/app/{app/prove,app/shared,v}/,
+web/src/workers/, tools/copy-income-artifacts.mjs, LIMITS.md
