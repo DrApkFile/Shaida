@@ -5,6 +5,7 @@
 #   2 forge build + Shanghai check                                6 fork tests on real tUSD8 (INCONCLUSIVE if the RPC
 #   3 circuit compile + artifact hash check                         is unreachable: never a pass, never silently skipped)
 #   4 typecheck + lint                                            7 claims check (README claims ⊆ PROVEN)
+#                                                                 8 secret scan (gitleaks over the whole git history)
 # Exit: 0 PASS, 1 FAIL (first failing step stops the gate), 3 INCONCLUSIVE (all else passed, fork tests not run).
 set -euo pipefail
 
@@ -108,6 +109,11 @@ else
 fi
 
 step "7 claims check" node tools/check-claims.mjs
+secret_scan() {
+  command -v gitleaks > /dev/null || { echo "gitleaks not installed (pinned: 8.21.2, see .gitleaks.toml): the secret scan cannot run"; return 1; }
+  gitleaks detect --source . --config .gitleaks.toml --redact --no-banner
+}
+step "8 secret scan (gitleaks, whole history)" secret_scan
 
 if [[ "$fork" == "PASS" ]]; then summary "PASS"; exit 0; fi
 summary "INCONCLUSIVE (fork tests not run; everything else passed)"

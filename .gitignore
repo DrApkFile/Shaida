@@ -7,6 +7,16 @@ next-env.d.ts
 .env*
 !.env.example
 !**/.env.example
+# key material of any kind (real keys live in ~/.foundry/keystores and ~/.config/shaida, outside the repo)
+keystore/
+keystores/
+*.keystore
+UTC--*
+*.key
+*.pem
+*.password
+*.pw
+*secret*.json
 
 # foundry
 contracts/out/

@@ -1,0 +1,39 @@
+# gitleaks config (gitleaks 8.21.2): the default rules plus explicit ones for this repo's kinds of secret. Run with
+# `make secrets` (also part of `make gate`). Real keys live outside the repo: ~/.foundry/keystores, ~/.config/shaida.
+[extend]
+useDefault = true
+
+[[rules]]
+id = "eth-private-key"
+description = "Ethereum private key next to a key-ish name (RELAYER_PRIVATE_KEY=0x…, privateKey: \"0x…\")"
+regex = '''(?i)(?:private[_-]?key|priv[_-]?key|signer[_-]?key|secret[_-]?key|deployer[_-]?key|relayer[_-]?key|PK)['"]?\s*[:=]\s*['"]?((?:0x)?[0-9a-f]{64})\b'''
+secretGroup = 1
+keywords = ["private", "priv", "key", "pk"]
+
+[[rules]]
+id = "eth-keystore"
+description = "Encrypted Ethereum keystore (Foundry/geth JSON): brute-forceable offline, never commit"
+regex = '''"ciphertext"\s*:\s*"([0-9a-f]{64})"'''
+secretGroup = 1
+keywords = ["ciphertext"]
+
+[[rules]]
+id = "keystore-password-file"
+description = "A keystore password file"
+path = '''(?i)(?:\.password|\.pw|keystore[-_]?password[^/]*)$'''
+
+[allowlist]
+description = "Public values only: published test keys and sha256 pins"
+regexTarget = "secret"
+regexes = [
+  # anvil / hardhat default accounts 0 and 1 (published with the tools; the relayer refuses them on 44005, R16)
+  '''(?i)^(0x)?ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80$''',
+  '''(?i)^(0x)?59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d$''',
+  # sha256 pins of published circuit files (zkeySha256 fields): public by design, not secrets
+  '''^3054877c35e2e0e9f76c43aa4791ac2b3ac51b8967d51be2215e89c0a5fbb512$''',
+  '''^bd2fa46b9b5862637302566cfc617770d1cf585f40457e5c983a45a91c2ef911$''',
+  '''^bdbae966705bc85e76571b4945da74a43fc4503a955fd4e3799358bcff749cdb$''',
+  '''^cbcb06fecdf72b47bb7d45d4403eaf69cf78bee65ad41cd50d0c98f4609cc0a5$''',
+  '''^f0feb5a74eb121022a918e12d72143885de379c297c6c894db57532df8238f68$''',
+  '''^5a12073f3f84b52f794feaf862fb1d48301124319db95a9c6d0dc58277fa54ed$''',
+]
