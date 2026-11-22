@@ -26,7 +26,7 @@ const LIMITS = [
   "Testnet only: Aevum testnet (chain 44005) with tUSD8. Not audited.",
   "tUSD8's issuer can pause the token or block an address; Shaida cannot stop that.",
   "Only payments from registered payers, swept by you, count. A payment you made to yourself does not.",
-  "A reader's name is not a login: anyone who knows the name and has the link can open it. Keep links private; they expire.",
+  "A reader's name binds intent, not identity: anyone with the link who types the name sees VALID. Keep links private; they expire.",
 ] as const;
 
 export default function LandingPage() {

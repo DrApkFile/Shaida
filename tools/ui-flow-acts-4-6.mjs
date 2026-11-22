@@ -96,8 +96,8 @@ async function main() {
     await unlock(ada);
     await ada.until(`document.querySelector(".shared-link")`, 30_000, "shared link");
     await ada.shot(name("05-shared"));
-    await ada.goto("/app");
-    await unlock(ada);
+    // The overview has no vault form: reach it through its section tab, so the vault opened above stays open.
+    await ada.eval(`document.querySelector('.section-tabs a[href="/app"]').click()`);
     await ada.until(`document.body.innerText.includes("zkey ") && document.querySelectorAll(".big-num")[3]?.innerText === "1"`, 120_000, "dashboard counts");
     await ada.shot(name("06-dashboard"));
 
