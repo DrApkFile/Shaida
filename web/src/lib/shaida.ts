@@ -12,6 +12,8 @@ const contractsSchema = z
     depositor: address,
     registry: address,
     memo: address,
+    /** IncomeVerifier: check (view) and attest for income proofs (PRD §3, D27). */
+    incomeVerifier: address,
     /** First block to index: the pool's deploy block. */
     startBlock: z.string().regex(/^[1-9][0-9]*$/).transform((b) => BigInt(b)),
   })

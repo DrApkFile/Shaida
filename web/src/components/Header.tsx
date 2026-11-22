@@ -10,8 +10,8 @@ import { useNetwork } from "@/lib/network";
 
 const links = [
   { href: "/", label: "Home" },
-  { href: "/pay", label: "Pay" },
-  { href: "/inbox", label: "Inbox" },
+  { href: "/app", label: "Dashboard" },
+  { href: "/v", label: "Verify" },
 ];
 
 export function Header() {

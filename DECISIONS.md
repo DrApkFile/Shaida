@@ -533,11 +533,15 @@ Decision:
   (`nearestValidThresholds`). `BelowThreshold` shows the most the bundle can show.
 - **Expiry**: a date, end of that day in the browser's time zone; 30 days by default; must be in the future and at most
   365 days away.
-- **Proving**: the witness bundle is built in a Web Worker, then each proof in a fresh Web Worker (terminated after its
-  proof), with a progress bar by stage (artifacts checked, witness, proof k of n, verified). The worker verifies each
-  proof with the vkey before the link is shown. Note secrets go to the worker and nowhere else.
+- **Proving**: the witness bundle is built on the page (pure, milliseconds), then each proof runs in a fresh Web
+  Worker (terminated after its proof), with a progress bar by stage (artifacts checked, witness, proof k of n, link
+  checked as the reader will). The worker verifies its proof with the final vkey, and the page runs the reader's full
+  `verifyIncomeLink` on the finished link, before it is shown. Note secrets go to the worker and nowhere else.
 - **Shared links** are kept in the vault (encrypted, field `shared`, default empty so older vault blobs still open),
   with the reader name, expiry, threshold, count and period. The link itself is the only copy the reader gets.
+- **Record check on the fork**: no wallet is assumed in the demo, so on chain 440050 only, "Record check" is sent by a
+  one-off key made in the tab and funded with `anvil_setBalance`, labelled demo (like D21's demo payer). On 44005 it
+  needs the reader's connected wallet.
 - **Verify `/v`** (no wallet): the reader types their name; the page runs `verifyIncomeLink` with `isKnownRoot` read at
   one pinned block, Groth16 verify in the browser with the pinned vkey, and dates from the checked index snapshot. It
   shows VALID (threshold, payment count, period as dates, expiry) or the named refusal in plain words; nothing else.

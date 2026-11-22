@@ -22,7 +22,7 @@ const file = resolve(ROOT, arg("deployment") ?? `deployments/${network}.json`);
 if (!existsSync(file)) fail(`${file} not found (deploy first)`);
 const d = JSON.parse(readFileSync(file, "utf8"));
 if (d.chainId !== CHAIN[network]) fail(`${file} is chain ${d.chainId}, expected ${CHAIN[network]}`);
-const need = { pool: "ShieldPoolPoseidon", ledger: "ShaidaLedger", depositor: "ShaidaDepositor", registry: "PayerRegistry", memo: "GloamPayMemo" };
+const need = { pool: "ShieldPoolPoseidon", ledger: "ShaidaLedger", depositor: "ShaidaDepositor", registry: "PayerRegistry", memo: "GloamPayMemo", incomeVerifier: "IncomeVerifier" };
 const contracts = {};
 for (const [k, name] of Object.entries(need)) {
   const a = d.contracts?.[name]?.address;

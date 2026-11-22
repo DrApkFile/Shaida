@@ -293,3 +293,12 @@ details[open] summary { margin-bottom: 12px; }
 .verdict.invalid { color: var(--danger); }
 .verdict.inconclusive { color: var(--peach-700); }
 .link-box { padding: 12px 14px; border-radius: var(--r-input); background: var(--paper-80); border: 1px solid var(--ink-10); font-family: var(--font-mono); font-size: 12px; max-height: 120px; overflow: auto; overflow-wrap: anywhere; word-break: break-all; }
+
+/* ---------- dashboard section tabs (Muuve AppShell secondary nav) ---------- */
+.section-tabs { display: flex; gap: 8px; margin-top: 16px; overflow-x: auto; scrollbar-width: none; }
+.section-tabs a {
+  display: inline-flex; align-items: center; gap: 7px; flex: none; height: 40px; padding: 0 16px; border-radius: var(--r-pill);
+  border: 1px solid var(--ink-10); background: var(--paper-70); color: var(--ink-72); font-size: 14px; font-weight: 500; text-decoration: none;
+}
+.section-tabs a:hover { background: var(--paper); color: var(--ink); }
+.section-tabs a[aria-current="page"] { background: var(--ink); border-color: var(--ink); color: var(--cream); }

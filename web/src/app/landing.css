@@ -1,0 +1,32 @@
+/* Landing (D26) in Muuve's marketing layout (DESIGN.md: Hero.tsx, HowItWorksSection). Colours only via tokens. */
+.landing { display: flex; flex-direction: column; gap: 56px; padding: 32px 0 80px; }
+@media (min-width: 768px) { .landing { gap: 88px; padding-top: 56px; } }
+
+.hero { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; align-items: center; }
+@media (min-width: 960px) { .hero { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 48px; } }
+.hero h1 { font-size: clamp(42px, 8vw, 88px); line-height: 0.95; letter-spacing: -0.04em; font-weight: 400; }
+.hero .lede { font-size: 18px; }
+.hero-ctas { margin-top: 28px; }
+.hero-ctas .btn[aria-disabled="true"] { opacity: 0.55; cursor: default; white-space: normal; text-align: center; }
+.hero-ctas + .fine { margin-top: 12px; max-width: 56ch; }
+.hero-art { display: flex; align-items: center; justify-content: center; min-height: 240px; color: var(--lemon-500); }
+@media (max-width: 959px) { .hero-art { min-height: 180px; } .hero-art svg { width: 120px; height: 120px; } }
+
+.band { display: flex; flex-direction: column; gap: 20px; }
+.band-title { font-size: clamp(30px, 5vw, 48px); line-height: 1; letter-spacing: -0.03em; font-weight: 400; }
+.landing h3 { font-size: 21px; line-height: 1.2; font-weight: 500; letter-spacing: -0.02em; }
+
+.how { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--gap); }
+@media (min-width: 768px) { .how { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.how-num { font-size: 56px; line-height: 1; font-weight: 300; letter-spacing: -0.05em; color: var(--ink-30); }
+.how-icon { display: inline-flex; width: 48px; height: 48px; align-items: center; justify-content: center; border-radius: var(--r-pill); background: var(--lemon-100); color: var(--ink); }
+
+.who { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--gap); }
+@media (min-width: 768px) { .who { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.trust { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--gap); align-items: start; }
+@media (min-width: 1024px) { .trust { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.trust .btn { align-self: flex-start; }
+
+.strip { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; padding: 28px; }
+.strip h2 { font-size: clamp(26px, 4vw, 40px); font-weight: 400; letter-spacing: -0.03em; color: var(--cream); }

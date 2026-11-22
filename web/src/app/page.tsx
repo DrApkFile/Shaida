@@ -1,91 +1,109 @@
-"use client";
-
-import { useQuery } from "@tanstack/react-query";
+// Landing (D26). Server-rendered; every fact on it comes from a file in this repo (ceremony/record.json, LIMITS.md)
+// or the build's config. No stats or testimonials; the example link and personas are labelled demo.
 import Link from "next/link";
-import { useMemo } from "react";
-import { ARTIFACT_FILES, loadCircuit } from "@shaida/pay";
-import { CheckIcon, CrossIcon, WarnIcon } from "@/components/Icons";
-import { wiringFor } from "@/lib/flows";
-import { useNetwork } from "@/lib/network";
-import { DEMO_CHAIN_ID } from "@/lib/payer";
+import record from "../../../ceremony/record.json";
+import { ArrowRightIcon, ArrowUpRightIcon, InboxIcon, LinkIcon, ProofIcon, SealedLetter } from "@/components/Icons";
+import { repoUrl } from "@/lib/env";
+import "./landing.css";
 
-type Status = "ok" | "warn" | "bad" | "idle";
-interface Check { title: string; status: Status; value: string; detail: string }
+const chain = record.verified.at(-1)?.contributions ?? [];
+const people = chain.filter((c) => !c.name.startsWith("Aevum "));
+const example = process.env.NEXT_PUBLIC_SHAIDA_EXAMPLE_LINK?.trim() || null;
 
-const ICON = { ok: <CheckIcon />, warn: <WarnIcon />, bad: <CrossIcon />, idle: <WarnIcon /> };
-const fetchBytes = async (url: string) => { const r = await fetch(url); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.arrayBuffer(); };
+const STEPS = [
+  { icon: <InboxIcon size={22} />, title: "Get paid privately", text: "A registered payer pays your receive address from Gloam's private pool. The chain shows that a registered payer paid someone, not who or how much." },
+  { icon: <ProofIcon size={22} />, title: "Sweep", text: "Move each payment into a fresh note only you know. Until then the payer could take it back; after, it is yours alone and it counts." },
+  { icon: <LinkIcon size={22} />, title: "Share a proof link", text: "Pick a period, an amount and one reader. Your browser makes a zero-knowledge proof; the reader opens the link and sees VALID, or why not." },
+] as const;
 
-export default function HomePage() {
-  const { net } = useNetwork();
-  const w = useMemo(() => wiringFor(net), [net]);
-  const relay = useQuery({
-    queryKey: ["relay-info", net.chain.id],
-    queryFn: async () => (await fetch(`/api/relay?chainId=${net.chain.id}`, { cache: "no-store" })).json() as Promise<{ enabled: boolean; relayer: string | null; reason: { code: string; message: string } | null }>,
-  });
-  const trees = useQuery({ queryKey: ["home-trees", net.chain.id], enabled: w.ok, queryFn: () => (w.ok ? w.value.trees() : Promise.reject(new Error("not configured"))) });
-  const circuits = useQuery({
-    queryKey: ["circuits"],
-    queryFn: async () => Promise.all((["shield", "transfer"] as const).map((c) => loadCircuit("/gloam", c, fetchBytes))),
-    staleTime: Infinity,
-  });
+const WHO = [
+  { tone: "tone-lemon", title: "Freelancers", text: "Show a landlord you earn enough for the rent, without handing over a bank statement with every client on it." },
+  { tone: "tone-sage", title: "Merchants", text: "Show a supplier or a lender steady income over a quarter, without showing which customers paid." },
+  { tone: "tone-rose", title: "Grantees", text: "Show a programme you received the tranches you were promised, without publishing your wallet." },
+] as const;
 
-  const checks: Check[] = [
-    w.ok
-      ? { title: "Contracts", status: "ok", value: `pool ${w.value.contracts.pool.slice(0, 10)}…`, detail: `Gloam pool, ShaidaLedger, ShaidaDepositor, PayerRegistry and the memo board on ${net.chain.name}.` }
-      : { title: "Contracts", status: "bad", value: "not configured", detail: w.problem },
-    !relay.data
-      ? { title: "Gasless relayer", status: "idle", value: "—", detail: "Checking…" }
-      : relay.data.enabled
-        ? { title: "Gasless relayer", status: "ok", value: `${relay.data.relayer?.slice(0, 10)}…`, detail: "Pays gas for deposits, vouched pays, sweeps and memos. One route per contract function." }
-        : { title: "Gasless relayer", status: "bad", value: relay.data.reason?.code ?? "off", detail: relay.data.reason?.message ?? "Not available." },
-    !trees.data
-      ? { title: "Pool and ledger trees", status: "idle", value: "—", detail: "Syncing from /api/index and checking both roots on chain…" }
-      : trees.data.ok
-        ? { title: "Pool and ledger trees", status: "ok", value: `block ${trees.data.value.block}`, detail: `${trees.data.value.pool.size} pool leaves, ${trees.data.value.ledger.size} ledger leaves; both roots recomputed here and known on chain.` }
-        : { title: "Pool and ledger trees", status: "bad", value: trees.data.error.code, detail: trees.data.error.message },
-    !circuits.data
-      ? { title: "Gloam circuits (final keys)", status: "idle", value: "—", detail: "Checking the served files' sha256…" }
-      : circuits.data.every((c) => c.ok)
-        ? { title: "Gloam circuits (final keys)", status: "ok", value: "sha256 match", detail: `${ARTIFACT_FILES.shield.zkey.file} and ${ARTIFACT_FILES.transfer.zkey.file} from Gloam's ceremony; proofs are made in this browser.` }
-        : { title: "Gloam circuits (final keys)", status: "bad", value: "NotConfigured", detail: circuits.data.map((c) => (c.ok ? "" : c.error.message)).join(" ") },
-    !w.ok
-      ? { title: "Income-proof key", status: "idle", value: "—", detail: "Needs the contracts first." }
-      : w.value.incomeKey.ok
-        ? { title: "Income-proof key", status: w.value.incomeKey.value === "final" ? "ok" : "warn", value: w.value.incomeKey.value, detail: w.value.incomeKey.value === "final" ? "The ceremony's final key." : "THROWAWAY key: forgeable by whoever made it. Allowed on local chains only; refused on Aevum 44005." }
-        : { title: "Income-proof key", status: "bad", value: w.value.incomeKey.error.code, detail: w.value.incomeKey.error.message },
-  ];
+const LIMITS = [
+  "Testnet only: Aevum testnet (chain 44005) with tUSD8. Not audited.",
+  "tUSD8's issuer can pause the token or block an address; Shaida cannot stop that.",
+  "Only payments from registered payers, swept by you, count. A payment you made to yourself does not.",
+  "A reader's name is not a login: anyone who knows the name and has the link can open it. Keep links private; they expire.",
+] as const;
 
+export default function LandingPage() {
   return (
-    <main className="shell stack page">
-      <header className="page-head">
-        <p className="eyebrow">Shaida · {net.chain.name} ({net.chain.id})</p>
-        <h1>Private payments a registered payer vouches for</h1>
-        <p className="lede">
-          A registered payer deposits tUSD8 into Gloam&apos;s private pool without gas and pays a recipient&apos;s receive address. The chain
-          records that a registered payer paid someone, not who or how much. The recipient sweeps each payment into a note only they know.
-        </p>
-      </header>
-      {net.chain.id === DEMO_CHAIN_ID && (
-        <div className="notice warn"><span><span className="demo-tag">Demo</span> Local fork. The personas Acme Studio (demo) and Ada (demo) are not real businesses or people.</span></div>
-      )}
-      <div className="grid-2">
-        <Link className="card stack" href="/pay"><h2>Pay →</h2><p className="sub">Deposit with a signature, then pay a receive address privately.</p></Link>
-        <Link className="card stack" href="/inbox"><h2>Inbox →</h2><p className="sub">Get a receive address, see payments sealed to it, sweep them.</p></Link>
-      </div>
-      <section className="card" aria-label="Status">
-        {checks.map((c) => (
-          <div key={c.title} className="check">
-            <span className={`chip ${c.status}`} aria-hidden="true">{ICON[c.status]}</span>
-            <div className="check-body">
-              <div className="check-top"><span className="check-title">{c.title}</span><span className="check-value mono">{c.value}</span></div>
-              <p className="check-detail">{c.detail}</p>
-            </div>
+    <main className="landing">
+      <section className="shell hero">
+        <div className="hero-copy">
+          <p className="eyebrow">Private payroll proofs on Aevum</p>
+          <h1>Get paid privately, prove you earn enough, show nothing else</h1>
+          <p className="lede">Shaida keeps who paid you and how much off the public chain, and lets you prove a total to one person, for a while, when you choose.</p>
+          <div className="row hero-ctas">
+            <Link className="btn big" href="/app">Open the dashboard <ArrowRightIcon /></Link>
+            {example ? (
+              <a className="btn big secondary" href={example}>See a live proof <span className="demo-tag">Demo</span></a>
+            ) : (
+              <span className="btn big secondary" aria-disabled="true">No live example on this network yet</span>
+            )}
           </div>
-        ))}
+          {example && <p className="fine">The example is a real proof on this network for the demo personas Ada (demo) and Landlord Bola (demo): open it and type “Landlord Bola”.</p>}
+        </div>
+        <div className="hero-art card tone-ink" aria-hidden="true"><SealedLetter size={180} /></div>
       </section>
-      <p className="fine">
-        Built on Gloam (MIT) and the Aevum Starter Kit (MIT). See NOTICE.md.
-      </p>
+
+      <section className="shell band" aria-labelledby="how">
+        <h2 id="how" className="band-title">How it works</h2>
+        <ol className="how">
+          {STEPS.map((s, i) => (
+            <li key={s.title} className="card stack">
+              <div className="row-between"><span className="how-num">{i + 1}</span><span className="how-icon">{s.icon}</span></div>
+              <h3>{s.title}</h3>
+              <p className="sub">{s.text}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="shell band" aria-labelledby="who">
+        <h2 id="who" className="band-title">Who it is for</h2>
+        <div className="who">
+          {WHO.map((w) => (
+            <div key={w.title} className={`card stack ${w.tone}`}><h3>{w.title}</h3><p className="sub">{w.text}</p></div>
+          ))}
+        </div>
+      </section>
+
+      <section className="shell band" aria-labelledby="trust">
+        <h2 id="trust" className="band-title">Why you can check it</h2>
+        <div className="trust">
+          <div className="card stack">
+            <h3>A public key ceremony</h3>
+            <p className="sub">The proving key was made by {people.length} named contributor{people.length === 1 ? "" : "s"} and sealed with a public randomness beacon. Forging a proof would need every contributor's secret: one contributor who deleted theirs is enough to make it impossible.</p>
+            <dl className="kv">
+              <dt>Contributors</dt><dd>{people.map((p) => p.name).join(", ")}</dd>
+              <dt>Beacon</dt><dd>Aevum 44005 block {record.beacon.blockNumber}, hash <span className="mono break">{record.beacon.blockHash.slice(0, 18)}…</span></dd>
+              <dt>Final key</dt><dd className="mono break">sha256 {record.final.zkey.sha256.slice(0, 16)}…</dd>
+            </dl>
+            <a className="btn secondary small" href={`${repoUrl}/releases/tag/ceremony-v1`}>Ceremony release <ArrowUpRightIcon size={16} /></a>
+          </div>
+          <div className="card stack">
+            <h3>Open source</h3>
+            <p className="sub">Contracts, circuit, ceremony transcript and this app are public. Built on Gloam&apos;s private pool (MIT) and the Aevum Starter Kit (MIT).</p>
+            <a className="btn secondary small" href={repoUrl}>Source on GitHub <ArrowUpRightIcon size={16} /></a>
+          </div>
+          <div className="card stack tone-peach">
+            <h3>Limits, stated plainly</h3>
+            <ul>{LIMITS.map((l) => <li key={l}>{l}</li>)}</ul>
+            <a className="btn secondary small" href={`${repoUrl}/blob/master/LIMITS.md`}>All limits <ArrowUpRightIcon size={16} /></a>
+          </div>
+        </div>
+      </section>
+
+      <section className="shell band">
+        <div className="card tone-ink strip">
+          <h2>Ready when your next invoice is paid</h2>
+          <Link className="btn lemon big" href="/app">Open the dashboard <ArrowRightIcon /></Link>
+        </div>
+      </section>
     </main>
   );
 }

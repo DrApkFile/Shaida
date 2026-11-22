@@ -4,7 +4,7 @@
 // Writes screenshots and a report to evidence/ui-fork/. No dependencies: Node's WebSocket speaks CDP.
 // Usage: node tools/ui-flow-fork.mjs [--base http://localhost:3100] [--chromium /usr/bin/chromium]
 import { execFileSync, spawn } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -97,13 +97,14 @@ const cast = (...a) => execFileSync("cast", [...a, "--rpc-url", RPC], { encoding
 async function main() {
   mkdirSync(OUT, { recursive: true });
   if (cast("chain-id") !== "440050") throw new Error("not make fork");
-  const chrome = spawn(CHROMIUM, ["--headless=new", `--remote-debugging-port=${PORT}`, `--user-data-dir=${mkdtempSync(join(tmpdir(), "shaida-ui-"))}`, "--no-first-run", "--no-sandbox"], { stdio: "ignore" });
+  const profile = mkdtempSync(join(tmpdir(), "shaida-ui-")); // /tmp is RAM-backed here: removed in finally
+  const chrome = spawn(CHROMIUM, ["--headless=new", `--remote-debugging-port=${PORT}`, `--user-data-dir=${profile}`, "--no-first-run", "--no-sandbox"], { stdio: "ignore" });
   try {
     const c = cdp(await connect());
     const ada = await page(c, "ada");
     const acme = await page(c, "acme");
 
-    await ada.goto("/");
+    await ada.goto("/app"); // D26: the status checks moved from / to the dashboard; /pay and /inbox below redirect
     await ada.until(`document.body.innerText.includes("sha256 match") && document.body.innerText.includes("ledger leaves")`, 120_000, "home checks");
     await ada.shot("01-home");
 
@@ -192,7 +193,10 @@ async function main() {
     await restored.shot("08-restored-from-backup");
     c.close();
   } finally {
+    const exited = new Promise((r) => { chrome.once("exit", r); setTimeout(r, 5_000); });
     chrome.kill();
+    await exited;
+    rmSync(profile, { recursive: true, force: true });
   }
 }
 
