@@ -627,6 +627,12 @@ poll 0 or 1 (one GET per process start, then at most one SET a minute).
 Tests: kv 6 (KV01–KV05), relayer +16 (R23–R29 restarts, two processes, claim; R30 command count; RS01–RS05 store conformance, also run
 against Redis 7.4.1 through serverless-redis-http: evidence/kv-redis.md) and the 28 existing relayer tests rerun on
 the Redis store; index +2 (I07, I08).
+Measured (local rehearsal of Render free, evidence/render-rehearsal.md): a fresh clone built by tools/render-build.sh
+with Render's env only, peak 2.09 GB (Render's Starter build has 8 GB), the income zkey downloaded from the release and
+matched; `next start` in a 512 MB / 10%-CPU scope with Redis behind serverless-redis-http and the real 44005 chain:
+ready in 37 s, peak 173 MB, no OOM kill, index synced to the head in 7 requests (43.9 s), every proving file served
+with header hash = body hash; without Upstash env it exits 78 in 20 s. An earlier run's ready time (37,103 s) was a
+machine suspend; that report is kept (evidence/render-rehearsal-2026-11-22-machine-suspended.md).
 Where: packages/shaida-kv, packages/shaida-relay/src/{store,store-kv,lock}.ts, packages/shaida-index/src/kv-store.ts,
 web/src/server/state-store.ts, web/src/instrumentation.ts, web/src/app/api/health/, tools/render-build.sh,
 DEPLOY_RENDER.md.

@@ -130,3 +130,70 @@ No withdrawal after the run (rule above). Limits held at every step: the script 
 transaction (deployer ≥ 0.5 tQDAY and ≥ 2 tUSD8; relayer ≥ its 0.01 floor plus the call's gas limit).
 The relayer can pay for the withdrawal batch (≈ 0.001031 tQDAY) and stay above its 0.01 floor. It can't pay for run 2
 as well (≈ 0.0174 tQDAY), so a top-up is needed before run 2. It will be sized and approved with the builder then.
+
+## Plan for live run 2: entirely through the hosted UI (not run; nothing sent)
+
+Written 2026-11-22 from balances read at block 3834199 (unchanged since run 1: deployer 0.943716971 tQDAY and
+2 tUSD8, relayer 0.020979236, reader 0.000362983, Acme Studio (demo) active payer #1 with 0 tQDAY and 0 tUSD8, Ada's
+3 tUSD8 in 3 swept pool notes). Runs only after the hosted site is live (DEPLOY_RENDER.md), every step clicked in the
+hosted app at 390 px, screenshots in evidence/ui-44005/. Gas figures: the largest measured (fork maxima from
+evidence/fork-gas.md and evidence/withdraw-fork.md; each is ≥ the 44005 actual of run 1).
+
+### tUSD8: why the withdrawal batch comes first
+The deployer holds exactly 2 tUSD8, its floor. Any tUSD8 for run 2, however small, would take it below 2, so a smaller
+amount on its own is not possible: the batch has to come first either way. The choice is only how much run 2 uses.
+
+| | Run 2 = 3 tUSD8 (1.2 + 1.1 + 0.7) | Run 2 = 1 tUSD8 (0.5 + 0.3 + 0.2), suggested |
+|---|---|---|
+| Proof | ≥ 3 tUSD8, 3 payments (as run 1) | ≥ 1 tUSD8, 3 payments |
+| Deployer tUSD8 after | 2 (at the floor again) | 4 |
+| Next run | needs another public withdrawal batch first | a run 3 of up to 2 tUSD8 needs no withdrawal |
+| Gas | the same (gas does not depend on the amount) | the same |
+| Public amounts | batch shows 1.5, 1, 0.5 (run 1's); deposit shows 3 | batch shows 1.5, 1, 0.5; deposit shows 1 |
+
+Either way the run 2 amounts differ from the 1.5 / 1 / 0.5 the batch makes public, so the batch's amounts cannot be
+matched to run 2's payments. The batch runs at a quiet time: at least 12 h after run 1 and at least 12 h before run 2
+(D28, LIMITS.md).
+
+### Steps and transactions
+
+| # | When | What (who clicks / sends) | Sender, pays gas | Gas (planned max) |
+|---|---|---|---|---:|
+| F1 | before the batch | 0.017378531 tQDAY to the relayer `0xF4945dD57C8de1C637966179df5b631689901422` (builder's terminal) | deployer | 21,000 |
+| F2 | before the batch | 0.000267017 tQDAY to the reader `0xbed994a7fD0e7A49DAD09866e86817ccA6Ea785E` (builder's terminal) | deployer | 21,000 |
+| F3 | before the batch | 0.000086375 tQDAY to a fresh forward address (new keystore `shaida-forward`, made by the builder) | deployer | 21,000 |
+| W1–W3 | quiet time | Ada restores her run-1 vault backup in her browser profile, `/app/withdraw`, picks her 3 swept notes, recipient = the forward address (3 unshields) | relayer | 343,698 × 3 = 1,031,094 |
+| W4 | after W1–W3 | the forward address sends the 3 tUSD8 to the deployer (builder's terminal) | forward address | 57,583 |
+| R0 | ≥ 12 h later | 1 tUSD8 (or 3) to Acme Studio (demo) `0xA1ddEB46A1060C8970E68C3dA34427B1a7B91D4b` (builder's terminal) | deployer | 62,383 (run 1 actual) |
+| R1 | run 2 | Acme, `/app/pay` with the demo payer's wallet: gasless deposit (signs EIP-3009 only) | relayer | 1,346,538 |
+| R2–R7 | run 2 | Acme pays Ada 3× (signs each vouch; Ada's receive tag pasted from her `/app/inbox`), a sealed memo after each | relayer | 2,766,976 × 3 + 44,923 × 3 = 8,435,697 |
+| R8–R10 | run 2 | Ada, `/app/inbox`: sweeps the 3 payments | relayer | 2,697,283 × 3 = 8,091,849 |
+| R11 | run 2 | Ada, `/app/prove`: one proof in the browser with the final key, for "Landlord Bola", 30 days; proving time read off the page | nobody | 0 |
+| R12 | run 2 | Bola opens the link in his browser profile, types "Landlord Bola" → VALID; **Check on-chain** (eth_call, gas limit 400,000) | nobody | 0 |
+| R13 | run 2 | Bola, **Record check** with the reader wallet (attest, gas limit 420,000) | reader | 267,017 |
+
+Relayer total: 18,905,178 gas (batch 1,031,094 + run 17,874,084).
+
+### Funding the builder sends (from the deployer)
+
+| Account | Planned gas | Needed at start | Holds now | Send |
+|---|---:|---:|---:|---:|
+| relayer | 18,905,178 | 18,905,178 × 1.5 = 0.028357767, plus the 0.01 floor it never spends = 0.038357767 | 0.020979236 | **0.017378531 tQDAY** |
+| reader | 267,017 | the node wants gas limit × price = 0.00042 up front; × 1.5 = 0.00063 | 0.000362983 | **0.000267017 tQDAY** |
+| forward address | 57,583 | × 1.5 = 0.000086375 | 0 | **0.000086375 tQDAY** |
+| Acme Studio (demo) | 0 (gasless) | 1 tUSD8 (or 3) | 0 | **1 tUSD8** (R0, after the batch) |
+| Ada (demo) | 0 | — (the relayer sends her txs) | — | 0 |
+
+### Expected balances
+
+| Point | Deployer tQDAY | Deployer tUSD8 | Relayer | Reader | Forward | Ada (pool) |
+|---|---:|---:|---:|---:|---:|---:|
+| now (block 3834199) | 0.943716971 | 2 | 0.020979236 | 0.000362983 | — | 3 (run 1) |
+| after F1–F3 | 0.925922048 | 2 | 0.038357767 | 0.00063 | 0.000086375 | 3 |
+| after the batch W1–W4 | 0.925922048 | 5 | ≈ 0.037326673 | 0.00063 | ≈ 0.000028792 | 0 |
+| after R0 (1 tUSD8) | 0.925859665 | 4 | ≈ 0.037326673 | 0.00063 | ≈ 0.000028792 | 0 |
+| after run 2 (planned max gas) | 0.925859665 | 4 (2 with 3 tUSD8) | ≥ 0.019452589 | ≈ 0.000362983 | ≈ 0.000028792 | 1 (3) |
+
+The deployer stays ≥ 0.5 tQDAY and ≥ 2 tUSD8 at every point. The forward address keeps ≈ 0.000029 tQDAY of dust
+(sending it back would cost as much gas as it holds). With run 1's actual gas (17,420,764 for the run), the relayer
+would end near 0.0199. Nothing above has been sent.
