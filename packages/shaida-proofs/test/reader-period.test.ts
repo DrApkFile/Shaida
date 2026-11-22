@@ -10,6 +10,7 @@ import {
   normalizeReaderName,
   READER_NAME_MAX_BYTES,
   readerIdHashOf,
+  solidityArgsOf,
   type TimedLeaf,
   verifyIncomeLink,
 } from "../src/index";
@@ -117,5 +118,19 @@ describe("threshold suggestions (D13, D27)", () => {
       }
       assert.equal(s.valid, amount > 0n && amount % step === 0n);
     }
+  });
+});
+
+describe("on-chain check arguments (D27)", () => {
+  it("W09 packs a snarkjs proof in exportSolidityCallData's order (G2 coordinates swapped)", async () => {
+    const snarkjs = await import("snarkjs");
+    const f = (k: number) => String(1000 + k);
+    const proof = { pi_a: [f(1), f(2), "1"], pi_b: [[f(3), f(4)], [f(5), f(6)], ["1", "0"]], pi_c: [f(7), f(8), "1"], protocol: "groth16", curve: "bn128" } as const;
+    const signals = [0, 1, 2, 3, 4, 5, 6].map((k) => String(k + 20));
+    const ours = solidityArgsOf(proof as unknown as Parameters<typeof solidityArgsOf>[0], signals);
+    const theirs = JSON.parse(`[${await snarkjs.groth16.exportSolidityCallData(proof as never, signals)}]`) as [string[], string[][], string[], string[]];
+    const big = (x: unknown): unknown => (Array.isArray(x) ? x.map(big) : BigInt(x as string));
+    assert.deepEqual([ours.proof.a, ours.proof.b, ours.proof.c, ours.signals], big(theirs));
+    assert.throws(() => solidityArgsOf(proof as never, signals.slice(1)), RangeError);
   });
 });
