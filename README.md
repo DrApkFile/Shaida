@@ -20,12 +20,15 @@ PRD §11 steps 1–2 and acts 2–3 run on a local fork <!-- CL02 -->; nothing i
   verification core (PRD §5) checks bundles. <!-- CL10 --> Tested with honest cases, the circuit cheats of EVAL_DESIGN
   (X04–X09 and public-signal tampering), the bundle refusals (X14–X18) and property tests. <!-- CL11 --> Each proof's
   threshold share is rounded down to whole tUSD8 (D13). <!-- CL12 -->
-  Proving keys so far are a **throwaway local key** for tests and timing only. <!-- CL13 -->
-- Ceremony (step 3): contributions 1 and 2 are verified and the beacon block is announced. <!-- CL14 --> Until it
-  ends there is **no final income key**: `NEXT_PUBLIC_SHAIDA_INCOME_KEY=throwaway` works on local chains only and is
-  refused on Aevum 44005 (D21). <!-- CL15 -->
+  Circuit tests and timings use a **throwaway local key**. <!-- CL13 -->
+- Ceremony (step 3): done. Contributions by Kene and Gunroar and a beacon from Aevum block 3772100, verified; final
+  zkey sha256 `cbcb06fe…` ([ceremony/TRANSCRIPT.md](ceremony/TRANSCRIPT.md)), not yet published as a release.
+  <!-- CL14 --> The throwaway key (`NEXT_PUBLIC_SHAIDA_INCOME_KEY=throwaway`) works on local chains only and is refused
+  on Aevum 44005 (D21). <!-- CL15 -->
 - `IncomeVerifier` (on-chain check of one proof: tUSD8, known ledger root, gas guard, Groth16; optional attest):
-  unit-tested with a placeholder and two throwaway verifiers. <!-- CL16 --> Not deployed. <!-- CL03 -->
+  unit-tested with a placeholder and two throwaway verifiers; over the ceremony's verifier it is part of the fork
+  deploy, which refuses a verifier that rejects a final-key proof or accepts a throwaway-key one (D24). <!-- CL16 -->
+  Not deployed on Aevum testnet. <!-- CL03 -->
 - Tests: `make test` (contracts, circuit, witness builder) and `make test-fork` (real tUSD8 on a fork, including
   deposit → vouched pay → sweep with real proofs). Gas: [evidence/fork-gas.md](evidence/fork-gas.md). <!-- CL17 -->
   Issuer and front-running limits: [LIMITS.md](LIMITS.md). <!-- CL18 -->
@@ -41,8 +44,8 @@ PRD §11 steps 1–2 and acts 2–3 run on a local fork <!-- CL02 -->; nothing i
 - PRD §11 acts 2–3 on the fork: [evidence/acts-2-3-fork.md](evidence/acts-2-3-fork.md) (script, tx hashes) and
   [evidence/ui-fork/](evidence/ui-fork/report.md) (the same flow through the UI at 390 px). <!-- CL02 --> <!-- CL21 -->
 
-Not built yet: the income-proof pages (prove, share, verify), the final income key (ceremony), deployment on Aevum
-testnet. <!-- not-built -->
+Not built yet: the income-proof pages (prove, share, verify), the `ceremony-v1` release of the final zkey, deployment
+on Aevum testnet. <!-- not-built -->
 
 ## Commands
 ```bash
