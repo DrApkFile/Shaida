@@ -28,6 +28,8 @@ Gas price on 44005 is 1 gwei, so 1,000,000 gas = 0.001 tQDAY.
 | 2026-11-23, block 3884993 | F3: fund the forward address `0xe317E304…8Ee7A0` with 0.000086375 tQDAY (sent by the builder) [`0x017bd36d…`](https://explorer-test.qday.info/tx/0x017bd36d337f41019b222f579c9e9055244cc09013c73b4c90282d878bc107a1) | 1 | 21,000 | 0.000107375 | 0.925922048 | 2 |
 | 2026-11-23, blocks 3885363–3885380 | withdrawal batch W2 (driven by the agent in headless Chromium on the live site, at the builder's request): Ada (demo) withdraws her 3 swept notes, 1.5 / 1 / 0.5 tUSD8, to the forward address; relayer sends `pool.unshield` ×3: [`0x379cab95…`](https://explorer-test.qday.info/tx/0x379cab9532d728dfa176b95d08ebc029ac679dc6b40c10f04af63ba8bc6a62ac) 343,698 · [`0x4336f050…`](https://explorer-test.qday.info/tx/0x4336f050b1aff441d4c11abf4bf453b6de61fedb03943d209b9d3b545e57f164) 326,598 · [`0x30b85e2e…`](https://explorer-test.qday.info/tx/0x30b85e2ed28dd654a49adb88c32923601ff3bc9de944f87e5eca7d708e1fe338) 317,010 | 3 | 987,306 | 0.000987306 (relayer) | 0.925922048 | 2 |
 | 2026-11-23, block 3886253 | W4: the forward address `0xe317E304…8Ee7A0` sends the 3 tUSD8 to the deployer (sent by the builder, keystore `shaida-forward`) [`0x614f3801…`](https://explorer-test.qday.info/tx/0x614f380133d4f78093c0f03d0117afd3870e6170b0013018d0f171d42671da4d) | 1 | 40,483 | 0.000040483 (forward address) | 0.925922048 | 5 |
+| 2026-11-23, block 3939866 | R0: 1 tUSD8 to Acme Studio (demo) (sent by the builder) [`0x948664bc…`](https://explorer-test.qday.info/tx/0x948664bc7186149cb2070770d21bfc46a9e99faebeab078c9fa176eac2b86d79) | 1 | 62,383 | 0.000062383 | 0.925859665 | 4 |
+| 2026-11-23, blocks 3942008–3947708 | live run 2, clicked by the builder in Firefox on the hosted site: 10 relayed txs (relayer pays 0.017257327) and 1 attest (reader pays 0.000267065); per-tx rows in [evidence/live-44005-run2.md](live-44005-run2.md) | 11 | 17,524,392 | 0.017524392 (helpers) | 0.925859665 | 4 |
 
 Every row above comes from receipts (`gasUsed × effectiveGasPrice`) and `eth_getBalance` / `balanceOf` (deploy rows at block
 3811143; funding rows at block 3822171, when the relayer held 0.0384 tQDAY and the reader 0.00063 tQDAY, as sent).
@@ -151,7 +153,36 @@ transaction (deployer ≥ 0.5 tQDAY and ≥ 2 tUSD8; relayer ≥ its 0.01 floor 
 The relayer can pay for the withdrawal batch (≈ 0.001031 tQDAY) and stay above its 0.01 floor. It can't pay for run 2
 as well (≈ 0.0174 tQDAY), so a top-up is needed before run 2. It will be sized and approved with the builder then.
 
-## Plan for live run 2: entirely through the hosted UI (not run; nothing sent)
+### Run 2, 2026-11-23, blocks 3939866–3947708: passed (clicked by the builder in the hosted UI)
+
+Per-tx hashes, explorer links, gas and balances before and after, and what the browser showed:
+[evidence/live-44005-run2.md](live-44005-run2.md) (written by `node tools/live-run2-report.mjs` from the chain).
+Screens: evidence/ui-44005/390-03 … 390-14 and 1247-15 … 1247-17.
+
+| | Planned | Actual |
+|---|---:|---:|
+| tUSD8 transfer gas (R0) | 62,383 | 62,383 |
+| relayed gas (deposit, 3 pays, 3 memos, 3 sweeps) | 17,874,084 | 17,257,327 |
+| attest gas | 267,017 | 267,065 |
+| proving time (1 proof, final income key) | read off the page | 16.2 s, Firefox 157.0.1 at 390 px, Intel Core i3 M 370, 7.5 GB RAM |
+
+Balances read from the chain at block 3947916, after the run:
+
+| Account | tQDAY | tUSD8 | Expected (plan) |
+|---|---:|---:|---|
+| deployer | 0.925859665 | 4 | 0.925859665 / 4 |
+| relayer | 0.020113134 | 0 | ≥ 0.019496377 (planned maxima) |
+| reader | 0.000362935 | 0 | ≥ 0.000363 at 267,017; the attest used 48 gas more |
+| Acme Studio (demo) | 0 | 0 | 0 / 0 |
+| pool | — | 1 | 1 (Ada's 3 swept notes of run 2: 0.5 / 0.3 / 0.2) |
+
+Limits held at every step (deployer lowest 0.925859665 tQDAY and 4 tUSD8; relayer lowest 0.020113134, above its 0.01
+floor). Changes from checklist C, all recorded in the run file: Firefox 157.0.1 instead of Chrome; Ada in the builder's
+normal profile (restored from `ada-after-batch.vault.json`, since the batch's headless profile was gone), Acme and Bola
+in profile `shaida-acme-bola`; 390-05 not taken and 390-04 taken after the deposit (Public tUSD8 0); R11–R13 screens taken at 1,247 px (named so); /app/prove reset its
+form every ~15 s and was fixed and redeployed mid-run (`5120b24`) before R9 was redone. No withdrawal after the run.
+
+## Plan for live run 2: entirely through the hosted UI (run 2026-11-23: see Runs)
 
 Written 2026-11-22 from balances read at block 3834199 (unchanged since run 1: deployer 0.943716971 tQDAY and
 2 tUSD8, relayer 0.020979236, reader 0.000362983, Acme Studio (demo) active payer #1 with 0 tQDAY and 0 tUSD8, Ada's
@@ -315,37 +346,37 @@ its passphrase is in `~/.config/shaida/ada-live-run-1.vault-passphrase` (copy it
 ### Checklist C: run 2 (≥ 12 h after W2, and on a later calendar day than run 1)
 Run 1's payments still count after the batch (a withdrawal does not touch the ledger's V and S leaves), so the proof's
 period must hold only run 2's day: run 2 has to fall on a later date than 22 Nov, and R10 sets both dates to it.
-- [ ] R0 terminal: `cast send --legacy --gas-price 1gwei --gas-limit 90000 --rpc-url $RPC --account shaida-deployer 0x456569838f1d43009A91ebA4263147Afd7233483 'transfer(address,uint256)' 0xA1ddEB46A1060C8970E68C3dA34427B1a7B91D4b 1000000`
+- [x] R0 terminal: `cast send --legacy --gas-price 1gwei --gas-limit 90000 --rpc-url $RPC --account shaida-deployer 0x456569838f1d43009A91ebA4263147Afd7233483 'transfer(address,uint256)' 0xA1ddEB46A1060C8970E68C3dA34427B1a7B91D4b 1000000`
       Agent: Acme 1 tUSD8, deployer 4, row R0.
-- [ ] R1 Ada's profile, `/app/inbox`: **Unlock** with her passphrase (the restored vault is still there). Under the
+- [x] R1 Ada's profile, `/app/inbox`: **Unlock** with her passphrase (the restored vault is still there). Under the
       receive address (the same `gloamr1.…` as run 1) click **Copy address** → `390-03-ada-receive-tag.png`
-- [ ] R2 wallets profile, `/app/pay`: **Create your vault** with a new passphrase for Acme (8+ characters; keep it
+- [x] R2 wallets profile, `/app/pay`: **Create your vault** with a new passphrase for Acme (8+ characters; keep it
       outside the repo, mode 600). **Paying as → Your wallet → Connect Wallet**, pick Acme's account. The panel shows
       Acme's address, **Registered payer: yes, #1** and **Public tUSD8: 1** → `390-04-pay-ready.png`.
       In **1 · Deposit (gasless)** type `1`, click **Deposit privately**, sign the ReceiveWithAuthorization in the
       wallet (a signature, no gas) → `390-05-deposit-signed.png`; when every step is ticked and **Private balance**
       shows 1 tUSD8 → `390-06-deposit-mined.png`. Then **Export backup** (Acme's note exists only in this browser).
-- [ ] R3 **2 · Pay a recipient**: paste Ada's receive address, amount `0.5`, private note `Invoice 1 (demo)`, click
+- [x] R3 **2 · Pay a recipient**: paste Ada's receive address, amount `0.5`, private note `Invoice 1 (demo)`, click
       **Pay privately**, sign the Vouch in the wallet. Wait until all 6 steps are ticked (the sealed memo is the last)
       → `390-07-pay1.png`
-- [ ] R4 the same with `0.3`, `Invoice 2 (demo)` → `390-08-pay2.png`
-- [ ] R5 the same with `0.2`, `Invoice 3 (demo)` → `390-09-pay3.png` (private balance 0). Wait a minute between pays
+- [x] R4 the same with `0.3`, `Invoice 2 (demo)` → `390-08-pay2.png`
+- [x] R5 the same with `0.2`, `Invoice 3 (demo)` → `390-09-pay3.png` (private balance 0). Wait a minute between pays
       if the page says `RateLimited` (6 payer calls a minute); nothing is sent when it does.
-- [ ] R6 Ada's profile, `/app/inbox`: the 3 new payments appear (Invoice 1–3 (demo), 0.5 / 0.3 / 0.2) beside run 1's
+- [x] R6 Ada's profile, `/app/inbox`: the 3 new payments appear (Invoice 1–3 (demo), 0.5 / 0.3 / 0.2) beside run 1's
       3 swept ones → `390-10-inbox-seen.png`
-- [ ] R7 click **Sweep all 3** once; wait until all 3 show swept → `390-11-inbox-swept.png`. Then **Export backup** →
+- [x] R7 click **Sweep all 3** once; wait until all 3 show swept → `390-11-inbox-swept.png`. Then **Export backup** →
       `~/.config/shaida/ada-after-run-2.vault.json`, `chmod 600`.
-- [ ] R8 `/app/prove`: **Payments a proof can count** lists 6 (run 1's 3 and run 2's 3) → `390-12-prove-countable.png`
-- [ ] R9 in **Make a proof link**: **From** and **To** = run 2's date (both the same day; From defaults to 22 Nov, so
+- [x] R8 `/app/prove`: **Payments a proof can count** lists 6 (run 1's 3 and run 2's 3) → `390-12-prove-countable.png`
+- [x] R9 in **Make a proof link**: **From** and **To** = run 2's date (both the same day; From defaults to 22 Nov, so
       change it); **At least (tUSD8)** `1`; **Rounding step** 1 tUSD8; **Reader's name** `Landlord Bola`; **Expires**
       left at the 30-day default → `390-13-prove-form.png`
-- [ ] R10 **Build proof link** once (one proof, final income key, in this tab). The link card appears; its **Proving**
+- [x] R10 **Build proof link** once (one proof, final income key, in this tab). The link card appears; its **Proving**
       row gives the time ("x.x s in this browser (1 proof)") → `390-14-proved.png` (Proving row in view). Copy the
-      link. Note `chrome://version` (Chrome version) for the agent; the agent records the time with this machine.
-- [ ] R11 wallets profile, new tab: paste the link, type `Landlord Bola`, **Verify** → **VALID**, at least 1 tUSD8,
+      link. Note `chrome://version` (Chrome version) for the agent (run 2 used Firefox 157.0.1: 16.2 s); the agent records the time with this machine.
+- [x] R11 wallets profile, new tab: paste the link, type `Landlord Bola`, **Verify** → **VALID**, at least 1 tUSD8,
       3 payments, run 2's date → `390-15-verify-valid.png`
-- [ ] R12 **Check on-chain** → passes ("IncomeVerifier.check passed … Nothing was sent.") → `390-16-onchain-check.png`
-- [ ] R13 switch the wallet to Bola's reader `0xbed9…785E`, **Record check**, confirm the tx (gas limit 420,000) →
+- [x] R12 **Check on-chain** → passes ("IncomeVerifier.check passed … Nothing was sent.") → `390-16-onchain-check.png`
+- [x] R13 switch the wallet to Bola's reader `0xbed9…785E`, **Record check**, confirm the tx (gas limit 420,000) →
       "Recorded" → `390-17-attested.png`. Agent: IncomeProofChecked(threshold 1000000, count 3), reader balance, row R11.
-- [ ] agent: balances after the run read from the chain; evidence/live-44005-run2.md from the chain; CLAIMS CL33
+- [x] agent: balances after the run read from the chain; evidence/live-44005-run2.md from the chain; CLAIMS CL33
       updated only from what this run shows (acts 2–6 clicked in the hosted UI), CL40 for the withdrawal on 44005.
