@@ -26,6 +26,7 @@ Gas price on 44005 is 1 gwei, so 1,000,000 gas = 0.001 tQDAY.
 | 2026-11-23, block 3884966 | F1: fund the relayer with 0.017378531 tQDAY (sent by the builder) [`0x33cd209b…`](https://explorer-test.qday.info/tx/0x33cd209be4fed5331bd1b3e7535a789899df8941b9bc4a4e3f5341d36c1efb4d) | 1 | 21,000 | 0.017399531 | 0.926317440 | 2 |
 | 2026-11-23, block 3884979 | F2: fund the reader with 0.000267017 tQDAY (sent by the builder) [`0x56f24a01…`](https://explorer-test.qday.info/tx/0x56f24a015e8b8c32c521949010b0388e0d7b6fda152f1e7ffc04c2b515458384) | 1 | 21,000 | 0.000288017 | 0.926029423 | 2 |
 | 2026-11-23, block 3884993 | F3: fund the forward address `0xe317E304…8Ee7A0` with 0.000086375 tQDAY (sent by the builder) [`0x017bd36d…`](https://explorer-test.qday.info/tx/0x017bd36d337f41019b222f579c9e9055244cc09013c73b4c90282d878bc107a1) | 1 | 21,000 | 0.000107375 | 0.925922048 | 2 |
+| 2026-11-23, blocks 3885363–3885380 | withdrawal batch W2 (driven by the agent in headless Chromium on the live site, at the builder's request): Ada (demo) withdraws her 3 swept notes, 1.5 / 1 / 0.5 tUSD8, to the forward address; relayer sends `pool.unshield` ×3: [`0x379cab95…`](https://explorer-test.qday.info/tx/0x379cab9532d728dfa176b95d08ebc029ac679dc6b40c10f04af63ba8bc6a62ac) 343,698 · [`0x4336f050…`](https://explorer-test.qday.info/tx/0x4336f050b1aff441d4c11abf4bf453b6de61fedb03943d209b9d3b545e57f164) 326,598 · [`0x30b85e2e…`](https://explorer-test.qday.info/tx/0x30b85e2ed28dd654a49adb88c32923601ff3bc9de944f87e5eca7d708e1fe338) 317,010 | 3 | 987,306 | 0.000987306 (relayer) | 0.925922048 | 2 |
 
 Every row above comes from receipts (`gasUsed × effectiveGasPrice`) and `eth_getBalance` / `balanceOf` (deploy rows at block
 3811143; funding rows at block 3822171, when the relayer held 0.0384 tQDAY and the reader 0.00063 tQDAY, as sent).
@@ -37,6 +38,12 @@ F1–F3 (2026-11-23): each receipt status 1, legacy (type 0), 1 gwei, 21,000 gas
 and 26, value exactly as planned. Balances read at block 3885060, after all three: deployer 0.925922048 tQDAY and 2 tUSD8
 (nonce 27), relayer 0.038357767, reader 0.00063, forward 0.000086375 (nonce 0): equal to the plan's "F3" row to the wei.
 The per-row deployer balances for F1 and F2 are derived from the receipts (value + gas).
+Withdrawal batch (2026-11-23 03:20–03:21 UTC, 16.5 h after run 1): the 3 receipts are status 1, legacy (type 0),
+1 gwei, from the relayer (nonces 10, 11, 12) to the pool, selector `0x67cca6c5` = `unshield(bytes,bytes32,bytes32,address,address,uint256)`;
+each emitted a tUSD8 Transfer from the pool to `0xe317E304…8Ee7A0` of 1,500,000 / 1,000,000 / 500,000. Balances at
+block 3885406: relayer 0.037370461 tQDAY (nonce 13; plan ≈ 0.037326673 at the 343,698 maximum), forward 0.000086375
+tQDAY and 3 tUSD8 (nonce 0), pool 0 tUSD8, deployer 0.925922048 tQDAY and 2 tUSD8 (unchanged). Browser report and
+screenshots: [evidence/ui-44005/report-withdraw-390.md](ui-44005/report-withdraw-390.md).
 Explorer verification of `PayerRegistry` (S10) cost nothing: it is an explorer API call, not a transaction.
 
 ## Plan for live run 1 (run 2026-11-22: see Runs)
@@ -274,22 +281,26 @@ agent records the real balances after each step and they will be a little higher
 - [x] agent: 3 receipts status 1, balances = rows F1–F3 (block 3885060; tx hashes in the ledger above)
 
 ### Checklist B: withdrawal batch (quiet time: ≥ 12 h after run 1, which ended 2026-11-22 10:52 UTC)
+W0–W3 done 2026-11-23 by the agent with `node tools/ui-withdraw-live.mjs` (headless Chromium, 390 px, the live site
+at f83e4ee), at the builder's request: the builder allowed the agent to read Ada's demo vault passphrase and backup
+for this task only; the passphrase went to the page over CDP only. Updated backup:
+`~/.config/shaida/ada-after-batch.vault.json` (mode 600). W4 is the builder's.
 Profile "Shaida Ada (demo)", https://shaida.onrender.com. The backup is `~/.config/shaida/ada-live-run-1.vault.json`;
 its passphrase is in `~/.config/shaida/ada-live-run-1.vault-passphrase` (copy it to the clipboard yourself, e.g.
 `wl-copy < …` or `xclip -selection clipboard < …`; clear the clipboard after). Nobody else sees either.
-- [ ] W0 open `/app/withdraw`. The vault box says **Create your vault** (a fresh profile). Paste the passphrase into
+- [x] W0 open `/app/withdraw`. The vault box says **Create your vault** (a fresh profile). Paste the passphrase into
       **Passphrase**, open **Restore from a backup file**, choose the backup file (in the file picker, Ctrl+L and type
       the path; `~/.config` is hidden), click **Restore (uses the passphrase above)**. The bar shows "Vault open in
       this tab" → `390-00-vault-restored.png`
-- [ ] W1 the page lists 3 notes, each "in the pool": 1.5, 1 and 0.5 tUSD8; the warning **"Withdrawals are public and
+- [x] W1 the page lists 3 notes, each "in the pool": 1.5, 1 and 0.5 tUSD8; the warning **"Withdrawals are public and
       reveal their amounts."** is visible. Tick all 3; in the recipient field ("0x… a fresh address you control") paste
       `0xe317E3049cDB48e0915b095D5B3CFa689f8Ee7A0`. The button reads **Withdraw 3 notes (3 tUSD8)** →
       `390-01-withdraw-picked.png` (warning, ticks, address and button in view)
-- [ ] W2 click **Withdraw 3 notes (3 tUSD8)** once. Each note goes "withdrawing…" → "withdrawn to 0xe317E3…"
+- [x] W2 click **Withdraw 3 notes (3 tUSD8)** once. Each note goes "withdrawing…" → "withdrawn to 0xe317E3…"
       (3 unshield proofs in the browser, sent one after another by the relayer; a few minutes in all). When all 3
       say withdrawn → `390-02-withdrawn.png`. Send the agent the 3 tx hashes if shown (otherwise the agent finds them
       by the forward address). Agent: 3 unshields status 1, forward address holds 3 tUSD8, rows W2a–W2c.
-- [ ] W3 still in Ada's tab: **Export backup** (top bar) → save as `~/.config/shaida/ada-after-batch.vault.json`,
+- [x] W3 still in Ada's tab: **Export backup** (top bar) → save as `~/.config/shaida/ada-after-batch.vault.json`,
       then `chmod 600` it. It records the withdrawals; it is the backup to use from now on.
 - [ ] W4 terminal: `cast send --legacy --gas-price 1gwei --gas-limit 80000 --rpc-url $RPC --account shaida-forward 0x456569838f1d43009A91ebA4263147Afd7233483 'transfer(address,uint256)' 0x5f8066E6E18f6381a0fF593BB6B1A036c5a69698 3000000`
       (password: `~/.config/shaida/shaida-forward.password`, or add `--password-file` with that path). Agent: status 1,
