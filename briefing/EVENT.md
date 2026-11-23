@@ -44,7 +44,7 @@ Fatal gates:
 | A02 | Contracts deployed on chain 44005, explorer links | `deployments/aevum.json` + script that reads code at each address | evidence/A02-deployments.md |
 | A03 | Link to exact deployed commit | deploy script writes git SHA into deployments file | deployments/aevum.json |
 | A04 | Tx hashes showing the app working | demo run log with explorer links | evidence/A04-demo-run.md |
-| A05 | Live demo, works without login | deployed URL; clean-browser check | evidence/A05-live.md |
+| A05 | Live demo, works without login | deployed URL **https://shaida.onrender.com**; logged-out check by `tools/check-hosting.sh` (CLAIMS CL43) | evidence/hosting-render.md |
 | A06 | Docs: problem, architecture, workflows, technologies | README sections | README.md |
 | A07 | Credit reused code; NOTICE for third-party deps | NOTICE.md lists Gloam (MIT) and others | NOTICE.md |
 | A08 | No private keys, .env or API keys in repo or history | gitleaks in CI | CI log |

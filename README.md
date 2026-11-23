@@ -4,6 +4,9 @@ The aim: private income proofs on Aevum Testnet (chain 44005, tUSD8). Get paid p
 you earn enough to a reader you name (a name, not a login: CL36), and show nothing else. That end-to-end claim is not proven yet (CLAIMS.md CL30).
 <!-- not-built -->
 
+**Live app: https://shaida.onrender.com** (Aevum testnet 44005; no login needed to open the example proof). Checked
+logged out in [evidence/hosting-render.md](evidence/hosting-render.md). <!-- CL43 -->
+
 Based in part on the [Aevum Starter Kit](https://github.com/qday-io/aevum-starter-kit) (MIT, PQA Labs).
 Private payments run on [Gloam](https://github.com/gloamtrade/gloam) (MIT), a pinned submodule. See [NOTICE.md](NOTICE.md). <!-- CL01 -->
 
@@ -60,8 +63,11 @@ linked) <!-- CL31 --> <!-- CL33 -->. The landing page's example link is that run
 - Web: a landing page `/` and a dashboard `/app` in a design system taken from Muuve's style ([DESIGN.md](DESIGN.md),
   D25, D26). <!-- CL38 -->
 
-Not done yet on Aevum testnet: acts 2–4 clicked through in a browser (run 1 drove them by script), and a withdrawal.
-Not live yet: public hosting (Render + Upstash Redis, DEPLOY_RENDER.md; rehearsed locally only). <!-- not-built -->
+Not done yet on Aevum testnet: acts 2–4 clicked through in a browser (run 1 drove them by script), and a withdrawal. <!-- not-built -->
+
+- Hosting: https://shaida.onrender.com on Render free with Upstash Redis (D29, [DEPLOY_RENDER.md](DEPLOY_RENDER.md)),
+  checked logged out: health, pinned proving files, relayer, index, and the example link VALID at 390 px
+  ([evidence/hosting-render.md](evidence/hosting-render.md)). <!-- CL43 -->
 
 Secrets: `make gate` scans the git history with gitleaks; keys and keystores are gitignored. <!-- CL41 -->
 
