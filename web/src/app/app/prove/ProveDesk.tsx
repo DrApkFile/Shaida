@@ -1,6 +1,6 @@
 "use client";
 // What a proof can count (D27): my opened payments against the checked ledger tree, each with its V leaf's date.
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { formatUnits } from "viem";
 import { incomeCandidates, openInbox, type NotCountable, type VaultData } from "@shaida/pay";
 import { ProblemBox } from "@/components/ProblemBox";
@@ -22,8 +22,11 @@ export function ProveDesk({ w, receiveKey }: { w: Wiring; receiveKey: NonNullabl
   const trees = useTrees(w);
   const t = trees.data?.ok ? trees.data.value : null;
   const data = useQuery({
-    queryKey: ["prove-inputs", w.net.chain.id, t?.block.toString(), receiveKey.tag, vault.data?.inbox.length],
+    // Keyed on the leaves and memos, not the block: the trees refetch every 15 s, and a new block with nothing new in it
+    // must not unmount the form below (it held the typed fields and a built link). New leaves are only appended.
+    queryKey: ["prove-inputs", w.net.chain.id, t?.snapshot.ledgerLeaves.length, t?.snapshot.memos.length, receiveKey.tag, vault.data?.inbox.length],
     enabled: Boolean(t && vault.data),
+    placeholderData: keepPreviousData,
     queryFn: async () => {
       if (!t || !vault.data) throw new Error("not ready");
       const [payments, leaves] = await Promise.all([openInbox(t.snapshot.memos, receiveKey, w.ctx), leafTimes(w, t)]);
