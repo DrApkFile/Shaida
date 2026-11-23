@@ -27,6 +27,7 @@ Gas price on 44005 is 1 gwei, so 1,000,000 gas = 0.001 tQDAY.
 | 2026-11-23, block 3884979 | F2: fund the reader with 0.000267017 tQDAY (sent by the builder) [`0x56f24a01…`](https://explorer-test.qday.info/tx/0x56f24a015e8b8c32c521949010b0388e0d7b6fda152f1e7ffc04c2b515458384) | 1 | 21,000 | 0.000288017 | 0.926029423 | 2 |
 | 2026-11-23, block 3884993 | F3: fund the forward address `0xe317E304…8Ee7A0` with 0.000086375 tQDAY (sent by the builder) [`0x017bd36d…`](https://explorer-test.qday.info/tx/0x017bd36d337f41019b222f579c9e9055244cc09013c73b4c90282d878bc107a1) | 1 | 21,000 | 0.000107375 | 0.925922048 | 2 |
 | 2026-11-23, blocks 3885363–3885380 | withdrawal batch W2 (driven by the agent in headless Chromium on the live site, at the builder's request): Ada (demo) withdraws her 3 swept notes, 1.5 / 1 / 0.5 tUSD8, to the forward address; relayer sends `pool.unshield` ×3: [`0x379cab95…`](https://explorer-test.qday.info/tx/0x379cab9532d728dfa176b95d08ebc029ac679dc6b40c10f04af63ba8bc6a62ac) 343,698 · [`0x4336f050…`](https://explorer-test.qday.info/tx/0x4336f050b1aff441d4c11abf4bf453b6de61fedb03943d209b9d3b545e57f164) 326,598 · [`0x30b85e2e…`](https://explorer-test.qday.info/tx/0x30b85e2ed28dd654a49adb88c32923601ff3bc9de944f87e5eca7d708e1fe338) 317,010 | 3 | 987,306 | 0.000987306 (relayer) | 0.925922048 | 2 |
+| 2026-11-23, block 3886253 | W4: the forward address `0xe317E304…8Ee7A0` sends the 3 tUSD8 to the deployer (sent by the builder, keystore `shaida-forward`) [`0x614f3801…`](https://explorer-test.qday.info/tx/0x614f380133d4f78093c0f03d0117afd3870e6170b0013018d0f171d42671da4d) | 1 | 40,483 | 0.000040483 (forward address) | 0.925922048 | 5 |
 
 Every row above comes from receipts (`gasUsed × effectiveGasPrice`) and `eth_getBalance` / `balanceOf` (deploy rows at block
 3811143; funding rows at block 3822171, when the relayer held 0.0384 tQDAY and the reader 0.00063 tQDAY, as sent).
@@ -44,6 +45,11 @@ each emitted a tUSD8 Transfer from the pool to `0xe317E304…8Ee7A0` of 1,500,00
 block 3885406: relayer 0.037370461 tQDAY (nonce 13; plan ≈ 0.037326673 at the 343,698 maximum), forward 0.000086375
 tQDAY and 3 tUSD8 (nonce 0), pool 0 tUSD8, deployer 0.925922048 tQDAY and 2 tUSD8 (unchanged). Browser report and
 screenshots: [evidence/ui-44005/report-withdraw-390.md](ui-44005/report-withdraw-390.md).
+W4 (block 3886253): status 1, legacy, 1 gwei, from the forward address (nonce 0) to tUSD8, one Transfer of 3,000,000 to
+the deployer; 40,483 gas (planned 57,583, the fork's). Balances at block 3886294: deployer 0.925922048 tQDAY and
+5 tUSD8 (nonce 27), forward 0.000045892 tQDAY and 0 tUSD8 (nonce 1; dust, as planned), relayer 0.037370461, reader
+0.00063, Acme Studio (demo) 0 / 0. The batch is done; hard limits held at every step (deployer lowest 0.925922048
+tQDAY and 2 tUSD8). Next: R0, at least 12 h after W2 (from 2026-11-23 15:21 UTC) and on a later calendar day than run 1.
 Explorer verification of `PayerRegistry` (S10) cost nothing: it is an explorer API call, not a transaction.
 
 ## Plan for live run 1 (run 2026-11-22: see Runs)
@@ -302,7 +308,7 @@ its passphrase is in `~/.config/shaida/ada-live-run-1.vault-passphrase` (copy it
       by the forward address). Agent: 3 unshields status 1, forward address holds 3 tUSD8, rows W2a–W2c.
 - [x] W3 still in Ada's tab: **Export backup** (top bar) → save as `~/.config/shaida/ada-after-batch.vault.json`,
       then `chmod 600` it. It records the withdrawals; it is the backup to use from now on.
-- [ ] W4 terminal: `cast send --legacy --gas-price 1gwei --gas-limit 80000 --rpc-url $RPC --account shaida-forward 0x456569838f1d43009A91ebA4263147Afd7233483 'transfer(address,uint256)' 0x5f8066E6E18f6381a0fF593BB6B1A036c5a69698 3000000`
+- [x] W4 terminal: `cast send --legacy --gas-price 1gwei --gas-limit 80000 --rpc-url $RPC --account shaida-forward 0x456569838f1d43009A91ebA4263147Afd7233483 'transfer(address,uint256)' 0x5f8066E6E18f6381a0fF593BB6B1A036c5a69698 3000000`
       (password: `~/.config/shaida/shaida-forward.password`, or add `--password-file` with that path). Agent: status 1,
       deployer 5 tUSD8, row W4.
 
