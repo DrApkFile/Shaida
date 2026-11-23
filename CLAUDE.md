@@ -19,7 +19,7 @@
 - Only `ShaidaLedger` writes V and S leaves. V requires an **active** registered payer. S is written only by `sweep`.
 - The circuit, its zkey and `IncomeVerifier` change together. Any circuit change invalidates the ceremony: record it in DECISIONS.md and rerun phase 2.
 - The relayer exposes one route per contract function and never forwards arbitrary calldata.
-- Proof payloads live in the URL fragment. The server never receives or stores proofs, note secrets or receive keys.
+- Proof payloads live in the URL fragment. The server never receives or stores proofs, except the underwriting bot endpoint, where the server is itself the reader (D30): there the link is never logged or kept, and only a hash of recorded proofs is stored. The server never receives note secrets or receive keys.
 - Recipient secrets stay in the browser (encrypted local storage + exportable backup). Never logged.
 
 ## Aevum and tooling gotchas (measured; newer than your training data)

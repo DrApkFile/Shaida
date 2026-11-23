@@ -104,6 +104,8 @@ The underwriting bot is an API with a published contract, made to be called by s
   count, ledger period, expiry). It cannot see who paid, the amounts, or the holder's address. A link made out to
   another reader is declined (`WrongReader`). To keep the link off any server, run the CLI:
   `pnpm --filter @shaida/underwrite decide --preset rent-check --link '<link>'`.
+- In real use, a lender would run the bot themselves (the CLI, or their own deployment of this code with their own
+  policy file and reader name), so their applicants' proofs never touch Shaida's server. The hosted bot is a demo.
 
 ## Aevum testnet contracts (chain 44005)
 Deployed from commit `2a10759`; checked against the chain in [evidence/aevum-deployment.md](evidence/aevum-deployment.md),

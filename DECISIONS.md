@@ -678,7 +678,8 @@ Decision:
   route. The bot is a reader the holder chooses to send the link to, and it cannot decide without it. Scoped exception:
   the link is used for one decision and never logged (U19c logs ids and codes only) or stored; a recorded proof is kept
   as a hash (`proofKey`); the rate limit keeps request times per IP for two minutes. The page says this before its
-  button, unlike /v, which checks in the browser. CLAUDE.md itself is left for the builder to amend.
+  button, unlike /v, which checks in the browser. CLAUDE.md's invariant now names this exception (amended by the
+  builder's decision, 2026-11-24). In real use a lender runs the bot itself (CLI or own deployment).
 - **Rails:** 10 decisions a minute per IP in the relayer's store (checked before the body is read), a 16 KiB body cap
   (413), a strict body `{link, preset, record?}`, links up to 12,000 characters. Groth16 on the server runs on a
   single-threaded bn128 curve: measured 2026-11-23 on this laptop (4 CPUs), 44 ms and 89 MB RSS for a first verify,
