@@ -106,7 +106,8 @@ jobs:
         env:
           NEXT_PUBLIC_NETWORKS: aevum
         run: bash tools/render-build.sh
-      - run: pnpm -r typecheck
+      - name: Typecheck (pnpm comes from render-build's .render-bin; the runner has none of its own)
+        run: PATH="$PWD/.render-bin:$PATH" pnpm -r typecheck
 
   gate:
     # BUILD_CONTRACT gate (tools/gate.sh) on this clean checkout. Exit 3 = INCONCLUSIVE (Aevum RPC unreachable, fork
