@@ -1,0 +1,32 @@
+{
+  "schema": "shaida-underwrite-policies/1",
+  "note": "Demo presets for the underwriting bot (D30), sized for testnet tUSD8. Both are one bot, so both take links made out to the same reader name. Bump a policy's version on any change.",
+  "policies": [
+    {
+      "id": "rent-check",
+      "version": 1,
+      "title": "Rent check (landlord)",
+      "audience": "landlord",
+      "readerName": "Shaida underwriting bot (demo)",
+      "minThreshold": "1000000",
+      "minPayments": 2,
+      "minPeriodDays": 1,
+      "maxPeriodDays": 92,
+      "maxProofAgeDays": 30,
+      "minDaysLeft": 7
+    },
+    {
+      "id": "revenue-credit",
+      "version": 1,
+      "title": "Revenue-based credit (lender)",
+      "audience": "lender",
+      "readerName": "Shaida underwriting bot (demo)",
+      "minThreshold": "10000000",
+      "minPayments": 6,
+      "minPeriodDays": 28,
+      "maxPeriodDays": 184,
+      "maxProofAgeDays": 14,
+      "minDaysLeft": 14
+    }
+  ]
+}

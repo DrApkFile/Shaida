@@ -41,6 +41,11 @@ export const ERROR_CODES = {
   RelayerUnavailable: { retryable: "later", nextAction: "try later or pay the gas yourself; nothing was sent" },
   TxRejected: { retryable: "no", nextAction: "the chain refused this call; check the message" },
   NotConfigured: { retryable: "no", nextAction: "this network isn't set up in the app; nothing was read or sent" },
+  // D30 (underwriting bot)
+  ChainUnreachable: { retryable: "yes", nextAction: "try again shortly; nothing was decided or sent" },
+  AttestCapReached: { retryable: "later", nextAction: "the bot's daily record cap is reached; the decision stands, nothing was sent" },
+  AlreadyRecorded: { retryable: "no", nextAction: "nothing to do; this proof was already recorded by the bot" },
+  RecorderUnavailable: { retryable: "later", nextAction: "the bot cannot send its record now (no key or no gas); the decision stands, nothing was sent" },
 } as const satisfies Record<string, CodeSpec>;
 
 export type ErrorCode = keyof typeof ERROR_CODES;
