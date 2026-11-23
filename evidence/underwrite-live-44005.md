@@ -28,7 +28,7 @@ The two bot screenshots were taken at desktop width, not at 390 px (the page at 
   when it is asked, so the browser, the live API and the local CLI agree (D30 idempotency, on the real chain).
 - `IncomeVerifier.check` (eth_call, 400,000 gas, block 3957634, `0xc9844a8f…e1c8`) returned **true** for the proof.
   Public signals: threshold 1000000, count 3, ledger leaves 6–11 (run 2's vouch and sweep leaves), expiry 1798153199
-  (2026-12-24, end of day UTC).
+  (2026-12-24 22:59:59 UTC: end of that day in the browser's time zone, UTC+1).
 
 ## Not done
 - Recording the approval on chain (`UNDERWRITE_RECORD=on`, "Record on chain"): not run. The bot is funded and its key
