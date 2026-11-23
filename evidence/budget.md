@@ -23,6 +23,9 @@ Gas price on 44005 is 1 gwei, so 1,000,000 gas = 0.001 tQDAY.
 | 2026-11-22, block 3826477 | register Acme Studio (demo) `0xA1ddEB46…91D4b` as payer #1 (sent by the builder) [`0xbfbf81db…`](https://explorer-test.qday.info/tx/0xbfbf81db8af5387a1b0100f733a6437dc4b8043b1c0a6f2649f574a6a4744ada) | 1 | 117,922 | 0.000117922 | — | 5 |
 | 2026-11-22, block 3826515 | 3 tUSD8 to the payer (sent by the builder) [`0xe986ae47…`](https://explorer-test.qday.info/tx/0xe986ae473388cd5cc9a98ebab912285f65bca8d2639d3a37b1c924c53a27e7d0) | 1 | 62,383 | 0.000062383 | 0.943716971 | 2 |
 | 2026-11-22, blocks 3826680–3826836 | live run 1: 10 relayed txs (relayer pays 0.017420764) and 1 attest (reader pays 0.000267017); per-tx rows in [evidence/live-44005-run1.md](live-44005-run1.md) | 11 | 17,687,781 | 0.017687781 (helpers) | 0.943716971 | 2 |
+| 2026-11-23, block 3884966 | F1: fund the relayer with 0.017378531 tQDAY (sent by the builder) [`0x33cd209b…`](https://explorer-test.qday.info/tx/0x33cd209be4fed5331bd1b3e7535a789899df8941b9bc4a4e3f5341d36c1efb4d) | 1 | 21,000 | 0.017399531 | 0.926317440 | 2 |
+| 2026-11-23, block 3884979 | F2: fund the reader with 0.000267017 tQDAY (sent by the builder) [`0x56f24a01…`](https://explorer-test.qday.info/tx/0x56f24a015e8b8c32c521949010b0388e0d7b6fda152f1e7ffc04c2b515458384) | 1 | 21,000 | 0.000288017 | 0.926029423 | 2 |
+| 2026-11-23, block 3884993 | F3: fund the forward address `0xe317E304…8Ee7A0` with 0.000086375 tQDAY (sent by the builder) [`0x017bd36d…`](https://explorer-test.qday.info/tx/0x017bd36d337f41019b222f579c9e9055244cc09013c73b4c90282d878bc107a1) | 1 | 21,000 | 0.000107375 | 0.925922048 | 2 |
 
 Every row above comes from receipts (`gasUsed × effectiveGasPrice`) and `eth_getBalance` / `balanceOf` (deploy rows at block
 3811143; funding rows at block 3822171, when the relayer held 0.0384 tQDAY and the reader 0.00063 tQDAY, as sent).
@@ -30,6 +33,10 @@ Every row above comes from receipts (`gasUsed × effectiveGasPrice`) and `eth_ge
 The registration row has no balance of its own because the builder sent both deployer transactions before the script
 read balances; the transfer row's balances are read after both (block 3826515 onward). Run 1's helper spend comes out
 of the 0.0384 and 0.00063 already sent, not out of the deployer.
+F1–F3 (2026-11-23): each receipt status 1, legacy (type 0), 1 gwei, 21,000 gas, from the deployer at nonces 24, 25
+and 26, value exactly as planned. Balances read at block 3885060, after all three: deployer 0.925922048 tQDAY and 2 tUSD8
+(nonce 27), relayer 0.038357767, reader 0.00063, forward 0.000086375 (nonce 0): equal to the plan's "F3" row to the wei.
+The per-row deployer balances for F1 and F2 are derived from the receipts (value + gas).
 Explorer verification of `PayerRegistry` (S10) cost nothing: it is an explorer API call, not a transaction.
 
 ## Plan for live run 1 (run 2026-11-22: see Runs)
@@ -261,10 +268,10 @@ agent records the real balances after each step and they will be a little higher
 
 ### Checklist A: funding (builder's terminal, before the batch)
 `RPC=https://rpc-test.qday.info`. Each `cast send` asks for the keystore password (hidden prompt).
-- [ ] F1 `cast send --legacy --gas-price 1gwei --gas-limit 21000 --rpc-url $RPC --account shaida-deployer 0xF4945dD57C8de1C637966179df5b631689901422 --value 0.017378531ether`
-- [ ] F2 `cast send --legacy --gas-price 1gwei --gas-limit 21000 --rpc-url $RPC --account shaida-deployer 0xbed994a7fD0e7A49DAD09866e86817ccA6Ea785E --value 0.000267017ether`
-- [ ] F3 `cast send --legacy --gas-price 1gwei --gas-limit 21000 --rpc-url $RPC --account shaida-deployer 0xe317E3049cDB48e0915b095D5B3CFa689f8Ee7A0 --value 0.000086375ether`
-- [ ] agent: 3 receipts status 1, balances = rows F1–F3
+- [x] F1 `cast send --legacy --gas-price 1gwei --gas-limit 21000 --rpc-url $RPC --account shaida-deployer 0xF4945dD57C8de1C637966179df5b631689901422 --value 0.017378531ether`
+- [x] F2 `cast send --legacy --gas-price 1gwei --gas-limit 21000 --rpc-url $RPC --account shaida-deployer 0xbed994a7fD0e7A49DAD09866e86817ccA6Ea785E --value 0.000267017ether`
+- [x] F3 `cast send --legacy --gas-price 1gwei --gas-limit 21000 --rpc-url $RPC --account shaida-deployer 0xe317E3049cDB48e0915b095D5B3CFa689f8Ee7A0 --value 0.000086375ether`
+- [x] agent: 3 receipts status 1, balances = rows F1–F3 (block 3885060; tx hashes in the ledger above)
 
 ### Checklist B: withdrawal batch (quiet time: ≥ 12 h after run 1, which ended 2026-11-22 10:52 UTC)
 Profile "Shaida Ada (demo)", https://shaida.onrender.com. The backup is `~/.config/shaida/ada-live-run-1.vault.json`;
