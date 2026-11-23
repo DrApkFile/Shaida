@@ -1,7 +1,7 @@
 "use client";
 // The prove form (D27): period as dates, threshold on the share step (with the nearest valid amounts offered),
 // reader name and expiry; then the build with a progress bar by stage, and the /v#… link.
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
 import type { CheckedTrees } from "@shaida/index";
 import type { CountablePayment } from "@shaida/pay";
@@ -11,9 +11,11 @@ import type { Wiring } from "@/lib/flows";
 import { endOfDay, isoDate, isoInDays, startOfDay } from "@/lib/income/dates";
 import type { Problem } from "@/lib/problem";
 import { useVault } from "@/lib/vault";
+import { templateOf, TEMPLATES, type TemplateId } from "@/lib/templates";
 import { parseTusd8 } from "../pay/amount";
 import { buildLink, type Built, type Stage } from "./build";
 import { LinkResult } from "./LinkResult";
+import { TemplatePicker } from "./TemplatePicker";
 
 const STEPS = [1_000_000n, 5_000_000n, 10_000_000n] as const;
 const MAX_EXPIRY_DAYS = 365;
@@ -26,6 +28,9 @@ export function ProveForm({ w, t, leaves, countable }: { w: Wiring; t: CheckedTr
   const [to, setTo] = useState(isoInDays(0));
   const [amount, setAmount] = useState("");
   const [step, setStep] = useState<bigint>(STEPS[0]);
+  const [template, setTemplate] = useState<TemplateId>("income");
+  // /app/prove?for=merchant (the landing page's "Who it's for") preselects a template.
+  useEffect(() => setTemplate(templateOf(new URLSearchParams(window.location.search).get("for")).id), []);
   const [reader, setReader] = useState("");
   const [expiry, setExpiry] = useState(isoInDays(30));
   const [stage, setStage] = useState<Stage | null>(null);
@@ -42,6 +47,7 @@ export function ProveForm({ w, t, leaves, countable }: { w: Wiring; t: CheckedTr
   const expiryEnd = endOfDay(expiry);
   const nowSec = BigInt(Math.floor(Date.now() / 1000));
   const readerOk = readerIdHashOf(reader).ok;
+  const tpl = TEMPLATES[template];
 
   const why = [
     start === null || end === null ? "Pick both dates of the period." : start > end ? "The period ends before it starts." : null,
@@ -57,8 +63,9 @@ export function ProveForm({ w, t, leaves, countable }: { w: Wiring; t: CheckedTr
     try {
       const r = await buildLink(w, t, leaves, countable, { reader, start, end, threshold, step, expiry: expiryEnd }, setStage);
       if (!r.ok) { setProblem(r.error); return; }
-      await vault.update((d) => ({ ...d, shared: [...d.shared, r.value.shared] }));
-      setBuilt(r.value);
+      const made = { ...r.value, shared: { ...r.value.shared, template } };
+      await vault.update((d) => ({ ...d, shared: [...d.shared, made.shared] }));
+      setBuilt(made);
     } finally {
       setStage(null);
     }
@@ -67,12 +74,13 @@ export function ProveForm({ w, t, leaves, countable }: { w: Wiring; t: CheckedTr
   return (
     <section className="card stack" aria-labelledby="prove">
       <h2 id="prove">Make a proof link</h2>
+      <TemplatePicker chosen={template} onChoose={(id) => { setTemplate(id); setBuilt(null); }} />
       <div className="fields-2">
         <label className="field"><span>From</span><input type="date" name="from" value={from} onChange={(e) => setFrom(e.target.value)} /></label>
         <label className="field"><span>To</span><input type="date" name="to" value={to} onChange={(e) => setTo(e.target.value)} /></label>
       </div>
       <p className="fine period-summary">
-        In this period: {inPeriod.length} countable payment(s), {formatUnits(total, 6)} tUSD8. You can show up to {formatUnits(most, 6)} tUSD8 in steps of {formatUnits(step, 6)}.
+        In this period: {inPeriod.length} countable {tpl.paymentWord}(s), {formatUnits(total, 6)} tUSD8. You can show up to {formatUnits(most, 6)} tUSD8 in steps of {formatUnits(step, 6)}.
       </p>
       <div className="fields-2">
         <label className="field">
@@ -96,7 +104,13 @@ export function ProveForm({ w, t, leaves, countable }: { w: Wiring; t: CheckedTr
       <div className="fields-2">
         <label className="field">
           <span>Reader&apos;s name</span>
-          <input name="reader" autoComplete="off" placeholder="Landlord Bola" value={reader} onChange={(e) => setReader(e.target.value)} />
+          <input name="reader" autoComplete="off" placeholder={tpl.readerPlaceholder} value={reader} onChange={(e) => setReader(e.target.value)} />
+          {tpl.suggestedReader && reader !== tpl.suggestedReader.name && (
+            <span className="suggest">
+              <button type="button" className="btn secondary small" onClick={() => setReader(tpl.suggestedReader?.name ?? "")}>Use “{tpl.suggestedReader.name}”</button>
+              <span>{tpl.suggestedReader.why}</span>
+            </span>
+          )}
           <span className="hint">The link is made out to this name. It is not a login: anyone with the link who types the name sees VALID, so share it only with them.</span>
         </label>
         <label className="field"><span>Expires</span><input type="date" name="expiry" value={expiry} onChange={(e) => setExpiry(e.target.value)} /></label>
@@ -112,7 +126,7 @@ export function ProveForm({ w, t, leaves, countable }: { w: Wiring; t: CheckedTr
         </div>
       )}
       <ProblemBox problem={problem} />
-      {built && <LinkResult built={built} />}
+      {built && <LinkResult built={built} template={TEMPLATES[built.shared.template ?? "income"]} />}
     </section>
   );
 }

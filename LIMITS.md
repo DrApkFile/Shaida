@@ -72,3 +72,25 @@ the deployer's tUSD8 would otherwise fall below 2, batching the notes at a quiet
 which then forwards the tUSD8 (evidence/budget.md). The nullifier still keeps a withdrawal unlinkable to the note's
 payment and sweep, but amounts that match a known run link it by value. The income proof is not affected: it reads
 the ledger's V and S leaves, which a withdrawal does not touch (evidence/withdraw-fork.md).
+
+## What the underwriting bot can and cannot know (D30)
+- **It trusts the reader-name binding, which is intent, not identity.** A link made out to "Shaida underwriting bot
+  (demo)" says the holder meant it for the bot; it does not say who the holder is. Anyone holding that link can send
+  it to the bot and get the same decision, so an APPROVE says "this proof meets the policy", never "this applicant
+  earns this much". A lender still has to tie the link to an applicant some other way (for example, by receiving it
+  from them directly).
+- **It sees the link.** Unlike /v, which checks in the browser, the bot's server receives the link for one decision. It
+  reads only the proof's public facts (threshold, count, ledger range, expiry, reader hash, root), does not log or keep
+  the link, and keeps a hash of each proof it records on chain. An operator who changed the code could keep links;
+  running the CLI yourself avoids sending the link anywhere.
+- **A minimum period is a span of the ledger, not of payments.** The period is the UTC days between the first and the
+  last vouch leaf of the proven range. Those leaves can belong to other recipients, so a long period does not mean the
+  holder was paid steadily across it; the payment count and threshold are what is proven about the holder.
+- **Proof age is the age of the ledger state the proof was built on** (the time the root it uses was current), not the
+  time it was made. A recent proof built on an old root counts as old; the reverse cannot happen.
+- **Decisions move with time.** The same link under the same policy version gives the same decision at the same time.
+  As time passes, ProofTooOld and ExpiresTooSoon (and ProofExpired) can turn an APPROVE into a DECLINE; nothing turns a
+  DECLINE into an APPROVE except a new link.
+- **An on-chain record says a proof passed IncomeVerifier, recorded by the bot's address.** The attest event carries the
+  proof's context, threshold and count, not the policy; the policy and decision id are in the bot's response only.
+- **Templates are wording.** `/v?for=merchant` changes the words on the page, not the proof: anyone can edit the query.

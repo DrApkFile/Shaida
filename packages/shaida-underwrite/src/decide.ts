@@ -29,10 +29,12 @@ export class LedgerNotReadable extends Error {
   }
 }
 
+/** The ledger could not be read for a reason the caller names: INCONCLUSIVE with that code. */
+export const ledgerNotReadable = (code: InconclusiveCode, message: string): LedgerNotReadable =>
+  new LedgerNotReadable(shaidaError(code, message) as ShaidaError & { readonly code: InconclusiveCode });
+
 export const chainUnreachable = (what: string, cause: unknown): LedgerNotReadable =>
-  new LedgerNotReadable(
-    shaidaError("ChainUnreachable", `The bot could not read the chain (${what}: ${cause instanceof Error ? cause.message.split("\n")[0] : String(cause)}). Nothing was decided or sent.`) as ShaidaError & { code: "ChainUnreachable" },
-  );
+  ledgerNotReadable("ChainUnreachable", `The bot could not read the chain (${what}: ${cause instanceof Error ? cause.message.split("\n")[0] : String(cause)}). Nothing was decided or sent.`);
 
 export interface PolicyRef {
   readonly id: string;
@@ -132,7 +134,7 @@ export async function underwrite(fragment: string, policy: Policy, deps: Underwr
     if (v.status === "INVALID") {
       const code = v.error.code;
       if (!isRefusalCode(code)) throw new Error(`verifyIncomeLink returned INVALID(${code}), which the bot does not map`);
-      return { ...common("DECLINE", [code]), kind: "DECLINE", reasons: [{ code, message: `${REFUSAL_WORDS[code]} (${v.error.message})` }], facts: null };
+      return { ...common("DECLINE", [code]), kind: "DECLINE", reasons: [{ code, message: `${REFUSAL_WORDS[code]} Nothing was recorded.` }], facts: null };
     }
     verified = v;
     rootTime = await deps.rootTime(rootOf(fragment));

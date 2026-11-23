@@ -6,6 +6,7 @@ import { readerIdHashOf, verifyIncomeLink, type IncomeVerification } from "@shai
 import { wiringFor } from "@/lib/flows";
 import { leafTimes, verifyDepsFor } from "@/lib/income/chain";
 import { useNetwork } from "@/lib/network";
+import { templateOf, TEMPLATES, type Template } from "@/lib/templates";
 import { useTrees } from "@/lib/useTrees";
 import { Verdict } from "./Verdict";
 
@@ -17,9 +18,14 @@ export default function VerifyPage() {
   const [reader, setReader] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<IncomeVerification | null>(null);
+  const [template, setTemplate] = useState<Template>(TEMPLATES.income);
 
   useEffect(() => {
-    const read = () => { setFragment(window.location.hash.slice(1) || null); setResult(null); };
+    const read = () => {
+      setFragment(window.location.hash.slice(1) || null);
+      setTemplate(templateOf(new URLSearchParams(window.location.search).get("for")));
+      setResult(null);
+    };
     read();
     window.addEventListener("hashchange", read);
     return () => window.removeEventListener("hashchange", read);
@@ -45,8 +51,8 @@ export default function VerifyPage() {
       <header className="page-head">
         <div>
           <p className="eyebrow">Verify a proof · {net.chain.name} ({net.chain.id})</p>
-          <h1>Check an income proof</h1>
-          <p className="lede">Someone sent you this link to show they earn at least an amount. You see that amount, how many payments, the dates, and nothing else.</p>
+          <h1>{template.verifyTitle}</h1>
+          <p className="lede">{template.verifyLede}</p>
         </div>
       </header>
       {!w.ok && <div className="notice bad" role="alert"><strong className="mono">NotConfigured</strong> {w.problem}</div>}
@@ -66,7 +72,7 @@ export default function VerifyPage() {
           {trees.data && !trees.data.ok && <div className="notice warn" role="alert"><strong className="mono">{trees.data.error.code}</strong> {trees.data.error.message}</div>}
         </section>
       )}
-      {result && w.ok && fragment && <Verdict v={result} w={w.value} fragment={fragment} />}
+      {result && w.ok && fragment && <Verdict v={result} w={w.value} fragment={fragment} template={template} />}
       <p className="fine">Checked in this browser with the ceremony&apos;s final verification key against {net.chain.name}. Proofs are never sent to Shaida&apos;s server.</p>
     </main>
   );

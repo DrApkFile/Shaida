@@ -24,9 +24,9 @@ const STEPS = [
 ] as const;
 
 const WHO = [
-  { tone: "tone-lemon", title: "Freelancers", text: "Show a landlord you earn enough for the rent, without handing over a bank statement with every client on it." },
-  { tone: "tone-sage", title: "Merchants", text: "Show a supplier or a lender steady income over a quarter, without showing which customers paid." },
-  { tone: "tone-rose", title: "Grantees", text: "Show a programme you received the tranches you were promised, without publishing your wallet." },
+  { tone: "tone-lemon", title: "Freelancers", text: "Show a landlord you earn enough for the rent, without handing over a bank statement with every client on it.", href: "/app/prove", cta: "Income proof for a landlord" },
+  { tone: "tone-sage", title: "Merchants", text: "Show a supplier or a lender steady income over a quarter, without showing which customers paid.", href: "/app/prove?for=merchant", cta: "Revenue proof for a lender" },
+  { tone: "tone-rose", title: "Grantees", text: "Show a programme you received the tranches you were promised, without publishing your wallet.", href: "/app/prove?for=grantee", cta: "Disbursements for a donor or sponsor" },
 ] as const;
 
 const LIMITS = [
@@ -74,9 +74,17 @@ export default function LandingPage() {
         <h2 id="who" className="band-title">Who it is for</h2>
         <div className="who">
           {WHO.map((w) => (
-            <div key={w.title} className={`card stack ${w.tone}`}><h3>{w.title}</h3><p className="sub">{w.text}</p></div>
+            <div key={w.title} className={`card stack ${w.tone}`}>
+              <h3>{w.title}</h3>
+              <p className="sub">{w.text}</p>
+              <Link className="btn secondary small" href={w.href}>{w.cta} <ArrowRightIcon /></Link>
+            </div>
           ))}
         </div>
+        <p className="fine who-bot">
+          Landlords and lenders who read many proofs can let a bot do it: the <Link href="/underwrite">underwriting bot</Link> checks a link against a
+          published policy and answers APPROVE, DECLINE with reasons, or INCONCLUSIVE. Deterministic, no LLM; agents can call it too (<a href="/llms.txt">llms.txt</a>).
+        </p>
       </section>
 
       <section className="shell band" aria-labelledby="trust">

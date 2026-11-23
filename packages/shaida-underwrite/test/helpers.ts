@@ -1,16 +1,14 @@
 // Links and deps for the bot's tests. Groth16 is a stand-in that accepts a proof only for the exact public signals it
 // was "made" for (as packages/shaida-proofs/test/helpers/link.ts), so editing any signal is refused like a real
 // verifier would; U20 repeats the core cases with a real final-key proof and snarkjs.
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { keccak256 } from "viem";
 import { memoryKv } from "@shaida/kv";
 import { contextOf, encodeIncomeLink, PUBLIC_SIGNAL_ORDER, readerIdHashOf, TUSD8_FIELD, type Groth16Proof } from "@shaida/proofs";
-import { DAY, kvRecordStore, parsePolicies, SendRefused, type Policy, type RecorderChain, type RecorderDeps, type UnderwriteDeps } from "../src/index";
+import { DAY, kvRecordStore, PRESETS, SendRefused, type Policy, type RecorderChain, type RecorderDeps, type UnderwriteDeps } from "../src/index";
 
 export const REPO = fileURLToPath(new URL("../../..", import.meta.url));
-export const POLICIES = parsePolicies(JSON.parse(readFileSync(join(REPO, "config/underwrite-policies.json"), "utf8")));
+export const POLICIES = PRESETS;
 export const RENT = POLICIES.find((p) => p.id === "rent-check")!;
 export const CREDIT = POLICIES.find((p) => p.id === "revenue-credit")!;
 export const BOT_READER = RENT.readerIdHash;

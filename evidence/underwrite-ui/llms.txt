@@ -1,0 +1,28 @@
+# Shaida
+
+> Private income proofs on Aevum testnet (chain 44005, tUSD8). A recipient proves "at least X received from N payments by registered payers, in a period" to one named reader, with an expiry, and shows nothing else.
+
+Testnet only. Not audited. Demo personas and the demo bot are labelled demo.
+
+## Underwriting bot (deterministic, no LLM)
+
+- Agent card (JSON, with request and response schemas): http://localhost:3100/.well-known/agent.json
+- POST http://localhost:3100/api/underwrite with {"link": "<proof link or fragment>", "preset": "<id>", "record": false}; body ≤ 16384 bytes, 10 requests per IP per minute (429 RateLimited).
+- GET http://localhost:3100/api/underwrite: presets, recording switch, caps, bot address.
+- Answer: decision.kind APPROVE (every rule holds), DECLINE (reasons: closed codes, all that apply), or INCONCLUSIVE (chain or ledger not readable yet: never an approval; ask again).
+- Rules, in order: BelowMinThreshold, TooFewPayments, PeriodTooShort, PeriodTooLong, ProofTooOld, ExpiresTooSoon. Verification refusals (DECLINE): ProofInvalid, AssetMismatch, MixedContexts, MixedRoots, RangesOverlap, ContextMismatch, WrongReader, ProofExpired. INCONCLUSIVE: ChainUnreachable, UnknownRoot, RangeUnresolvable.
+- The same link and the same policy (id, version, hash) give the same decisionId and decision while no time limit (expiry, proof age, days left) is crossed. INCONCLUSIVE is never an approval and is not cached: ask again.
+- Only what is in the link: up to 8 Groth16 proofs with their 7 public signals (ledger root, asset, threshold, count, leaf range, context) and the context opening (reader id hash, expiry, salt). No payer, no amount per payment, no address, no note secret. The bot logs decision and proof ids and codes, never the link; it stores a hash of each proof it records on chain, and the rate limit keeps request times per IP for two minutes.
+- A link must be made out to the policy's readerName. A name binds intent, not identity: anyone holding the link can submit it (LIMITS.md).
+- Recording (off): IncomeVerifier.attest for each proof of an APPROVED link: a public IncomeProofChecked(context, threshold, count) event. Never for a DECLINE or INCONCLUSIVE. At most 3 records and 1260000 gas per UTC day; once per proof.
+
+## Presets
+
+- rent-check@1 "Rent check (landlord)": reader "Shaida underwriting bot (demo)", at least 1000000 base units, ≥ 2 payments, period 1–92 days, proof age ≤ 30 days, ≥ 7 days left.
+- revenue-credit@1 "Revenue-based credit (lender)": reader "Shaida underwriting bot (demo)", at least 10000000 base units, ≥ 6 payments, period 28–184 days, proof age ≤ 14 days, ≥ 14 days left.
+
+## Pages
+
+- http://localhost:3100/v#<payload>: verify a proof link in the browser (the fragment never reaches the server).
+- http://localhost:3100/underwrite: the bot's page.
+- Source, limits and claims: https://github.com/DrApkFile/Shaida (LIMITS.md, CLAIMS.md, DECISIONS.md D30).

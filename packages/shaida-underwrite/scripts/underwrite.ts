@@ -9,8 +9,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createPublicClient, http, parseAbi, type Address, type Hex, type PublicClient } from "viem";
 import { fetchCheckedTrees } from "@shaida/pay";
-import { shaidaError } from "@shaida/proofs";
-import { fragmentOf, LedgerNotReadable, parsePolicies, underwrite, type Decision } from "../src/index";
+import { fragmentOf, ledgerNotReadable, parsePolicies, underwrite, type Decision } from "../src/index";
 import { ledgerViewOf, nodeUnderwriteDeps } from "../src/node";
 
 const REPO = new URL("../../..", import.meta.url).pathname;
@@ -71,7 +70,7 @@ async function main(): Promise<number> {
       const t = await fetchCheckedTrees(indexBase, deployment.chainId, async (url) => { const r = await fetch(url, { cache: "no-store" }); return { status: r.status, json: () => r.json() as Promise<unknown> }; }, {
         isKnownRoot: (c, root, block) => client.readContract({ address: c as Address, abi: roots, functionName: "isKnownRoot", args: [hex32(root)], blockNumber: block }),
       }, { sleep: (ms) => new Promise((r) => setTimeout(r, ms)) });
-      if (!t.ok) throw new LedgerNotReadable(shaidaError("UnknownRoot", t.error.message) as ReturnType<typeof shaidaError> & { code: "UnknownRoot" });
+      if (!t.ok) throw ledgerNotReadable("UnknownRoot", t.error.message);
       return ledgerViewOf(t.value, (b) => {
         let p = blockTimes.get(b);
         if (!p) { p = client.getBlock({ blockNumber: b }).then((x) => x.timestamp); blockTimes.set(b, p); }

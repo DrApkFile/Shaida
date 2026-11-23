@@ -284,12 +284,18 @@ importers:
       '@shaida/relay':
         specifier: workspace:*
         version: link:../packages/shaida-relay
+      '@shaida/underwrite':
+        specifier: workspace:*
+        version: link:../packages/shaida-underwrite
       '@tanstack/react-query':
         specifier: 5.90.2
         version: 5.90.2(react@19.2.0)
       '@upstash/redis':
         specifier: 1.41.0
         version: 1.41.0
+      ffjavascript:
+        specifier: 0.3.1
+        version: 0.3.1
       next:
         specifier: 16.4.6
         version: 16.4.6(@types/node@22.20.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)

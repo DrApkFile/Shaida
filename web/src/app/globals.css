@@ -302,3 +302,10 @@ details[open] summary { margin-bottom: 12px; }
 }
 .section-tabs a:hover { background: var(--paper); color: var(--ink); }
 .section-tabs a[aria-current="page"] { background: var(--ink); border-color: var(--ink); color: var(--cream); }
+
+/* ---------- underwriting bot (D30) ---------- */
+.policy-switch { flex-wrap: wrap; border-radius: var(--r-input); }
+.policy-switch button { white-space: normal; text-align: left; height: auto; min-height: 36px; padding: 6px 12px; }
+.reasons { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 15px; }
+.reasons li { overflow-wrap: anywhere; }
+.reasons .verdict-code { margin-right: 6px; font-weight: 600; }

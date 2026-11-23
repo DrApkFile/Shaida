@@ -97,6 +97,8 @@ export const sharedLinkSchema = z
     toDate: unix,
     proofs: z.number().int().min(1).max(8),
     createdAt: unix,
+    /** D31: the wording the link was made with (presentation only; absent on links made before templates). */
+    template: z.enum(["income", "merchant", "grantee"]).optional(),
   })
   .strict();
 export type SharedLink = z.output<typeof sharedLinkSchema>;

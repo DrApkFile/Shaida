@@ -25,6 +25,12 @@ function redis(c: Extract<StoreChoice, { kind: "redis" }>): KvClient {
   return (kv ??= upstashKv(c.env));
 }
 
+/** The shared Redis client in production; null when the store is the dev file (callers choose their own fallback). */
+export function sharedKv(): KvClient | null {
+  const c = storeChoice();
+  return c.kind === "redis" ? redis(c) : null;
+}
+
 export function relayStore(): RelayStore {
   if (relay) return relay;
   const c = storeChoice();

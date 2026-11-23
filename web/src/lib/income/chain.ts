@@ -45,7 +45,7 @@ const callData = (fn: "check" | "attest", proof: Groth16Proof, publicSignals: re
   return encodeFunctionData({ abi: verifierAbi, functionName: fn, args: [{ a: [...a.proof.a], b: [[...a.proof.b[0]], [...a.proof.b[1]]], c: [...a.proof.c] }, a.signals as unknown as readonly [bigint, bigint, bigint, bigint, bigint, bigint, bigint]] });
 };
 
-function revertOf(e: unknown): ShaidaError {
+export function revertOf(e: unknown): ShaidaError {
   const data = e instanceof BaseError ? (e.walk((x) => x instanceof ContractFunctionRevertedError) as ContractFunctionRevertedError | null)?.raw : undefined;
   const raw = data ?? (/(0x[0-9a-f]{8,})/i.exec(e instanceof Error ? e.message : "")?.[1] as Hex | undefined);
   if (raw) {

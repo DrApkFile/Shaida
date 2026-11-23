@@ -42,13 +42,19 @@ function circuitHeaders() {
 
 const config: NextConfig = {
   // The shared config package ships TypeScript source.
-  transpilePackages: ["@aevum-kit/aevum", "@shaida/index", "@shaida/kv", "@shaida/proofs", "@shaida/relay", "@shaida/pay"],
+  transpilePackages: ["@aevum-kit/aevum", "@shaida/index", "@shaida/kv", "@shaida/proofs", "@shaida/relay", "@shaida/pay", "@shaida/underwrite"],
+  // The underwriting bot verifies Groth16 on the server (D30): Node loads snarkjs and ffjavascript itself.
+  serverExternalPackages: ["snarkjs", "ffjavascript"],
   env: commit ? { SHAIDA_BUILD_COMMIT: commit } : {},
   // No dev-mode badge over the page (screenshots in evidence/ui show the app only).
   devIndicators: false,
   // D26: the pay and inbox screens moved into the dashboard; old links keep working.
   async headers() {
     return circuitHeaders();
+  },
+  // D30: the underwriting bot's agent card lives at the well-known path.
+  async rewrites() {
+    return [{ source: "/.well-known/agent.json", destination: "/api/agent-card" }];
   },
   async redirects() {
     return [

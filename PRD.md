@@ -19,7 +19,10 @@ pay privately → payment vouched by a registered payer → recipient sweeps →
 ## 2. Hook, loop, boundary
 - **Hook:** get paid privately in stablecoins, then prove you earn enough, and show nothing else.
 - **Loop:** register payer → (gasless) deposit → vouched private pay → recipient sweeps → build proof → share link → reader verifies → revocation and expiry refusals shown live.
-- **Boundary:** no AI. The underwriting bot (P1) applies a fixed rule to a verified proof; it never holds keys or sees more than the public signals.
+- **Boundary:** no AI. The underwriting bot (P1, D30) applies a fixed, versioned policy to a verified proof; it never
+  holds the recipient's keys or note secrets, and it sees the link only when its holder sends it, for one decision
+  (it reads only the proof's public facts and keeps no copy). Its own key exists only to call `IncomeVerifier.attest`,
+  off by default and capped.
 
 ## 3. Architecture
 
@@ -51,7 +54,12 @@ packages/aevum: chain/tUSD8/EIP-3009/logs helpers adapted from the kit
   reader and expiry, newest first; `/app/shared`). Every section has an empty state, a loading state, an unknown-tx
   state (`TxOutcomeUnknown`, check by hash, never resend), an error state with its closed code, and works at 390 px.
   `/pay` and `/inbox` redirect to `/app/pay` and `/app/inbox`.
-- **Prove `/app/prove`** and **verify `/v`**: PRD §5 and §7 acts 4–6; the details are D27.
+- **Prove `/app/prove`** and **verify `/v`**: PRD §5 and §7 acts 4–6; the details are D27. Templates (D31): Prove
+  offers income (landlord), merchant revenue (lender) and grantee disbursements (donor or sponsor); the choice sets
+  wording and a suggested reader, rides in the reader's URL as `?for=`, and changes nothing that is proven.
+- **Underwriting bot `/underwrite`** (public, no wallet; D30): pick a preset policy, paste a link made out to the bot,
+  see APPROVE, DECLINE with every failing reason, or INCONCLUSIVE; optionally record an approval on chain. The same
+  engine is `POST /api/underwrite` and a CLI; `/llms.txt` and `/.well-known/agent.json` describe it for agents.
 
 ### Contracts (new, ours)
 | Contract | Responsibility | Key functions |
@@ -144,6 +152,16 @@ Disclosure cost: each proof's threshold, count and range are public, so a bundle
 | `RelayerUnavailable` | the relayer has no usable key, no gas, or cannot read the chain (D17) | later | try later or pay gas yourself |
 | `TxRejected` | the chain refused the call in simulation, or the tx mined and reverted (D17) | no | read the message; a mined revert cost gas, nothing else changed |
 | `NotConfigured` | the app has no Shaida contracts for this network (D17) | no | the operator sets them; nothing was read or sent |
+| `ChainUnreachable` | the bot could not read the chain or its index (D30) | yes | try again shortly; nothing was decided or sent |
+| `AttestCapReached` | the bot's daily record count or gas cap is reached (D30) | later | the decision stands; nothing was sent |
+| `AlreadyRecorded` | part of this link was already recorded by the bot (D30) | no | nothing to do |
+| `RecorderUnavailable` | the bot has no recording key or not enough gas (D30) | later | the decision stands; nothing was sent |
+
+The bot's decisions (D30) are `APPROVE`, `DECLINE` with reasons, or `INCONCLUSIVE` with one code. A DECLINE reason is a
+verification refusal above (`ProofInvalid`, `AssetMismatch`, `MixedContexts`, `MixedRoots`, `RangesOverlap`,
+`ContextMismatch`, `WrongReader`, `ProofExpired`) or a policy rule, checked in this order: `BelowMinThreshold`,
+`TooFewPayments`, `PeriodTooShort`, `PeriodTooLong`, `ProofTooOld`, `ExpiresTooSoon`. INCONCLUSIVE is
+`ChainUnreachable`, `UnknownRoot` or `RangeUnresolvable`; it is never an approval.
 
 Before every deposit, pay and withdraw, the app reads `paused()` and `isBlacklisted(address)` on tUSD8 and refuses
 with the codes above before asking for a signature (D7). `ShaidaDepositor` repeats the deposit checks on chain.
@@ -220,8 +238,8 @@ the reader's id hash and the clock are injected. Retryable codes (`UnknownRoot`,
   - live 44005 run with evidence
   - README, NOTICE, LIMITS, CEREMONY
 - **P1:**
-  - underwriting bot (API + rule)
-  - merchant and grantee verifier templates
+  - underwriting bot (API + rule): built, D30
+  - merchant and grantee verifier templates: built, D31
   - optional payer-name disclosure
   - explorer verification (S10)
   - gas-budget store in KV

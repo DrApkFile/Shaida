@@ -58,22 +58,18 @@ describe("underwrite: approvals (D30)", () => {
 });
 
 describe("underwrite: each DECLINE reason on its own (revenue-credit, D30)", () => {
-  const cases: [string, RuleCode, Parameters<typeof creditCase>[0]][] = [
-    ["U03", "BelowMinThreshold", { threshold: 9n * TUSD8 }],
-    ["U04", "TooFewPayments", { count: 5n }],
-    ["U05", "PeriodTooShort", { days: 20 }],
-    ["U06", "PeriodTooLong", { days: 200 }],
-    ["U07", "ProofTooOld", { ageDays: 20 }],
-    ["U08", "ExpiresTooSoon", { expiry: NOW + 5n * DAY }],
-  ];
-  for (const [id, code, o] of cases) {
-    it(`${id} DECLINE(${code}) and nothing else when only that rule fails`, async () => {
-      const { link, deps } = creditCase(o);
-      const d = await underwrite(link, CREDIT, deps);
-      assert.equal(kindOf(d), `DECLINE(${code})`);
-      if (d.kind === "DECLINE") assert.match(d.reasons[0]!.message, /this policy/);
-    });
-  }
+  const declinesAlone = async (code: RuleCode, o: Parameters<typeof creditCase>[0]) => {
+    const { link, deps } = creditCase(o);
+    const d = await underwrite(link, CREDIT, deps);
+    assert.equal(kindOf(d), `DECLINE(${code})`);
+    if (d.kind === "DECLINE") assert.match(d.reasons[0]!.message, /this policy/);
+  };
+  it("U03 DECLINE(BelowMinThreshold) alone when only the threshold is below the policy's minimum", () => declinesAlone("BelowMinThreshold", { threshold: 9n * TUSD8 }));
+  it("U04 DECLINE(TooFewPayments) alone when only the payment count is too low", () => declinesAlone("TooFewPayments", { count: 5n }));
+  it("U05 DECLINE(PeriodTooShort) alone when only the period is too short", () => declinesAlone("PeriodTooShort", { days: 20 }));
+  it("U06 DECLINE(PeriodTooLong) alone when only the period is too long", () => declinesAlone("PeriodTooLong", { days: 200 }));
+  it("U07 DECLINE(ProofTooOld) alone when only the ledger state is too old", () => declinesAlone("ProofTooOld", { ageDays: 20 }));
+  it("U08 DECLINE(ExpiresTooSoon) alone when only the link expires too soon", () => declinesAlone("ExpiresTooSoon", { expiry: NOW + 5n * DAY }));
   it("U05b a period of exactly minPeriodDays and maxPeriodDays is allowed (UTC calendar days, inclusive)", async () => {
     for (const days of [CREDIT.minPeriodDays, CREDIT.maxPeriodDays]) {
       const { link, deps } = creditCase({ days });
