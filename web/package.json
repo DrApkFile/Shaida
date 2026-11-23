@@ -30,7 +30,9 @@
     "@gloamtrade/sdk": "0.8.0",
     "snarkjs": "0.7.6",
     "@shaida/kv": "workspace:*",
-    "@upstash/redis": "1.41.0"
+    "@upstash/redis": "1.41.0",
+    "@shaida/underwrite": "workspace:*",
+    "ffjavascript": "0.3.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

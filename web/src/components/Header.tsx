@@ -12,6 +12,7 @@ const links = [
   { href: "/", label: "Home" },
   { href: "/app", label: "Dashboard" },
   { href: "/v", label: "Verify" },
+  { href: "/underwrite", label: "Bot" },
 ];
 
 export function Header() {

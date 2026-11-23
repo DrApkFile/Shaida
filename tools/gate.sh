@@ -84,6 +84,7 @@ unit_tests() {
   pnpm --filter @shaida/relay test
   pnpm --filter @shaida/pay test
   pnpm --filter @shaida/ceremony test
+  pnpm --filter @shaida/underwrite test
 }
 
 step "1 install" install

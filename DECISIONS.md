@@ -636,3 +636,88 @@ machine suspend; that report is kept (evidence/render-rehearsal-2026-11-22-machi
 Where: packages/shaida-kv, packages/shaida-relay/src/{store,store-kv,lock}.ts, packages/shaida-index/src/kv-store.ts,
 web/src/server/state-store.ts, web/src/instrumentation.ts, web/src/app/api/health/, tools/render-build.sh,
 DEPLOY_RENDER.md.
+
+## D30: the underwriting bot (PRD P1): deterministic policies over a verified proof link
+Context: PRD P1 asks for a bot that a landlord or lender can point at proof links: no LLM, a published rule, an API,
+and optionally an on-chain record. Built 2026-11-23 on branch feat/underwriting.
+Decision:
+- **Package** `@shaida/underwrite` (pure engine, browser-safe) plus `@shaida/underwrite/node` (snarkjs Groth16 with the
+  ceremony's final vkey, chain reads pinned to a checked index snapshot). Served as `POST /api/underwrite`, the page
+  `/underwrite`, and a CLI (`pnpm --filter @shaida/underwrite decide --preset … --link …`, exit 0/2/3 for
+  APPROVE/DECLINE/INCONCLUSIVE, 1 on error), all on the same engine and the same policy file.
+- **Policies** live in `config/underwrite-policies.json` (schema `shaida-underwrite-policies/1`), parsed with a strict
+  zod schema when the module loads: a bad file stops the server at startup (exit 78, like D29) and fails the tests. A
+  policy has `id`, `version`, `title`, `audience`, `readerName`, `minThreshold` (tUSD8 base units), `minPayments`,
+  `minPeriodDays`, `maxPeriodDays`, `maxProofAgeDays`, `minDaysLeft`. Its `hash` (sha256 of the canonical JSON) is shown
+  with every decision, so a changed limit is visible even if someone forgets to bump the version. Presets:
+  - `rent-check@1` (landlord): ≥ 1 tUSD8, ≥ 2 payments, period 1–92 days, ledger state ≤ 30 days old, ≥ 7 days left.
+  - `revenue-credit@1` (lender): ≥ 10 tUSD8, ≥ 6 payments, period 28–184 days, ≤ 14 days old, ≥ 14 days left.
+  - Both are made out to one reader name, **"Shaida underwriting bot (demo)"**: one bot, so one link can be put to
+    either policy (the live check shows the same link approved by one and declined by the other). The task's example
+    name ("Acme Lending (demo bot)") would have been a second reader; the schema allows a name per policy.
+- **Order** (fixed): PRD §5 verification for the bot's own reader id (Groth16 with the final vkey, roots on chain,
+  bundle checks, expiry). A refusal is a DECLINE with that one code (WrongReader, ProofExpired, ProofInvalid, …). Then
+  the six rules, in this order, and the DECLINE lists **every** failing rule, not the first: BelowMinThreshold,
+  TooFewPayments, PeriodTooShort, PeriodTooLong, ProofTooOld, ExpiresTooSoon.
+- **What the rules measure:**
+  - period = UTC calendar days from the first to the last vouch leaf of the proven range, inclusive (the dates /v
+    shows). It says the proof covers that much of the ledger, not that payments were spread across it (LIMITS.md).
+  - proof age = now − the block time of the ledger leaf whose insertion produced the proof's root. Gloam's tree keeps
+    every root it ever had as known, so `isKnownRoot` says nothing about age; the bot rebuilds the ledger's prefix roots
+    from its checked snapshot to find when the root was current. It bounds how old the ledger state is, not when the
+    holder pressed Prove (a proof made today on a month-old root counts as a month old, which is the safe side).
+  - days left = expiry − now.
+- **INCONCLUSIVE is never an approval:** an RPC or index that cannot be read is `ChainUnreachable`, a root unknown on
+  chain is `UnknownRoot`, a ledger that does not reach the root yet is `RangeUnresolvable`. A bug in a dependency throws
+  (HTTP 500), it is not turned into a decision (U12c).
+- **Idempotent:** `decisionId` = sha256 of (proof id, policy id@version, policy hash, outcome, codes); `proofId` = sha256
+  of the link's canonical JSON. The decision is a pure function of the link, the policy, the chain and the clock: the
+  same link and policy version give the same decision; as time passes, only the age and expiry rules can change it, and
+  only from APPROVE to DECLINE.
+- **The endpoint receives the link.** CLAUDE.md says the server never receives proofs; that holds for every other
+  route. The bot is a reader the holder chooses to send the link to, and it cannot decide without it. Scoped exception:
+  the link is used for one decision and never logged (U19c logs ids and codes only) or stored; a recorded proof is kept
+  as a hash (`proofKey`); the rate limit keeps request times per IP for two minutes. The page says this before its
+  button, unlike /v, which checks in the browser. CLAUDE.md's invariant now names this exception (amended by the
+  builder's decision, 2026-11-24). In real use a lender runs the bot itself (CLI or own deployment).
+- **Rails:** 10 decisions a minute per IP in the relayer's store (checked before the body is read), a 16 KiB body cap
+  (413), a strict body `{link, preset, record?}`, links up to 12,000 characters. Groth16 on the server runs on a
+  single-threaded bn128 curve: measured 2026-11-23 on this laptop (4 CPUs), 44 ms and 89 MB RSS for a first verify,
+  against 731 ms and 146 MB with snarkjs's default worker per CPU (Render free has 0.1 CPU and 512 MB).
+- **Recording** (`record: true`) calls `IncomeVerifier.attest` for each proof of an **approved** link, from the bot's
+  own key. Least privilege:
+  - off unless `UNDERWRITE_RECORD=on`; then `UNDERWRITE_BOT_PRIVATE_KEY` is required and must not be the relayer's key
+    (startup refusal otherwise, U24b). The key signs only legacy txs to the deployment's IncomeVerifier with the
+    `attest` selector and 420,000 gas (U21c).
+  - a daily cap per UTC day on count (`UNDERWRITE_DAILY_RECORDS`, default 3) and on reserved gas
+    (`UNDERWRITE_DAILY_GAS`, default 1,260,000), claimed atomically in KV (Lua) before anything is signed; a bundle
+    that would cross a cap is refused whole (U15, U15b).
+  - one record per proof, ever: keyed by the proof's hash. The same proof again, under any preset or version, returns
+    the first record and sends nothing (U14). `IncomeVerifier.check` runs first; a balance short of the gas is
+    `RecorderUnavailable` before claiming.
+  - the record (hash, nonce) is persisted before `sendRawTransaction`; a send with no answer is `TxOutcomeUnknown`, and
+    one the node refuses is `dropped`: neither is ever sent again (U22, U22b). One recording at a time: an in-process
+    queue plus a KV lease lock with a token-checked release (U25).
+- **For agents:** `/llms.txt` and `/.well-known/agent.json` (a rewrite to `/api/agent-card`) are built from the same
+  constants as the handler: request schema, presets with their limits and hashes, decision and error codes, the rate
+  limit, whether recording is on and the bot's address (U19d, U19e). They state that the bot is deterministic and sees
+  only the link it is sent.
+- **Every rule is load-bearing:** U17 removes each rule in turn and its DECLINE case turns into APPROVE; U16 runs 2,000
+  random policies and proofs and recomputes the expected reasons independently of `rules.ts`, so a wrong comparison
+  shows up as a mismatch.
+Consequences: a new decision surface with its own key; THREAT_MODEL.md lists its threats. The bot trusts the reader
+name binding, which is intent, not identity (LIMITS.md).
+
+## D31: proof templates for merchants and grantees (presentation only)
+Context: PRD P1 "merchant and grantee verifier templates". The proof, the circuit and the link schema stay as they are.
+Decision:
+- Three templates in `web/src/lib/templates.ts`: **income** (for a landlord; the old wording), **merchant** ("Revenue
+  proof, for a lender": payments are "customer payments"; suggests the bot's reader name and, after VALID on /v, points
+  a lender at `/underwrite?preset=revenue-credit`), **grantee** ("Disbursements, for a donor or sponsor").
+- Chosen on `/app/prove` (also preselected by `/app/prove?for=merchant|grantee`, linked from the landing page's "Who it
+  is for"); it sets labels, the reader placeholder and a suggested reader. Saved with the shared link in the vault
+  (`template`, optional in the vault schema so older vaults still load).
+- The reader's URL carries it as a query, `/v?for=merchant#…`, outside the fragment. Link schema v1 is unchanged and
+  strict, so old links and old verifiers are unaffected. `/v` shows the template's title, lede and payment word; the
+  VALID facts are exactly the same. An unknown `for=` shows the plain income wording.
+- Nothing about a template is proven: anyone can change `?for=` (LIMITS.md).

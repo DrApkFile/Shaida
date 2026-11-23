@@ -74,7 +74,38 @@ attested on chain ([evidence/live-44005-run2.md](evidence/live-44005-run2.md)) <
   checked logged out: health, pinned proving files, relayer, index, and the example link VALID at 390 px
   ([evidence/hosting-render.md](evidence/hosting-render.md)). <!-- CL43 -->
 
+- Underwriting bot (`/underwrite`, `POST /api/underwrite`, CLI; `packages/shaida-underwrite`, D30): checks a proof
+  link made out to it against a versioned policy (presets `rent-check` and `revenue-credit`) and answers APPROVE,
+  DECLINE with every failing reason, or INCONCLUSIVE; deterministic, no LLM, never an approval on an unreadable chain;
+  every rule is load-bearing and a 2,000-case property test holds. <!-- CL44 --> Rate-limited, size-capped, no link in its
+  logs; recording an approval on chain is off by default and, when on, uses its own capped key, once per proof
+  (THREAT_MODEL.md). <!-- CL45 --> Templates for merchants and grantees and the bot's page, in the browser at 390 px
+  ([evidence/underwrite-ui/](evidence/underwrite-ui/report-390.md)). <!-- CL46 -->
+
 Secrets: `make gate` scans the git history with gitleaks; keys and keystores are gitignored. <!-- CL41 -->
+
+## Who it's for
+- **Freelancers** show a landlord they earn enough for the rent. On `/app/prove`, pick "Income, for a landlord".
+- **Merchants** show a lender revenue over a quarter without showing which customers paid: "Revenue proof, for a
+  lender". The reader's page says "customer payments", and points a lender at the bot's `revenue-credit` policy.
+- **Grantees** show a donor or sponsor the disbursements they received: "Disbursements, for a donor or sponsor".
+- **Landlords and lenders** who read many links can use the underwriting bot instead of reading each one.
+
+Templates change wording and a suggested reader only; the proof and its VALID facts are the same (D31, LIMITS.md).
+
+## For agents
+The underwriting bot is an API with a published contract, made to be called by software:
+- `GET /llms.txt`: what Shaida is and how to call the bot, in plain text.
+- `GET /.well-known/agent.json`: the agent card: request and response schemas, presets with their limits and policy
+  hashes, the closed decision and error codes, the rate limit, and whether on-chain recording is on.
+- `POST /api/underwrite` with `{"link": "<proof link>", "preset": "rent-check", "record": false}` returns the decision.
+  The same link and policy version give the same decision and `decisionId`.
+- The bot is deterministic (no LLM) and sees only the link it is sent: the proof's public facts (amount floor, payment
+  count, ledger period, expiry). It cannot see who paid, the amounts, or the holder's address. A link made out to
+  another reader is declined (`WrongReader`). To keep the link off any server, run the CLI:
+  `pnpm --filter @shaida/underwrite decide --preset rent-check --link '<link>'`.
+- In real use, a lender would run the bot themselves (the CLI, or their own deployment of this code with their own
+  policy file and reader name), so their applicants' proofs never touch Shaida's server. The hosted bot is a demo.
 
 ## Aevum testnet contracts (chain 44005)
 Deployed from commit `2a10759`; checked against the chain in [evidence/aevum-deployment.md](evidence/aevum-deployment.md),

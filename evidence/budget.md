@@ -30,6 +30,7 @@ Gas price on 44005 is 1 gwei, so 1,000,000 gas = 0.001 tQDAY.
 | 2026-11-23, block 3886253 | W4: the forward address `0xe317E304…8Ee7A0` sends the 3 tUSD8 to the deployer (sent by the builder, keystore `shaida-forward`) [`0x614f3801…`](https://explorer-test.qday.info/tx/0x614f380133d4f78093c0f03d0117afd3870e6170b0013018d0f171d42671da4d) | 1 | 40,483 | 0.000040483 (forward address) | 0.925922048 | 5 |
 | 2026-11-23, block 3939866 | R0: 1 tUSD8 to Acme Studio (demo) (sent by the builder) [`0x948664bc…`](https://explorer-test.qday.info/tx/0x948664bc7186149cb2070770d21bfc46a9e99faebeab078c9fa176eac2b86d79) | 1 | 62,383 | 0.000062383 | 0.925859665 | 4 |
 | 2026-11-23, blocks 3942008–3947708 | live run 2, clicked by the builder in Firefox on the hosted site: 10 relayed txs (relayer pays 0.017257327) and 1 attest (reader pays 0.000267065); per-tx rows in [evidence/live-44005-run2.md](live-44005-run2.md) | 11 | 17,524,392 | 0.017524392 (helpers) | 0.925859665 | 4 |
+| 2026-11-23, block 3955537 | B1: fund the underwriting bot `0x5B145B46…77EE2C` with 0.0013 tQDAY, its daily cap of 3 attests × 420,000 gas × 1 gwei (sent by the builder) [`0xefec6eb2…`](https://explorer-test.qday.info/tx/0xefec6eb206fe854ede375aa3207e45481f345749cd69fb6808735a19af157e87) | 1 | 21,000 | 0.001321 | 0.924538665 | 4 |
 
 Every row above comes from receipts (`gasUsed × effectiveGasPrice`) and `eth_getBalance` / `balanceOf` (deploy rows at block
 3811143; funding rows at block 3822171, when the relayer held 0.0384 tQDAY and the reader 0.00063 tQDAY, as sent).
@@ -99,6 +100,7 @@ The fresh address is funded at that time with 0.000087 tQDAY (57,583 × 1.5), no
 |---|---|---|
 | relayer | `0xF4945dD57C8de1C637966179df5b631689901422` | Foundry keystore `shaida-relayer`; the server gets it only as `RELAYER_PRIVATE_KEY` in its environment at start |
 | reader (Bola) | `0xbed994a7fD0e7A49DAD09866e86817ccA6Ea785E` | Foundry keystore `shaida-reader`, to import into the reader's browser wallet for "Record check" |
+| underwriting bot (D30; generated 2026-11-23) | `0x5B145B460924413951cc424B5D3D7241eC77EE2C` | Foundry keystore `shaida-bot`; the server gets it only as `UNDERWRITE_BOT_PRIVATE_KEY`, used only for `IncomeVerifier.attest` when `UNDERWRITE_RECORD=on` |
 
 Both keystores are in `~/.foundry/keystores/`, with random passwords in `~/.config/shaida/` (mode 600).
 

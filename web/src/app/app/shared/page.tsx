@@ -3,6 +3,7 @@
 import { formatUnits } from "viem";
 import { VaultBar, VaultGate } from "@/components/VaultGate";
 import { dateOf } from "@/lib/income/words";
+import { TEMPLATES, verifyPath } from "@/lib/templates";
 import { useVault } from "@/lib/vault";
 
 export default function SharedPage() {
@@ -42,12 +43,13 @@ function SharedList() {
       <ul className="payments">
         {links.map((s) => {
           const expired = s.expiry <= now;
-          const url = `${window.location.origin}/v#${s.fragment}`;
+          const t = TEMPLATES[s.template ?? "income"];
+          const url = `${window.location.origin}${verifyPath(t.id, s.fragment)}`;
           return (
             <li key={s.fragment.slice(-24)} className="payment shared-link">
               <div className="stack tight">
-                <span className="payment-amount">≥ {formatUnits(BigInt(s.threshold), 6)} <small>tUSD8 · {s.count} payment{s.count > 1 ? "s" : ""}</small></span>
-                <span className="fine">For {s.reader} · {dateOf(BigInt(s.fromDate))} – {dateOf(BigInt(s.toDate))} · made {dateOf(BigInt(s.createdAt))}</span>
+                <span className="payment-amount">≥ {formatUnits(BigInt(s.threshold), 6)} <small>tUSD8 · {s.count} {t.paymentWord}{s.count > 1 ? "s" : ""}</small></span>
+                <span className="fine">{t.label} · for {s.reader} · {dateOf(BigInt(s.fromDate))} – {dateOf(BigInt(s.toDate))} · made {dateOf(BigInt(s.createdAt))}</span>
               </div>
               <div className="row">
                 <span className={`status-pill ${expired ? "warn" : "good"}`}>{expired ? `expired ${dateOf(BigInt(s.expiry))}` : `expires ${dateOf(BigInt(s.expiry))}`}</span>

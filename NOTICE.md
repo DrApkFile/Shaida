@@ -90,6 +90,8 @@ Generated from the snarkjs 0.7.6 Solidity template (GPL-3.0, (c) 0KIMS associati
 | esbuild | 0.28.2 | MIT | tools/s8-bench (dev: bundles the bench page) |
 | snarkjs | 0.7.6 | GPL-3.0 | ceremony (phase-2 setup, contributions, beacon, verify, export; not shipped) |
 | zod | 3.25.76 | MIT | ceremony (record.json and RPC reply schemas) |
+| snarkjs | 0.7.6 | GPL-3.0 | packages/shaida-underwrite and web's server (the bot's Groth16 check, D30) |
+| ffjavascript | 0.3.1 (iden3) | GPL-3.0 | packages/shaida-underwrite and web's server (a single-threaded bn128 curve for that check, D30) |
 | @upstash/redis | 1.41.0 | MIT | packages/shaida-kv, web (relayer records and index cursor in Upstash Redis in production) |
 
 Their own dependencies carry their own licenses. To list them all, run `pnpm licenses list` in the repo root.
