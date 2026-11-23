@@ -9,6 +9,7 @@ export * from "./revert-codes";
 export * from "./schemas";
 export * from "./status";
 export * from "./store";
+export * from "./store-kv";
 export * from "./submit";
 export * from "./typed-data";
 export * from "./types";

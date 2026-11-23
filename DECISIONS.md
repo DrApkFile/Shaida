@@ -574,3 +574,65 @@ withdrawal from an exported vault (the notes' secrets would leave the browser); 
 takes one input note, so a merge would cost a full transfer per note and still end in one unshield per note).
 Where: packages/shaida-relay/src/{functions,schemas,abi}.ts, packages/shaida-pay/src/withdraw.ts,
 web/src/app/app/withdraw/, web/src/app/api/relay/unshield/, LIMITS.md, evidence/withdraw-fork.md, evidence/ui-withdraw/
+
+## D29: public hosting on Render free, server state in Upstash Redis
+Context: Part 1 of the hosting task (2026-11-22). The app needs a public URL that works logged-out, on free tiers.
+Decision:
+- **Host:** a Render free web service (512 MB RAM, 0.1 CPU, spins down after 15 min idle; builds on the Starter
+  pipeline, 2 CPU / 8 GB, 500 min a month), kept awake by an UptimeRobot monitor on `/api/health` every 5 minutes.
+  Render's free filesystem is wiped on every deploy, restart and spin-down, so it keeps **no state**.
+- **State:** an Upstash Redis database on the free tier (created at upstash.com, not through Render), over REST with
+  `@upstash/redis` 1.41.0 (`UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`). It holds the relayer's request
+  records, rate windows and gas budget, the submission lock, and the index cursor and snapshot.
+- **Store interface** (`RelayStore`, packages/shaida-relay/src/types.ts) is now per operation (hit, record, holder,
+  claim, put, gasCommitted, withChainLock) instead of "load the whole state, change it, save it".
+  - Redis (`kvRelayStore`): one key per record. A new record is written by `claim`, a Lua compare-and-set on its key's
+    pointer (nullifier, vouch, deposit commitment, memo): it writes only while the pointer still names the holder that
+    was read, so two processes can never both persist an `accepted` record for one key. Scripts answer the same when
+    the HTTP client retries them (a claim whose id already holds the key returns 1). `put` never creates a record.
+    The per-chain submission lock (nonce + budget) is `SET NX PX` with a 120 s lease and a token-checked release; a
+    process that waits 45 s for it refuses with `RelayerUnavailable`, nothing sent. Rate windows are sorted sets.
+  - State file (`stateStore`, the former D19 store): kept for `next dev` and tests, behind the same interface.
+  - Index (`kvSnapshotStore`): this process's copy serves every load; Redis is written at most once a minute (and at
+    once on the first save), so a 10-page sync costs one write, not ten. A restart re-reads at most a minute of
+    blocks from the last persisted cursor; it never rescans from the deploy block.
+- **Choice is explicit** (`chooseStore`, packages/shaida-kv/src/choice.ts): `SHAIDA_STORE` = `redis` | `file`; unset
+  means redis under production and file in dev. Production without both Upstash variables, or `file` on Render
+  (`RENDER` set), is the named startup refusal `StoreNotConfigured`, and the process exits (78) from
+  `instrumentation.ts`. Measured on this build: a throw in `register()` alone left `next start` up and answering 500
+  on every route, which a host counts as a live deploy. A local `next start` (the fork flows) needs `SHAIDA_STORE=file`.
+  Plain `http://` to Upstash is accepted only to 127.0.0.1/localhost (a local Redis for measuring), never remote.
+- **Restarts never resend:** the record is persisted (claimed) before `sendRawTransaction`, as in D19. A restart after
+  the claim and before the send leaves an `accepted` record: the same request again gets it back (nothing sent), and
+  status settles it by hash or by the nonce passing it (R23). A restart after the send leaves it `accepted` with the
+  tx on chain: the retry gets the record and the receipt settles it (R24). The vault settles the recipient's side by
+  nullifier (D21).
+- **`/api/health`:** commit (Render's `RENDER_GIT_COMMIT`, else git, inlined at build), networks, store kind, time.
+  No RPC call, no Redis command, nothing written.
+- **Build** (`tools/render-build.sh`, also the CI `web` job): pinned circom 2.2.3 binary, pnpm from `packageManager`,
+  the income circuit compiled and checked, then `next build` with `NEXT_PUBLIC_NETWORKS=aevum` exactly. The prebuild
+  copies Gloam's final keys from the submodule and the income final key from release ceremony-v1, each refused unless
+  its sha256 matches the pins. Served from `public/` with the pin as `x-shaida-sha256` and a one-day cache; the
+  browser still hashes every byte before proving. Node 24.19.0 (the version every local measurement used).
+- **Client IP:** `TRUSTED_IP_HEADER=cf-connecting-ip` on Render (Cloudflare overwrites it; the last X-Forwarded-For hop
+  is Render's proxy, which would put every visitor in one rate-limit bucket).
+Rejected: Render's persistent disk (paid); Render Key Value (its free instance keeps no data across restarts);
+Vercel (serverless functions: no long sync, and the relayer's one-submission-per-chain lock would need Redis anyway);
+`WATCH`/`MULTI` for the claim (Upstash REST has no WATCH); keeping a whole-state JSON in one Redis key (every request
+would rewrite all records; two processes would overwrite each other).
+Consequences: the submission lock's lease (120 s) is longer than any one submission; if a process stalls past it, a
+second process could take the same pending nonce, and the node keeps one of the two txs (different payments; neither
+is sent twice). Upstash free: 500K commands a month; a relayed request costs 8 (measured, R30), a status poll 1 or 2, an index
+poll 0 or 1 (one GET per process start, then at most one SET a minute).
+Tests: kv 6 (KV01–KV05), relayer +16 (R23–R29 restarts, two processes, claim; R30 command count; RS01–RS05 store conformance, also run
+against Redis 7.4.1 through serverless-redis-http: evidence/kv-redis.md) and the 28 existing relayer tests rerun on
+the Redis store; index +2 (I07, I08).
+Measured (local rehearsal of Render free, evidence/render-rehearsal.md): a fresh clone built by tools/render-build.sh
+with Render's env only, peak 2.09 GB (Render's Starter build has 8 GB), the income zkey downloaded from the release and
+matched; `next start` in a 512 MB / 10%-CPU scope with Redis behind serverless-redis-http and the real 44005 chain:
+ready in 37 s, peak 173 MB, no OOM kill, index synced to the head in 7 requests (43.9 s), every proving file served
+with header hash = body hash; without Upstash env it exits 78 in 20 s. An earlier run's ready time (37,103 s) was a
+machine suspend; that report is kept (evidence/render-rehearsal-2026-11-22-machine-suspended.md).
+Where: packages/shaida-kv, packages/shaida-relay/src/{store,store-kv,lock}.ts, packages/shaida-index/src/kv-store.ts,
+web/src/server/state-store.ts, web/src/instrumentation.ts, web/src/app/api/health/, tools/render-build.sh,
+DEPLOY_RENDER.md.

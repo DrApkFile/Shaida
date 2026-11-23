@@ -1,11 +1,8 @@
 import { keccak256, stringToHex, type Hex } from "viem";
-import type { Refusal, RelayState, RelayStore, RequestRecord } from "./types";
+import type { Refusal, RequestRecord } from "./types";
 
 /** Keys are chain-scoped: the same nullifier on another chain is another payment. */
 export const recordKey = (chainId: number, key: string): string => `${chainId}:${key}`;
-
-/** A read through the store's queue (sees every earlier update). */
-export const withState = <T>(store: RelayStore, f: (s: RelayState) => T): Promise<T> => store.read().then(f);
 
 /** The request itself (function + parsed body), so only an identical request is answered with an existing record. */
 export const requestHashOf = (fn: string, body: unknown): Hex =>

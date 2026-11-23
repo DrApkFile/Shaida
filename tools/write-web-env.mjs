@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Writes NEXT_PUBLIC_SHAIDA_<NETWORK> (Shaida's contract addresses, JSON) into web/.env.local from a deployment
 // record, keeping every other line of that file. NEXT_PUBLIC_* are build-time: restart `next dev` / rebuild after.
-// Usage: node tools/write-web-env.mjs --network fork|aevum [--deployment deployments/fork.json]
+// Usage: node tools/write-web-env.mjs --network fork|aevum [--deployment deployments/fork.json] [--print]
+//   --print: print the KEY=value line (for a host's env settings, DEPLOY_RENDER.md) and write nothing
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
@@ -34,6 +35,10 @@ contracts.startBlock = String(d.poolDeployBlock);
 
 const envPath = join(ROOT, "web/.env.local");
 const key = `NEXT_PUBLIC_SHAIDA_${network.toUpperCase()}`;
+if (process.argv.includes("--print")) {
+  console.log(`${key}=${JSON.stringify(contracts)}`);
+  process.exit(0);
+}
 const lines = existsSync(envPath) ? readFileSync(envPath, "utf8").split("\n").filter((l) => !l.startsWith(`${key}=`)) : [];
 while (lines.length && lines.at(-1) === "") lines.pop();
 lines.push(`${key}=${JSON.stringify(contracts)}`);

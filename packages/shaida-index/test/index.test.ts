@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { DEFAULT_RETRY, checkSnapshot, pagesOf, snapshotSchema, syncIndex, type Snapshot } from "../src/index";
+import { DEFAULT_RETRY, checkSnapshot, kvSnapshotStore, pagesOf, snapshotSchema, syncIndex, type Snapshot } from "../src/index";
+import { memoryKv } from "@shaida/kv";
 import { CHAIN_ID, FakeChain, MemoryStore, START, noSleep, target } from "./helpers/fake-chain";
 
 /** A small history: a deposit, a vouched pay, a sweep, a memo. */
@@ -173,5 +174,51 @@ describe("indexer: gaps and roots", () => {
     const { snapshot } = await syncAll(chain, new MemoryStore());
     assert.equal(snapshot.memos.length, 1);
     assert.equal(snapshot.memos[0]?.memo, "0xabcd");
+  });
+});
+
+describe("indexer: the cursor in Redis (Render's disk is wiped on restart)", () => {
+  it("I07 a restarted server resumes from the cursor persisted in Redis and never rescans from the deploy block", async () => {
+    const kv = memoryKv();
+    let clock = 0;
+    const opts = { key: "shaida:v1:index:440050", persistEveryMs: 60_000, nowMs: () => clock };
+    const chain = new FakeChain();
+    history(chain, START + 10n);
+    chain.head = START + 3000n;
+    const before = await syncIndex({ target, chain, store: kvSnapshotStore(kv, opts), sleep: noSleep });
+    assert.equal(before.kind, "synced");
+    const persisted = snapshotSchema.parse(JSON.parse((await kv.get(opts.key)) ?? "null"));
+    assert.equal(persisted.syncedTo, (START + 999n).toString(), "first page written at once; later pages wait for the interval");
+
+    clock += 1_000;
+    history(chain, START + 3500n);
+    chain.head = START + 4000n;
+    chain.calls.length = 0;
+    const after = await syncIndex({ target, chain, store: kvSnapshotStore(kv, opts), sleep: noSleep }); // a new process
+    assert.equal(chain.calls[0]?.fromBlock, START + 1000n, "resumes after the persisted cursor, not from the deploy block");
+    assert.equal(after.kind, "synced");
+    const oneShot = await syncAll(chain, new MemoryStore());
+    assert.deepEqual(after.snapshot.poolLeaves, oneShot.snapshot.poolLeaves, "resumed index = one-shot index");
+    assert.deepEqual(after.snapshot.ledgerLeaves, oneShot.snapshot.ledgerLeaves);
+  });
+
+  it("I08 writes Redis at most once per interval however many pages a sync reads, and serves later reads from memory", async () => {
+    const kv = memoryKv();
+    let clock = 0;
+    const store = kvSnapshotStore(kv, { key: "k", persistEveryMs: 60_000, nowMs: () => clock });
+    const chain = new FakeChain();
+    history(chain, START + 10n);
+    chain.head = START + 9_999n; // 10 pages
+    await syncIndex({ target, chain, store, sleep: noSleep });
+    const afterFirst = kv.commands();
+    assert.equal(afterFirst, 2, "one GET at load, one SET for the first page");
+    chain.head = START + 12_000n;
+    await syncIndex({ target, chain, store, sleep: noSleep });
+    assert.equal(kv.commands(), afterFirst, "within the interval: no Redis command at all");
+    clock += 60_000;
+    chain.head = START + 13_000n;
+    await syncIndex({ target, chain, store, sleep: noSleep });
+    assert.equal(kv.commands(), afterFirst + 1, "one SET after the interval");
+    assert.equal(snapshotSchema.parse(JSON.parse(store.persisted() ?? "null")).syncedTo, (START + 13_000n).toString());
   });
 });

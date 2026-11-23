@@ -130,3 +130,110 @@ No withdrawal after the run (rule above). Limits held at every step: the script 
 transaction (deployer ≥ 0.5 tQDAY and ≥ 2 tUSD8; relayer ≥ its 0.01 floor plus the call's gas limit).
 The relayer can pay for the withdrawal batch (≈ 0.001031 tQDAY) and stay above its 0.01 floor. It can't pay for run 2
 as well (≈ 0.0174 tQDAY), so a top-up is needed before run 2. It will be sized and approved with the builder then.
+
+## Plan for live run 2: entirely through the hosted UI (not run; nothing sent)
+
+Written 2026-11-22 from balances read at block 3834199 (unchanged since run 1: deployer 0.943716971 tQDAY and
+2 tUSD8, relayer 0.020979236, reader 0.000362983, Acme Studio (demo) active payer #1 with 0 tQDAY and 0 tUSD8, Ada's
+3 tUSD8 in 3 swept pool notes). Runs only after the hosted site is live (DEPLOY_RENDER.md), every step clicked in the
+hosted app at 390 px, screenshots in evidence/ui-44005/. Gas figures: the largest measured (fork maxima from
+evidence/fork-gas.md and evidence/withdraw-fork.md; each is ≥ the 44005 actual of run 1).
+
+### tUSD8: why the withdrawal batch comes first
+The deployer holds exactly 2 tUSD8, its floor. Any tUSD8 for run 2, however small, would take it below 2, so a smaller
+amount on its own is not possible: the batch has to come first either way. The choice is only how much run 2 uses.
+
+| | Run 2 = 3 tUSD8 (1.2 + 1.1 + 0.7), not chosen | Run 2 = 1 tUSD8 (0.5 + 0.3 + 0.2), **chosen by the builder (2026-11-23)** |
+|---|---|---|
+| Proof | ≥ 3 tUSD8, 3 payments (as run 1) | ≥ 1 tUSD8, 3 payments |
+| Deployer tUSD8 after | 2 (at the floor again) | 4 |
+| Next run | needs another public withdrawal batch first | a run 3 of up to 2 tUSD8 needs no withdrawal |
+| Gas | the same (gas does not depend on the amount) | the same |
+| Public amounts | batch shows 1.5, 1, 0.5 (run 1's); deposit shows 3 | batch shows 1.5, 1, 0.5; deposit shows 1 |
+
+Either way the run 2 amounts differ from the 1.5 / 1 / 0.5 the batch makes public, so the batch's amounts cannot be
+matched to run 2's payments. The batch runs at a quiet time: at least 12 h after run 1 and at least 12 h before run 2
+(D28, LIMITS.md).
+
+### Steps and transactions
+
+| # | When | What (who clicks / sends) | Sender, pays gas | Gas (planned max) |
+|---|---|---|---|---:|
+| F1 | before the batch | 0.017378531 tQDAY to the relayer `0xF4945dD57C8de1C637966179df5b631689901422` (builder's terminal) | deployer | 21,000 |
+| F2 | before the batch | 0.000267017 tQDAY to the reader `0xbed994a7fD0e7A49DAD09866e86817ccA6Ea785E` (builder's terminal) | deployer | 21,000 |
+| F3 | before the batch | 0.000086375 tQDAY to a fresh forward address (new keystore `shaida-forward`, made by the builder) | deployer | 21,000 |
+| W1–W3 | quiet time | Ada restores her run-1 vault backup in her browser profile, `/app/withdraw`, picks her 3 swept notes, recipient = the forward address (3 unshields) | relayer | 343,698 × 3 = 1,031,094 |
+| W4 | after W1–W3 | the forward address sends the 3 tUSD8 to the deployer (builder's terminal) | forward address | 57,583 |
+| R0 | ≥ 12 h later | 1 tUSD8 to Acme Studio (demo) `0xA1ddEB46A1060C8970E68C3dA34427B1a7B91D4b` (builder's terminal) | deployer | 62,383 (run 1 actual) |
+| R1 | run 2 | Acme, `/app/pay` with the demo payer's wallet: gasless deposit (signs EIP-3009 only) | relayer | 1,346,538 |
+| R2–R7 | run 2 | Acme pays Ada 0.5, 0.3 and 0.2 tUSD8 (signs each vouch; Ada's receive tag pasted from her `/app/inbox`), a sealed memo after each | relayer | 2,766,976 × 3 + 44,923 × 3 = 8,435,697 |
+| R8–R10 | run 2 | Ada, `/app/inbox`: sweeps the 3 payments | relayer | 2,697,283 × 3 = 8,091,849 |
+| R11 | run 2 | Ada, `/app/prove`: one proof in the browser with the final key, ≥ 1 tUSD8 for "Landlord Bola", 30 days; proving time read off the page | nobody | 0 |
+| R12 | run 2 | Bola opens the link in his browser profile, types "Landlord Bola" → VALID; **Check on-chain** (eth_call, gas limit 400,000) | nobody | 0 |
+| R13 | run 2 | Bola, **Record check** with the reader wallet (attest, gas limit 420,000) | reader | 267,017 |
+
+Relayer total: 18,905,178 gas (batch 1,031,094 + run 17,874,084).
+
+### Funding the builder sends (from the deployer)
+
+| Account | Planned gas | Needed at start | Holds now | Send |
+|---|---:|---:|---:|---:|
+| relayer | 18,905,178 | 18,905,178 × 1.5 = 0.028357767, plus the 0.01 floor it never spends = 0.038357767 | 0.020979236 | **0.017378531 tQDAY** |
+| reader | 267,017 | the node wants gas limit × price = 0.00042 up front; × 1.5 = 0.00063 | 0.000362983 | **0.000267017 tQDAY** |
+| forward address | 57,583 | × 1.5 = 0.000086375 | 0 | **0.000086375 tQDAY** |
+| Acme Studio (demo) | 0 (gasless) | 1 tUSD8 | 0 | **1 tUSD8** (R0, after the batch) |
+| Ada (demo) | 0 | — (the relayer sends her txs) | — | 0 |
+
+### Expected balances
+
+| Point | Deployer tQDAY | Deployer tUSD8 | Relayer | Reader | Forward | Ada (pool) |
+|---|---:|---:|---:|---:|---:|---:|
+| now (block 3834199) | 0.943716971 | 2 | 0.020979236 | 0.000362983 | — | 3 (run 1) |
+| after F1–F3 | 0.925922048 | 2 | 0.038357767 | 0.00063 | 0.000086375 | 3 |
+| after the batch W1–W4 | 0.925922048 | 5 | ≈ 0.037326673 | 0.00063 | ≈ 0.000028792 | 0 |
+| after R0 (1 tUSD8) | 0.925859665 | 4 | ≈ 0.037326673 | 0.00063 | ≈ 0.000028792 | 0 |
+| after run 2 (planned max gas) | 0.925859665 | 4 | ≥ 0.019452589 | ≈ 0.000362983 | ≈ 0.000028792 | 1 |
+
+The deployer stays ≥ 0.5 tQDAY and ≥ 2 tUSD8 at every point. The forward address keeps ≈ 0.000029 tQDAY of dust
+(sending it back would cost as much gas as it holds). With run 1's actual gas (17,420,764 for the run), the relayer
+would end near 0.0199. Nothing above has been sent.
+
+### Checklist for the builder (run 2, hosted UI, 390 px)
+
+Chrome: a separate profile holding only the demo wallets (Acme Studio (demo) `0xA1dd…91D4b` and Bola's reader
+`0xbed9…785E`), DevTools device mode at 390 × 844, the Aevum testnet network (chain 44005, RPC
+https://rpc-test.qday.info, symbol tQDAY) added to the wallet. Ada needs no wallet. Every screenshot goes to
+evidence/ui-44005/ with the name given; send the coding agent each tx hash the page or terminal shows, and the agent
+checks it on chain and records it. Stop at the first red error or `TxOutcomeUnknown` and report it: never resend.
+
+**Before the batch** (builder's terminal; agent checks each receipt)
+- [ ] F1 deployer → relayer 0.017378531 tQDAY
+- [ ] F2 deployer → reader 0.000267017 tQDAY
+- [ ] F3 make keystore `shaida-forward`; deployer → forward address 0.000086375 tQDAY
+- [ ] agent: balances read from the chain match "after F1–F3"
+
+**Withdrawal batch** (quiet time, ≥ 12 h after run 1; Ada's tab, no wallet)
+- [ ] W0 `/app`: restore Ada's run-1 vault backup with its passphrase → `390-00-vault-restored.png`
+- [ ] W1 `/app/withdraw`: 3 swept notes listed, all 3 picked, recipient = forward address, the "withdrawals are
+      public" warning visible → `390-01-withdraw-picked.png`
+- [ ] W2 withdraw; wait until all 3 show as sent and mined → `390-02-withdrawn.png` (agent: 3 unshields, 3 tUSD8 at
+      the forward address)
+- [ ] W3 terminal: forward address → deployer 3 tUSD8 (agent: deployer 5 tUSD8)
+
+**Run 2** (≥ 12 h after the batch)
+- [ ] R0 terminal: deployer → Acme 1 tUSD8 (agent: Acme 1 tUSD8, deployer 4)
+- [ ] R1 Ada's tab `/app/inbox`: copy her receive tag → `390-03-ada-receive-tag.png`
+- [ ] R2 Acme's tab `/app/pay`: connect Acme's wallet, gasless deposit of 1 tUSD8 (sign only) → `390-04-deposit-signed.png`,
+      then mined → `390-05-deposit-mined.png`
+- [ ] R3 pay Ada 0.5 tUSD8 with memo "Invoice 1 (demo)" (sign the vouch) → `390-06-pay1.png`
+- [ ] R4 pay Ada 0.3 tUSD8, memo "Invoice 2 (demo)" → `390-07-pay2.png`
+- [ ] R5 pay Ada 0.2 tUSD8, memo "Invoice 3 (demo)" → `390-08-pay3.png`
+- [ ] R6 Ada's tab `/app/inbox`: 3 payments seen → `390-09-inbox-seen.png`; sweep all 3 → `390-10-inbox-swept.png`
+- [ ] R7 `/app/prove`: run 2's 3 payments, threshold 1 tUSD8, reader "Landlord Bola", 30 days; prove; the card shows the
+      proving time → `390-11-proved.png`; copy the link (agent records the proving time with the machine and browser
+      version: `chrome://version`)
+- [ ] R8 Bola's tab: open the link, type "Landlord Bola" → VALID → `390-12-verify-valid.png`
+- [ ] R9 **Check on-chain** → passes → `390-13-onchain-check.png`
+- [ ] R10 **Record check** with the reader wallet → mined → `390-14-attested.png` (agent: IncomeProofChecked
+      threshold 1000000, count 3)
+- [ ] agent: balances after; evidence/live-44005-run2.md from the chain; CLAIMS CL33 updated only from what this run shows

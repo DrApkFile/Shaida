@@ -60,7 +60,8 @@ linked) <!-- CL31 --> <!-- CL33 -->. The landing page's example link is that run
 - Web: a landing page `/` and a dashboard `/app` in a design system taken from Muuve's style ([DESIGN.md](DESIGN.md),
   D25, D26). <!-- CL38 -->
 
-Not done yet on Aevum testnet: acts 2–4 clicked through in a browser (run 1 drove them by script), and a withdrawal. <!-- not-built -->
+Not done yet on Aevum testnet: acts 2–4 clicked through in a browser (run 1 drove them by script), and a withdrawal.
+Not live yet: public hosting (Render + Upstash Redis, DEPLOY_RENDER.md; rehearsed locally only). <!-- not-built -->
 
 Secrets: `make gate` scans the git history with gitleaks; keys and keystores are gitignored. <!-- CL41 -->
 

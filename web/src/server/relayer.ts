@@ -1,15 +1,14 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
-import { join } from "node:path";
 import { isHex, type Hex } from "viem";
 import { privateKeyToAccount, type PrivateKeyAccount } from "viem/accounts";
 import { TUSD8_ADDRESS } from "@aevum-kit/aevum";
 import { shaidaError } from "@shaida/proofs";
-import { DEFAULT_LIMITS, emptyState, parseRelayState, serializedStore, signerAllowedOn, type RelayDeps, type RelayLimits } from "@shaida/relay";
+import { DEFAULT_LIMITS, signerAllowedOn, type RelayDeps, type RelayLimits } from "@shaida/relay";
 import { networkByChainId } from "@/lib/env";
 import { shaidaSetup } from "@/lib/shaida";
-import { dataDir, readJson, writeJsonAtomic } from "./json-file";
 import { relayChainFor } from "./relay-chain";
+import { relayStore } from "./state-store";
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -29,17 +28,11 @@ function limits(): RelayLimits {
   return budget ? { ...DEFAULT_LIMITS, dailyGasBudget: BigInt(budget) } : DEFAULT_LIMITS;
 }
 
-const statePath = () => join(dataDir(), "relay-state.json");
-const store = serializedStore(
-  async () => {
-    const raw = await readJson(statePath());
-    return raw === null ? emptyState() : parseRelayState(raw);
-  },
-  (s) => writeJsonAtomic(statePath(), s),
-);
-
 export const relayDeps: RelayDeps = {
-  store,
+  // Chosen on first use (Redis in production, the state file in dev): state-store.ts.
+  get store() {
+    return relayStore();
+  },
   limits: limits(),
   nowMs: () => Date.now(),
   newId: () => randomUUID(),

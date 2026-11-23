@@ -1,0 +1,23 @@
+{
+  "name": "@shaida/kv",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "The small key-value surface Shaida's server state needs (get, set NX/PX, mget, smembers, named Lua scripts), with an Upstash Redis adapter and an in-memory fake for tests.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@upstash/redis": "1.41.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}
