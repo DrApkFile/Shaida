@@ -80,7 +80,10 @@ attested on chain ([evidence/live-44005-run2.md](evidence/live-44005-run2.md)) <
   every rule is load-bearing and a 2,000-case property test holds. <!-- CL44 --> Rate-limited, size-capped, no link in its
   logs; recording an approval on chain is off by default and, when on, uses its own capped key, once per proof
   (THREAT_MODEL.md). <!-- CL45 --> Templates for merchants and grantees and the bot's page, in the browser at 390 px
-  ([evidence/underwrite-ui/](evidence/underwrite-ui/report-390.md)). <!-- CL46 -->
+  ([evidence/underwrite-ui/](evidence/underwrite-ui/report-390.md)). <!-- CL46 --> On the live site, a proof Ada (demo) made for the bot
+  was approved under rent-check and declined under revenue-credit, with the same decision ids from the local CLI
+  ([evidence/underwrite-live-44005.md](evidence/underwrite-live-44005.md)). <!-- CL47 --> The bot then recorded that approval on
+  chain with its own key, one attest of 267,053 gas. <!-- CL48 -->
 
 Secrets: `make gate` scans the git history with gitleaks; keys and keystores are gitignored. <!-- CL41 -->
 
