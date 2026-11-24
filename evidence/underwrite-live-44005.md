@@ -41,7 +41,8 @@ agent:
 - event `IncomeProofChecked` (topic `0x0428b964…`): context `0x2286caab…19fa`, which is the link's context
   signal; threshold 1000000 (1 tUSD8), count 3.
 - the bot's balance after: 0.001032947 tQDAY (0.0013 − 0.000267053).
-- `/api/underwrite` afterwards still reports recording **on** (`enabled: true`, bot address shown): switching it back
-  off is the builder's step on Render.
+- right after the record, `/api/underwrite` reported recording **on**; the builder then set `UNDERWRITE_RECORD=off`
+  on Render. Re-read at 2026-11-24T00:24:47Z (block 3960215): `/api/underwrite` reports `enabled: false` (no bot
+  address shown), and the bot's nonce is still 1 and its balance 0.001032947 tQDAY: one attest, nothing else sent.
 
 Not shown live: asking to record the same proof again (the "once per proof" rule is shown by test U14, not on 44005).
