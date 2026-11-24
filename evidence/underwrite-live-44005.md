@@ -1,8 +1,9 @@
 # Underwriting bot, live check on Aevum testnet (44005), 2026-11-23/24
 
-The hosted site at https://shaida.onrender.com, commit `c959b34` (from `/api/health`), recording **off**
-(`/api/underwrite`: `enabled: false`). Personas and the bot are demo. No transaction was sent by the bot (its nonce is
-still 0); the only transaction for this check is the bot's funding, B1 in [budget.md](budget.md).
+The hosted site at https://shaida.onrender.com, commit `c959b34` (from `/api/health`). Personas and the bot are demo.
+Steps 1–3 ran with recording **off** (`/api/underwrite`: `enabled: false`; the bot's nonce was still 0 afterwards).
+Step 4 ran after the builder set `UNDERWRITE_RECORD=on` on Render. Transactions: the bot's funding (B1) and its one
+attest (B2), both in [budget.md](budget.md).
 
 ## What the builder did (by hand, Firefox, Ada's profile)
 1. `/app/prove`, template **Revenue proof, for a lender**, reader **Shaida underwriting bot (demo)** (the template's
@@ -30,6 +31,17 @@ The two bot screenshots were taken at desktop width, not at 390 px (the page at 
   Public signals: threshold 1000000, count 3, ledger leaves 6–11 (run 2's vouch and sweep leaves), expiry 1798153199
   (2026-12-24 22:59:59 UTC: end of that day in the browser's time zone, UTC+1).
 
-## Not done
-- Recording the approval on chain (`UNDERWRITE_RECORD=on`, "Record on chain"): not run. The bot is funded and its key
-  is set on Render, recording off. CLAIMS CL48 stays NOT PROVEN until it is.
+## Step 4: the bot records the approval (recording on)
+The builder set `UNDERWRITE_RECORD=on`, asked again under rent-check@1 and pressed **Record on chain**: "Recorded.",
+mined, block 3959087 → [04-bot-recorded.png](underwrite-live-44005/04-bot-recorded.png). Read from the chain by the
+agent:
+- tx [`0xc2caccd4…`](https://explorer-test.qday.info/tx/0xc2caccd4db89f8b0dccc0d67e7cf7df0491fec304248b2bc58c8fe137075a415), block 3959087 (2026-11-24T00:05:42Z), status success, legacy (type 0).
+- from the bot `0x5B145B460924413951cc424B5D3D7241eC77EE2C` (its first tx: nonce now 1) to IncomeVerifier
+  `0xc9844a8f…e1c8`, selector `0x7f383798` (`attest`), gas limit 420,000, gas used **267,053**, 1 gwei.
+- event `IncomeProofChecked` (topic `0x0428b964…`): context `0x2286caab…19fa`, which is the link's context
+  signal; threshold 1000000 (1 tUSD8), count 3.
+- the bot's balance after: 0.001032947 tQDAY (0.0013 − 0.000267053).
+- `/api/underwrite` afterwards still reports recording **on** (`enabled: true`, bot address shown): switching it back
+  off is the builder's step on Render.
+
+Not shown live: asking to record the same proof again (the "once per proof" rule is shown by test U14, not on 44005).
