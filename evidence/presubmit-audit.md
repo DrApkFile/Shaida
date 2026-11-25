@@ -46,5 +46,9 @@ hold and was fixed on this branch. Nothing was sent to Aevum: every chain read i
 - The video link (the script is in docs/VIDEO.md).
 
 ## Merge and deploy
-Recorded after this file's first commit: the gate on this branch, the merge to master, the push, and the live
-`/api/health` commit are in the merge commit's message and in eligibility.md's rerun.
+- `make gate` on `docs/judges` at `495ebf1`: **PASS** from a fresh clone in 665 s (steps 1–8; the same 318 tests,
+  317 passed, 1 skipped RS00). Claims check: 46 claims, 46 PROVEN.
+- Merged to master as `a756f94` (no-ff) and pushed. Render redeployed; the live `/api/health` reported
+  `"commit":"a756f94cfd12141220f39d9f7fccf4a3cdf1eb3e"`, chain 44005, store redis, at 2026-11-25T07:49:28Z.
+- `make eligibility` rerun against that deployment: [eligibility.md](eligibility.md) (A05 compares the live commit with
+  origin/master).
