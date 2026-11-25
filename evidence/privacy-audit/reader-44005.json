@@ -1,0 +1,349 @@
+{
+  "schema": "shaida-privacy-reader/1",
+  "chainId": 44005,
+  "links": [
+    {
+      "name": "run1",
+      "fromAttest": null,
+      "holderTotal": {
+        "lo": "3000000",
+        "hi": "3000000"
+      },
+      "holderTotalWithoutChainAttests": {
+        "lo": "3000000",
+        "hi": "3000000"
+      },
+      "fragmentChars": 1598,
+      "readerIdHash": "10285507420902810774189260759054942303913016127606017403879022168699523607287",
+      "readerNameMatches": [
+        "Landlord Bola"
+      ],
+      "contextMatches": true,
+      "expiry": "1797936718",
+      "expiryIso": "2026-12-22T10:51:58.000Z",
+      "expiryHint": "not an end of day: an exact time, so made at expiry − the expiry period (2026-11-22T10:51:58.000Z if 30 days)",
+      "salt": "random, 31 bytes (the context hides reader and expiry from anyone without the link)",
+      "proofs": [
+        {
+          "threshold": "3000000",
+          "count": "3",
+          "fromIndex": "0",
+          "toIndex": "5",
+          "asset": "396181930009140960553639667353982504061169251459",
+          "rootIsKnown": true,
+          "rootLeafCount": 6,
+          "builtAfter": "2026-11-22T10:51:49.000Z",
+          "builtBefore": "2026-11-23T19:37:50.000Z",
+          "fromTime": "2026-11-22T10:49:58.000Z",
+          "toTime": "2026-11-22T10:51:49.000Z",
+          "vouchLeaves": [
+            {
+              "index": 0,
+              "payerId": 1,
+              "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+              "time": "2026-11-22T10:49:58.000Z",
+              "pay": "0x364428d98fab385d23d2b66b78be1dd24a08133243979e2ff2d8fb254f35ed29"
+            },
+            {
+              "index": 1,
+              "payerId": 1,
+              "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+              "time": "2026-11-22T10:50:23.000Z",
+              "pay": "0xc111e08a4e9587ac383095c84b61516d4d0a96952b38bb20a942b7affbb7c684"
+            },
+            {
+              "index": 2,
+              "payerId": 1,
+              "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+              "time": "2026-11-22T10:50:49.000Z",
+              "pay": "0x9eb24ba7655b534d9b63309449c4af2f9f5f623f14488b0b2d1b733c13b1234a"
+            }
+          ],
+          "sweepLeaves": [
+            {
+              "index": 3,
+              "time": "2026-11-22T10:51:15.000Z"
+            },
+            {
+              "index": 4,
+              "time": "2026-11-22T10:51:35.000Z"
+            },
+            {
+              "index": 5,
+              "time": "2026-11-22T10:51:49.000Z"
+            }
+          ],
+          "onlyHoldersInRange": true,
+          "total": {
+            "lo": "3000000",
+            "hi": "3000000"
+          },
+          "totalWithoutChainAttests": {
+            "lo": "3000000",
+            "hi": "3000000"
+          },
+          "perPayment": [
+            {
+              "pay": "0x364428d98fab385d23d2b66b78be1dd24a08133243979e2ff2d8fb254f35ed29",
+              "lo": "1",
+              "hi": "2999998"
+            },
+            {
+              "pay": "0xc111e08a4e9587ac383095c84b61516d4d0a96952b38bb20a942b7affbb7c684",
+              "lo": "1",
+              "hi": "2999998"
+            },
+            {
+              "pay": "0x9eb24ba7655b534d9b63309449c4af2f9f5f623f14488b0b2d1b733c13b1234a",
+              "lo": "1",
+              "hi": "2999998"
+            }
+          ],
+          "shareWindow": null
+        }
+      ],
+      "score": {
+        "total": {
+          "truth": "3000000",
+          "lo": "3000000",
+          "hi": "3000000",
+          "contains": true,
+          "exact": true
+        },
+        "rangeIsExactlyTheHoldersPayments": true,
+        "payersRight": true,
+        "paymentsExact": 0,
+        "payments": 3,
+        "boundsContainTruth": true
+      }
+    },
+    {
+      "name": "run2",
+      "fromAttest": "0x054356813d7e88de742ae78079174e94772a46baa6d4f9de5eb5ffc0241111ec",
+      "holderTotal": {
+        "lo": "1000000",
+        "hi": "1000000"
+      },
+      "holderTotalWithoutChainAttests": {
+        "lo": "1000000",
+        "hi": "3999997"
+      },
+      "fragmentChars": null,
+      "readerIdHash": null,
+      "readerNameMatches": [],
+      "contextMatches": null,
+      "expiry": null,
+      "expiryIso": null,
+      "expiryHint": null,
+      "salt": null,
+      "proofs": [
+        {
+          "threshold": "1000000",
+          "count": "3",
+          "fromIndex": "6",
+          "toIndex": "11",
+          "asset": "396181930009140960553639667353982504061169251459",
+          "rootIsKnown": true,
+          "rootLeafCount": 12,
+          "builtAfter": "2026-11-23T19:53:24.000Z",
+          "builtBefore": null,
+          "fromTime": "2026-11-23T19:37:50.000Z",
+          "toTime": "2026-11-23T19:53:24.000Z",
+          "vouchLeaves": [
+            {
+              "index": 6,
+              "payerId": 1,
+              "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+              "time": "2026-11-23T19:37:50.000Z",
+              "pay": "0x98c64110aec9049f1745dd8564c7c5418c0aaf6dd6a0d184517cc4d16f68e27a"
+            },
+            {
+              "index": 7,
+              "payerId": 1,
+              "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+              "time": "2026-11-23T19:43:52.000Z",
+              "pay": "0x097cb2fb8ab58448c81e78fc3d3ffec0f6c4316e4b9e5ea29e9958b2907b21a2"
+            },
+            {
+              "index": 8,
+              "payerId": 1,
+              "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+              "time": "2026-11-23T19:48:38.000Z",
+              "pay": "0x23233274a33772f4cca01885bfadf1f05f7ddcf868593f6e348e77c7860f4a30"
+            }
+          ],
+          "sweepLeaves": [
+            {
+              "index": 9,
+              "time": "2026-11-23T19:52:56.000Z"
+            },
+            {
+              "index": 10,
+              "time": "2026-11-23T19:53:10.000Z"
+            },
+            {
+              "index": 11,
+              "time": "2026-11-23T19:53:24.000Z"
+            }
+          ],
+          "onlyHoldersInRange": true,
+          "total": {
+            "lo": "1000000",
+            "hi": "1000000"
+          },
+          "totalWithoutChainAttests": {
+            "lo": "1000000",
+            "hi": "3999997"
+          },
+          "perPayment": [
+            {
+              "pay": "0x98c64110aec9049f1745dd8564c7c5418c0aaf6dd6a0d184517cc4d16f68e27a",
+              "lo": "1",
+              "hi": "999998"
+            },
+            {
+              "pay": "0x097cb2fb8ab58448c81e78fc3d3ffec0f6c4316e4b9e5ea29e9958b2907b21a2",
+              "lo": "1",
+              "hi": "999998"
+            },
+            {
+              "pay": "0x23233274a33772f4cca01885bfadf1f05f7ddcf868593f6e348e77c7860f4a30",
+              "lo": "1",
+              "hi": "999998"
+            }
+          ],
+          "shareWindow": null
+        }
+      ],
+      "score": {
+        "total": {
+          "truth": "1000000",
+          "lo": "1000000",
+          "hi": "1000000",
+          "contains": true,
+          "exact": true
+        },
+        "rangeIsExactlyTheHoldersPayments": true,
+        "payersRight": true,
+        "paymentsExact": 0,
+        "payments": 3,
+        "boundsContainTruth": true
+      }
+    },
+    {
+      "name": "bot",
+      "fromAttest": null,
+      "holderTotal": {
+        "lo": "1000000",
+        "hi": "1000000"
+      },
+      "holderTotalWithoutChainAttests": {
+        "lo": "1000000",
+        "hi": "3999997"
+      },
+      "fragmentChars": 1606,
+      "readerIdHash": "11406698159439297619047535599290499411087728940541468423759753316670515770392",
+      "readerNameMatches": [
+        "Shaida underwriting bot (demo)"
+      ],
+      "contextMatches": true,
+      "expiry": "1798153199",
+      "expiryIso": "2026-12-24T22:59:59.000Z",
+      "expiryHint": "23:59:59 local time at UTC+1: the maker's time zone",
+      "salt": "random, 31 bytes (the context hides reader and expiry from anyone without the link)",
+      "proofs": [
+        {
+          "threshold": "1000000",
+          "count": "3",
+          "fromIndex": "6",
+          "toIndex": "11",
+          "asset": "396181930009140960553639667353982504061169251459",
+          "rootIsKnown": true,
+          "rootLeafCount": 12,
+          "builtAfter": "2026-11-23T19:53:24.000Z",
+          "builtBefore": null,
+          "fromTime": "2026-11-23T19:37:50.000Z",
+          "toTime": "2026-11-23T19:53:24.000Z",
+          "vouchLeaves": [
+            {
+              "index": 6,
+              "payerId": 1,
+              "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+              "time": "2026-11-23T19:37:50.000Z",
+              "pay": "0x98c64110aec9049f1745dd8564c7c5418c0aaf6dd6a0d184517cc4d16f68e27a"
+            },
+            {
+              "index": 7,
+              "payerId": 1,
+              "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+              "time": "2026-11-23T19:43:52.000Z",
+              "pay": "0x097cb2fb8ab58448c81e78fc3d3ffec0f6c4316e4b9e5ea29e9958b2907b21a2"
+            },
+            {
+              "index": 8,
+              "payerId": 1,
+              "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+              "time": "2026-11-23T19:48:38.000Z",
+              "pay": "0x23233274a33772f4cca01885bfadf1f05f7ddcf868593f6e348e77c7860f4a30"
+            }
+          ],
+          "sweepLeaves": [
+            {
+              "index": 9,
+              "time": "2026-11-23T19:52:56.000Z"
+            },
+            {
+              "index": 10,
+              "time": "2026-11-23T19:53:10.000Z"
+            },
+            {
+              "index": 11,
+              "time": "2026-11-23T19:53:24.000Z"
+            }
+          ],
+          "onlyHoldersInRange": true,
+          "total": {
+            "lo": "1000000",
+            "hi": "1000000"
+          },
+          "totalWithoutChainAttests": {
+            "lo": "1000000",
+            "hi": "3999997"
+          },
+          "perPayment": [
+            {
+              "pay": "0x98c64110aec9049f1745dd8564c7c5418c0aaf6dd6a0d184517cc4d16f68e27a",
+              "lo": "1",
+              "hi": "999998"
+            },
+            {
+              "pay": "0x097cb2fb8ab58448c81e78fc3d3ffec0f6c4316e4b9e5ea29e9958b2907b21a2",
+              "lo": "1",
+              "hi": "999998"
+            },
+            {
+              "pay": "0x23233274a33772f4cca01885bfadf1f05f7ddcf868593f6e348e77c7860f4a30",
+              "lo": "1",
+              "hi": "999998"
+            }
+          ],
+          "shareWindow": null
+        }
+      ],
+      "score": {
+        "total": {
+          "truth": "1000000",
+          "lo": "1000000",
+          "hi": "1000000",
+          "contains": true,
+          "exact": true
+        },
+        "rangeIsExactlyTheHoldersPayments": true,
+        "payersRight": true,
+        "paymentsExact": 0,
+        "payments": 3,
+        "boundsContainTruth": true
+      }
+    }
+  ]
+}

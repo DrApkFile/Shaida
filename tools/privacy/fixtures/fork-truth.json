@@ -1,0 +1,153 @@
+{
+  "schema": "shaida-privacy-truth/1",
+  "chainId": 440050,
+  "personas": "demo: Acme Studio and Bisi Foods pay; Ada and Chidi receive; Landlord Bola and Lender Dayo read",
+  "sources": {
+    "all": "written by packages/shaida-pay/scripts/privacy-fixture.ts from the run that made the transactions"
+  },
+  "payers": {
+    "0x70fa573482743893abffa19b9b9b7a434d49f4cb": "Acme Studio (demo)",
+    "0x130827df285e7f4968fc4b0a8af030385981f694": "Bisi Foods (demo)"
+  },
+  "deposits": [
+    {
+      "hash": "0xccc8b2213af3990336764e5c1760adeedba60308671e8f91ebb94f6bbb0cf697",
+      "payer": "0x70fa573482743893abffa19b9b9b7a434d49f4cb",
+      "amount": "10000000"
+    },
+    {
+      "hash": "0xd9aeaf7285c294748d3bfc8482ff2edd7c1133bcb679217f22a6db9aa73d2f93",
+      "payer": "0x130827df285e7f4968fc4b0a8af030385981f694",
+      "amount": "6000000"
+    }
+  ],
+  "pays": [
+    {
+      "hash": "0xa8c2eafb8a209ea4ad66c27ad89b4cd1e15fe7a851a8fefa3735355a91ad9e31",
+      "payer": "0x70fa573482743893abffa19b9b9b7a434d49f4cb",
+      "recipient": "Ada (demo)",
+      "amount": "1500000",
+      "note": "Invoice 1 (demo)",
+      "commitment": "0x247445f3869057f215911c88e5b692f5bcd0591f8384fee26f203a05ec470a55",
+      "sweep": "0x0cf6ce48440802b93c19bb644ee67b2c5e998da8b2c50838f3beff001f680bba"
+    },
+    {
+      "hash": "0x175943f2f349effc7e58aef0399d9185c93ae5a0bab28554bd6a548afd9e72e6",
+      "payer": "0x130827df285e7f4968fc4b0a8af030385981f694",
+      "recipient": "Chidi (demo)",
+      "amount": "2000000",
+      "note": "Invoice 2 (demo)",
+      "commitment": "0x05e42d13138e753f174638a4a8c243c99dc7b6dcc0a47f41c464655348324c19",
+      "sweep": "0x24d7f514417db3cef08d9a3a2d2b82d9ed2030a41b87fc7ae35132c359ea12bf"
+    },
+    {
+      "hash": "0x3385434dd6e978a622dd895459149822f16888962492e139aaf927718b0f4bc9",
+      "payer": "0x70fa573482743893abffa19b9b9b7a434d49f4cb",
+      "recipient": "Chidi (demo)",
+      "amount": "700000",
+      "note": "Invoice 3 (demo)",
+      "commitment": "0x19fa6b6116b02213c5e920617b2f6bc96c363fa429ae1a7fc5cb769ed640511f",
+      "sweep": "0x33cd82b0d4773b3e01cbc8cd8c78bc854e038069f95763c89bb290a93113aee0"
+    },
+    {
+      "hash": "0x06f348973de59a0ce07f1e9d8e9a1859b780df89efff2edb77f32ed94a4eb92b",
+      "payer": "0x130827df285e7f4968fc4b0a8af030385981f694",
+      "recipient": "Ada (demo)",
+      "amount": "1000000",
+      "note": "Invoice 4 (demo)",
+      "commitment": "0x01b62b07b6d721cc457a46586d5f55b674e6047f4b48eae29d2bf1bbb14a2a61",
+      "sweep": "0x843da3bca31b741fb61bc0651f44d9097e0c80c06710d60b1010ae921e89bc83"
+    },
+    {
+      "hash": "0xd1b32687c3a9754181fe11f637feb4af5b3eeb4a4ba5e683ba16d1ba6fad62bf",
+      "payer": "0x70fa573482743893abffa19b9b9b7a434d49f4cb",
+      "recipient": "Ada (demo)",
+      "amount": "2250000",
+      "note": "Invoice 5 (demo)",
+      "commitment": "0x0bda510d5d7d05594123b269b97454717c948254ea5797d11ed86eed32ddafe2",
+      "sweep": "0x8120f981325e22ab0f601b35a26b5129dfb85e33c19c760adc0e76743a6098ce"
+    },
+    {
+      "hash": "0x5933ba06b527080eb66c8304b578ff8b993c49a4aab91a8dbd028ee155aabfd2",
+      "payer": "0x70fa573482743893abffa19b9b9b7a434d49f4cb",
+      "recipient": "Ada (demo)",
+      "amount": "500000",
+      "note": "Invoice 6 (demo)",
+      "commitment": "0x21865627f2254671619d523d2264d6a4176049daf1789290ce0472da2dde7fad",
+      "sweep": "0x39357d2e8912ec0229ba9f2315631626bdcbbec810f29259bdbc8e6ff7c89db3"
+    },
+    {
+      "hash": "0x4a2f421a1d388270d4471e5a0add402a493aa1b0493d2e0a98e218158b609059",
+      "payer": "0x130827df285e7f4968fc4b0a8af030385981f694",
+      "recipient": "Ada (demo)",
+      "amount": "1200000",
+      "note": "Invoice 7 (demo)",
+      "commitment": "0x2bcd210c42340321db058c9856dde39860328ac08343567f9f4a1d6bb398ee8d",
+      "sweep": "0x97d04cdf7a4df910fc5aea5ac447662e2ea6e85d9570bcd4f60fdee3f7cdb311"
+    },
+    {
+      "hash": "0xbb5879dcd8010332bb7a6befa83459526ac41181e3d68976e58330882f212967",
+      "payer": "0x70fa573482743893abffa19b9b9b7a434d49f4cb",
+      "recipient": "Ada (demo)",
+      "amount": "1000000",
+      "note": "Invoice 8 (demo)",
+      "commitment": "0x0d69166a05f0c0ae8acf4d7043c3c70a22bf9b3a69a1af0a693d981815232b55",
+      "sweep": "0x6d8137ecf3410da1d37f7955c928fd5a94cc9a0e29e252199dd2d6bef7257d63"
+    }
+  ],
+  "unshields": [
+    {
+      "hash": "0xe744e819b567374e9d1f0adbaa5a4477e23e2daa065d7e00799f5b304a73d83b",
+      "amount": "2000000",
+      "pay": "0x175943f2f349effc7e58aef0399d9185c93ae5a0bab28554bd6a548afd9e72e6",
+      "recipient": "Chidi (demo)",
+      "to": "0x75b3a964cc99ddb9e5c4af2b0d1a2c5cba8270dc",
+      "forwardedTo": "0x50d7bb94a13ed688fe18cf536bb9005aeebab8b3",
+      "forwardTx": "0x36e51991965b5e9497f6dcaf77cb396cf882f7e69b5fc22037f140959ae5f269"
+    }
+  ],
+  "attests": [
+    {
+      "hash": "0xe7b8bcb7538ec930b10a48c9d99470b36dc6cecde8e3eb7a9c8a171f1f4da680",
+      "by": "Landlord Bola (demo), reader wallet",
+      "holder": "Ada (demo)",
+      "link": "ada"
+    },
+    {
+      "hash": "0x482c87fd4d4de0f28d7ec92c978db8dffb33cd7b4e85cc13704cb8031fa3843d",
+      "by": "Landlord Bola (demo), reader wallet",
+      "holder": "Ada (demo)",
+      "link": "ada"
+    }
+  ],
+  "links": [
+    {
+      "name": "ada",
+      "from": {
+        "url": "/v#eyJ2IjoxLCJwcm9vZnMiOlt7InByb29mIjp7InBpX2EiOlsiMTYwNzA5MjUyMDUzODU3Njk2MDUxMDAxMjg4OTY2OTk5MjY5ODMwMDk3MDI5MzYxMjI0NzE3ODE2MzczODcwMjM0ODg4MDAwODYwODEiLCIxMzgzODM5NDE3NTUwMzgwNDQxNDk1NjQ0MzY0MjE1NzgxODUwMzIzNzg5MTU0NjM0NDE2MjQ3NTQyMDI2NzIzNTc2MDIyMjU3MTg1OSIsIjEiXSwicGlfYiI6W1siMTI0MjUwMDM2MzUwOTg0MTIwMzIwMjc2MjU1MjIyNTc5ODQ4ODEzMjIyMzU3ODAwMDEyOTgzNzk5NDYxMzM5MDk2MDM1NTEwOTYxMjQiLCI0MzExNjg3NDczNjQxNDcwMzAwOTg0NjMwNDY1MjgwODcwMzc1NDEyNTUyMzgwNDk0NjQ0NjE1Mzg2OTM4MTQ5NzUyMTg1NTM3NzA2Il0sWyIzMTMxMDE2MDYxOTU3MzU2NzI0MTEyMjI4OTgwNDIzMjMxMDMyMDMzNTQxODcwNjE4NzcxODYwNzkxMjUyODU2NDY3NDM3NjEyMDgzIiwiMTM3NjI5NjMxNDg4MzM4MjUzMTM2NTAwOTA2Nzk4MDEyMDA1ODkxOTQ3ODY5NzQwMzczNjg5MjY0NTA5MTM5NTcwODc1NjUzMjAyMjIiXSxbIjEiLCIwIl1dLCJwaV9jIjpbIjEwMDczOTE2MzE1MTkzODIyNzM2NTU4MTYxNDQ3OTQ4NzkyODgzNzU5MjYwNDY0OTk0ODg1MTkzMTY1NDMwNDMwMTAyMTkyMDQwNDQyIiwiMTA5ODk2MTM0MTA4MDcxOTE2MTA3ODAwNzkzNTk3Mjc2NjEwMDM3MzQ1Mzc2MzkzOTg3NTQ1NTMxMjEwNTMxOTMwNjY2Mzc3Nzg4MTMiLCIxIl0sInByb3RvY29sIjoiZ3JvdGgxNiIsImN1cnZlIjoiYm4xMjgifSwicHVibGljU2lnbmFscyI6WyIzMjg1NzM5Njk2Njg3MzQ5MzQ1ODk4ODQyNzc0NDEyNjU0MzUyNzM4MjI2ODI1MDY5NTU2OTUwMTI1NDExMDU5MjcwNjg2MTIwMTQyIiwiMzk2MTgxOTMwMDA5MTQwOTYwNTUzNjM5NjY3MzUzOTgyNTA0MDYxMTY5MjUxNDU5IiwiNTAwMDAwMCIsIjQiLCIwIiwiNyIsIjgwNTU4MTgyMDg1MzI1MDUxMDU5OTU4NDExNjEyMTc2NjcxNzQ1NzY4NTc1NDkwOTg1MjE4NjE0MjEyNjQ3OTEwMjQ3NzE1MzQ4MTAiXX0seyJwcm9vZiI6eyJwaV9hIjpbIjIxNjczNDg3NzUyNjI3MDgyMjA2NjA5MTIxNTI0NjA0OTk2OTQxOTE3NzkyOTU5MTk5MDEzNzMxMzM0NjEzNTI4NTUwMjg2ODU2ODQzIiwiODI0MTg1MTk2NzE5MTMwNDUzODE1MTc3MDM3OTA4MjM4NjA1MjcyNjgxNTMwOTMzOTQyMjc0NDE1NzU1OTcxOTA0OTMzMTQzODc0MyIsIjEiXSwicGlfYiI6W1siMjEyNTg0MjY4NTk0MzM4MDQ0NTMyODUzMDYxMTIyODc5NTM3MDQ1OTc5Njg3NjA5NDg3MzQ2OTA3ODU5NTM5OTkxMDI4MDY3MzIyODEiLCI2ODQ3ODMzMjAxOTk4NjAyMTIwOTgwMjIwMjg3OTMxOTc5MDg2MzU4MTQxNjE4MDEyNDI4MDcxNzgwMTY0MTE3NDAzMjI0MDEzMTc3Il0sWyIxODAwMDM3Njc5OTU0NDg0OTE3MDY1OTEyMDQyNDY2NDMxMzAzMDA3NTE5ODUxMjgxNjA5OTA0NTk3MDE0NDI1NjQ2MzU1NjE0Nzc0NyIsIjEzMTAxNTY2MzIzNzAxNzAzNjQyNDg3NTU2Mzg4OTY2MzgwNTU0MDc5NzkzMjE0NTYwMzQzNTE2MDM2NjA3Mzc3NDAxNzcyMzAzMjYzIl0sWyIxIiwiMCJdXSwicGlfYyI6WyIxODM3Njk3Njg2MzYxNDg2MDUzOTMxMDk1OTQ5MDM0ODMxODYwMzQzMDMwNDk4MzcyMzAzNjE2NDAyMTM1NzQ1MDM2MzIyNzYxNTk2OCIsIjE5ODQ2Mzg3NTI0NzEyMTY0NzU5MzEwNjg0MjI1Mzg3Nzc5NjYzNDg5NjQ4OTE3MDYwMDM5ODQwOTY5MjgzNjQxMDM2OTE1NTg2NDk0IiwiMSJdLCJwcm90b2NvbCI6Imdyb3RoMTYiLCJjdXJ2ZSI6ImJuMTI4In0sInB1YmxpY1NpZ25hbHMiOlsiMzI4NTczOTY5NjY4NzM0OTM0NTg5ODg0Mjc3NDQxMjY1NDM1MjczODIyNjgyNTA2OTU1Njk1MDEyNTQxMTA1OTI3MDY4NjEyMDE0MiIsIjM5NjE4MTkzMDAwOTE0MDk2MDU1MzYzOTY2NzM1Mzk4MjUwNDA2MTE2OTI1MTQ1OSIsIjIwMDAwMDAiLCIyIiwiOCIsIjE1IiwiODA1NTgxODIwODUzMjUwNTEwNTk5NTg0MTE2MTIxNzY2NzE3NDU3Njg1NzU0OTA5ODUyMTg2MTQyMTI2NDc5MTAyNDc3MTUzNDgxMCJdfV0sInJlYWRlcklkSGFzaCI6IjEwMjg1NTA3NDIwOTAyODEwNzc0MTg5MjYwNzU5MDU0OTQyMzAzOTEzMDE2MTI3NjA2MDE3NDAzODc5MDIyMTY4Njk5NTIzNjA3Mjg3IiwiZXhwaXJ5IjoiMTc5ODE2NDE5MCIsInNhbHQiOiIxMDUxNjcxNTAxNDgxNTc3OTQ0Mjg3MjgyMTkzMDY3NDM3MDA0ODc2NzMyNTQ3MzQzMzIzMzEzNzU3OTU3MzI5MTg3MzUwMzk3MzcifQ"
+      },
+      "reader": "Landlord Bola",
+      "holder": "Ada (demo)",
+      "pays": [
+        "0xa8c2eafb8a209ea4ad66c27ad89b4cd1e15fe7a851a8fefa3735355a91ad9e31",
+        "0x06f348973de59a0ce07f1e9d8e9a1859b780df89efff2edb77f32ed94a4eb92b",
+        "0xd1b32687c3a9754181fe11f637feb4af5b3eeb4a4ba5e683ba16d1ba6fad62bf",
+        "0x5933ba06b527080eb66c8304b578ff8b993c49a4aab91a8dbd028ee155aabfd2",
+        "0x4a2f421a1d388270d4471e5a0add402a493aa1b0493d2e0a98e218158b609059",
+        "0xbb5879dcd8010332bb7a6befa83459526ac41181e3d68976e58330882f212967"
+      ]
+    },
+    {
+      "name": "chidi",
+      "from": {
+        "url": "/v#eyJ2IjoxLCJwcm9vZnMiOlt7InByb29mIjp7InBpX2EiOlsiMTA1OTIwMzM4MDU0MDcxMjg3Mzc5MjU1NDY1MDQ1OTkxNDkzOTg5NzA3MzI0MTc1ODg3MjM0NTcyMDE4NzkyNzkxOTc3NDI5Mzg1OSIsIjEzODE3OTUzNzg0NjMwNDc1MTY4MTA0MDM2MjIzMTQ0Mzg2OTc2MjAwOTUyNTUyOTI3NDgwODgyNDMxNDQyMTExNDY2NTUwMDY0OTA4IiwiMSJdLCJwaV9iIjpbWyIxNDE4NTYxNzUxOTg5MjUwNjk3MzQ5Nzk2NTg5MTY0NjY5MTY2OTI4NDYzMDY5MjkzODU3MDkxMjQ1ODk4MTc0OTUyNjQyNjEwMjg1NCIsIjgxOTM0MjkxNjI2ODA1MzExOTkwMjE1MzE5MzU0ODc2Mjk3NTgwMzk4Mjc1MjcxNjgwNDEyMzc3NDA4ODkzODY4NTAwOTI2NDEyOSJdLFsiNzgzNTg1MjA0MTcyMTkxNzA1NDEwMTg3OTgzNzI3NTY4OTgwNTIzNDIyNzYwMjk5MjYxNjQ4ODQ3MDY2NTQ3OTEwODUxMTE1NjE4OSIsIjIwNzM1Njk5Njg3NDUxNjMyNjkwODM3Mzg4ODgzMDg1MzQwNzgzNDE3OTc1OTUzNjQ4MzgwNzU4OTEwNTkxMDA3ODI2MTIyOTI4MjExIl0sWyIxIiwiMCJdXSwicGlfYyI6WyIxNDIzMDE3OTM0NTI2NDU2NzU2MDI3NDU2OTQ5NjE1OTExNTA3MTkwNzEyOTIzOTExMjAzMDEwMzYzNTg5NDEyOTQ1NTUyMjc5NDk1MCIsIjE2MTE3MjMxODY3MzYyNTU1MTE1NDExMTM4NzkzOTk1MTI4NzkzMDc0ODcwMzEyNjMzNTMwNDE1MzEyNjE4NzAyNDE5NDI5NDc0MTIzIiwiMSJdLCJwcm90b2NvbCI6Imdyb3RoMTYiLCJjdXJ2ZSI6ImJuMTI4In0sInB1YmxpY1NpZ25hbHMiOlsiMzI4NTczOTY5NjY4NzM0OTM0NTg5ODg0Mjc3NDQxMjY1NDM1MjczODIyNjgyNTA2OTU1Njk1MDEyNTQxMTA1OTI3MDY4NjEyMDE0MiIsIjM5NjE4MTkzMDAwOTE0MDk2MDU1MzYzOTY2NzM1Mzk4MjUwNDA2MTE2OTI1MTQ1OSIsIjIwMDAwMDAiLCIyIiwiMSIsIjE1IiwiNzk5MTQ1OTc3NDIyNjMzNzU2NjkxODg4OTY2MDMyMjAzODA0Mjc4ODAyNDI5NDU2MzA0NDQ4MjY1OTUxNTQ4MzQ0MDc5MzE0Nzc0Il19XSwicmVhZGVySWRIYXNoIjoiMjA1MTA2MjA1ODU0OTI0MjY2NjE4NDU4NjI5MTkyNzQ0NDA2NDg5NzU5MDk0NjQ1OTQzOTkyMzUwOTM5NjE0MzE4MTI5MjUwNTQwMDIiLCJleHBpcnkiOiIxNzk4MTY0MjQ5Iiwic2FsdCI6IjEzMTgyODE0NTk1Mzg5MTM0NjUyOTg0MTQ2OTE2MDE4MzIxNDE4OTg0NDUwNTE2MTkzODExODI2MjY0MTY5NzUyOTgwMzk1NTM0NyJ9"
+      },
+      "reader": "Lender Dayo",
+      "holder": "Chidi (demo)",
+      "pays": [
+        "0x175943f2f349effc7e58aef0399d9185c93ae5a0bab28554bd6a548afd9e72e6",
+        "0x3385434dd6e978a622dd895459149822f16888962492e139aaf927718b0f4bc9"
+      ]
+    }
+  ]
+}

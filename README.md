@@ -1,8 +1,9 @@
 # Shaida
 
-The aim: private income proofs on Aevum Testnet (chain 44005, tUSD8). Get paid privately in stablecoins, then prove
-you earn enough to a reader you name (a name, not a login: CL36), and show nothing else. That end-to-end claim is not proven yet (CLAIMS.md CL30).
-<!-- not-built -->
+Income proofs on Aevum Testnet (chain 44005, tUSD8): get paid through a shielded pool, then prove to a reader you name
+(a name, not a login: CL36) that you received at least a threshold from registered payers. The proof shows more than
+the threshold: who paid and when, and with public chain data often the exact total. Measured on the live deployment,
+see [Privacy](#privacy-what-is-hidden-and-what-is-not). <!-- CL30 --> <!-- CL32 -->
 
 **Live app: https://shaida.onrender.com** (Aevum testnet 44005; no login needed to open the example proof). Checked
 logged out in [evidence/hosting-render.md](evidence/hosting-render.md). <!-- CL43 -->
@@ -87,6 +88,24 @@ attested on chain ([evidence/live-44005-run2.md](evidence/live-44005-run2.md)) <
 
 Secrets: `make gate` scans the git history with gitleaks; keys and keystores are gitignored. <!-- CL41 -->
 
+## Privacy: what is hidden and what is not
+Measured by attacking the live deployment (every 44005 transaction to block 3961095) and a fork fixture with known
+ground truth: [evidence/privacy-audit.md](evidence/privacy-audit.md), tools `tools/privacy-observer.mjs` and
+`tools/privacy-reader.mjs`, plain-words list in [LIMITS.md](LIMITS.md). Proposed fixes (none applied): DECISIONS D32.
+
+| | Anyone with the explorer (CL32) | A reader holding the link (CL30) |
+|---|---|---|
+| Which payer paid | **learns it** (payer id, address and signature in every pay, 6 of 6) | **learns it** (payer ids in the range) |
+| Total received | **learns it** when deposits and on-chain attests pin it (4 tUSD8 exactly on 44005) | **learns it** with the same chain data (3, 1, 1 tUSD8 exactly) |
+| Each payment's amount | **learns it** if the swept note is withdrawn (3 of 3); otherwise only a bound | only a bound |
+| Which sweep is whose payment | by timing today (6 of 6); hidden by the nullifier, not by volume | the times of every payment and sweep in the range |
+| Receive address paid | not learned (sealed memos show only a fixed header) | not learned |
+| Amount from gas | not learned (≤ 60 gas apart across amounts) | — |
+
+Today the pool has one payer and one recipient, so several "not learned" rows hold only because nothing else happens
+in it. Recording a check on chain (`attest`) publishes the proof's threshold, count and range to everyone.
+<!-- CL30 --> <!-- CL32 -->
+
 ## Who it's for
 - **Freelancers** show a landlord they earn enough for the rent. On `/app/prove`, pick "Income, for a landlord".
 - **Merchants** show a lender revenue over a quarter without showing which customers paid: "Revenue proof, for a
@@ -104,7 +123,8 @@ The underwriting bot is an API with a published contract, made to be called by s
 - `POST /api/underwrite` with `{"link": "<proof link>", "preset": "rent-check", "record": false}` returns the decision.
   The same link and policy version give the same decision and `decisionId`.
 - The bot is deterministic (no LLM) and sees only the link it is sent: the proof's public facts (amount floor, payment
-  count, ledger period, expiry). It cannot see who paid, the amounts, or the holder's address. A link made out to
+  count, ledger range, expiry). Like any reader, it can also read the chain, and so the payer id and time of each
+  payment in the range (CL30). It does not see single payment amounts or the holder's address. A link made out to
   another reader is declined (`WrongReader`). To keep the link off any server, run the CLI:
   `pnpm --filter @shaida/underwrite decide --preset rent-check --link '<link>'`.
 - In real use, a lender would run the bot themselves (the CLI, or their own deployment of this code with their own

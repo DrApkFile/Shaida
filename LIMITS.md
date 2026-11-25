@@ -94,3 +94,59 @@ the ledger's V and S leaves, which a withdrawal does not touch (evidence/withdra
 - **An on-chain record says a proof passed IncomeVerifier, recorded by the bot's address.** The attest event carries the
   proof's context, threshold and count, not the policy; the policy and decision id are in the bot's response only.
 - **Templates are wording.** `/v?for=merchant` changes the words on the page, not the proof: anyone can edit the query.
+
+## What the chain and a proof link show (privacy audit, measured 2026-11-24/25)
+Measured by attacking the live deployment on Aevum testnet 44005 (every transaction from the deploy block to block
+3961095: runs 1 and 2, the withdrawal and the bot) and a fork fixture with two payers and two recipients. Tools,
+numbers and tx hashes: [evidence/privacy-audit.md](evidence/privacy-audit.md). Proposed fixes, none applied: DECISIONS D32.
+
+What anyone with the explorer and an RPC sees:
+- **Which registered payer made each payment.** Not hidden. The `Vouched` event carries the payer id; the relayed
+  `vouchedPayFor` call carries the payer's address; its EIP-712 signature recovers to that address; the registry's
+  `PayerRegistered` event links the id to the address. All three agree for every payment (6 of 6 on 44005).
+  `PayerRegistered` also carries `keccak256(display name)`, which anyone can confirm by guessing the name.
+- **Totals, from public deposits and public attests.** A payer's payments can add up to at most what that payer
+  deposited (assuming the payer has no other private funds). An `attest` puts a proof's threshold, count and leaf range
+  on chain in clear. Together these pinned Ada's (demo) total from Acme (demo) to exactly 4 tUSD8 on 44005: 3 in run 1
+  and 1 in run 2, each exact. With today's single payer and no extra balance, "at least" turns into "exactly".
+- **Each payment's amount, when its swept note is withdrawn.** A sweep moves the whole payment into one note and a
+  withdrawal spends a whole note, so each withdrawal amount is one payment's amount. Run 1's three withdrawals
+  (1.5, 1 and 0.5 tUSD8) gave all three of run 1's payment amounts, matched in order. Run 2's amounts are hidden
+  (each is only known to be below 1 tUSD8), because those notes were not withdrawn.
+- **Which sweep belongs to which payment, by timing.** The nullifier hides the link cryptographically, but sweeps
+  came minutes after the payments, in the same order, with nobody else using the pool. First-in-first-out timing
+  matched 6 of 6 on 44005. On the fork, where one recipient swept out of order, it matched 6 of 8, and the one withdrawal there was matched to
+  the wrong payment.
+- **That one recipient received a group of payments.** A burst of sweeps reads as one recipient sweeping. Attests by
+  the same reader wallet (Bola's two) and over the same range (Bola's run 2 attest and the bot's) joined both runs into
+  one holder: 15 of 15 same-recipient pairs right on 44005.
+- **Who the withdrawing recipient is, one hop out.** Run 1's withdrawal address forwarded its 3 tUSD8 to the deployer,
+  which had also funded the payer. Following the tUSD8 one hop showed both ends of the demo belong to one party.
+- **When things happened.** Every block time, the order of the relayer's transactions, and the signature deadline
+  (about when the payer signed, 30 minutes before the deadline). Memos are posted 5–10 blocks after their payment and
+  name its commitment by design.
+
+What the observer does not get from the chain:
+- payment amounts not later withdrawn, and which receive address was paid (memos are sealed; they share only the fixed
+  29-byte P-256 header and all have one padded length, 852 bytes; every ephemeral key differs);
+- the recipient's identity, unless a withdrawal or an attest points at it;
+- any amount signal in gas: at equal tree positions, payments of different amounts differ by at most 60 gas, while
+  moving one position changes gas by about 40,000.
+At today's volume (one registered payer, one recipient, six payments on two days) several of these are hidden only
+because nothing else happens in the pool that could be confused with them.
+
+What a reader who holds a proof link also learns (beyond "at least the threshold, from count payments"):
+- the ledger leaf range, so which payments are in it: the payer id of every vouch leaf in it, and the exact block time
+  of each payment and each sweep. When the range holds exactly `count` vouch leaves (true for all three live links),
+  those are the holder's payments, so the reader knows who paid the holder and when;
+- the exact total, when the payer's deposits and on-chain attests allow it (all three live links). Without run 1's
+  attest on chain, run 2's reader would have known only "between 1 and 4 tUSD8";
+- when the link was made: the root names the ledger state it used (between two leaf times), and the expiry is either
+  an exact "now + 30 days" (run 1, by script) or 23:59:59 in the maker's browser time zone, which gives the time zone
+  (the bot link: UTC+1);
+- in a bundle, each proof's sub-range and share; a capped share shows that proof's sum to a 1 tUSD8 window (D13; on
+  the fork the window held the true sum, [2, 3) for 2.2). The UI suggests the most a period can show, which makes the
+  threshold itself a 1 tUSD8 window on the total.
+With a second payer and a second recipient interleaved (fork fixture), the exact totals widened to bounds (Ada's
+link: total in [7, 16], truth 7.45) and the reader could no longer tell which payments in a range were the holder's.
+The payer ids in the range were still all shown.

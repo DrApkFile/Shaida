@@ -34,10 +34,10 @@ const walk = (d) => {
     if (n === "node_modules" || n === "lib" || n === "out" || n === "cache") continue;
     const p = join(d, n);
     if (statSync(p).isDirectory()) walk(p);
-    else if (n.endsWith(".test.ts") || n.endsWith(".t.sol")) testFiles.push(readFileSync(p, "utf8"));
+    else if (n.endsWith(".test.ts") || n.endsWith(".test.mjs") || n.endsWith(".t.sol")) testFiles.push(readFileSync(p, "utf8"));
   }
 };
-for (const d of ["packages", "ceremony/test", "contracts/test"]) walk(join(repo, d));
+for (const d of ["packages", "ceremony/test", "contracts/test", "tools/privacy/test"]) walk(join(repo, d));
 const testExists = (id) => {
   const esc = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const ts = new RegExp(`(it|test|describe)\\(\\s*["'\`]${esc}\\b`);
