@@ -3,7 +3,7 @@
 Shaida is MIT licensed (see [LICENSE](LICENSE)). It is based in part on the
 [Aevum Starter Kit](https://github.com/qday-io/aevum-starter-kit) (MIT, (c) 2026 PQA Labs), commit
 `e87bcff10fbaffcc920df658b2fdf79b4586b277`: the repo layout, Makefile, `tools/check-shanghai.mjs`, `packages/aevum`,
-`web/`, `examples/` and `contracts/test/mocks/MockUSD8.sol` come from it (the kit's example `Checkout` contract was removed).
+`web/` and `contracts/test/mocks/MockUSD8.sol` come from it (the kit's example `Checkout` contract, its checkout pages and `examples/` were removed: commits `86f1e84`, `86f27fd`).
 Files adapted from it carry a source comment.
 
 Third-party Solidity libraries are git submodules that keep their own LICENSE files; JavaScript packages are
@@ -51,13 +51,17 @@ GPL-3.0 (its SPDX header says so, D6). The compiled r1cs/wasm and keys are build
 Generated from the snarkjs 0.7.6 Solidity template (GPL-3.0, (c) 0KIMS association), header kept, contract renamed:
 - `contracts/test/fixtures/income/ThrowawayIncomeVerifier{A,B}.sol`: THROWAWAY test keys, written by
   `packages/shaida-proofs/scripts/gen-verifier-fixtures.ts`; never deployed.
-- `contracts/src/generated/IncomeGroth16Verifier.sol` (once the ceremony is finalized): written by
-  `ceremony/finalize.ts` from the final ceremony key.
+- `contracts/src/generated/IncomeGroth16Verifier.sol`: written by `ceremony/finalize.ts` from the final ceremony key
+  (deployed on 44005 at `0xbb79e350…32af`).
 
 | Project | Version | License | Used for |
 |---|---|---|---|
 | circomlib | 2.0.5 (npm) | GPL-3.0 | included by income.circom |
 | circom | 2.2.3 (cargo build from tag, or the release binary in CI, sha256-pinned) | GPL-3.0 | compiler; not shipped |
+
+## Ceremony contributors
+The income circuit's phase-2 ceremony: contributions by Kene and Gunroar, and a beacon from Aevum testnet block 3772100,
+over the Hermez phase 1 `powersOfTau28_hez_final_17.ptau` (blake2b-checked). Record: `ceremony/TRANSCRIPT.md`.
 
 ## Visual style and fonts
 - The web app follows the visual style of the builder's Muuve project (colours, type sizes, radii, shadows, layout;
@@ -77,8 +81,8 @@ Generated from the snarkjs 0.7.6 Solidity template (GPL-3.0, (c) 0KIMS associati
 | @rainbow-me/rainbowkit | 2.2.11 | MIT | web |
 | wagmi | 2.19.5 | MIT | web |
 | @tanstack/react-query | 5.90.2 | MIT | web |
-| viem | 2.57.12 | MIT | web, examples, packages/aevum |
-| tsx | 4.23.15 | MIT | examples (dev) |
+| viem | 2.57.12 | MIT | web, packages/aevum |
+| tsx | 4.23.15 | MIT | packages and tools (dev: runs TypeScript tests and scripts) |
 | typescript | 5.9.3 | Apache-2.0 | all (dev) |
 | @gloamtrade/sdk | 0.8.0 | MIT | packages/gloam-fixtures (test fixtures only) |
 | snarkjs | 0.7.6 | GPL-3.0 | packages/gloam-fixtures (proving tool, not shipped) |

@@ -5,7 +5,10 @@ Ideas not built. Nothing here is claimed anywhere else.
 - `IncomeVerifier.checkBundle` / `attestBundle`: the PRD §5 bundle rules on chain (one context, one root, disjoint
   ranges, Σ thresholds) for proofs of more than 4 payments. Today `check`/`attest` take one proof; bundles are
   verified off-chain by `verifyIncomeLink`.
-- Deploy `IncomeVerifier` in `DeployStack.s.sol` once `ceremony/finalize.ts` has written the real verifier.
+
+## Optional payer-name disclosure (PRD P1, not built)
+The recipient could choose to show the reader the display name of the payers in the range (today the reader sees payer
+ids and can guess names against `PayerRegistered`'s name hash). Not built.
 
 ## Relayer key pool
 One relayer key per process signs every relayed call (D19); a stuck nonce holds the queue. Add a pool of keys with a

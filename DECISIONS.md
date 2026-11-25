@@ -724,7 +724,7 @@ Decision:
 
 ## D32 (PROPOSAL; F3, F4, F5, F8, F9 ACCEPTED 2026-11-25, the rest not applied): fixes for the leaks the privacy audit measured
 Context: evidence/privacy-audit.md measured what an observer and a reader learn on 44005 and on a fork fixture
-(LIMITS.md, "What the chain and a proof link show"). Nothing below is built. Costs use measured gas (evidence/fork-gas.md:
+(LIMITS.md, "What the chain and a proof link show"). As proposed, nothing below was built; what was applied since is under Status. Costs use measured gas (evidence/fork-gas.md:
 vouchedPay 2.77M, sweep 2.70M, attest 267k, Groth16 check ~258k; 1 gwei). "Ceremony" means a new phase 2 (CLAUDE.md).
 
 | # | Leak | Fix | Needs | Cost | What it buys |
