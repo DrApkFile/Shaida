@@ -1,6 +1,6 @@
 # Mutation check: revocation (D35) and reader codes (D36)
 
-Command: `node tools/mutation-revoke-code.mjs`. Commit f745bb2 (working tree had uncommitted changes), 2026-11-25T22:10:29.674Z, Node v24.19.0, local (no chain).
+Command: `node tools/mutation-revoke-code.mjs`. Commit 257fd52, 2026-11-25T23:35:15.624Z, Node v24.19.0, local (no chain).
 Each mutation edits one line of packages/shaida-proofs and runs test/verify.revoke-code.test.ts and test/verify.revoke-code.property.test.ts; the source is restored after each run.
 
 | Mutation | What it removes | Tests that failed | Result |
