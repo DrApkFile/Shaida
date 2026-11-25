@@ -721,3 +721,26 @@ Decision:
   strict, so old links and old verifiers are unaffected. `/v` shows the template's title, lede and payment word; the
   VALID facts are exactly the same. An unknown `for=` shows the plain income wording.
 - Nothing about a template is proven: anyone can change `?for=` (LIMITS.md).
+
+## D32 (PROPOSAL, not applied; the builder decides): fixes for the leaks the privacy audit measured
+Context: evidence/privacy-audit.md measured what an observer and a reader learn on 44005 and on a fork fixture
+(LIMITS.md, "What the chain and a proof link show"). Nothing below is built. Costs use measured gas (evidence/fork-gas.md:
+vouchedPay 2.77M, sweep 2.70M, attest 267k, Groth16 check ~258k; 1 gwei). "Ceremony" means a new phase 2 (CLAUDE.md).
+
+| # | Leak | Fix | Needs | Cost | What it buys |
+|---|---|---|---|---|---|
+| F1 | Payer id in `Vouched` | Drop `payerId` from the event; the recipient gets it from the sealed memo | Ledger redeploy (new tree: every existing link's root becomes unknown), app + indexer change | ~−400 gas/pay; a day of work | **Nothing alone**: the `vouchedPayFor` calldata still names the payer, and its signature recovers to the payer's address. Not worth doing by itself. |
+| F2 | Payer address in calldata and signature | The payer proves "I am an active registered payer" in zero knowledge (registry as a Merkle tree; V computed in the circuit from a private payer id), the relayer sends no address | New vouch circuit + its own ceremony; new registry and ledger (redeploy); income circuit can stay if V keeps its formula | +~260k gas/pay for the proof, + a registry tree insert per register; revocation by root, so slower; ~1–2 weeks + a ceremony | Hides the payer **among registered payers**: today that set has 1 member, so it hides nothing until there are many payers. Deposits stay public and still name the payer. |
+| F3 | `attest` puts threshold, count and range on chain (pinned totals: 4 tUSD8 exactly) | App: no attest by default; the reader page and the bot warn, before the button, that a record publishes the proof's numbers to everyone. `check` (eth_call) leaves no trace on chain | App only | none | Removes the observer's main lever on totals (A4). The reader still has the link. |
+| F4 | Withdrawal amount = payment amount | App: sweep into two notes (a round part and the rest; `amountS` is free in income.circom, the transfer keeps value), withdraw in round amounts, never right after a run (D28 already) | App only (circuit unchanged; **to verify on the fork first**: an income proof over a split sweep) | one more note per payment; withdrawals in more txs (~0.33M gas each) | Withdrawals stop naming payment amounts (A1). |
+| F5 | Withdrawal forwarded to the payer's funder | Operational: forward to an address with no link to the deployer (D28 policy) | Nothing | none | Breaks the one-hop link (A6). |
+| F6 | Sweep timing (6/6 FIFO) | Relayer: hold sweeps and memos in a queue, send in batches at random times within a window (e.g. 1–6 h), shuffled across users | Relayer + app (UI says "sweep queued") | hours of delay per sweep; no gas change | Helps only with other users in the same window: at today's volume (one user) it hides nothing. |
+| F7 | Range shows the holder's vouch leaves (payers, times) | App: widen the default range to whole UTC calendar weeks or months; never shrink to the first and last payment | App only | none | Helps only when other people's vouches fall in the range (on the fork, interleaved payers kept the total from being pinned). Today it adds nothing. |
+| F8 | Expiry and period in the browser's time zone | App: end-of-day in UTC for the expiry (and period edges) | App only (old links stay valid) | none | Stops the time-zone leak. |
+| F9 | Suggested threshold = the most the period can show | App: suggest a rounder value (for example the most rounded down to 5 or 10 tUSD8), say what the maximum reveals | App only | none | The threshold stops being a 1 tUSD8 window on the total. |
+| F10 | Deposits bound what a payer paid | Operational: payers keep a balance (deposit more than they pay) | Nothing | idle funds | Loosens the budget bound; deposits stay public by design. |
+
+Not proposed: hiding deposits and withdrawals (public by Gloam's design, D28); changing the income circuit to hide
+`count` or the range (a new ceremony, and /v needs the range to date the payments).
+Order if the builder wants the most for the least: F3, F5, F8, F9 (app or operational, a few hours), then F4 after a
+fork check, then F6/F7 once there is volume, and F2 only with many registered payers. F1 is not worth doing alone.

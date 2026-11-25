@@ -1,0 +1,21 @@
+{
+  "name": "@shaida/privacy-audit",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Read-only privacy audit of a Shaida deployment: what an outside observer (explorer + RPC) and a proof-link reader learn, scored against a known ground truth. Sends nothing.",
+  "scripts": {
+    "test": "node --import tsx --test --test-reporter=spec 'test/*.test.mjs'",
+    "observer": "node ../privacy-observer.mjs",
+    "reader": "node ../privacy-reader.mjs"
+  },
+  "dependencies": {
+    "@gloamtrade/sdk": "0.8.0",
+    "@shaida/proofs": "workspace:*",
+    "viem": "2.57.12"
+  },
+  "devDependencies": {
+    "tsx": "4.23.15"
+  }
+}

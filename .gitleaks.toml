@@ -29,6 +29,8 @@ regexes = [
   # anvil / hardhat default accounts 0 and 1 (published with the tools; the relayer refuses them on 44005, R16)
   '''(?i)^(0x)?ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80$''',
   '''(?i)^(0x)?59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d$''',
+  # the tUSD8 contract address on Aevum 44005 (public; the privacy audit's dumps name it in a "token" field)
+  '''(?i)^0x456569838f1d43009a91eba4263147afd7233483$''',
   # sha256 pins of published circuit files (zkeySha256 fields): public by design, not secrets
   '''^3054877c35e2e0e9f76c43aa4791ac2b3ac51b8967d51be2215e89c0a5fbb512$''',
   '''^bd2fa46b9b5862637302566cfc617770d1cf585f40457e5c983a45a91c2ef911$''',

@@ -25,7 +25,7 @@ STACK_SCRIPT := script/DeployStack.s.sol:DeployStack
 # PayerRegistry owner on `make fork`: anvil account 0, so payers can be registered locally. On 44005: ATTESTOR=0x... (required).
 FORK_ATTESTOR := $(ANVIL_0)
 
-.PHONY: help install build gate test test-redis test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-supersede ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum verify-aevum secrets deal register-payer dev
+.PHONY: help install build gate test test-redis test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-supersede ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum verify-aevum secrets deal register-payer dev privacy-audit-live
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36mmake %-14s\033[0m %s\n", $$1, $$2}'
@@ -52,6 +52,7 @@ test: ## Unit tests: contracts, circuit and witness builder (local, no network)
 	pnpm --filter @shaida/pay test
 	pnpm --filter @shaida/ceremony test
 	pnpm --filter @shaida/underwrite test
+	pnpm --filter @shaida/privacy-audit test
 
 test-redis: ## Relayer store conformance on a real Redis via Upstash's REST protocol (docker); writes evidence/kv-redis.md
 	bash tools/test-redis.sh
@@ -101,6 +102,11 @@ deploy-aevum: ## Deploy the stack to Aevum testnet. Needs ACCOUNT=<keystore name
 secrets: ## gitleaks over the whole git history and the uncommitted changes (.gitleaks.toml)
 	gitleaks detect --source . --config .gitleaks.toml --redact --no-banner
 	gitleaks protect --source . --config .gitleaks.toml --redact --no-banner
+
+privacy-audit-live: ## OPTIONAL, needs the live RPC: re-read Aevum 44005 and rerun the privacy audit (read-only, sends nothing). Writes evidence/privacy-audit/*-44005-live.json
+	node tools/privacy-observer.mjs collect --deployment deployments/aevum.json --explorer https://explorer-test.qday.info --out evidence/privacy-audit/dump-44005-live.json
+	node tools/privacy-observer.mjs analyse --dump evidence/privacy-audit/dump-44005-live.json --truth evidence/privacy-audit/truth-44005.json --out evidence/privacy-audit/observer-44005-live.json
+	node tools/privacy-reader.mjs --dump evidence/privacy-audit/dump-44005-live.json --truth evidence/privacy-audit/truth-44005.json --reader-name "Landlord Bola" --reader-name "Shaida underwriting bot (demo)" --out evidence/privacy-audit/reader-44005-live.json
 
 verify-aevum: ## Read-only: rerun the deploy checks against deployments/aevum.json on Aevum testnet (sends nothing)
 	@test -f deployments/aevum.json || (echo "deployments/aevum.json not found" && exit 1)

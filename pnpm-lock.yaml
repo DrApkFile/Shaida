@@ -233,6 +233,22 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
 
+  tools/privacy:
+    dependencies:
+      '@gloamtrade/sdk':
+        specifier: 0.8.0
+        version: 0.8.0(bufferutil@4.2.0)(snarkjs@0.7.6)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.6.7)
+      '@shaida/proofs':
+        specifier: workspace:*
+        version: link:../../packages/shaida-proofs
+      viem:
+        specifier: 2.57.12
+        version: 2.57.12(bufferutil@4.2.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.6.7)
+    devDependencies:
+      tsx:
+        specifier: 4.23.15
+        version: 4.23.15
+
   tools/s8-bench:
     dependencies:
       '@shaida/proofs':
@@ -3120,6 +3136,19 @@ snapshots:
     dependencies:
       circomlibjs: 0.1.7(bufferutil@4.2.0)(utf-8-validate@5.0.10)
       viem: 2.57.12(bufferutil@4.2.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+    optionalDependencies:
+      snarkjs: 0.7.6
+    transitivePeerDependencies:
+      - bufferutil
+      - react-native-b4a
+      - typescript
+      - utf-8-validate
+      - zod
+
+  '@gloamtrade/sdk@0.8.0(bufferutil@4.2.0)(snarkjs@0.7.6)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.6.7)':
+    dependencies:
+      circomlibjs: 0.1.7(bufferutil@4.2.0)(utf-8-validate@5.0.10)
+      viem: 2.57.12(bufferutil@4.2.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.6.7)
     optionalDependencies:
       snarkjs: 0.7.6
     transitivePeerDependencies:

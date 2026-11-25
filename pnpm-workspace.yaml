@@ -3,3 +3,4 @@ packages:
   - web
   - tools/s8-bench
   - ceremony
+  - tools/privacy

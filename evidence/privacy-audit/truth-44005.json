@@ -1,0 +1,168 @@
+{
+  "schema": "shaida-privacy-truth/1",
+  "chainId": 44005,
+  "personas": "demo: Acme Studio (demo) pays, Ada (demo) receives, Landlord Bola (demo) reads; the bot is Shaida underwriting bot (demo)",
+  "sources": {
+    "run1": "evidence/live-44005-run1.md and .json (script-driven; each sweep row names the payment and amount it swept)",
+    "run2": "evidence/live-44005-run2.md (clicked by hand). The sweep \u2192 payment pairing is NOT read from a secret: it follows from the code, since Sweep all walks the inbox oldest memo first (web/src/app/app/inbox/Payments.tsx sweepAll, packages/shaida-pay/src/recipient.ts openInbox) and run 1's payments were already swept",
+    "withdrawals": "CL40 / evidence/budget.md: run 1's three swept notes withdrawn in one batch; each amount (1.5, 1, 0.5) is unique, so each unshield is the swept note of the payment with that amount",
+    "attests": "run 1 act 6 (reader), run 2 R13 (reader), evidence/underwrite-live-44005.md B2 (bot, the same proof's range as R13)"
+  },
+  "payers": {
+    "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b": "Acme Studio (demo)"
+  },
+  "deposits": [
+    {
+      "hash": "0x3304a6f52d75143f5c958fae450e62e4f422bc7bf755cf2c40d5d49156e4c9ea",
+      "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+      "amount": "3000000"
+    },
+    {
+      "hash": "0xb6bcbc4098fb07260d50125b17be654716fe647b4ad500173873c9578c4dde02",
+      "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+      "amount": "1000000"
+    }
+  ],
+  "pays": [
+    {
+      "hash": "0x364428d98fab385d23d2b66b78be1dd24a08133243979e2ff2d8fb254f35ed29",
+      "run": 1,
+      "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+      "recipient": "Ada (demo)",
+      "amount": "1500000",
+      "note": "Invoice 1 (demo)",
+      "sweep": "0x547006565b06880c5164a1b7298065417f9e370106462fe5f41924d035a1fc4e"
+    },
+    {
+      "hash": "0xc111e08a4e9587ac383095c84b61516d4d0a96952b38bb20a942b7affbb7c684",
+      "run": 1,
+      "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+      "recipient": "Ada (demo)",
+      "amount": "1000000",
+      "note": "Invoice 2 (demo)",
+      "sweep": "0x483b0ecedf482a42ac050e1f3dc1512588dd4fc88b1dc8593afe607cb688c1d2"
+    },
+    {
+      "hash": "0x9eb24ba7655b534d9b63309449c4af2f9f5f623f14488b0b2d1b733c13b1234a",
+      "run": 1,
+      "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+      "recipient": "Ada (demo)",
+      "amount": "500000",
+      "note": "Invoice 3 (demo)",
+      "sweep": "0x75d071745bc0b562d4ef3614f8279502a9a46e5010d49418e6c62316d57f5831"
+    },
+    {
+      "hash": "0x98c64110aec9049f1745dd8564c7c5418c0aaf6dd6a0d184517cc4d16f68e27a",
+      "run": 2,
+      "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+      "recipient": "Ada (demo)",
+      "amount": "500000",
+      "note": "Invoice 1 (demo)",
+      "sweep": "0x754f902959ee96cc563d883edec0eeb2f89046402dddb1326396d755b8564dfa"
+    },
+    {
+      "hash": "0x097cb2fb8ab58448c81e78fc3d3ffec0f6c4316e4b9e5ea29e9958b2907b21a2",
+      "run": 2,
+      "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+      "recipient": "Ada (demo)",
+      "amount": "300000",
+      "note": "Invoice 2(demo)",
+      "sweep": "0xf92f4e20662f2344b91b2cceabaf9c7ae5f25f511f99904713f7e45e3bdc8180"
+    },
+    {
+      "hash": "0x23233274a33772f4cca01885bfadf1f05f7ddcf868593f6e348e77c7860f4a30",
+      "run": 2,
+      "payer": "0xa1ddeb46a1060c8970e68c3da34427b1a7b91d4b",
+      "recipient": "Ada (demo)",
+      "amount": "200000",
+      "note": "Invoice 3(demo)",
+      "sweep": "0xf4c1256f1abd7d799fe1b2decc47555e959ad48d087e10faac637d04f8a5da0c"
+    }
+  ],
+  "unshields": [
+    {
+      "hash": "0x379cab9532d728dfa176b95d08ebc029ac679dc6b40c10f04af63ba8bc6a62ac",
+      "amount": "1500000",
+      "pay": "0x364428d98fab385d23d2b66b78be1dd24a08133243979e2ff2d8fb254f35ed29",
+      "recipient": "Ada (demo)"
+    },
+    {
+      "hash": "0x4336f050b1aff441d4c11abf4bf453b6de61fedb03943d209b9d3b545e57f164",
+      "amount": "1000000",
+      "pay": "0xc111e08a4e9587ac383095c84b61516d4d0a96952b38bb20a942b7affbb7c684",
+      "recipient": "Ada (demo)"
+    },
+    {
+      "hash": "0x30b85e2ed28dd654a49adb88c32923601ff3bc9de944f87e5eca7d708e1fe338",
+      "amount": "500000",
+      "pay": "0x9eb24ba7655b534d9b63309449c4af2f9f5f623f14488b0b2d1b733c13b1234a",
+      "recipient": "Ada (demo)"
+    }
+  ],
+  "attests": [
+    {
+      "hash": "0xf8c1b89b50c79f2891b254f1ca3b297e1e5bb796af64f292b72a2a28f0645441",
+      "by": "Landlord Bola (demo), reader wallet",
+      "holder": "Ada (demo)",
+      "link": "run1"
+    },
+    {
+      "hash": "0x054356813d7e88de742ae78079174e94772a46baa6d4f9de5eb5ffc0241111ec",
+      "by": "Landlord Bola (demo), reader wallet",
+      "holder": "Ada (demo)",
+      "link": "run2"
+    },
+    {
+      "hash": "0xc2caccd4db89f8b0dccc0d67e7cf7df0491fec304248b2bc58c8fe137075a415",
+      "by": "the underwriting bot's key",
+      "holder": "Ada (demo)",
+      "link": "bot"
+    }
+  ],
+  "links": [
+    {
+      "name": "run1",
+      "source": "web/src/app/example-links.json (the landing page's public example; also evidence/live-44005-run1.json)",
+      "reader": "Landlord Bola",
+      "holder": "Ada (demo)",
+      "pays": [
+        "0x364428d98fab385d23d2b66b78be1dd24a08133243979e2ff2d8fb254f35ed29",
+        "0xc111e08a4e9587ac383095c84b61516d4d0a96952b38bb20a942b7affbb7c684",
+        "0x9eb24ba7655b534d9b63309449c4af2f9f5f623f14488b0b2d1b733c13b1234a"
+      ],
+      "from": {
+        "file": "web/src/app/example-links.json",
+        "key": "44005.link"
+      }
+    },
+    {
+      "name": "run2",
+      "source": "NOT in the repo (made in the builder's browser, never saved). Rebuilt from R13's attest calldata: the proof and its 7 public signals, without readerIdHash, expiry and salt",
+      "reader": "Landlord Bola",
+      "holder": "Ada (demo)",
+      "pays": [
+        "0x98c64110aec9049f1745dd8564c7c5418c0aaf6dd6a0d184517cc4d16f68e27a",
+        "0x097cb2fb8ab58448c81e78fc3d3ffec0f6c4316e4b9e5ea29e9958b2907b21a2",
+        "0x23233274a33772f4cca01885bfadf1f05f7ddcf868593f6e348e77c7860f4a30"
+      ],
+      "from": {
+        "attest": "0x054356813d7e88de742ae78079174e94772a46baa6d4f9de5eb5ffc0241111ec"
+      }
+    },
+    {
+      "name": "bot",
+      "source": "evidence/underwrite-live-44005/run.json",
+      "reader": "Shaida underwriting bot (demo)",
+      "holder": "Ada (demo)",
+      "pays": [
+        "0x98c64110aec9049f1745dd8564c7c5418c0aaf6dd6a0d184517cc4d16f68e27a",
+        "0x097cb2fb8ab58448c81e78fc3d3ffec0f6c4316e4b9e5ea29e9958b2907b21a2",
+        "0x23233274a33772f4cca01885bfadf1f05f7ddcf868593f6e348e77c7860f4a30"
+      ],
+      "from": {
+        "file": "evidence/underwrite-live-44005/run.json",
+        "key": "link"
+      }
+    }
+  ]
+}
