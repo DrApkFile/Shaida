@@ -6,7 +6,7 @@ settings:
 
 overrides:
   '@base-org/account': 2.2.0
-  ws@>=8.0.0 <8.21.0: ^8.21.0
+  ws@>=8.0.0 <8.21.0: 8.21.3
 
 importers:
 
@@ -37,7 +37,7 @@ importers:
   packages/aevum:
     dependencies:
       viem:
-        specifier: ^2.57.0
+        specifier: 2.57.12
         version: 2.57.12(bufferutil@4.2.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.6.7)
 
   packages/gloam-fixtures:
@@ -1818,12 +1818,12 @@ packages:
   isows@1.0.6:
     resolution: {integrity: sha512-lPHCayd40oW98/I0uvgaHKWCSvkzY27LjWLbtzOm64yQ+G3Q5npjjbdppU65iZXkK1Zt+kH9pfegli0AYfwYYw==}
     peerDependencies:
-      ws: ^8.21.0
+      ws: 8.21.3
 
   isows@1.0.7:
     resolution: {integrity: sha512-I1fSfDCZL5P0v33sVqeTDSpcstAg/N+wF5HS033mogOVIp4B+oHC7oOCsA3axAbBSGTJ8QubbNmnIRN/h8U7hg==}
     peerDependencies:
-      ws: ^8.21.0
+      ws: 8.21.3
 
   jake@10.9.4:
     resolution: {integrity: sha512-wpHYzhxiVQL+IV05BLE2Xn34zW1S223hvjtqk0+gsPrwd/8JNLXJgZZM/iPFsYc1xyphF+6M6EvdE5E9MBGkDA==}

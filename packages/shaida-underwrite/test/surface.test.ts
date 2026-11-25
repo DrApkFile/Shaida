@@ -99,6 +99,14 @@ describe("agent card and llms.txt (D30)", () => {
     assert.deepEqual(card.decisionCodes.inconclusive.map((d) => d.code), [...INCONCLUSIVE_CODES]);
     assert.equal(card.recording.enabled, false);
   });
+  it("U19f the card names its chain when configured and says NotConfigured, never chain 0, when not", () => {
+    assert.deepEqual(agentCard(input).chain, { configured: true, id: 44005, token: "tUSD8 0x456569838f1d43009A91ebA4263147Afd7233483 (6 decimals)" });
+    const none = agentCard({ ...input, chainId: null }).chain;
+    assert.equal(none.configured, false);
+    assert.ok(!("id" in none), "an unconfigured card has no chain id");
+    assert.ok("state" in none && none.state.startsWith("NotConfigured"));
+    assert.ok(!JSON.stringify(agentCard({ ...input, chainId: null })).includes('"id":0'));
+  });
   it("U19e llms.txt names the endpoint, the card, every rule and the presets", () => {
     const text = llmsTxt(input);
     for (const s of ["/api/underwrite", "/.well-known/agent.json", "rent-check@1", "revenue-credit@1", "BelowMinThreshold", "ExpiresTooSoon", "no LLM"]) assert.ok(text.includes(s), s);

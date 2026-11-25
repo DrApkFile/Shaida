@@ -2,6 +2,18 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { NextConfig } from "next";
+import { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD } from "next/constants";
+import { checkWebConfig, WebConfigError } from "./src/lib/web-config.ts";
+
+// The build (and next dev) refuses a wrong network config (audit B2, B3): NEXT_PUBLIC_NETWORKS unset, unknown or
+// repeated, or a listed network without valid contract addresses. Not at `next start`: NEXT_PUBLIC_* are inlined at
+// build, so the server checks the values it was built with (web/src/startup.node.ts), whatever its runtime env holds.
+function refuseWrongConfig(): void {
+  const webConfig = checkWebConfig(process.env);
+  if (webConfig.ok) return;
+  for (const p of webConfig.problems) console.error(`✗ ${p}`);
+  throw new WebConfigError(webConfig.problems);
+}
 
 /** The commit this build is from, for /api/health: Render's RENDER_GIT_COMMIT, else git. Unknown stays unset ("—"). */
 function buildCommit(): string | undefined {
@@ -64,4 +76,7 @@ const config: NextConfig = {
   },
 };
 
-export default config;
+export default function nextConfig(phase: string): NextConfig {
+  if (phase === PHASE_PRODUCTION_BUILD || phase === PHASE_DEVELOPMENT_SERVER) refuseWrongConfig();
+  return config;
+}

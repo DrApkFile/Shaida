@@ -2,6 +2,27 @@
 // no usable Redis store exits here (StoreNotConfigured): measured, a throw alone left `next start` up and answering
 // 500 on every route, which a host counts as a live deploy (D29).
 import { chooseStore, StoreNotConfigured } from "@shaida/kv";
+import { checkWebConfig } from "./lib/web-config";
+
+/**
+ * The network config this build inlined (audit B3): every NEXT_PUBLIC_* below is written out in full, so the bundle
+ * carries the values the build saw. A wrong one stops the server here, before any request (exit 78), instead of a
+ * page refusing on first use.
+ */
+export function checkWebConfigAtStartup(): void {
+  const r = checkWebConfig({
+    NEXT_PUBLIC_NETWORKS: process.env.NEXT_PUBLIC_NETWORKS,
+    NEXT_PUBLIC_SHAIDA_AEVUM: process.env.NEXT_PUBLIC_SHAIDA_AEVUM,
+    NEXT_PUBLIC_SHAIDA_FORK: process.env.NEXT_PUBLIC_SHAIDA_FORK,
+    NEXT_PUBLIC_SHAIDA_LOCAL: process.env.NEXT_PUBLIC_SHAIDA_LOCAL,
+  });
+  if (r.ok) {
+    console.info(`[startup] networks: ${r.config.networks.join(", ")}; contracts valid for each`);
+    return;
+  }
+  for (const p of r.problems) console.error(`[startup] WebConfigError: ${p}`);
+  process.exit(78); // EX_CONFIG
+}
 
 export function checkStoreAtStartup(): void {
   try {

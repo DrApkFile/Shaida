@@ -1,4 +1,5 @@
-// Which income-proof key the app may use (CLAUDE.md: the ceremony key is not final yet). The throwaway key from
+// Which income-proof key the app may use. Unset means "final", the ceremony key: a deliberate safe default
+// (CLAUDE.md), not a fallback. The throwaway key from
 // packages/shaida-proofs/scripts/throwaway.ts is forgeable by whoever made it, so it is refused on Aevum 44005.
 import { shaidaError, type Result } from "@shaida/proofs";
 
