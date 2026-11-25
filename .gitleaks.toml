@@ -38,4 +38,8 @@ regexes = [
   '''^cbcb06fecdf72b47bb7d45d4403eaf69cf78bee65ad41cd50d0c98f4609cc0a5$''',
   '''^f0feb5a74eb121022a918e12d72143885de379c297c6c894db57532df8238f68$''',
   '''^5a12073f3f84b52f794feaf862fb1d48301124319db95a9c6d0dc58277fa54ed$''',
+  # @shaida/sdk PINNED (packages/sdk/src/pins.ts): sha256 of the canonical JSON of the public final vkey and of the
+  # public 44005 network config (D33), not secrets
+  '''^6a782a2b31d9d6b8e90e7950c34be731c2445060c1b1d8ada47b735c32534265$''',
+  '''^3181ebe65b8f7612f4793d0d6718148802e335a221020cddbb9aa1b6477e30d6$''',
 ]
