@@ -26,7 +26,7 @@ const result = await build({
   mainFields: ["module", "main"],
   metafile: true,
   legalComments: "eof",
-  banner: { js: "// @shaida/sdk 0.1.0 (MIT). Bundles Shaida's own MIT code and parts of viem / @noble/hashes (MIT). See NOTICE.md." },
+  banner: { js: "// shaida-sdk 0.1.0 (MIT). Bundles Shaida's own MIT code and parts of viem / @noble/hashes (MIT). See NOTICE.md." },
   logLevel: "warning",
 });
 const inputs = Object.keys(result.metafile.inputs);
@@ -38,7 +38,7 @@ const owner = (p) => {
   if (p.startsWith("../shaida-proofs/")) return "@shaida/proofs (workspace, MIT)";
   if (p.startsWith("../shaida-underwrite/")) return "@shaida/underwrite (workspace, MIT)";
   if (p.startsWith("../../config/")) return "config/underwrite-policies.json (Shaida, MIT)";
-  if (p.startsWith("src/")) return "@shaida/sdk (MIT)";
+  if (p.startsWith("src/")) return "shaida-sdk (MIT)";
   return p;
 };
 const packages = [...new Set(inputs.map(owner))].sort();

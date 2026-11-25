@@ -818,3 +818,21 @@ Decision:
 Not done: publishing to npm (packages/sdk/PUBLISHING.md has the commands; the builder decides), and running on
 Node 20 and 22 (only 24.19 and 26.11 are installed here).
 
+## D34: the SDK is published unscoped as `shaida-sdk`
+Context: the npm scope `@shaida` belongs to another user's account (the builder checked, 2026-11-25), so
+`@shaida/sdk` (D33) can't be published. `npm view shaida-sdk` returned 404 the same day.
+Decision:
+- **Name.** The package is `shaida-sdk` in its package.json, imports, docs, examples, llms.txt, the Makefile and
+  the gate. D33 above and the run records made before the rename (evidence/gate/cdde387-FAILED.*,
+  evidence/gate/6fcbfb8.*, evidence/sdk/live-44005.md, evidence/sdk/rental-check-390-FAILED-*.md) keep the old
+  name: they record what ran then. evidence/sdk/pack.md and rental-check-390.md were rerun after the rename. The private workspace packages keep `@shaida/*`: they are never published.
+- **Tarball.** `pnpm --filter shaida-sdk tarball` (scripts/pack.mjs) stages dist/, README, NOTICE and LICENSE with
+  a manifest that has only the public fields, then runs `npm pack`. In the package directory, npm would ship the
+  `workspace:*` devDependencies, and pnpm would rewrite them to `@shaida/proofs@0.1.0` and
+  `@shaida/underwrite@0.1.0`: names under a scope another account owns. Anyone who later ran an install with dev
+  dependencies would fetch whatever that account published. Test S19 refuses a shipped manifest with any
+  `workspace:` or `@shaida/` specifier, devDependencies or scripts. pack-check rehearses with the same tarball.
+- **Tag (the builder decides; recommended).** `sdk-v0.1.0` (annotated, pushed) points at 280f136, whose package
+  is `@shaida/sdk`. Recommended: leave it in place, since moving a pushed tag changes what anyone who fetched it
+  holds, and tag the published commit `shaida-sdk-v0.1.0` (PUBLISHING.md).
+

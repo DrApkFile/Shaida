@@ -1,4 +1,4 @@
-// Serves the fork fixture replay on a fixed port for the examples: pnpm --filter @shaida/sdk fixture-rpc [--port 8565]
+// Serves the fork fixture replay on a fixed port for the examples: pnpm --filter shaida-sdk fixture-rpc [--port 8565]
 import { FIXTURE, startFixtureRpc } from "./fixture-rpc";
 
 const i = process.argv.indexOf("--port");

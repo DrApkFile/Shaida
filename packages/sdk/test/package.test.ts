@@ -106,3 +106,19 @@ describe("viem shim", () => {
     }
   });
 });
+
+describe("publish manifest", () => {
+  it("S19 the shipped package.json is shaida-sdk with its exports, files and runtime deps, and no devDependencies, scripts, workspace: or @shaida/ name", async () => {
+    const { publishManifest } = await import("../scripts/pack.mjs");
+    const pkg = JSON.parse(readFileSync(fileURLToPath(new URL("../package.json", import.meta.url)), "utf8")) as Record<string, unknown>;
+    const shipped = publishManifest(pkg);
+    assert.equal(shipped.name, "shaida-sdk");
+    assert.equal(shipped.version, "0.1.0");
+    assert.deepEqual(shipped.exports, pkg.exports);
+    assert.deepEqual(shipped.files, ["dist", "README.md", "NOTICE.md", "LICENSE"]);
+    assert.deepEqual(shipped.dependencies, { ffjavascript: "0.3.1", "poseidon-lite": "0.3.0", snarkjs: "0.7.6", zod: "3.25.76" });
+    assert.ok(!("devDependencies" in shipped) && !("scripts" in shipped));
+    assert.doesNotMatch(JSON.stringify(shipped), /workspace:|@shaida\//);
+    assert.throws(() => publishManifest({ ...pkg, dependencies: { "@shaida/proofs": "workspace:*" } }), /would ship/);
+  });
+});

@@ -30,7 +30,7 @@ dispatcher, each key with its own nonce lane (AEVUM_INTEGRATION §4 hardening it
 - A steadiness rule ("payments in at least N distinct months") needs the circuit to expose more than the range; it
   would change the circuit and so the ceremony (CLAUDE.md), so it is not a config change.
 
-## @shaida/sdk, next (D33)
+## shaida-sdk, next (D33)
 - **Payer side (deferred from 0.1.0).** A platform making vouched payments through ShaidaLedger needs Gloam notes,
   shield/transfer proving with the final keys, the payer's EIP-712 vouch signature, the relayer or self-paid gas, and
   the recipient's receive key. In the app this lives in `packages/shaida-pay` on top of `@gloamtrade/sdk` and the

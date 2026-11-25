@@ -39,7 +39,8 @@ web/public/gloam/
 web/public/circuits/
 .render-bin/
 
-# @shaida/sdk build output (pnpm --filter @shaida/sdk build); build-inputs.json is kept: a change to what the bundle inlines shows in the diff
+# shaida-sdk build output (pnpm --filter shaida-sdk build); build-inputs.json is kept: a change to what the bundle inlines shows in the diff
 packages/sdk/dist/
 packages/sdk/build/
+packages/sdk/*.tgz
 examples/rental-check/app.bundle.js

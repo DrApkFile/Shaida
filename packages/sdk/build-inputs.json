@@ -3,8 +3,8 @@
   "packages": [
     "@noble/hashes (npm)",
     "@shaida/proofs (workspace, MIT)",
-    "@shaida/sdk (MIT)",
     "@shaida/underwrite (workspace, MIT)",
-    "config/underwrite-policies.json (Shaida, MIT)"
+    "config/underwrite-policies.json (Shaida, MIT)",
+    "shaida-sdk (MIT)"
   ]
 }

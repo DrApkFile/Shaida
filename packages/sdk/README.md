@@ -1,4 +1,4 @@
-# @shaida/sdk
+# shaida-sdk
 
 Verify a [Shaida](https://github.com/DrApkFile/Shaida) income proof link in your own app, and optionally run an
 underwriting policy on it. The SDK talks only to the Aevum testnet RPC (chain 44005, tUSD8). It doesn't use Shaida's
@@ -10,13 +10,14 @@ schema, the asset, the bundle rules, the context opening, the reader and the exp
 and Groth16 with the ceremony's final key; and finally the period's dates from the ledger.
 
 Status: 0.1.0, **verify side only**. The payer side (making vouched payments through ShaidaLedger) is not in this
-package; see [ROADMAP](../../ROADMAP.md). It is not published to npm yet. To use it from this repository, run
-`pnpm --filter @shaida/sdk build`, then depend on `packages/sdk` or on the tarball from `npm pack`.
+package; see [ROADMAP](../../ROADMAP.md). It is not published to npm yet; once it is, `npm install shaida-sdk`. To use
+it from this repository, run `pnpm --filter shaida-sdk tarball` and install the `shaida-sdk-0.1.0.tgz` it writes, or
+depend on `packages/sdk` in a pnpm workspace.
 
 ## Quickstart
 
 ```js
-import { verifyIncomeLink } from "@shaida/sdk";
+import { verifyIncomeLink } from "shaida-sdk";
 
 const v = await verifyIncomeLink(link, { readerName: "Landlord Bola", network: "aevum-testnet" });
 if (v.status === "VALID") console.log(`at least ${Number(v.threshold) / 1e6} tUSD8 from ${v.count} payments`);
@@ -274,7 +275,7 @@ are the integrations it is designed for.
 
 This is a statement of facts, not legal advice. The licences below were measured on 2026-11-25 by installing the
 tarball into a clean project (see [NOTICE.md](NOTICE.md) for the full list).
-- **@shaida/sdk is MIT.** `dist/index.js` inlines Shaida's own MIT code (`packages/shaida-proofs`, the underwriting
+- **shaida-sdk is MIT.** `dist/index.js` inlines Shaida's own MIT code (`packages/shaida-proofs`, the underwriting
   engine, the policy presets and the final verification key as data) and small parts of `viem` and `@noble/hashes`
   (both MIT, for sha256). `build-inputs.json` lists exactly what was inlined. The build refuses to inline snarkjs or
   any other GPL package.

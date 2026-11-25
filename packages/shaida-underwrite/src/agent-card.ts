@@ -146,7 +146,7 @@ export function llmsTxt(c: CardInput): string {
     "",
     "## In your own process",
     "",
-    `- @shaida/sdk (${c.repoUrl}/tree/master/packages/sdk): verifyIncomeLink, checkOnChain and this same engine (underwrite, the presets above, or your own policy) against the Aevum RPC only, with no call to this server. Not on npm yet.`,
+    `- shaida-sdk (${c.repoUrl}/tree/master/packages/sdk): verifyIncomeLink, checkOnChain and this same engine (underwrite, the presets above, or your own policy) against the Aevum RPC only, with no call to this server. Not on npm yet.`,
     "",
   ];
   return lines.join("\n");

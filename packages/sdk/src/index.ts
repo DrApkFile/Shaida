@@ -1,4 +1,4 @@
-// @shaida/sdk: verify a Shaida income proof link against the Aevum testnet RPC, without Shaida's website or server.
+// shaida-sdk: verify a Shaida income proof link against the Aevum testnet RPC, without Shaida's website or server.
 // The public surface is exactly what README.md "API reference" documents (test S13 fails on any difference).
 export { decodeIncomeLink } from "./decode";
 export { verifyIncomeLink } from "./verify";
