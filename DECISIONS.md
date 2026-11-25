@@ -832,7 +832,9 @@ Decision:
   `@shaida/underwrite@0.1.0`: names under a scope another account owns. Anyone who later ran an install with dev
   dependencies would fetch whatever that account published. Test S19 refuses a shipped manifest with any
   `workspace:` or `@shaida/` specifier, devDependencies or scripts. pack-check rehearses with the same tarball.
-- **Tag (the builder decides; recommended).** `sdk-v0.1.0` (annotated, pushed) points at 280f136, whose package
-  is `@shaida/sdk`. Recommended: leave it in place, since moving a pushed tag changes what anyone who fetched it
-  holds, and tag the published commit `shaida-sdk-v0.1.0` (PUBLISHING.md).
+- **Tag (decided by the builder, 2026-11-25).** `sdk-v0.1.0` stays on 280f136, whose package is `@shaida/sdk`:
+  a pushed tag is not moved. The release is tagged `shaida-sdk-v0.1.0` on 3175fe5 (pushed by the builder).
+- **Published.** The builder published `shaida-sdk@0.1.0` from the 134d704 tarball (https://www.npmjs.com/package/shaida-sdk);
+  the registry's integrity equals the packed sha512. `pnpm --filter shaida-sdk npm-check` installs it from
+  registry.npmjs.org into an empty project and runs the Node example on 44005 (evidence/sdk/npm-install.md).
 

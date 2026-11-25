@@ -1,7 +1,8 @@
-# Publishing shaida-sdk (not done: the builder decides)
+# Publishing shaida-sdk
 
-Nothing here has been run against the npm registry. The tarball and the clean install were rehearsed locally
-(evidence/sdk/pack.md).
+0.1.0 was published by the builder on 2026-11-25 (https://www.npmjs.com/package/shaida-sdk), from the tarball packed at 134d704
+(sha512 `3az4S9…CAtA==`, evidence/sdk/pack.md), and tagged `shaida-sdk-v0.1.0` on 3175fe5. A clean install from the
+registry is checked by `pnpm --filter shaida-sdk npm-check` (evidence/sdk/npm-install.md).
 
 ## The name
 The package is the unscoped `shaida-sdk` (D34). The npm scope `@shaida` belongs to another user's account, so the
@@ -30,16 +31,15 @@ packages/sdk. The script ships only the public fields of package.json (no devDep
 package directory, npm would ship the `workspace:*` devDependencies, and pnpm would rewrite them to
 `@shaida/proofs@0.1.0` and `@shaida/underwrite@0.1.0`: names under a scope Shaida doesn't own.
 
-## The git tag
-`sdk-v0.1.0` exists already, on 280f136 (the merge of feat/sdk, before the rename). That commit's package is called
-`@shaida/sdk`, which can't be published, so the tag names a commit that is not the release. Recommended (D34):
-leave it, and tag the commit you publish from with a new name, after `npm publish` succeeds:
+## The git tags
+`sdk-v0.1.0` stays on 280f136 (the merge of feat/sdk, before the rename; its package is `@shaida/sdk`): a pushed tag
+is not moved. The 0.1.0 release is tagged `shaida-sdk-v0.1.0` on 3175fe5 (decided by the builder, D34). For each
+release, after `npm publish` succeeds:
 
 ```sh
-git tag -a shaida-sdk-v0.1.0 -m "shaida-sdk 0.1.0 (npm)" <commit>
-git push origin shaida-sdk-v0.1.0
+git tag -a shaida-sdk-vX.Y.Z -m "shaida-sdk X.Y.Z (npm)" <commit>
+git push origin shaida-sdk-vX.Y.Z
 ```
 
 For a later version, bump `"version"` in packages/sdk/package.json and in the banner in
-scripts/build.mjs. Add a DECISIONS note if the API changes (test S13 forces the README to follow). Tag the
-released commit `shaida-sdk-vX.Y.Z` with `git tag -a`, then push the tag.
+scripts/build.mjs. Add a DECISIONS note if the API changes (test S13 forces the README to follow).
