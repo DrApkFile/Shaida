@@ -15,7 +15,8 @@
     "exit:acts-4-6": "tsx scripts/exit-acts-4-6.ts",
     "exit:withdraw": "tsx scripts/exit-withdraw.ts",
     "live:44005": "tsx scripts/live-44005.ts",
-    "privacy:fixture": "tsx scripts/privacy-fixture.ts"
+    "privacy:fixture": "tsx scripts/privacy-fixture.ts",
+    "split-sweep:fork": "tsx scripts/split-sweep-fork.ts"
   },
   "dependencies": {
     "@gloamtrade/sdk": "0.8.0",

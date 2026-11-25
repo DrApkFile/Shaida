@@ -47,7 +47,7 @@ export async function prepareWithdraw(ctx: WithdrawContext, t: CheckedTrees, not
   return { ok: true, value: { note, to: recipient, amount, body: () => body } };
 }
 
-/** The money in the vault's swept notes: each one can be withdrawn once, in full. Zero notes are left out. */
-export function sweptNotes(inbox: readonly { state: string; fresh: Note | null }[]): Note[] {
-  return inbox.flatMap((e) => (e.state === "swept" && e.fresh && BigInt(e.fresh.amountWei) > 0n ? [e.fresh] : []));
+/** The money in the vault's swept notes (a split sweep's two): each one can be withdrawn once, in full. Zero notes are left out. */
+export function sweptNotes(inbox: readonly { state: string; fresh: Note | null; rest?: Note | null | undefined }[]): Note[] {
+  return inbox.flatMap((e) => (e.state === "swept" ? [e.fresh, e.rest ?? null].filter((n): n is Note => n !== null && BigInt(n.amountWei) > 0n) : []));
 }

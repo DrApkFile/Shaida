@@ -176,6 +176,8 @@ input.field { font: inherit; font-size: 16px; color: var(--ink); background: var
 .fields-2 { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
 @media (min-width: 560px) { .fields-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .check-line { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--ink-60); }
+.opt-in { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; color: var(--ink-60); }
+.opt-in input { margin-top: 3px; flex: none; }
 .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
 .tabs button[aria-pressed="true"] { background: var(--ink); color: var(--cream); }
 .suggest { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--ink-60); }

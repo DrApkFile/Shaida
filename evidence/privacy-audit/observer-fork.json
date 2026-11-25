@@ -266,6 +266,13 @@
           "keccak256 of the display name: confirmable by guessing the name"
         ]
       ],
+      "revoke": [
+        [
+          "payerId",
+          "plain",
+          "the payer id that stops being active"
+        ]
+      ],
       "attest": [
         [
           "threshold",
@@ -891,7 +898,9 @@
       "total": 8,
       "boundsContainTruth": true,
       "unsound": [],
-      "byBoundsAlone": 0
+      "byBoundsAlone": 0,
+      "withdrawalsEqualToTheirPayment": 1,
+      "withdrawals": 1
     },
     "A2": {
       "verdict": "partly",

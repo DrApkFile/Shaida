@@ -4,11 +4,12 @@
 import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
 import type { CheckedTrees } from "@shaida/index";
-import type { CountablePayment } from "@shaida/pay";
+import { endOfDayUtc, suggestedThreshold, type CountablePayment } from "@shaida/pay";
 import { nearestValidThresholds, readerIdHashOf, type TimedLeaf } from "@shaida/proofs";
 import { ProblemBox } from "@/components/ProblemBox";
 import type { Wiring } from "@/lib/flows";
 import { endOfDay, isoDate, isoInDays, startOfDay } from "@/lib/income/dates";
+import { expiryOf } from "@/lib/income/words";
 import type { Problem } from "@/lib/problem";
 import { useVault } from "@/lib/vault";
 import { templateOf, TEMPLATES, type TemplateId } from "@/lib/templates";
@@ -42,9 +43,10 @@ export function ProveForm({ w, t, leaves, countable }: { w: Wiring; t: CheckedTr
   const inPeriod = start !== null && end !== null ? countable.filter((c) => { const x = timeOf(c.vouchIndex); return x !== null && x >= start && x <= end; }) : [];
   const total = inPeriod.reduce((a, c) => a + c.amount, 0n);
   const most = (total / step) * step;
+  const suggested = suggestedThreshold(total, step);
   const threshold = parseTusd8(amount);
   const fit = threshold === null ? null : nearestValidThresholds(threshold, step);
-  const expiryEnd = endOfDay(expiry);
+  const expiryEnd = endOfDayUtc(expiry); // D32 F8: 23:59:59 UTC, the same for everyone
   const nowSec = BigInt(Math.floor(Date.now() / 1000));
   const readerOk = readerIdHashOf(reader).ok;
   const tpl = TEMPLATES[template];
@@ -81,11 +83,12 @@ export function ProveForm({ w, t, leaves, countable }: { w: Wiring; t: CheckedTr
       </div>
       <p className="fine period-summary">
         In this period: {inPeriod.length} countable {tpl.paymentWord}(s), {formatUnits(total, 6)} tUSD8. You can show up to {formatUnits(most, 6)} tUSD8 in steps of {formatUnits(step, 6)}.
+        {" "}Showing the most tells the reader your total to within one step, so the suggestion is a rounder, lower amount.
       </p>
       <div className="fields-2">
         <label className="field">
           <span>At least (tUSD8)</span>
-          <input name="threshold" inputMode="decimal" placeholder={formatUnits(most, 6)} value={amount} aria-invalid={fit !== null && !fit.valid} onChange={(e) => setAmount(e.target.value)} />
+          <input name="threshold" inputMode="decimal" placeholder={suggested === null ? "" : formatUnits(suggested, 6)} value={amount} aria-invalid={fit !== null && !fit.valid} onChange={(e) => setAmount(e.target.value)} />
         </label>
         <label className="field">
           <span>Rounding step</span>
@@ -94,6 +97,12 @@ export function ProveForm({ w, t, leaves, countable }: { w: Wiring; t: CheckedTr
           </select>
         </label>
       </div>
+      {amount === "" && suggested !== null && (
+        <div className="suggest" role="status">
+          <button type="button" className="btn secondary small" onClick={() => setAmount(formatUnits(suggested, 6))}>Use {formatUnits(suggested, 6)} tUSD8</button>
+          <span>rounded down from your {formatUnits(total, 6)}; any amount up to {formatUnits(most, 6)} works.</span>
+        </div>
+      )}
       {fit && !fit.valid && (
         <div className="suggest" role="status">
           <span>{formatUnits(threshold ?? 0n, 6)} is not a multiple of {formatUnits(step, 6)}. Use:</span>
@@ -113,7 +122,11 @@ export function ProveForm({ w, t, leaves, countable }: { w: Wiring; t: CheckedTr
           )}
           <span className="hint">The link is made out to this name. It is not a login: anyone with the link who types the name sees VALID, so share it only with them.</span>
         </label>
-        <label className="field"><span>Expires</span><input type="date" name="expiry" value={expiry} onChange={(e) => setExpiry(e.target.value)} /></label>
+        <label className="field">
+          <span>Expires</span>
+          <input type="date" name="expiry" value={expiry} onChange={(e) => setExpiry(e.target.value)} />
+          {expiryEnd !== null && <span className="hint">At the end of that day in UTC (the same for everyone, so the link does not show your time zone): {expiryOf(expiryEnd)}.</span>}
+        </label>
       </div>
       {why.length > 0 && <ul className="fine form-why">{why.map((x) => <li key={x}>{x}</li>)}</ul>}
       <button className="btn big" type="button" onClick={() => void build()} disabled={why.length > 0 || stage !== null}>

@@ -114,7 +114,7 @@ export function llmsTxt(c: CardInput): string {
   const lines = [
     "# Shaida",
     "",
-    "> Private income proofs on Aevum testnet (chain 44005, tUSD8). A recipient proves \"at least X received from N payments by registered payers, in a period\" to one named reader, with an expiry, and shows nothing else.",
+    "> Private income proofs on Aevum testnet (chain 44005, tUSD8). A recipient proves \"at least X received from N payments by registered payers, in a period\" to one named reader, with an expiry. Which registered payer paid is public by design (see Shaida's privacy audit).",
     "",
     "Testnet only. Not audited. Demo personas and the demo bot are labelled demo.",
     "",

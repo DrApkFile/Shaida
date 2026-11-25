@@ -67,13 +67,15 @@ export interface ScenarioOptions {
   readonly noise?: number;
   /** Fixed amounts (one per payment) instead of random ones. */
   readonly amounts?: readonly bigint[];
+  /** The sweep note's amount per payment, when the payment was swept split (D32 F4); default the whole amount. */
+  readonly sweptAmounts?: readonly bigint[];
 }
 
 export function makeScenario(rng: Rng, opts: ScenarioOptions): Scenario {
   const asset = TUSD8_FIELD;
   const payments: PaymentRecord[] = Array.from({ length: opts.payments }, (_, i) => {
     const amount = opts.amounts?.[i] ?? rng.amount();
-    return { secretP: rng.field(), amount, payerId: BigInt(1 + rng.int(5)), secretS: rng.field(), amountS: amount };
+    return { secretP: rng.field(), amount, payerId: BigInt(1 + rng.int(5)), secretS: rng.field(), amountS: opts.sweptAmounts?.[i] ?? amount };
   });
   const leaves: bigint[] = [];
   const vouchIndex = payments.map(() => -1);

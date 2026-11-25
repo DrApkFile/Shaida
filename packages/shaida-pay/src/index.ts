@@ -9,3 +9,4 @@ export * from "./recipient";
 export * from "./vault";
 export * from "./prover";
 export * from "./withdraw";
+export * from "./prove-choices";

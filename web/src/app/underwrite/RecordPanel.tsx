@@ -1,6 +1,9 @@
 "use client";
-// "Record decision" (D30): only for an APPROVE, only when the bot's recording is switched on. The bot's own key calls
+// "Record decision" (D30): only for an APPROVE, only when the bot's recording is switched on, and opt-in behind a
+// warning (D32 F3). The bot's own key calls
 // IncomeVerifier.attest once per proof; the same proof asked again shows the first record and sends nothing.
+import { useState } from "react";
+import { PublicRecordConsent } from "@/components/PublicRecordConsent";
 import type { BotInfo, RecordOutcomeView, RecordView } from "@/lib/underwrite";
 
 const STATE_WORDS: Record<RecordView["state"], string> = {
@@ -30,6 +33,7 @@ function Records({ records, explorer }: { records: readonly RecordView[]; explor
 export function RecordPanel({ recording, outcome, busy, explorer, onRecord }: {
   recording: BotInfo["recording"]; outcome: RecordOutcomeView | null; busy: boolean; explorer: string | null; onRecord: () => void;
 }) {
+  const [agreed, setAgreed] = useState(false);
   if (!recording.enabled) {
     return <p className="notice">Recording is switched off on this bot, so this approval stays off chain. Nothing was sent.</p>;
   }
@@ -41,7 +45,10 @@ export function RecordPanel({ recording, outcome, busy, explorer, onRecord }: {
         (about 267,000 gas each, paid by the bot). At most {recording.dailyCount} records a day; each proof is recorded once, ever.
       </p>
       {outcome === null && (
-        <button type="button" className="btn secondary" disabled={busy} onClick={onRecord}>{busy ? "Recording…" : "Record on chain"}</button>
+        <>
+          <PublicRecordConsent agreed={agreed} onChange={setAgreed} />
+          <button type="button" className="btn secondary" disabled={busy || !agreed} onClick={onRecord}>{busy ? "Recording…" : "Record on chain"}</button>
+        </>
       )}
       {outcome?.ok && <div className="notice good">{outcome.repeated ? "Already recorded by the bot; nothing new was sent." : "Recorded."}</div>}
       {outcome && !outcome.ok && <div className="notice warn" role="alert"><strong className="mono">{outcome.error.code}</strong> {outcome.error.message}</div>}

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { formatUnits } from "viem";
 import { CopyIcon } from "@/components/Icons";
-import { dateOf } from "@/lib/income/words";
+import { dateOf, expiryOf } from "@/lib/income/words";
 import { verifyPath, type Template } from "@/lib/templates";
 import type { Built } from "./build";
 
@@ -23,7 +23,7 @@ export function LinkResult({ built, template }: { built: Built; template: Templa
         <dt>At least</dt><dd className="num">{formatUnits(BigInt(s.threshold), 6)} tUSD8</dd>
         <dt>{template.paymentWord[0]!.toUpperCase()}{template.paymentWord.slice(1)}s</dt><dd className="num">{s.count}</dd>
         <dt>Period</dt><dd>{dateOf(BigInt(s.fromDate))} – {dateOf(BigInt(s.toDate))}</dd>
-        <dt>Expires</dt><dd>{dateOf(BigInt(s.expiry))}</dd>
+        <dt>Expires</dt><dd>{expiryOf(BigInt(s.expiry))}</dd>
         <dt>Proving</dt><dd className="num prove-time">{built.proveMs.map((ms) => `${(ms / 1000).toFixed(1)} s`).join(" + ")} in this browser ({s.proofs} proof{s.proofs > 1 ? "s" : ""})</dd>
       </dl>
       <div className="link-box" aria-label="Proof link">{url}</div>

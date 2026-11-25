@@ -28,6 +28,7 @@ export function Payments({ w, receiveKey }: { w: Wiring; receiveKey: NonNullable
   const trees = useTrees(w);
   const [busy, setBusy] = useState<string | null>(null);
   const [problem, setProblem] = useState<Problem | null>(null);
+  const [split, setSplit] = useState(false);
   const t = trees.data?.ok ? trees.data.value : null;
   const rows = useQuery({
     queryKey: ["inbox", w.net.chain.id, t?.block.toString(), receiveKey.tag],
@@ -46,7 +47,7 @@ export function Payments({ w, receiveKey }: { w: Wiring; receiveKey: NonNullable
     try {
       const e = entryOf(vault.data, row.p.note.commitment);
       const rec = kind === "check" && e.requestId ? await w.relay.status(e.requestId) : null;
-      const out = kind === "sweep" ? await sweepOne(w, vault.update, vault.data, row.p) : await settleEntry(w, vault.update, row.p, rec?.ok ? rec.value : null);
+      const out = kind === "sweep" ? await sweepOne(w, vault.update, vault.data, row.p, { split }) : await settleEntry(w, vault.update, row.p, rec?.ok ? rec.value : null);
       setProblem(out);
     } finally {
       setBusy(null);
@@ -92,6 +93,15 @@ export function Payments({ w, receiveKey }: { w: Wiring; receiveKey: NonNullable
             );
           })}
         </ul>
+      )}
+      {open.length > 0 && (
+        <label className="opt-in">
+          <input type="checkbox" name="split" checked={split} onChange={(e) => setSplit(e.target.checked)} />
+          <span>
+            Split each sweep into two notes: the largest whole tUSD8 below the payment, and the rest (a payment of 1 tUSD8 or less is swept whole).
+            A withdrawal then no longer shows a payment&apos;s exact amount, if you withdraw the two notes at different times. Your income proofs still count the whole payment. Costs one more withdrawal (about 330,000 gas) per payment.
+          </span>
+        </label>
       )}
       {open.length > 1 && <button className="btn" type="button" disabled={Boolean(busy)} onClick={() => void sweepAll()}>Sweep all {open.length}</button>}
       <ProblemBox problem={problem} />

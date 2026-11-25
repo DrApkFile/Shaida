@@ -1,7 +1,7 @@
 "use client";
 // One sweep, following PRD §6: seen → sweeping (fresh note saved first) → swept | unknown. Never resends.
 import type { CheckedTrees } from "@shaida/index";
-import { afterSubmit, chainViewOf, prepareSweep, reconcile, seen, startSweep, type IncomingPayment, type InboxEntry, type RelayRecord, type VaultData } from "@shaida/pay";
+import { afterSubmit, chainViewOf, prepareSweep, reconcile, seen, splitPartOf, startSweep, type IncomingPayment, type InboxEntry, type RelayRecord, type VaultData } from "@shaida/pay";
 import type { Result } from "@shaida/proofs";
 import type { Wiring } from "@/lib/flows";
 import { problemOf, type Problem } from "@/lib/problem";
@@ -16,8 +16,11 @@ export function putEntry(d: VaultData, e: InboxEntry): VaultData {
   return { ...d, inbox: [...rest, e] };
 }
 
+/** Split sweeps (D32 F4, off by default) put the largest whole tUSD8 below the payment in one note and the rest in another. */
+export const SPLIT_UNIT = 1_000_000n;
+
 /** Returns a problem to show, or null when the sweep is confirmed by the ledger's S leaf. */
-export async function sweepOne(w: Wiring, update: Update, current: VaultData, p: IncomingPayment): Promise<Problem | null> {
+export async function sweepOne(w: Wiring, update: Update, current: VaultData, p: IncomingPayment, opts: { readonly split: boolean }): Promise<Problem | null> {
   const entry = entryOf(current, p.note.commitment);
   if (entry.state !== "seen") return { code: "InputRejected", message: `This payment is already ${entry.state}. Nothing was sent.` };
   const trees = await w.trees();
@@ -27,12 +30,13 @@ export async function sweepOne(w: Wiring, update: Update, current: VaultData, p:
 
   let prepared;
   try {
-    prepared = await prepareSweep(w.ctx, trees.value, p);
+    const part = opts.split ? splitPartOf(BigInt(p.note.amountWei), SPLIT_UNIT) : null;
+    prepared = await prepareSweep(w.ctx, trees.value, p, part === null ? {} : { split: part });
   } catch (e) {
     return problemOf(e, "proving the sweep");
   }
   if (!prepared.ok) return prepared.error;
-  const sweeping = startSweep(entry, prepared.value.fresh);
+  const sweeping = startSweep(entry, prepared.value.fresh, prepared.value.rest);
   await update((d) => putEntry(d, sweeping));
 
   const reply = await w.relay.post("sweep", prepared.value.body());

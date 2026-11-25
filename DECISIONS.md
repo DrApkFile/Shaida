@@ -722,7 +722,7 @@ Decision:
   VALID facts are exactly the same. An unknown `for=` shows the plain income wording.
 - Nothing about a template is proven: anyone can change `?for=` (LIMITS.md).
 
-## D32 (PROPOSAL, not applied; the builder decides): fixes for the leaks the privacy audit measured
+## D32 (PROPOSAL; F3, F4, F5, F8, F9 ACCEPTED 2026-11-25, the rest not applied): fixes for the leaks the privacy audit measured
 Context: evidence/privacy-audit.md measured what an observer and a reader learn on 44005 and on a fork fixture
 (LIMITS.md, "What the chain and a proof link show"). Nothing below is built. Costs use measured gas (evidence/fork-gas.md:
 vouchedPay 2.77M, sweep 2.70M, attest 267k, Groth16 check ~258k; 1 gwei). "Ceremony" means a new phase 2 (CLAUDE.md).
@@ -744,3 +744,24 @@ Not proposed: hiding deposits and withdrawals (public by Gloam's design, D28); c
 `count` or the range (a new ceremony, and /v needs the range to date the payments).
 Order if the builder wants the most for the least: F3, F5, F8, F9 (app or operational, a few hours), then F4 after a
 fork check, then F6/F7 once there is volume, and F2 only with many registered payers. F1 is not worth doing alone.
+
+Status (the builder accepted the quick fixes on 2026-11-25; applied on branch fix/privacy-quick, app only, no
+contract, circuit or ceremony change; measured in evidence/privacy-audit.md "Fixes applied"):
+- **F3 ACCEPTED 2026-11-25.** "Record check" on /v and the bot's "Record on chain" stay off until the person ticks a
+  box under a plain warning that recording publishes threshold, count and range and can reveal totals
+  (`web/src/components/PublicRecordConsent.tsx`). The bot's server already recorded only on an explicit request
+  (D30); recording stays switched off on the live site. Records made before (3 on 44005) stay public.
+- **F4 ACCEPTED 2026-11-25, as an option, off by default.** Fork check first (evidence/split-sweep-fork.md): a
+  payment swept into two notes (part + rest) still proves at its full amount ("≥ 2 from one payment" with a 1 tUSD8
+  sweep note: snarkjs and IncomeVerifier.check both true). Gas: a split sweep 2,644,453 and 2,644,780 against whole
+  sweeps of 2,644,453 and 2,644,744 at the same tree positions (no real difference); the cost is one more withdrawal
+  per payment (343,686 and 326,598 gas for the two notes). The inbox has a "Split each sweep" box; the part is the
+  largest whole tUSD8 below the payment (1 tUSD8 or less is swept whole). It helps only if the two notes are
+  withdrawn at different times.
+- **F5 ACCEPTED 2026-11-25.** Rule in evidence/budget.md and checklist B: withdrawals go only to an address unlinked
+  to the payer or its funder; the withdraw page says so.
+- **F8 ACCEPTED 2026-11-25.** New links expire at 23:59:59 UTC of the chosen day; the app shows that moment in the
+  viewer's time zone. Links made before keep their expiry (the bot link still names UTC+1).
+- **F9 ACCEPTED 2026-11-25.** The prove form suggests the total rounded down to 1, 5 or 10 tUSD8 (by size, never
+  finer than the chosen step) and never the exact total; the most stays allowed and the form says what it shows.
+- F1, F2, F6, F7, F10: not applied.

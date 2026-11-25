@@ -155,6 +155,34 @@ So with two payers and interleaved payments the exact totals of 44005 widen to b
 start to fail. A proof's range still names which payers are in it, and a capped share still gives its proof's sum to
 1 tUSD8, as D13 says.
 
+## Fixes applied (D32 F3, F4, F5, F8, F9; 2026-11-25)
+App-only changes, no contract, circuit or ceremony change. The fork fixture ran again with them
+(`pnpm --filter @shaida/pay privacy:fixture --fixes`, same plan, fresh `make fork`, one RateLimited wait handled by
+the script). Data: [fork-truth-fixes.json](../tools/privacy/fixtures/fork-truth-fixes.json),
+[fork-dump-fixes.json](../tools/privacy/fixtures/fork-dump-fixes.json),
+[observer-fork-fixes.json](privacy-audit/observer-fork-fixes.json), [reader-fork-fixes.json](privacy-audit/reader-fork-fixes.json).
+The live 44005 chain is not changed by any of this: its numbers above stay as measured.
+
+| Fix | What changed in the app | Fixture before | Fixture after |
+|---|---|---|---|
+| F3 recording opt-in | "Record check" (/v) and the bot's "Record on chain" stay off until a box under a warning is ticked | Bola recorded both proofs: the observer bounded Ada's total to [7, 16] from the attested ranges | no records, so no attested range to total (A4 has nothing to work on). The reader's bounds did not change ([5, 16] with or without records), because they come from deposits |
+| F4 split sweep (option, off by default) | inbox box "Split each sweep": the largest whole tUSD8 below the payment, and the rest | 1 of 1 withdrawals equal to their payment's amount (Chidi's 2) | 0 of 1: Chidi withdrew 1 of P2's 2 (the other 1 stays a note). Ada's 1.5, 2.25 and 1.2 and Chidi's 2 were split; the payments of 1 tUSD8 or less (1, 0.5, 1 and 0.7) were swept whole |
+| F5 withdrawal destination | rule in budget.md and checklist B; the withdraw page says it | the fixture's forward already went to an unlinked address | same; the change is for live runs (run 1's forward to the deployer is what A6 found) |
+| F8 UTC expiry | links end at 23:59:59 UTC; shown in the viewer's time zone | script links: exact "now + 30 days" (no zone; the zone leak was the live bot link, UTC+1) | both links end at 23:59:59 UTC: the reader tool reads it as the app's default, no zone |
+| F9 suggested threshold | the form suggests the total rounded down to 1, 5 or 10 tUSD8, never the exact total | Ada showed the most: 7 (5 + 2) for a 7.45 total | Ada showed the suggestion: 5 (3 + 2). The bundle's capped share window still held the truth ([2, 3) for 2.2) |
+
+Unchanged, as expected: the payer of every payment (A5, 8 of 8), deposits and withdrawals being public (A6, 3 of 3),
+sweep timing (A3, 6 of 8 both times), recipient grouping (A2, 16 of 28 both times), memo shape (all 852 bytes).
+Tests: `tools/privacy/test/audit.test.mjs` F3, F4, F8, F9, F-unchanged.
+
+F4 was checked on the fork before it was built: [split-sweep-fork.md](split-sweep-fork.md). A payment of 2 swept
+1 + 1 proves "≥ 2 tUSD8 from 1 payment" (the circuit counts the payment's amount; the sweep note's amount only enters
+its commitment), and 2 + 1.5 + 1 swept 1+1, 1+0.5 and whole proves "≥ 4 from 3". Both verify with snarkjs and
+IncomeVerifier.check. Gas: split sweeps 2,644,453 and 2,644,780, against 2,644,453 and 2,644,744 for whole sweeps at
+the same tree positions (evidence/acts-2-3-fork.md); the two withdrawals of the split 1.5 cost 343,686 + 326,598 gas,
+against one withdrawal for a whole note. Circuit test: `F4 counts a split-swept payment at its full amount`
+(packages/shaida-proofs).
+
 ## Runs that failed (kept on record)
 Fork fixture, 2026-11-25, on `make fork`:
 1. Stopped at Ada's second sweep with **RateLimited** from the app's relayer (per-address limit; nothing sent). The
