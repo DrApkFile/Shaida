@@ -7,6 +7,8 @@ import { defaultNetwork, repoUrl } from "@/lib/env";
 import examples from "./example-links.json";
 import "./landing.css";
 
+const AUDIT_URL = `${repoUrl}/blob/master/evidence/privacy-audit.md`;
+
 const chain = record.verified.at(-1)?.contributions ?? [];
 const people = chain.filter((c) => !c.name.startsWith("Aevum "));
 // The example is a real run's /v link per chain (example-links.json, written by scripts/live-44005.ts); an env value
@@ -18,7 +20,7 @@ const example = fromRun?.link ?? (process.env.NEXT_PUBLIC_SHAIDA_EXAMPLE_LINK?.t
 const exampleExpires = fromRun ? new Date(fromRun.expiry * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : null;
 
 const STEPS = [
-  { icon: <InboxIcon size={22} />, title: "Get paid privately", text: "A registered payer pays your receive address from Gloam's private pool. The chain shows that a registered payer paid someone, not who or how much." },
+  { icon: <InboxIcon size={22} />, title: "Get paid privately", text: "A registered payer pays your receive address from Gloam's private pool. The chain shows which registered payer paid, not who received it or how much." },
   { icon: <ProofIcon size={22} />, title: "Sweep", text: "Move each payment into a fresh note only you know. Until then the payer could take it back; after, it is yours alone and it counts." },
   { icon: <LinkIcon size={22} />, title: "Share a proof link", text: "Pick a period, an amount and one reader. Your browser makes a zero-knowledge proof; the reader opens the link and sees VALID, or why not." },
 ] as const;
@@ -42,8 +44,8 @@ export default function LandingPage() {
       <section className="shell hero">
         <div className="hero-copy">
           <p className="eyebrow">Private payroll proofs on Aevum</p>
-          <h1>Get paid privately, prove you earn enough, show nothing else</h1>
-          <p className="lede">Shaida keeps who paid you and how much off the public chain, and lets you prove a total to one person, for a while, when you choose.</p>
+          <h1>Get paid through a private pool, prove you earn enough</h1>
+          <p className="lede">Who got paid and how much stays private; which registered payer paid is public by design; at today&apos;s testnet volume, timing narrows things further (see the <a href={AUDIT_URL}>privacy audit</a>). Deposits and withdrawals are public too: a withdrawal of a whole swept note shows that payment&apos;s amount, and a check recorded on chain can pin a total.</p>
           <div className="row hero-ctas">
             <Link className="btn big" href="/app">Open the dashboard <ArrowRightIcon /></Link>
             {example ? (

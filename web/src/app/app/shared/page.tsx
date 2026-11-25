@@ -2,7 +2,7 @@
 // Shared proofs (D26, D27): the links made in this browser, newest first, from the vault. Nothing here is on a server.
 import { formatUnits } from "viem";
 import { VaultBar, VaultGate } from "@/components/VaultGate";
-import { dateOf } from "@/lib/income/words";
+import { dateOf, expiryOf } from "@/lib/income/words";
 import { TEMPLATES, verifyPath } from "@/lib/templates";
 import { useVault } from "@/lib/vault";
 
@@ -52,7 +52,7 @@ function SharedList() {
                 <span className="fine">{t.label} · for {s.reader} · {dateOf(BigInt(s.fromDate))} – {dateOf(BigInt(s.toDate))} · made {dateOf(BigInt(s.createdAt))}</span>
               </div>
               <div className="row">
-                <span className={`status-pill ${expired ? "warn" : "good"}`}>{expired ? `expired ${dateOf(BigInt(s.expiry))}` : `expires ${dateOf(BigInt(s.expiry))}`}</span>
+                <span className={`status-pill ${expired ? "warn" : "good"}`}>{expired ? `expired ${expiryOf(BigInt(s.expiry))}` : `expires ${expiryOf(BigInt(s.expiry))}`}</span>
                 <a className="btn secondary small" href={url} target="_blank" rel="noreferrer">Open</a>
               </div>
             </li>

@@ -7,7 +7,10 @@ import * as snarkjs from "snarkjs";
 import type { Address, Hex } from "viem";
 import type { CheckedTrees } from "@shaida/index";
 import { LedgerTree, TUSD8_ADDRESS } from "@shaida/proofs";
-import { emptyVault, loadCircuit, memProver, openVault, prepareWithdraw, sealVault, sweptNotes, type Groth16Lib, type Note } from "../src/index";
+import {
+  afterSubmit, emptyVault, inboxEntrySchema, loadCircuit, memProver, openVault, prepareSweep, prepareWithdraw, sealVault, seen, splitPartOf, startSweep, sweptNotes,
+  type FlowContext, type Groth16Lib, type IncomingPayment, type Note,
+} from "../src/index";
 import { REPO } from "../scripts/node-env";
 
 const CIRCUITS = join(REPO, "contracts/lib/gloam/app/public/circuits");
@@ -49,6 +52,37 @@ describe("withdraw (pool.unshield of a swept note)", () => {
     const { withdrawals: _, ...older } = emptyVault(440050);
     const opened = await openVault(await sealVault(older as never, "correct horse battery"), "correct horse battery");
     assert.deepEqual(opened.ok ? opened.data.withdrawals : null, []);
+  });
+
+  it("F4 a split sweep's part is the largest whole tUSD8 below the payment; 1 tUSD8 or less cannot be split", () => {
+    const U = 1_000_000n;
+    assert.equal(splitPartOf(1_500_000n, U), U);
+    assert.equal(splitPartOf(2n * U, U), U);
+    assert.equal(splitPartOf(2_250_000n, U), 2n * U);
+    assert.equal(splitPartOf(U, U), null);
+    assert.equal(splitPartOf(700_000n, U), null);
+    assert.throws(() => splitPartOf(U, 0n), /positive/);
+  });
+
+  it("F4 a split sweep's two notes are both listed for withdrawal; a refused sweep forgets both; older vault entries have none", async () => {
+    const [part, rest] = [await note(1_000_000n), await note(500_000n)];
+    const sweeping = startSweep(seen("0xc1"), part, rest);
+    assert.deepEqual(sweptNotes([{ ...sweeping, state: "swept" }]).map((n) => n.amountWei), ["1000000", "500000"]);
+    const refused = afterSubmit(sweeping, { ok: false, error: { code: "RateLimited", message: "later" } });
+    assert.deepEqual([refused.state, refused.fresh, refused.rest], ["seen", null, null]);
+    const older = { commitment: "0xc2", state: "swept", fresh: part, requestId: null, hash: null, lastError: null };
+    assert.ok(inboxEntrySchema.safeParse(older).success, "an entry saved before split sweeps still opens");
+    assert.deepEqual(sweptNotes([inboxEntrySchema.parse(older)]).map((n) => n.amountWei), ["1000000"]);
+  });
+
+  it("F4 refuses a split that leaves nothing in one of the notes, before any proving", async () => {
+    const pay = await note(1_500_000n);
+    const p: IncomingPayment = { note: pay, privateNote: null, memoBlock: 1n, memoTx: "0x01" };
+    const ctx = { chainId: 440050, contracts: { pool: POOL, ledger: POOL, depositor: POOL }, provers: { shield: null, transfer: null }, nowSec: () => 0n } as unknown as FlowContext;
+    for (const split of [0n, 1_500_000n, 2_000_000n]) {
+      const r = await prepareSweep(ctx, treesOf([pay.commitment]), p, { split });
+      assert.equal(r.ok ? "ok" : r.error.code, "InputRejected", `split ${split}`);
+    }
   });
 
   it("P09 proves with Gloam's final unshield key (hash-checked), binding this note, recipient and amount; the proof verifies", async () => {

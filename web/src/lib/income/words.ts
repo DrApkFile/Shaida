@@ -21,3 +21,7 @@ export const refusalWords = (code: ErrorCode): string => REFUSAL_WORDS[code] ?? 
 
 export const dateOf = (unix: bigint): string =>
   new Date(Number(unix) * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
+/** An expiry (23:59:59 UTC of its day since D32 F8) as a date and time in this browser's time zone. */
+export const expiryOf = (unix: bigint): string =>
+  `${new Date(Number(unix) * 1000).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })} your time`;

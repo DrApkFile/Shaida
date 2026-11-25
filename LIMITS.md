@@ -109,10 +109,15 @@ What anyone with the explorer and an RPC sees:
   deposited (assuming the payer has no other private funds). An `attest` puts a proof's threshold, count and leaf range
   on chain in clear. Together these pinned Ada's (demo) total from Acme (demo) to exactly 4 tUSD8 on 44005: 3 in run 1
   and 1 in run 2, each exact. With today's single payer and no extra balance, "at least" turns into "exactly".
+  Since 2026-11-25 recording is opt-in: the button stays off until the person ticks a box under a warning that says
+  this (D32 F3). The three records already on 44005 stay public, and the deposits alone still cap what a payer paid.
 - **Each payment's amount, when its swept note is withdrawn.** A sweep moves the whole payment into one note and a
   withdrawal spends a whole note, so each withdrawal amount is one payment's amount. Run 1's three withdrawals
   (1.5, 1 and 0.5 tUSD8) gave all three of run 1's payment amounts, matched in order. Run 2's amounts are hidden
-  (each is only known to be below 1 tUSD8), because those notes were not withdrawn.
+  (each is only known to be below 1 tUSD8), because those notes were not withdrawn. Since 2026-11-25 the inbox can
+  split a sweep into two notes, the largest whole tUSD8 below the payment and the rest (D32 F4). It is **off by
+  default**, so by default this leak is unchanged. Split, the fork's withdrawal was a part (1 of a 2 tUSD8 payment),
+  but withdrawing both notes together would show their sum again.
 - **Which sweep belongs to which payment, by timing.** The nullifier hides the link cryptographically, but sweeps
   came minutes after the payments, in the same order, with nobody else using the pool. First-in-first-out timing
   matched 6 of 6 on 44005. On the fork, where one recipient swept out of order, it matched 6 of 8, and the one withdrawal there was matched to
@@ -122,6 +127,8 @@ What anyone with the explorer and an RPC sees:
   one holder: 15 of 15 same-recipient pairs right on 44005.
 - **Who the withdrawing recipient is, one hop out.** Run 1's withdrawal address forwarded its 3 tUSD8 to the deployer,
   which had also funded the payer. Following the tUSD8 one hop showed both ends of the demo belong to one party.
+  Since 2026-11-25 the run checklists allow withdrawals only to an address unlinked to the payer or its funder
+  (D32 F5, evidence/budget.md). That forward is still on chain.
 - **When things happened.** Every block time, the order of the relayer's transactions, and the signature deadline
   (about when the payer signed, 30 minutes before the deadline). Memos are posted 5–10 blocks after their payment and
   name its commitment by design.
@@ -143,10 +150,12 @@ What a reader who holds a proof link also learns (beyond "at least the threshold
   attest on chain, run 2's reader would have known only "between 1 and 4 tUSD8";
 - when the link was made: the root names the ledger state it used (between two leaf times), and the expiry is either
   an exact "now + 30 days" (run 1, by script) or 23:59:59 in the maker's browser time zone, which gives the time zone
-  (the bot link: UTC+1);
+  (the bot link: UTC+1). Links made since 2026-11-25 end at 23:59:59 UTC whatever the browser's zone (D32 F8);
 - in a bundle, each proof's sub-range and share; a capped share shows that proof's sum to a 1 tUSD8 window (D13; on
-  the fork the window held the true sum, [2, 3) for 2.2). The UI suggests the most a period can show, which makes the
-  threshold itself a 1 tUSD8 window on the total.
+  the fork the window held the true sum, [2, 3) for 2.2). Until 2026-11-25 the UI suggested the most a period could
+  show, which made the threshold itself a 1 tUSD8 window on the total (both live thresholds equal the true sums).
+  It now suggests the total rounded down to 1, 5 or 10 tUSD8 and never the exact total (D32 F9; Ada's fixture
+  link: 5 shown for a 7.45 total, before 7). The most is still allowed, and then the window is back.
 With a second payer and a second recipient interleaved (fork fixture), the exact totals widened to bounds (Ada's
 link: total in [7, 16], truth 7.45) and the reader could no longer tell which payments in a range were the holder's.
 The payer ids in the range were still all shown.

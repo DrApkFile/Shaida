@@ -39,6 +39,15 @@ describe("income circuit: honest proofs (C2)", () => {
     assert.equal((await runCircuit(sub.input)).accepted, true);
   });
 
+  it("F4 counts a split-swept payment at its full amount: the sweep note holds 1 of 2 tUSD8, the proof shows ≥ 2", async () => {
+    const rng = new Rng(404);
+    const s = makeScenario(rng, { payments: 1, noise: 2, amounts: [2_000_000n], sweptAmounts: [1_000_000n] });
+    const w = built(buildSingleProof(honestRequest(s, rng, { threshold: 2_000_000n })));
+    assert.equal(w.publicSignals.threshold, 2_000_000n);
+    assert.equal((await runCircuit(w.input)).accepted, true);
+    assert.equal(await r1csHolds(w.input), true);
+  });
+
   it("accepts the full 4-slot case", async () => {
     const rng = new Rng(808);
     const s = makeScenario(rng, { payments: INCOME_SLOTS, noise: 1 });

@@ -69,7 +69,8 @@ export function Withdraw({ w }: { w: Wiring }) {
       <h2 id="withdraw">Swept notes</h2>
       <div className="notice warn" role="note">
         <strong>Withdrawals are public and reveal their amounts.</strong> Anyone can see how much left the pool and to which
-        address. Withdraw rarely, several notes together at a quiet time, to a fresh address you control, then move it on.
+        address. Withdraw rarely, at a quiet time, to a fresh address you control that has no link to whoever paid you or
+        funded them, and never send it on to them. If you split a sweep, withdraw its two notes at different times.
       </div>
       <ProblemBox problem={trees.data && !trees.data.ok ? trees.data.error : null} />
       {notes.length === 0 ? (

@@ -4,7 +4,10 @@
 // order after a pause; Ada proves her six payments as a 2-proof bundle for "Landlord Bola" (both proofs attested on
 // chain by Bola's wallet); Chidi proves his two for "Lender Dayo" (not attested) and withdraws one swept note to a
 // fresh address, which forwards it. Writes tools/privacy/fixtures/fork-truth.json. Demo personas; fork only.
-// Usage: pnpm --filter @shaida/pay privacy:fixture [--base http://localhost:3100] [--rpc http://127.0.0.1:8555]
+// --fixes runs the same plan with D32's applied fixes, as the app now does them: no on-chain attest (F3), expiry at
+// 23:59:59 UTC (F8), the suggested rounded-down threshold instead of the most (F9), split sweeps, and Chidi withdraws
+// only the 1 tUSD8 part of P2's 2 (F4). Writes tools/privacy/fixtures/fork-truth-fixes.json instead.
+// Usage: pnpm --filter @shaida/pay privacy:fixture [--fixes] [--base http://localhost:3100] [--rpc http://127.0.0.1:8555]
 import { randomBytes } from "node:crypto";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -12,7 +15,7 @@ import { generateReceiveKey, type ReceiveKey } from "@gloamtrade/sdk";
 import { buildIncomeBundle, contextOf, encodeIncomeLink, leafRangeForPeriod, readerIdHashOf, solidityArgsOf, type IncomeLink } from "@shaida/proofs";
 import { createWalletClient, encodeFunctionData, http, parseAbi, type Hex } from "viem";
 import { generatePrivateKey, privateKeyToAccount, type PrivateKeyAccount } from "viem/accounts";
-import { fetchCheckedTrees, incomeCandidates, incomeRequestOf, openInbox, prepareDeposit, preparePay, prepareSweep, prepareWithdraw, relayClient, seen, startSweep, sweptNotes, timedLeaves, type FlowContext, type InboxEntry, type IncomingPayment, type Note, type RelayRecord } from "../src/index";
+import { endOfDayUtc, fetchCheckedTrees, incomeCandidates, incomeRequestOf, openInbox, prepareDeposit, preparePay, prepareSweep, prepareWithdraw, relayClient, seen, splitPartOf, startSweep, suggestedThreshold, sweptNotes, timedLeaves, type FlowContext, type InboxEntry, type IncomingPayment, type Note, type RelayRecord } from "../src/index";
 import { readDeployment } from "./evidence";
 import { assertFork, mintTusd8, registerPayer } from "./fork-setup";
 import { proveIncome } from "./income-node";
@@ -21,7 +24,8 @@ import { finalProvers, finalUnshieldProver, forkClient, nodeFetch, REPO, rootRea
 const arg = (n: string, d: string) => { const i = process.argv.indexOf(`--${n}`); return i >= 0 ? (process.argv[i + 1] ?? d) : d; };
 const BASE = arg("base", "http://localhost:3100");
 const RPC = arg("rpc", "http://127.0.0.1:8555");
-const OUT = join(REPO, "tools/privacy/fixtures/fork-truth.json");
+const FIXES = process.argv.includes("--fixes");
+const OUT = join(REPO, `tools/privacy/fixtures/fork-truth${FIXES ? "-fixes" : ""}.json`);
 const TUSD8 = "0x456569838f1d43009A91ebA4263147Afd7233483" as const;
 const U = 1_000_000n;
 const verifierAbi = parseAbi(["struct Proof { uint256[2] a; uint256[2][2] b; uint256[2] c; }", "function attest(Proof proof, uint256[7] signals) returns (bool)"]);
@@ -104,11 +108,12 @@ async function main() {
     const found = await openInbox((await trees()).snapshot.memos, keys[who]!, ctx);
     const todo = order(found.filter((p) => !inboxes[who]!.payments.some((q) => q.note.commitment === p.note.commitment)));
     for (const p of todo) {
-      const s = must(await prepareSweep(ctx, await trees(), p), "prepareSweep");
-      const hash = await settle(must(await relay.post("sweep", s.body()), "sweep"), `${names[who]} sweeps ${Number(p.note.amountWei) / 1e6}`);
+      const part = FIXES ? splitPartOf(BigInt(p.note.amountWei), U) : null;
+      const s = must(await prepareSweep(ctx, await trees(), p, part === null ? {} : { split: part }), "prepareSweep");
+      const hash = await settle(must(await relay.post("sweep", s.body()), "sweep"), `${names[who]} sweeps ${Number(p.note.amountWei) / 1e6}${s.rest ? ` split ${Number(s.fresh.amountWei) / 1e6} + ${Number(s.rest.amountWei) / 1e6}` : ""}`);
       pays.find((x) => x.commitment === p.note.commitment.toLowerCase())!.sweep = hash;
       inboxes[who]!.payments.push(p);
-      inboxes[who]!.inbox.push({ ...startSweep(seen(p.note.commitment), s.fresh), state: "swept" });
+      inboxes[who]!.inbox.push({ ...startSweep(seen(p.note.commitment), s.fresh, s.rest), state: "swept" });
     }
   };
 
@@ -131,10 +136,12 @@ async function main() {
     const first = leaves.find((l) => l.index === c.countable[0]!.vouchIndex)!;
     const range = must(leafRangeForPeriod(leaves, first.time, ctx.nowSec()), "period");
     const reader = must(readerIdHashOf(readerName), "reader");
-    const expiry = ctx.nowSec() + 30n * 86_400n;
+    const in30 = new Date(Number(ctx.nowSec() + 30n * 86_400n) * 1000).toISOString().slice(0, 10);
+    const expiry = FIXES ? endOfDayUtc(in30)! : ctx.nowSec() + 30n * 86_400n;
     const salt = BigInt(`0x${randomBytes(31).toString("hex")}`);
     const sum = c.countable.reduce((s, x) => s + x.amount, 0n);
-    const ask = threshold === "most" ? null : threshold;
+    const ask = threshold === "most" ? (FIXES ? suggestedThreshold(sum, U) : null) : threshold;
+    if (FIXES && ask === null) throw new Error(`${who}: no suggested threshold below ${sum}`);
     let bundle = buildIncomeBundle(incomeRequestOf(t, c.countable, { threshold: ask ?? (sum / U) * U, ...range, context: contextOf(reader, expiry, salt), shareStep: U }));
     for (let x = (sum / U) * U; !bundle.ok && ask === null && x > 0n; x -= U) bundle = buildIncomeBundle(incomeRequestOf(t, c.countable, { threshold: x, ...range, context: contextOf(reader, expiry, salt), shareStep: U }));
     const b = must(bundle, `${who} bundle`);
@@ -145,25 +152,27 @@ async function main() {
     links.push({ name: who, from: { url }, reader: readerName, holder: names[who], pays: held });
     return { proofs, held };
   };
-  const ada = await prove("ada", "Landlord Bola", "most");
+  const ada = await prove("ada", "Landlord Bola", "most"); // with --fixes: the suggested threshold (F9)
   const bola = privateKeyToAccount(generatePrivateKey());
   await client.request({ method: "anvil_setBalance" as never, params: [bola.address, "0xde0b6b3a7640000"] as never });
-  for (const p of ada.proofs) {
+  for (const p of FIXES ? [] : ada.proofs) { // F3: with --fixes nobody records on chain
     const a = solidityArgsOf(p.proof, p.publicSignals);
     const data = encodeFunctionData({ abi: verifierAbi, functionName: "attest", args: [{ a: [...a.proof.a], b: [[...a.proof.b[0]], [...a.proof.b[1]]], c: [...a.proof.c] }, a.signals] as never });
     const hash: Hex = await createWalletClient({ account: bola, transport: http(RPC) }).sendTransaction({ chain: null, to: dep.incomeVerifier, data, gas: 420_000n, type: "legacy" });
     if ((await client.waitForTransactionReceipt({ hash })).status !== "success") throw new Error(`attest reverted (${hash})`);
     attests.push({ hash: hash.toLowerCase(), by: "Landlord Bola (demo), reader wallet", holder: names.ada, link: "ada" });
   }
-  await prove("chidi", "Lender Dayo", 2n * U);
+  await prove("chidi", "Lender Dayo", FIXES ? "most" : 2n * U);
   await pause();
 
   // Chidi withdraws the swept note of P2 (2 tUSD8) to a fresh address, which forwards it to another fresh address.
+  // With --fixes P2 was split 1 + 1, and he withdraws only the first note now (the rest later, at another time).
   const p2 = inboxes.chidi!.inbox.find((e, i) => BigInt(inboxes.chidi!.payments[i]!.note.amountWei) === 2_000_000n)!;
   const note = sweptNotes([p2])[0]!;
+  if (FIXES !== (sweptNotes([p2]).length === 2)) throw new Error(`P2 left ${sweptNotes([p2]).length} notes`);
   const fresh = privateKeyToAccount(generatePrivateKey());
   const w = must(await prepareWithdraw({ chainId: 440050, contracts: { pool: dep.pool }, proveUnshield: finalUnshieldProver() }, await trees(), note, fresh.address), "prepareWithdraw");
-  const uHash = await settle(must(await relay.post("unshield", w.body()), "unshield"), "Chidi withdraws 2 tUSD8");
+  const uHash = await settle(must(await relay.post("unshield", w.body()), "unshield"), `Chidi withdraws ${Number(w.amount) / 1e6} tUSD8`);
   await pause();
   await client.request({ method: "anvil_setBalance" as never, params: [fresh.address, "0xde0b6b3a7640000"] as never });
   const onward = privateKeyToAccount(generatePrivateKey()).address;
@@ -172,7 +181,8 @@ async function main() {
 
   const truth = {
     schema: "shaida-privacy-truth/1", chainId: 440050, personas: "demo: Acme Studio and Bisi Foods pay; Ada and Chidi receive; Landlord Bola and Lender Dayo read",
-    sources: { all: "written by packages/shaida-pay/scripts/privacy-fixture.ts from the run that made the transactions" },
+    sources: { all: `written by packages/shaida-pay/scripts/privacy-fixture.ts${FIXES ? " --fixes" : ""} from the run that made the transactions` },
+    fixes: FIXES ? ["F3 no attest", "F4 split sweeps, part withdrawn", "F8 expiry 23:59:59 UTC", "F9 suggested threshold"] : [],
     payers: Object.fromEntries(Object.values(payers).map((p) => [p.account.address.toLowerCase(), p.name])),
     deposits, pays,
     unshields: [{ hash: uHash, amount: w.amount.toString(), pay: pays[1]!.hash, recipient: names.chidi, to: fresh.address.toLowerCase(), forwardedTo: onward.toLowerCase(), forwardTx: fHash.toLowerCase() }],

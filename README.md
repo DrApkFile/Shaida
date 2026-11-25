@@ -1,9 +1,9 @@
 # Shaida
 
 Income proofs on Aevum Testnet (chain 44005, tUSD8): get paid through a shielded pool, then prove to a reader you name
-(a name, not a login: CL36) that you received at least a threshold from registered payers. The proof shows more than
-the threshold: who paid and when, and with public chain data often the exact total. Measured on the live deployment,
-see [Privacy](#privacy-what-is-hidden-and-what-is-not). <!-- CL30 --> <!-- CL32 -->
+(a name, not a login: CL36) that you received at least a threshold from registered payers.
+Who got paid and how much stays private; which registered payer paid is public by design; at today's testnet volume, timing narrows things further (see the [privacy audit](#privacy-what-is-hidden-and-what-is-not)).
+Deposits and withdrawals are public too: a withdrawal of a whole swept note shows that payment's amount, and a check recorded on chain can pin a total. <!-- CL30 --> <!-- CL32 -->
 
 **Live app: https://shaida.onrender.com** (Aevum testnet 44005; no login needed to open the example proof). Checked
 logged out in [evidence/hosting-render.md](evidence/hosting-render.md). <!-- CL43 -->
@@ -91,20 +91,22 @@ Secrets: `make gate` scans the git history with gitleaks; keys and keystores are
 ## Privacy: what is hidden and what is not
 Measured by attacking the live deployment (every 44005 transaction to block 3961095) and a fork fixture with known
 ground truth: [evidence/privacy-audit.md](evidence/privacy-audit.md), tools `tools/privacy-observer.mjs` and
-`tools/privacy-reader.mjs`, plain-words list in [LIMITS.md](LIMITS.md). Proposed fixes (none applied): DECISIONS D32.
+`tools/privacy-reader.mjs`, plain-words list in [LIMITS.md](LIMITS.md). Fixes: DECISIONS D32 (F3, F4, F5, F8, F9
+applied 2026-11-25, app only; the live numbers below were measured before them).
 
 | | Anyone with the explorer (CL32) | A reader holding the link (CL30) |
 |---|---|---|
 | Which payer paid | **learns it** (payer id, address and signature in every pay, 6 of 6) | **learns it** (payer ids in the range) |
-| Total received | **learns it** when deposits and on-chain attests pin it (4 tUSD8 exactly on 44005) | **learns it** with the same chain data (3, 1, 1 tUSD8 exactly) |
-| Each payment's amount | **learns it** if the swept note is withdrawn (3 of 3); otherwise only a bound | only a bound |
-| Which sweep is whose payment | by timing today (6 of 6); hidden by the nullifier, not by volume | the times of every payment and sweep in the range |
+| Total received | **learned it** on 44005 from deposits and on-chain records (4 tUSD8 exactly). Recording is now opt-in behind a warning (F3); without records the fork fixture shows no attested total at all | **learns it** when the payer's deposits pin it (3 tUSD8 exactly, run 1); otherwise a range |
+| Each payment's amount | **learns it** if a whole swept note is withdrawn (3 of 3 on 44005). With the optional split sweep (F4) a withdrawal is only a part (0 of 1 on the fork) | only a bound |
+| Which sweep is whose payment | the nullifier hides it, but timing gave it away (6 of 6 on 44005, 6 of 8 on the fork) | the times of every payment and sweep in the range |
 | Receive address paid | not learned (sealed memos show only a fixed header) | not learned |
 | Amount from gas | not learned (≤ 60 gas apart across amounts) | — |
+| Maker's time zone | — | old browser links showed it (UTC+1); new links end at 23:59:59 UTC (F8) |
 
 Today the pool has one payer and one recipient, so several "not learned" rows hold only because nothing else happens
-in it. Recording a check on chain (`attest`) publishes the proof's threshold, count and range to everyone.
-<!-- CL30 --> <!-- CL32 -->
+in it. The suggested threshold is now rounded down and never the exact total (F9); showing the most still tells the
+reader the total to within one step. <!-- CL30 --> <!-- CL32 --> <!-- CL49 -->
 
 ## Who it's for
 - **Freelancers** show a landlord they earn enough for the rent. On `/app/prove`, pick "Income, for a landlord".

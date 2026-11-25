@@ -15,7 +15,14 @@ export function score(r, truth, pays) {
   const unsound = a1.filter((g) => g.truth < g.lo || (g.hi !== null && g.truth > g.hi)).map((g) => g.pay);
   const exactRight = a1.filter((g) => g.guess !== null && g.guess === g.truth).length;
   const exactWrong = a1.filter((g) => g.guess !== null && g.guess !== g.truth).length;
-  out.A1 = { verdict: verdict(exactRight, a1.length), right: exactRight, wrong: exactWrong, total: a1.length, boundsContainTruth: unsound.length === 0, unsound, byBoundsAlone: a1.filter((g) => g.exact !== null && g.exact === g.truth).length };
+  // Whatever the matching: does each withdrawal's amount equal the amount of the payment whose money it withdrew?
+  // A whole-note sweep makes it equal; a split sweep (D32 F4) makes it a part.
+  const amountNamed = (truth.unshields ?? []).map((u) => ({ unshield: u.hash, amount: big(u.amount), payment: big(T.get(u.pay).amount) }));
+  out.A1 = {
+    verdict: verdict(exactRight, a1.length), right: exactRight, wrong: exactWrong, total: a1.length, boundsContainTruth: unsound.length === 0, unsound,
+    byBoundsAlone: a1.filter((g) => g.exact !== null && g.exact === g.truth).length,
+    withdrawalsEqualToTheirPayment: amountNamed.filter((w) => w.amount === w.payment).length, withdrawals: amountNamed.length,
+  };
 
   // A2: same-recipient pairs among payments the observer clustered (pairwise): a) sweep sessions alone, b) sessions
   // joined by attested holders; and recipients named by a withdrawal address.

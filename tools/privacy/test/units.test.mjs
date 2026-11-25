@@ -37,9 +37,10 @@ test("A1 a withdrawal is matched first in first out, and refused when it does no
   assert.equal(out[1].pay, null);
 });
 
-test("R reader: an expiry at 23:59:59 local time names the maker's UTC offset; an exact time does not", () => {
+test("R reader: an expiry at 23:59:59 local time names the maker's UTC offset; 23:59:59 UTC (F8) and an exact time do not", () => {
   assert.match(expiryHint(1798153199n), /UTC\+1/); // 2026-12-24 22:59:59 UTC, the bot link
   assert.match(expiryHint(1797936718n), /not an end of day/); // run 1's script-made link
+  assert.match(expiryHint(1798156799n), /default since D32 F8/); // 2026-12-24 23:59:59 UTC: no time zone
 });
 
 test("memo: tickets share only the constant P-256 header, never a per-recipient part", async () => {

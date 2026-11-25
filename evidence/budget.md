@@ -11,6 +11,13 @@ Gas price on 44005 is 1 gwei, so 1,000,000 gas = 0.001 tQDAY.
   amount (LIMITS.md), so it never happens right after a demo run. Ada withdraws only when the deployer's tUSD8 would
   otherwise fall below 2. Then she withdraws all swept notes in one batch at a quiet time, to a fresh address we
   control, which forwards the tUSD8 to the deployer.
+- **Where withdrawals go (changed 2026-11-25, D32 F5):** the privacy audit followed run 1's withdrawal one hop: the
+  forward address sent the 3 tUSD8 to the deployer, which had funded the payer, so both ends of the demo showed as one
+  party (evidence/privacy-audit.md, A6). From now on a withdrawal goes only to an address with no tUSD8 or tQDAY
+  link to the payer or to whoever funded the payer: not the deployer, not the payer, not an address either of them
+  funded or will pay. Its gas money comes from the relayer's withdrawal itself (no tQDAY needed to receive) or from a
+  source with no link to them. The W4 forward to the deployer (2026-11-23) stays on record as done before this rule.
+  With split sweeps on (F4), the two notes of a payment are withdrawn at different times, never in one batch.
 
 ## Ledger (actual, read from the chain)
 
@@ -321,6 +328,9 @@ agent records the real balances after each step and they will be a little higher
 - [x] agent: 3 receipts status 1, balances = rows F1–F3 (block 3885060; tx hashes in the ledger above)
 
 ### Checklist B: withdrawal batch (quiet time: ≥ 12 h after run 1, which ended 2026-11-22 10:52 UTC)
+Rule for every future batch (D32 F5, 2026-11-25): before W1, check that the recipient address has no transfer from or
+to the payer, the deployer or any address they funded (explorer, address page); never forward to the deployer or the
+payer. W4 below broke this rule before it existed (the audit found it), and is kept as it happened.
 W0–W3 done 2026-11-23 by the agent with `node tools/ui-withdraw-live.mjs` (headless Chromium, 390 px, the live site
 at f83e4ee), at the builder's request: the builder allowed the agent to read Ada's demo vault passphrase and backup
 for this task only; the passphrase went to the page over CDP only. Updated backup:

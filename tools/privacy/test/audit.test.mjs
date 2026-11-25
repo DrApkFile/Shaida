@@ -2,6 +2,8 @@
 //   fork fixture  tools/privacy/fixtures/fork-{dump,truth}.json, made by packages/shaida-pay/scripts/privacy-fixture.ts
 //                 on `make fork`: 2 payers, 2 recipients, 8 interleaved payments, out-of-order sweeps, a 2-proof
 //                 bundle attested on chain, an unattested link, one withdrawal that is forwarded.
+//   fixes         tools/privacy/fixtures/fork-{dump,truth}-fixes.json: the same plan with D32's applied fixes
+//                 (privacy-fixture.ts --fixes): no attest, split sweeps, UTC expiry, suggested threshold.
 //   live 44005    evidence/privacy-audit/{dump,truth}-44005.json: the deployment as read on 2026-11-24 (runs 1, 2,
 //                 the bot), so the numbers in evidence/privacy-audit.md stay reproducible.
 import assert from "node:assert/strict";
@@ -15,6 +17,7 @@ const REPO = new URL("../../../", import.meta.url);
 const load = (p) => JSON.parse(readFileSync(new URL(p, REPO), "utf8"));
 const fork = { dump: load("tools/privacy/fixtures/fork-dump.json"), truth: load("tools/privacy/fixtures/fork-truth.json") };
 const live = { dump: load("evidence/privacy-audit/dump-44005.json"), truth: load("evidence/privacy-audit/truth-44005.json") };
+const fixes = { dump: load("tools/privacy/fixtures/fork-dump-fixes.json"), truth: load("tools/privacy/fixtures/fork-truth-fixes.json") };
 
 async function readerOf({ dump, truth }) {
   const actions = await actionsOf(dump);
@@ -30,6 +33,8 @@ const forkObs = await analyse(fork.dump, fork.truth);
 const liveObs = await analyse(live.dump, live.truth);
 const forkRead = await readerOf(fork);
 const liveRead = await readerOf(live);
+const fixesObs = await analyse(fixes.dump, fixes.truth);
+const fixesRead = await readerOf(fixes);
 
 test("O-classes every public field the fixture's transactions carry has a class (plain, opaque, metadata)", () => {
   assert.ok(forkObs.counts.vouchedPay === 8 && forkObs.counts.sweep === 8 && forkObs.counts.attest === 2 && forkObs.counts.unshield === 1);
@@ -120,4 +125,43 @@ test("R-D13 a capped share in the fixture's bundle shows its proof's sum only to
     assert.equal(p.shareWindow.hiExclusive - p.shareWindow.lo, 1_000_000n);
     assert.ok(sum >= p.shareWindow.lo && sum < p.shareWindow.hiExclusive, `sum ${sum} outside [${p.shareWindow.lo}, ${p.shareWindow.hiExclusive})`);
   }
+});
+
+test("F3 with recording opt-in and nobody recording, the observer has no attested range to total (before: [7, 16] over 8 payments)", () => {
+  assert.equal(forkObs.counts.attest, 2);
+  assert.equal(forkObs.a4.length, 1);
+  assert.equal(fixesObs.counts.attest ?? 0, 0);
+  assert.equal(fixesObs.a4.length, 0);
+});
+
+test("F4 a split sweep's withdrawn note is a part of the payment, not its amount (before: 1 of 1 withdrawals equal to their payment)", () => {
+  assert.equal(forkObs.score.A1.withdrawalsEqualToTheirPayment, 1);
+  assert.equal(liveObs.score.A1.withdrawalsEqualToTheirPayment, 3);
+  assert.equal(fixesObs.score.A1.withdrawals, 1);
+  assert.equal(fixesObs.score.A1.withdrawalsEqualToTheirPayment, 0);
+  assert.ok(fixesObs.score.A1.boundsContainTruth);
+});
+
+test("F8 links end at 23:59:59 UTC, which names no time zone (the live bot link named UTC+1)", () => {
+  assert.match(liveRead.find((r) => r.name === "bot").expiryHint, /UTC\+1/);
+  for (const r of fixesRead) assert.match(r.expiryHint, /default since D32 F8/, r.name);
+});
+
+test("F9 the suggested threshold is below the total: Ada's shown floor drops from 7 to 5 (truth 7.45); bounds and D13 windows still hold the truth", () => {
+  const before = forkRead.find((r) => r.name === "ada"), after = fixesRead.find((r) => r.name === "ada");
+  assert.equal(before.holderTotal.lo, 7_000_000n);
+  assert.equal(after.holderTotal.lo, 5_000_000n);
+  for (const r of fixesRead) { assert.ok(r.score.total.contains, r.name); assert.ok(r.score.boundsContainTruth, r.name); }
+  const T = new Map(fixes.truth.pays.map((p) => [p.hash, BigInt(p.amount)]));
+  const held = new Set(fixes.truth.links.find((l) => l.name === "ada").pays);
+  for (const p of after.proofs.filter((x) => x.shareWindow)) {
+    const sum = p.vouchLeaves.filter((v) => held.has(v.pay)).reduce((a, v) => a + T.get(v.pay), 0n);
+    assert.ok(sum >= p.shareWindow.lo && sum < p.shareWindow.hiExclusive);
+  }
+});
+
+test("F-unchanged the fixes do not touch who paid (A5), deposits and withdrawals being public (A6), or sweep timing (A3)", () => {
+  assert.equal(fixesObs.score.A5.verdict, "succeeds");
+  assert.equal(fixesObs.score.A6.verdict, "succeeds");
+  assert.equal(fixesObs.score.A3.right, forkObs.score.A3.right);
 });

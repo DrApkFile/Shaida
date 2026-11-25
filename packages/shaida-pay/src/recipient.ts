@@ -72,19 +72,43 @@ export async function chainViewOf(t: CheckedTrees, p: IncomingPayment, isSpent: 
 export interface PreparedSweep {
   /** The recipient's fresh note. Store it BEFORE submitting: if the sweep lands, it is the only copy of the money. */
   readonly fresh: Note;
+  /** A split sweep's second note (the rest of the payment), also the recipient's; null for a whole sweep. Store it too. */
+  readonly rest: Note | null;
   readonly transfer: ReturnType<typeof transferOf>;
   body(): Record<string, unknown>;
 }
 
-/** Moves the whole payment into a fresh note (and a zero change note), as Gloam's sweepReceivedNote does. */
-export async function prepareSweep(ctx: FlowContext, t: CheckedTrees, p: IncomingPayment): Promise<Result<PreparedSweep>> {
+/**
+ * Split sweeps (D32 F4): the largest whole multiple of `unit` strictly below the amount, or null when the payment is
+ * too small to split. 1.5 → 1 (+ 0.5), 2 → 1 (+ 1), 2.25 → 2 (+ 0.25), 1 → null.
+ */
+export function splitPartOf(amount: bigint, unit: bigint): bigint | null {
+  if (unit <= 0n) throw new Error("the split unit must be positive");
+  const part = ((amount - 1n) / unit) * unit;
+  return part > 0n ? part : null;
+}
+
+/**
+ * Moves the payment into a fresh note. Whole (default): all of it, and a zero change note, as Gloam's
+ * sweepReceivedNote does. Split: `split` base units into the fresh note (the one the ledger's S leaf names, so the
+ * income proof counts the payment as before: the circuit does not tie the sweep note's amount to the payment's) and
+ * the rest into a second note of the recipient's. Withdrawing the two separately no longer names the payment amount.
+ */
+export async function prepareSweep(ctx: FlowContext, t: CheckedTrees, p: IncomingPayment, opts: { readonly split?: bigint } = {}): Promise<Result<PreparedSweep>> {
   const index = poolIndexOf(t, p.note.commitment);
   if (index < 0) return { ok: false, error: shaidaError("UnknownRoot", "This payment is not in the checked pool tree yet. Resync; nothing was sent.") };
   const amount = BigInt(p.note.amountWei);
+  const first = opts.split ?? amount;
+  if (first <= 0n || first > amount || (opts.split !== undefined && first === amount)) {
+    return { ok: false, error: shaidaError("InputRejected", `A split must leave something in both notes: between 1 and ${amount - 1n} base units. Nothing was sent.`) };
+  }
   const intent = await buildPrivateSendIntent({
-    secretHex: p.note.secret, amountInWei: amount, amountPayWei: amount, asset: p.note.asset as Address, path: sdkPath(t.pool, index),
+    secretHex: p.note.secret, amountInWei: amount, amountPayWei: first, asset: p.note.asset as Address, path: sdkPath(t.pool, index),
     prove: ctx.provers.transfer, chainId: ctx.chainId, poolAddress: ctx.contracts.pool,
   });
   const transfer = transferOf(intent.exec);
-  return { ok: true, value: { fresh: toNote(intent.paymentNote), transfer, body: () => ({ chainId: ctx.chainId, transfer }) } };
+  const fresh = toNote(intent.paymentNote);
+  const rest = opts.split === undefined ? null : toNote(intent.changeNote);
+  if (rest && BigInt(fresh.amountWei) + BigInt(rest.amountWei) !== amount) throw new Error("the split notes do not add up to the payment");
+  return { ok: true, value: { fresh, rest, transfer, body: () => ({ chainId: ctx.chainId, transfer }) } };
 }

@@ -1,0 +1,135 @@
+{
+  "ok": true,
+  "at": "2026-11-25T03:46:08.480Z",
+  "rpc": "http://127.0.0.1:8555",
+  "base": "http://localhost:3100",
+  "deployment": {
+    "pool": "0xc33a44dd9bbbe488b835efd3155aa3828ea56f53",
+    "ledger": "0xe1d24b9c95ebfd34ed0e153bf2dc03a6853f908e",
+    "depositor": "0x659cffb31d31d7a2b85329bf36d14adc3bc4129c",
+    "registry": "0x31acb76e4dc85986ba0d4f418d4e242af99a4ca7",
+    "memo": "0x38d6ad9a309d95c067c67410a80bd1f6a735dcb3",
+    "incomeVerifier": "0xd5f5b75fae3bef2896c0176b3e5388414a7c895c",
+    "gitCommit": "e39b0f5c98da018a6025db5d0399baca982f7962",
+    "gitDirty": true,
+    "poolDeployBlock": 4057173
+  },
+  "rows": [
+    {
+      "what": "Acme deposits 5 tUSD8",
+      "hash": "0xf51de946577bb72caf4c0e73a81125c402bdfe1ba3e6b000d16ed49f6fd63887",
+      "block": "4057187",
+      "gasUsed": "1254026"
+    },
+    {
+      "what": "P1: Acme → Ada 2 tUSD8 (vouched)",
+      "hash": "0x5ab55f94c25c2d7c21bf22b3a19841f23169d31827b5ae6e6ab165f12bd02df8",
+      "block": "4057188",
+      "gasUsed": "2729023"
+    },
+    {
+      "what": "memo 1",
+      "hash": "0xf3bdda40af611db5c5838d4b3c3e5fed6075d990c94223d568515cc68b58095a",
+      "block": "4057189",
+      "gasUsed": "44923"
+    },
+    {
+      "what": "P2: Acme → Ada 1.5 tUSD8 (vouched)",
+      "hash": "0xff0a38a395905ac92c292e2e5dc630fe8c3569529287b734ff54727bde337d0d",
+      "block": "4057190",
+      "gasUsed": "2689545"
+    },
+    {
+      "what": "memo 2",
+      "hash": "0x67a9a3a47a109181dbbbefdc578e7878658d7e02aef2585c214699890f5120a1",
+      "block": "4057191",
+      "gasUsed": "44923"
+    },
+    {
+      "what": "P3: Acme → Ada 1 tUSD8 (vouched)",
+      "hash": "0x2702a40ad45ce00ba2a79849b1cfd61de693c8c6428d2a88365cbe908faef6dc",
+      "block": "4057192",
+      "gasUsed": "2684606"
+    },
+    {
+      "what": "memo 3",
+      "hash": "0x3c31a32af8f43e7872ab9117b2e84518074d19d667ac8d2a54b454d86288b1aa",
+      "block": "4057193",
+      "gasUsed": "44923"
+    },
+    {
+      "what": "Ada sweeps P1 (2 tUSD8), split 1 + 1",
+      "hash": "0x1954095f6e397d008d7a34171a650ced43eee6c9a42bfe806197fa96697ed8c4",
+      "block": "4057194",
+      "gasUsed": "2644453"
+    },
+    {
+      "what": "Ada sweeps P2 (1.5 tUSD8), split 1 + 0.5",
+      "hash": "0xc6d5a3cfe4d4ed3ae1eee1c73857ecb1c4ebb4d7259f3447709c7670fa6bb69f",
+      "block": "4057195",
+      "gasUsed": "2644780"
+    },
+    {
+      "what": "Ada sweeps P3 (1 tUSD8), whole",
+      "hash": "0x91b00ed8545b2f09e8e869bc72286df2ce2af1c74456399b9d36e5083537b73f",
+      "block": "4057196",
+      "gasUsed": "2639478"
+    },
+    {
+      "what": "attest proof B (own gas)",
+      "hash": "0xab3cb8005a47d0fb83228c10be56f6db7e6bce2dd0501ab3ddc85243e6172d24",
+      "block": "4057197",
+      "gasUsed": "267029"
+    },
+    {
+      "what": "withdraw a 1 tUSD8 note of P2 to a fresh address",
+      "hash": "0x3ff2b762710a63c2c445423e652d0e63d3c700fe5c3d7d5de27996a2b0645c1a",
+      "block": "4057198",
+      "gasUsed": "343686"
+    },
+    {
+      "what": "withdraw a 0.5 tUSD8 note of P2 to a fresh address",
+      "hash": "0x414404325c56d404b4ce1712344f6947a74575c33ef57e4324883d4a9d0e6a99",
+      "block": "4057199",
+      "gasUsed": "326598"
+    }
+  ],
+  "checks": [
+    "incomeCandidates: 3 countable (2 tUSD8, sweep note 1; 1.5 tUSD8, sweep note 1; 1 tUSD8, sweep note 1), 0 not countable",
+    "Proof A: ≥ 2 tUSD8 from 1 payment(s) (amounts 2; sweep notes 1): proved in 19793 ms; snarkjs verify true; IncomeVerifier.check true",
+    "Proof B: ≥ 4 tUSD8 from 3 payment(s) (amounts 2 + 1.5 + 1; sweep notes 1 + 1 + 1): proved in 19999 ms; snarkjs verify true; IncomeVerifier.check true",
+    "The fresh address received 1.5 tUSD8 in 2 withdrawals (1 + 0.5); no withdrawal equals P2's 1.5"
+  ],
+  "proofs": [
+    {
+      "name": "A",
+      "threshold": "2000000",
+      "count": 1,
+      "proveMs": 19793,
+      "publicSignals": [
+        "18041254862513985467655401867758332570453640941145132981899560697753991468711",
+        "396181930009140960553639667353982504061169251459",
+        "2000000",
+        "1",
+        "0",
+        "0",
+        "15262038406479407736623808071764048941397420554597513963789709787745479833945"
+      ]
+    },
+    {
+      "name": "B",
+      "threshold": "4000000",
+      "count": 3,
+      "proveMs": 19999,
+      "publicSignals": [
+        "18041254862513985467655401867758332570453640941145132981899560697753991468711",
+        "396181930009140960553639667353982504061169251459",
+        "4000000",
+        "3",
+        "0",
+        "2",
+        "15262038406479407736623808071764048941397420554597513963789709787745479833945"
+      ]
+    }
+  ]
+}

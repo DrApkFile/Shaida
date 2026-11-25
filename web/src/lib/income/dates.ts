@@ -1,5 +1,5 @@
 // Calendar dates in the browser's time zone ↔ unix seconds (D27: a period runs from 00:00 of its first day to
-// 23:59:59 of its last; an expiry is the end of its day).
+// 23:59:59 of its last). An expiry is 23:59:59 UTC of its day (D32 F8): see endOfDayUtc in @shaida/pay.
 const parts = (iso: string): [number, number, number] | null => {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
   return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : null;

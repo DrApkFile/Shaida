@@ -25,6 +25,9 @@ const signalsOf = (arr) => Object.fromEntries(SIGNALS.map((n, i) => [n, BigInt(a
 /** What the expiry's time of day says: an end of day in some UTC offset (a browser's), or an exact "now + N days". */
 export function expiryHint(expiry) {
   const secs = Number(expiry % 86400n);
+  // Since D32 F8 the app ends every link at 23:59:59 UTC: that says nothing about the maker (a maker in a UTC zone
+  // before F8 looks the same).
+  if (secs === 86399) return "23:59:59 UTC: the app's default since D32 F8, the same for every maker";
   for (let k = -12; k <= 14; k++) if (((86399 - k * 3600) % 86400 + 86400) % 86400 === secs) return `23:59:59 local time at UTC${k >= 0 ? "+" : "−"}${Math.abs(k)}: the maker's time zone`;
   return `not an end of day: an exact time, so made at expiry − the expiry period (${iso(expiry - 30n * 86400n)} if 30 days)`;
 }

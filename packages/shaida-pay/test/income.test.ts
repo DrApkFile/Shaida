@@ -7,6 +7,7 @@ import { makeBoundNotePoseidon } from "@gloamtrade/sdk";
 import type { Address, Hex } from "viem";
 import type { CheckedTrees, Snapshot } from "@shaida/index";
 import { LedgerTree, TUSD8_ADDRESS, buildIncomeBundle, sweepLeaf, vouchLeaf } from "@shaida/proofs";
+import { endOfDayUtc, suggestedThreshold } from "../src/index";
 import {
   INCOME_ARTIFACTS, emptyVault, incomeCandidates, incomeRequestOf, loadIncomeArtifacts, openVault, sealVault, seen, startSweep, timedLeaves,
   type IncomingPayment, type InboxEntry, type Note,
@@ -64,5 +65,34 @@ describe("income proof inputs (D27)", () => {
     const r = await loadIncomeArtifacts("/circuits/income", served, digest);
     assert.equal(r.ok, false);
     if (!r.ok) { assert.equal(r.error.code, "NotConfigured"); assert.match(r.error.message, /income_final\.zkey is not the ceremony's final file/); }
+  });
+});
+
+describe("prove form choices (D32 F8, F9)", () => {
+  const U = 1_000_000n;
+  it("F8 a link expires at 23:59:59 UTC of the chosen day, whatever the browser's time zone", () => {
+    assert.equal(endOfDayUtc("2026-12-24"), 1798156799n); // 2026-12-24T23:59:59Z
+    assert.equal(new Date(Number(endOfDayUtc("2026-12-24")) * 1000).toISOString(), "2026-12-24T23:59:59.000Z");
+    assert.equal(endOfDayUtc("2026-02-30"), null);
+    assert.equal(endOfDayUtc("24/12/2026"), null);
+  });
+
+  it("F9 the suggested threshold is rounded down to 1, 5 or 10 tUSD8 and is never the exact total", () => {
+    const cases: [bigint, bigint, bigint | null][] = [
+      [7_450_000n, U, 5n * U], // the fixture's Ada: was 7, the most
+      [3n * U, U, 2n * U], // live run 1: was 3, the exact total
+      [4_500_000n, U, 4n * U],
+      [15n * U, U, 10n * U],
+      [12n * U, U, 10n * U],
+      [67n * U, U, 60n * U],
+      [U, U, null], // live run 2 and the bot: nothing round below 1
+      [7_450_000n, 10n * U, null],
+      [23n * U, 10n * U, 20n * U],
+    ];
+    for (const [total, step, want] of cases) {
+      const got = suggestedThreshold(total, step);
+      assert.equal(got, want, `total ${total} step ${step}`);
+      if (got !== null) { assert.ok(got < total); assert.equal(got % step, 0n); }
+    }
   });
 });

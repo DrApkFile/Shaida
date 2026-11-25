@@ -1,9 +1,11 @@
 "use client";
 // Optional (PRD §3): "Check on-chain" calls IncomeVerifier.check for each proof (a view, explicit gas, nothing sent);
-// "Record check" sends attest, a public record that a proof for this link's context passed. Legacy txs.
+// "Record check" sends attest, a public record that a proof for this link's context passed: opt-in behind a warning
+// (D32 F3). Legacy txs.
 import { useState } from "react";
 import { decodeFragment, incomeLinkSchema } from "@shaida/proofs";
 import { ProblemBox } from "@/components/ProblemBox";
+import { PublicRecordConsent } from "@/components/PublicRecordConsent";
 import type { Wiring } from "@/lib/flows";
 import { attestOnChain, checkOnChain, settleAttest, type AttestOutcome } from "@/lib/income/chain";
 import { useAttestSender } from "@/lib/income/signer";
@@ -15,6 +17,7 @@ export function OnChain({ w, fragment }: { w: Wiring; fragment: string }) {
   const [records, setRecords] = useState<AttestOutcome[]>([]);
   const [problem, setProblem] = useState<Problem | null>(null);
   const [busy, setBusy] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const demo = w.net.chain.id === DEMO_CHAIN_ID;
   const sender = useAttestSender(demo ? "demo" : "wallet");
   const decoded = decodeFragment(fragment);
@@ -32,7 +35,7 @@ export function OnChain({ w, fragment }: { w: Wiring; fragment: string }) {
     }
   });
   const record = () => run(async () => {
-    if (!sender) return;
+    if (!sender || !agreed) return;
     const out: AttestOutcome[] = [];
     for (const p of proofs) {
       const r = await attestOnChain(w, p.proof, p.publicSignals, sender.send);
@@ -51,7 +54,10 @@ export function OnChain({ w, fragment }: { w: Wiring; fragment: string }) {
     <div className="stack tight on-chain">
       <div className="row">
         <button type="button" className="btn secondary" disabled={busy} onClick={() => void check()}>Check on-chain</button>
-        <button type="button" className="btn outline" disabled={busy || !sender} onClick={() => void record()}>Record check{sender?.kind === "demo" ? " (demo signer)" : ""}</button>
+      </div>
+      <PublicRecordConsent agreed={agreed} onChange={setAgreed} />
+      <div className="row">
+        <button type="button" className="btn outline" disabled={busy || !sender || !agreed} onClick={() => void record()}>Record check{sender?.kind === "demo" ? " (demo signer)" : ""}</button>
       </div>
       {!sender && <p className="fine">Connect a wallet on {w.net.chain.name} to record a check. Checking on-chain needs no wallet.</p>}
       {checked !== null && <p className="notice good on-chain-ok">IncomeVerifier.check passed for {proofs.length} proof{proofs.length > 1 ? "s" : ""} at block {checked.toString()}. Nothing was sent.</p>}

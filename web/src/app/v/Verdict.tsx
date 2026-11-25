@@ -4,7 +4,7 @@
 import { formatUnits } from "viem";
 import type { IncomeVerification } from "@shaida/proofs";
 import type { Wiring } from "@/lib/flows";
-import { dateOf, refusalWords } from "@/lib/income/words";
+import { dateOf, expiryOf, refusalWords } from "@/lib/income/words";
 import { plural, type Template } from "@/lib/templates";
 import { OnChain } from "./OnChain";
 
@@ -30,7 +30,7 @@ export function Verdict({ v, w, fragment, template }: { v: IncomeVerification; w
         <dt>At least</dt><dd className="num">{formatUnits(v.threshold, 6)} tUSD8</dd>
         <dt>Count</dt><dd className="num">{plural(v.count, template.paymentWord)}</dd>
         <dt>Period</dt><dd>{dateOf(v.fromDate)} – {dateOf(v.toDate)}</dd>
-        <dt>Link expires</dt><dd>{dateOf(v.expiry)}</dd>
+        <dt>Link expires</dt><dd>{expiryOf(v.expiry)}</dd>
       </dl>
       {template.botPreset && (
         <p className="notice info">
