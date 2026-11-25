@@ -1,0 +1,62 @@
+{
+  "name": "@shaida/sdk",
+  "version": "0.1.0",
+  "description": "Verify a Shaida income proof link (and run an underwriting policy on it) against the Aevum testnet RPC only: no Shaida website, no Shaida server.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "NOTICE.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "zero-knowledge",
+    "groth16",
+    "income-proof",
+    "aevum",
+    "shaida"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DrApkFile/Shaida.git",
+    "directory": "packages/sdk"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "node scripts/build.mjs && tsc --noEmit",
+    "test": "node scripts/build.mjs && node --import tsx --test --test-force-exit --test-reporter=spec 'test/**/*.test.ts'",
+    "fixture-rpc": "tsx test/serve-fixture.ts",
+    "live": "node scripts/live-44005.mjs",
+    "pack-check": "node scripts/pack-check.mjs"
+  },
+  "dependencies": {
+    "ffjavascript": "0.3.1",
+    "poseidon-lite": "0.3.0",
+    "snarkjs": "0.7.6",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@noble/hashes": "1.8.0",
+    "@shaida/proofs": "workspace:*",
+    "@shaida/underwrite": "workspace:*",
+    "@types/node": "^22.10.0",
+    "esbuild": "0.28.2",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "viem": "2.57.12"
+  }
+}

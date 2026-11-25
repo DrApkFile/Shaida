@@ -144,6 +144,10 @@ export function llmsTxt(c: CardInput): string {
     `- ${c.origin}/underwrite: the bot's page.`,
     `- Source, limits and claims: ${c.repoUrl} (LIMITS.md, CLAIMS.md, DECISIONS.md D30).`,
     "",
+    "## In your own process",
+    "",
+    `- @shaida/sdk (${c.repoUrl}/tree/master/packages/sdk): verifyIncomeLink, checkOnChain and this same engine (underwrite, the presets above, or your own policy) against the Aevum RPC only, with no call to this server. Not on npm yet.`,
+    "",
   ];
   return lines.join("\n");
 }

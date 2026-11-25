@@ -25,7 +25,7 @@ STACK_SCRIPT := script/DeployStack.s.sol:DeployStack
 # PayerRegistry owner on `make fork`: anvil account 0, so payers can be registered locally. On 44005: ATTESTOR=0x... (required).
 FORK_ATTESTOR := $(ANVIL_0)
 
-.PHONY: help install build gate test test-redis test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-supersede ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum verify-aevum secrets deal register-payer dev privacy-audit-live eligibility judge-ui
+.PHONY: help install build gate test test-redis test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-supersede ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum verify-aevum secrets deal register-payer dev privacy-audit-live eligibility judge-ui sdk-live sdk-ui sdk-pack
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36mmake %-14s\033[0m %s\n", $$1, $$2}'
@@ -54,6 +54,7 @@ test: ## Unit tests: contracts, circuit and witness builder (local, no network)
 	pnpm --filter @shaida/underwrite test
 	pnpm --filter @shaida/privacy-audit test
 	pnpm --filter web test
+	pnpm --filter @shaida/sdk test
 
 test-redis: ## Relayer store conformance on a real Redis via Upstash's REST protocol (docker); writes evidence/kv-redis.md
 	bash tools/test-redis.sh
@@ -190,3 +191,15 @@ ceremony-finalize: ## Ceremony: export vkey + Solidity verifier, Shanghai check,
 
 dev: ## Start the web app on http://localhost:3000
 	pnpm dev
+
+# @shaida/sdk (D33): live read-only checks on 44005, the example page at 390 px (fork fixture + 44005), and the
+# publishing rehearsal (npm pack + clean install; nothing is published).
+sdk-live:
+	pnpm --filter @shaida/sdk live
+
+sdk-ui:
+	pnpm --filter @shaida/sdk build
+	node tools/ui-rental-check.mjs --width 390 --live
+
+sdk-pack:
+	pnpm --filter @shaida/sdk pack-check

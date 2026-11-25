@@ -77,7 +77,8 @@ or cites a row that is not PROVEN. <!-- CL24 -->
 
 **Not built:** on-chain bundle checks (one proof per `check`; bundles are verified off-chain), a reader code that
 authenticates the reader, a pool of relayer keys, signed bot decisions, optional payer-name disclosure, the privacy
-fixes F1, F2, F6, F7 and F10, and mainnet. See [ROADMAP.md](ROADMAP.md). <!-- not-built -->
+fixes F1, F2, F6, F7 and F10, the SDK's payer side, an npm release of `@shaida/sdk`, and mainnet. See
+[ROADMAP.md](ROADMAP.md). <!-- not-built -->
 
 ## The problem
 A freelancer paid in stablecoins who needs to show a landlord they earn enough has two bad options: share a wallet,
@@ -259,6 +260,17 @@ Solidity 0.8.24 (Shanghai), Foundry; circom 2.2.3 and snarkjs 0.7.6 (Groth16, bn
 Aevum testnet 44005 with tUSD8 `0x456569838f1d43009A91ebA4263147Afd7233483` (EIP-3009 for gasless deposits).
 Packages: `@shaida/proofs` (circuit, witness builder, verifier: reusable), `@shaida/relay`, `@shaida/index`,
 `@shaida/pay`, `@shaida/underwrite`, `@shaida/kv`.
+
+## For integrators
+Another app can verify a Shaida link without this website or its server, talking only to the Aevum RPC:
+- [`@shaida/sdk`](packages/sdk/README.md) (0.1.0, verify side) has a 5-line quickstart, the API reference, the
+  closed codes and the trust model. It provides `verifyIncomeLink`, `decodeIncomeLink`, `checkOnChain`, and
+  `underwrite` with the two presets or your own policy. Not published to npm yet:
+  [PUBLISHING.md](packages/sdk/PUBLISHING.md). <!-- CL53 -->
+- [examples/verify-node.mjs](examples/verify-node.mjs) (Node, 13 lines) and
+  [examples/rental-check/](examples/rental-check/) (a demo landlord page, in the browser). Both are checked against
+  run 1 on 44005 and against the fork fixture. <!-- CL54 -->
+- For agents that prefer HTTP: [`/llms.txt`](https://shaida.onrender.com/llms.txt) and the bot (below).
 
 ## For agents
 The underwriting bot is an API with a published contract:

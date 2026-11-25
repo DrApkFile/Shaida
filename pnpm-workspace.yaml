@@ -4,3 +4,4 @@ packages:
   - tools/s8-bench
   - ceremony
   - tools/privacy
+  - examples

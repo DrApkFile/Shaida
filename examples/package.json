@@ -1,0 +1,18 @@
+{
+  "name": "@shaida/examples",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Integrator examples for @shaida/sdk: a Node script and a demo landlord page. They import @shaida/sdk only.",
+  "scripts": {
+    "verify": "node verify-node.mjs",
+    "rental-check": "cd rental-check && esbuild app.js --bundle --format=esm --platform=browser --target=es2022 --outfile=app.bundle.js --servedir=. --serve=127.0.0.1:8566"
+  },
+  "dependencies": {
+    "@shaida/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

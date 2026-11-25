@@ -43,7 +43,7 @@ export const REFUSAL_WORDS: Record<RefusalCode, string> = {
   MixedRoots: "The link joins proofs built against different ledger states.",
   RangesOverlap: "Two proofs in the link cover the same ledger leaves, so a payment could count twice.",
   ContextMismatch: "The link's reader, expiry or salt do not match its proofs: it was altered.",
-  WrongReader: "The link was made for another reader, not for this bot.",
+  WrongReader: "The link was made for another reader than this policy's.",
   ProofExpired: "The link has expired.",
 };
 

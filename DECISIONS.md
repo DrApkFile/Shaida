@@ -765,3 +765,56 @@ contract, circuit or ceremony change; measured in evidence/privacy-audit.md "Fix
 - **F9 ACCEPTED 2026-11-25.** The prove form suggests the total rounded down to 1, 5 or 10 tUSD8 (by size, never
   finer than the chosen step) and never the exact total; the most stays allowed and the form says what it shows.
 - F1, F2, F6, F7, F10: not applied.
+
+## D33: @shaida/sdk, the verify side as a package (0.1.0, not published)
+Context: another app should be able to verify a Shaida income proof without Shaida's website or server, talking only
+to the Aevum RPC (DoraHacks' ecosystem criterion; the utility criterion's distribution plan). Built 2026-11-25 on
+branch feat/sdk; feature freeze 2026-12-03.
+Decision:
+- **A facade, not a copy.** `packages/sdk/src` adds only what was missing:
+  - plain JSON-RPC chain reads (`src/ledger.ts`);
+  - pins;
+  - the result mapping;
+  - public types.
+
+  Verification is `@shaida/proofs`' `verifyIncomeLink` (PRD §5). `underwrite` is the bot's engine
+  (`packages/shaida-underwrite/src/decide.ts`, rules, codes, policy schema, presets). `fragmentOf` moved to
+  `packages/shaida-underwrite/src/fragment.ts` so the bundle needs no handler or recorder code. The live check
+  gives the live bot's decision ids for the same link (evidence/sdk/live-44005.md).
+- **Chain reads without an index.** All reads are pinned to the latest block when the call starts:
+  - the chain id (refused if it is not the network's);
+  - `isKnownRoot`;
+  - the block of a leaf, found by binary search on `nextIndex()` at past blocks (Aevum serves historical
+    `eth_call`, measured), then one `eth_getLogs` of ≤ 1000 blocks there for the leaf's kind;
+  - the block a root was formed in, found by binary search on `isKnownRoot`.
+
+  At most 64 leaves are walked from each end of a range, otherwise the result is RangeUnresolvable. Cost: 15–22 s
+  per full verify on the public RPC (measured), against milliseconds for refusals. An index would be faster, but it
+  is a server.
+- **Pins.**
+  - The final vkey and the 44005 config are bundled, each with a sha256 over canonical JSON (`PINNED`), checked
+    before any read. A mismatch is INCONCLUSIVE NotConfigured, and `underwrite` throws `ShaidaConfigError`.
+  - Tests check the vkey against ceremony/record.json and the config against deployments/aevum.json.
+  - Chain 44005 is reachable only as `"aevum-testnet"`: a custom network (local forks) with chain id 44005 is
+    refused.
+- **Packaging.** `dist/index.js` is one ESM bundle of Shaida's own code plus `@noble/hashes`. `viem` is aliased to a
+  two-function shim, because its root import would pull Node-only `ws` into the browser build; test S17 checks the
+  shim against viem.
+  - snarkjs and ffjavascript (GPL-3.0) are dependencies, never inlined: the build refuses to inline them.
+  - zod and poseidon-lite are MIT dependencies.
+  - Declarations are emitted by tsc and refused if they import anything outside the package.
+  - Tarball: 31,336 bytes packed, 17 files. A clean `npm install` brings 38 packages, 9 of them GPL-3.0, all from
+    snarkjs's tree (evidence/sdk/pack.md).
+- **Payer side deferred** (ROADMAP). Vouched payments need Gloam notes and proving, the payer's EIP-712 vouch, the
+  relayer or self-paid gas, and the recipient's receive key. That lives in `packages/shaida-pay` with
+  `@gloamtrade/sdk` and the web vault, and it does not separate into a small, safe package before the freeze.
+  Shipping half of it was ruled out.
+- **Fork fixture as JSON-RPC.** The SDK and the example page are tested against `packages/sdk/test/fixture-rpc.ts`,
+  which replays the D32 fork run's recorded transactions and recomputes ShaidaLedger's roots with Gloam's
+  incremental tree. It is not a chain: IncomeVerifier is not callable there, and `checkOnChain` is checked on 44005
+  itself. The fixture's roots match the roots inside its recorded links (otherwise S01 would be UnknownRoot).
+- **Wording.** `REFUSAL_WORDS.WrongReader` now says "another reader than this policy's" (it said "this bot", which
+  is wrong for an integrator's own policy). Text only: decision ids do not include messages.
+Not done: publishing to npm (packages/sdk/PUBLISHING.md has the commands; the builder decides), and running on
+Node 20 and 22 (only 24.19 and 26.11 are installed here).
+

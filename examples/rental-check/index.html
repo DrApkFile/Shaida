@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kora Rentals (demo): income check</title>
+  <style>
+    :root { color-scheme: light dark; font: 16px/1.45 system-ui, sans-serif; }
+    body { margin: 0; padding: 16px; } main { max-width: 34rem; margin: 0 auto; }
+    label { display: block; margin: 12px 0 4px; font-weight: 600; }
+    textarea, input, select, button { box-sizing: border-box; width: 100%; font: inherit; padding: 8px; }
+    textarea { height: 7rem; word-break: break-all; } button { margin-top: 16px; cursor: pointer; }
+    output { display: block; margin-top: 16px; padding: 12px; border: 1px solid; border-radius: 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    output:empty { display: none; } [data-kind=APPROVE] { border-color: green; } [data-kind=DECLINE] { border-color: crimson; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Kora Rentals <small>(demo platform)</small></h1>
+  <p>Paste the Shaida income link your applicant sent, and the reader name they made it out to. The check runs in this
+    page against the chain: Kora's server never sees the link.</p>
+  <form id="check">
+    <label for="link">Shaida link</label>
+    <textarea id="link" name="link" required placeholder="https://…/v#…"></textarea>
+    <label for="reader">Reader name (yours)</label>
+    <input id="reader" name="reader" required value="Landlord Bola">
+    <label for="network">Network</label>
+    <select id="network" name="network">
+      <option value="aevum">Aevum testnet (44005)</option>
+      <option value="fork">Fork fixture (local replay on 127.0.0.1:8565)</option>
+    </select>
+    <button type="submit">Check income</button>
+  </form>
+  <output id="result" aria-live="polite"></output>
+</main>
+<script type="module" src="app.bundle.js"></script>
+</body>
+</html>

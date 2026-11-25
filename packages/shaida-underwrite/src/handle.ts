@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { shaidaError, type ErrorCode, type ShaidaError } from "@shaida/proofs";
 import { underwrite, type Decision, type UnderwriteDeps } from "./decide";
+import { fragmentOf } from "./fragment";
 import type { Policy } from "./policy";
 import { recordDecision, type RecordOutcome, type RecorderDeps } from "./record";
 
@@ -28,12 +29,8 @@ export const underwriteBodySchema = z
   .strict();
 export type UnderwriteBody = z.infer<typeof underwriteBodySchema>;
 
-/** The fragment of a link: the part after the first "#", or the whole string when there is no "#". */
-export function fragmentOf(link: string): string {
-  const trimmed = link.trim();
-  const at = trimmed.indexOf("#");
-  return at < 0 ? trimmed : trimmed.slice(at + 1);
-}
+// In its own module so @shaida/sdk can bundle it without the handler's recorder.
+export { fragmentOf } from "./fragment";
 
 export interface HandleDeps {
   readonly policies: readonly Policy[];
