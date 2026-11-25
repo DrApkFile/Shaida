@@ -77,7 +77,7 @@ or cites a row that is not PROVEN. <!-- CL24 -->
 
 **Not built:** on-chain bundle checks (one proof per `check`; bundles are verified off-chain), a reader code that
 authenticates the reader, a pool of relayer keys, signed bot decisions, optional payer-name disclosure, the privacy
-fixes F1, F2, F6, F7 and F10, the SDK's payer side, an npm release of `@shaida/sdk`, and mainnet. See
+fixes F1, F2, F6, F7 and F10, the SDK's payer side, an npm release of `shaida-sdk`, and mainnet. See
 [ROADMAP.md](ROADMAP.md). <!-- not-built -->
 
 ## The problem
@@ -263,7 +263,7 @@ Packages: `@shaida/proofs` (circuit, witness builder, verifier: reusable), `@sha
 
 ## For integrators
 Another app can verify a Shaida link without this website or its server, talking only to the Aevum RPC:
-- [`@shaida/sdk`](packages/sdk/README.md) (0.1.0, verify side) has a 5-line quickstart, the API reference, the
+- [`shaida-sdk`](packages/sdk/README.md) (0.1.0, verify side) has a 5-line quickstart, the API reference, the
   closed codes and the trust model. It provides `verifyIncomeLink`, `decodeIncomeLink`, `checkOnChain`, and
   `underwrite` with the two presets or your own policy. Not published to npm yet:
   [PUBLISHING.md](packages/sdk/PUBLISHING.md). <!-- CL53 -->

@@ -29,7 +29,7 @@ export const underwriteBodySchema = z
   .strict();
 export type UnderwriteBody = z.infer<typeof underwriteBodySchema>;
 
-// In its own module so @shaida/sdk can bundle it without the handler's recorder.
+// In its own module so shaida-sdk can bundle it without the handler's recorder.
 export { fragmentOf } from "./fragment";
 
 export interface HandleDeps {

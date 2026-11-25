@@ -109,7 +109,7 @@ describe("agent card and llms.txt (D30)", () => {
   });
   it("U19e llms.txt names the endpoint, the card, every rule and the presets", () => {
     const text = llmsTxt(input);
-    for (const s of ["/api/underwrite", "/.well-known/agent.json", "rent-check@1", "revenue-credit@1", "BelowMinThreshold", "ExpiresTooSoon", "no LLM", "@shaida/sdk"]) assert.ok(text.includes(s), s);
+    for (const s of ["/api/underwrite", "/.well-known/agent.json", "rent-check@1", "revenue-credit@1", "BelowMinThreshold", "ExpiresTooSoon", "no LLM", "shaida-sdk"]) assert.ok(text.includes(s), s);
   });
 });
 

@@ -54,7 +54,7 @@ test: ## Unit tests: contracts, circuit and witness builder (local, no network)
 	pnpm --filter @shaida/underwrite test
 	pnpm --filter @shaida/privacy-audit test
 	pnpm --filter web test
-	pnpm --filter @shaida/sdk test
+	pnpm --filter shaida-sdk test
 
 test-redis: ## Relayer store conformance on a real Redis via Upstash's REST protocol (docker); writes evidence/kv-redis.md
 	bash tools/test-redis.sh
@@ -192,14 +192,14 @@ ceremony-finalize: ## Ceremony: export vkey + Solidity verifier, Shanghai check,
 dev: ## Start the web app on http://localhost:3000
 	pnpm dev
 
-# @shaida/sdk (D33): live read-only checks on 44005, the example page at 390 px (fork fixture + 44005), and the
+# shaida-sdk (D33): live read-only checks on 44005, the example page at 390 px (fork fixture + 44005), and the
 # publishing rehearsal (npm pack + clean install; nothing is published).
 sdk-live:
-	pnpm --filter @shaida/sdk live
+	pnpm --filter shaida-sdk live
 
 sdk-ui:
-	pnpm --filter @shaida/sdk build
+	pnpm --filter shaida-sdk build
 	node tools/ui-rental-check.mjs --width 390 --live
 
 sdk-pack:
-	pnpm --filter @shaida/sdk pack-check
+	pnpm --filter shaida-sdk pack-check

@@ -1,6 +1,6 @@
 // Verify a Shaida income proof link from Node, talking only to the Aevum RPC: node verify-node.mjs "<link>" "<reader>"
 // Optional: RPC_URL (another endpoint you trust), SHAIDA_NETWORK (a custom local network as JSON, e.g. the fork fixture).
-import { verifyIncomeLink } from "@shaida/sdk";
+import { verifyIncomeLink } from "shaida-sdk";
 
 const [link, readerName] = process.argv.slice(2);
 if (!link || !readerName) { console.error('usage: node verify-node.mjs "<link>" "<reader name>"'); process.exit(2); }

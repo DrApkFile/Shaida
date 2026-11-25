@@ -1,4 +1,4 @@
-// @shaida/sdk against its own built bundle (dist/), over the fork fixture replayed as JSON-RPC (test/fixture-rpc.ts).
+// shaida-sdk against its own built bundle (dist/), over the fork fixture replayed as JSON-RPC (test/fixture-rpc.ts).
 // No live network: the 44005 run is checked by scripts/live-44005.mjs into evidence/sdk/.
 import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";

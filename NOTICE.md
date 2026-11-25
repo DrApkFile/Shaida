@@ -97,12 +97,12 @@ over the Hermez phase 1 `powersOfTau28_hez_final_17.ptau` (blake2b-checked). Rec
 | snarkjs | 0.7.6 | GPL-3.0 | packages/shaida-underwrite and web's server (the bot's Groth16 check, D30) |
 | ffjavascript | 0.3.1 (iden3) | GPL-3.0 | packages/shaida-underwrite and web's server (a single-threaded bn128 curve for that check, D30) |
 | @upstash/redis | 1.41.0 | MIT | packages/shaida-kv, web (relayer records and index cursor in Upstash Redis in production) |
-| snarkjs, ffjavascript | 0.7.6, 0.3.1 | GPL-3.0 | packages/sdk (dependencies of `@shaida/sdk`, installed next to it, never inlined: the build refuses, D33) |
-| zod, poseidon-lite | 3.25.76, 0.3.0 | MIT | packages/sdk (dependencies of `@shaida/sdk`) |
+| snarkjs, ffjavascript | 0.7.6, 0.3.1 | GPL-3.0 | packages/sdk (dependencies of `shaida-sdk`, installed next to it, never inlined: the build refuses, D33) |
+| zod, poseidon-lite | 3.25.76, 0.3.0 | MIT | packages/sdk (dependencies of `shaida-sdk`) |
 | @noble/hashes | 1.8.0 | MIT (Copyright (c) 2022 Paul Miller) | packages/sdk (sha256 and bytesToHex, inlined in `dist/index.js` through `src/viem-shim.ts`, which reproduces viem's `sha256` and `stringToBytes`; viem is MIT) |
 | esbuild | 0.28.2 | MIT | packages/sdk (dev: bundles `dist/`), examples (dev: bundles and serves the rental-check page) |
 
-`@shaida/sdk` ships its own [NOTICE.md](packages/sdk/NOTICE.md): what its bundle inlines, the licences of the 38
+`shaida-sdk` ships its own [NOTICE.md](packages/sdk/NOTICE.md): what its bundle inlines, the licences of the 38
 packages a clean `npm install` of its tarball brings in (measured), and what an integrator inherits.
 
 Their own dependencies carry their own licenses. To list them all, run `pnpm licenses list` in the repo root.

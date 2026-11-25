@@ -1,7 +1,7 @@
-// Kora Rentals (demo): a landlord platform's income check, in the browser, with @shaida/sdk only.
-import { definePolicy, underwrite } from "@shaida/sdk";
+// Kora Rentals (demo): a landlord platform's income check, in the browser, with shaida-sdk only.
+import { definePolicy, underwrite } from "shaida-sdk";
 
-// The fork fixture's deployment (tools/privacy/fixtures/fork-deployment-fixes.json), served by `pnpm --filter @shaida/sdk fixture-rpc`.
+// The fork fixture's deployment (tools/privacy/fixtures/fork-deployment-fixes.json), served by `pnpm --filter shaida-sdk fixture-rpc`.
 const FORK = {
   network: { name: "aevum-fork (fixture replay)", chainId: 440050, ledger: "0xe1d24b9c95ebfd34ed0e153bf2dc03a6853f908e", incomeVerifier: "0xd5f5b75fae3bef2896c0176b3e5388414a7c895c", fromBlock: 4057880n },
   rpcUrl: "http://127.0.0.1:8565",
