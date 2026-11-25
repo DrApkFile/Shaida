@@ -103,9 +103,13 @@ jobs:
         with:
           node-version: 24.19.0
       - name: Render build
+        # The build refuses a listed network without valid contracts (web/src/lib/web-config.ts), so CI passes the
+        # public 44005 addresses exactly as Render's dashboard does (DEPLOY_RENDER.md), from deployments/aevum.json.
         env:
           NEXT_PUBLIC_NETWORKS: aevum
-        run: bash tools/render-build.sh
+        run: |
+          export "$(node tools/write-web-env.mjs --network aevum --print)"
+          bash tools/render-build.sh
       - name: Typecheck (pnpm comes from render-build's .render-bin; the runner has none of its own)
         run: PATH="$PWD/.render-bin:$PATH" pnpm -r typecheck
 

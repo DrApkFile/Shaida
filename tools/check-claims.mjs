@@ -37,7 +37,7 @@ const walk = (d) => {
     else if (n.endsWith(".test.ts") || n.endsWith(".test.mjs") || n.endsWith(".t.sol")) testFiles.push(readFileSync(p, "utf8"));
   }
 };
-for (const d of ["packages", "ceremony/test", "contracts/test", "tools/privacy/test"]) walk(join(repo, d));
+for (const d of ["packages", "ceremony/test", "contracts/test", "tools/privacy/test", "web/test"]) walk(join(repo, d));
 const testExists = (id) => {
   const esc = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const ts = new RegExp(`(it|test|describe)\\(\\s*["'\`]${esc}\\b`);

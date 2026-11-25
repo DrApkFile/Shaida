@@ -7,7 +7,7 @@ import { botAddress, botNetwork, botSettings } from "./underwrite";
 export function cardInput(origin: string): CardInput {
   return {
     origin,
-    chainId: botNetwork()?.net.chain.id ?? 0,
+    chainId: botNetwork()?.net.chain.id ?? null,
     policies: PRESETS,
     limits: UNDERWRITE_LIMITS,
     recorder: botSettings().recorder,

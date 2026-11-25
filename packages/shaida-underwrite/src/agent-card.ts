@@ -8,7 +8,8 @@ import type { RecorderConfig } from "./record";
 
 export interface CardInput {
   readonly origin: string;
-  readonly chainId: number;
+  /** null when this deployment has no network: the card says so instead of naming a chain. */
+  readonly chainId: number | null;
   readonly policies: readonly Policy[];
   readonly limits: UnderwriteLimits;
   readonly recorder: RecorderConfig;
@@ -37,7 +38,10 @@ export function agentCard(c: CardInput) {
     name: "Shaida underwriting bot (demo)",
     description:
       "Decides APPROVE, DECLINE or INCONCLUSIVE on a Shaida income proof link under a fixed, versioned policy. Deterministic rules, no LLM. It runs the full proof verification (strict schema, context opening, reader, expiry, ShaidaLedger.isKnownRoot at a pinned block, Groth16 with the ceremony's final key, dates from ledger events) and only then the policy rules in a fixed order.",
-    chain: { id: c.chainId, token: "tUSD8 0x456569838f1d43009A91ebA4263147Afd7233483 (6 decimals)" },
+    chain:
+      c.chainId === null
+        ? { configured: false, state: "NotConfigured: this deployment has no Aevum network, so the bot cannot decide; POST /api/underwrite refuses" }
+        : { configured: true, id: c.chainId, token: "tUSD8 0x456569838f1d43009A91ebA4263147Afd7233483 (6 decimals)" },
     determinism:
       "The same link and the same policy (id, version, hash) give the same decisionId and decision while no time limit (expiry, proof age, days left) is crossed. INCONCLUSIVE is never an approval and is not cached: ask again.",
     sees:

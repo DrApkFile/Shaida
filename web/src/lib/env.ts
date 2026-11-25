@@ -1,7 +1,8 @@
 import type { Chain } from "viem";
 import { aevumFork, aevumTestnet, localAnvil } from "@aevum-kit/aevum";
+import { parseNetworkKeys, WebConfigError, type NetworkKey } from "./web-config";
 
-export type NetworkKey = "aevum" | "fork" | "local";
+export type { NetworkKey };
 
 export interface Network {
   key: NetworkKey;
@@ -35,17 +36,13 @@ const all: Record<NetworkKey, Network> = {
   },
 };
 
-const requested = (process.env.NEXT_PUBLIC_NETWORKS ?? "aevum")
-  .split(",")
-  .map((k) => k.trim())
-  .filter((k): k is NetworkKey => k in all);
+// Required and checked: an unset, unknown or repeated key is a named refusal (WebConfigError), never a fallback to
+// production. The build (next.config.ts) and the server start (startup.node.ts) refuse the same config first.
+const requested = parseNetworkKeys(process.env.NEXT_PUBLIC_NETWORKS);
+if (!requested.ok) throw new WebConfigError([requested.problem]);
 
 /** The networks the app offers, in the order of NEXT_PUBLIC_NETWORKS. The first one is the default. */
-export const networks: [Network, ...Network[]] = (() => {
-  const keys = [...new Set(requested)];
-  const list = (keys.length ? keys : (["aevum"] as NetworkKey[])).map((k) => all[k]);
-  return list as [Network, ...Network[]];
-})();
+export const networks: [Network, ...Network[]] = [all[requested.value[0]], ...requested.value.slice(1).map((k) => all[k])];
 
 export const defaultNetwork = networks[0];
 

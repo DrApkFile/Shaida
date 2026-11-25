@@ -53,6 +53,7 @@ test: ## Unit tests: contracts, circuit and witness builder (local, no network)
 	pnpm --filter @shaida/ceremony test
 	pnpm --filter @shaida/underwrite test
 	pnpm --filter @shaida/privacy-audit test
+	pnpm --filter web test
 
 test-redis: ## Relayer store conformance on a real Redis via Upstash's REST protocol (docker); writes evidence/kv-redis.md
 	bash tools/test-redis.sh

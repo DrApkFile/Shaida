@@ -15,6 +15,11 @@
 - All settlement happens on Aevum Testnet, chain 44005, with tUSD8 `0x456569838f1d43009A91ebA4263147Afd7233483` (6 decimals). No other chain in production config.
 - Gloam is a dependency, not our code. Never edit vendored Gloam files. Keep its LICENSE and headers. Credit per `briefing/EVENT.md`.
 - Gloam verifiers on our deployment are the **final** ceremony ones (`*VerifierFinal`, `*_final.zkey`). Never the dev keys.
+- `NEXT_PUBLIC_SHAIDA_INCOME_KEY` defaults to `"final"` when unset, on purpose: it is the safe default (the ceremony
+  key), not a silent fallback. `"throwaway"` must be asked for, works on local chains only and is refused on 44005;
+  any other value is `NotConfigured` (`packages/shaida-pay/src/config.ts`, test P01). Keep it that way.
+- `NEXT_PUBLIC_NETWORKS` is required and has no default; a listed network without valid contracts stops the build
+  and the server (`web/src/lib/web-config.ts`, tests W10–W15).
 - Deposits go through `shieldBound` (the pool refuses plain `shield` once a shield verifier is set).
 - Only `ShaidaLedger` writes V and S leaves. V requires an **active** registered payer. S is written only by `sweep`.
 - The circuit, its zkey and `IncomeVerifier` change together. Any circuit change invalidates the ceremony: record it in DECISIONS.md and rerun phase 2.
