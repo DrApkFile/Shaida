@@ -25,7 +25,7 @@ STACK_SCRIPT := script/DeployStack.s.sol:DeployStack
 # PayerRegistry owner on `make fork`: anvil account 0, so payers can be registered locally. On 44005: ATTESTOR=0x... (required).
 FORK_ATTESTOR := $(ANVIL_0)
 
-.PHONY: help install build gate test test-redis test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-supersede ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum verify-aevum secrets deal register-payer dev privacy-audit-live
+.PHONY: help install build gate test test-redis test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-supersede ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum verify-aevum secrets deal register-payer dev privacy-audit-live eligibility judge-ui
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36mmake %-14s\033[0m %s\n", $$1, $$2}'
@@ -107,6 +107,12 @@ privacy-audit-live: ## OPTIONAL, needs the live RPC: re-read Aevum 44005 and rer
 	node tools/privacy-observer.mjs collect --deployment deployments/aevum.json --explorer https://explorer-test.qday.info --out evidence/privacy-audit/dump-44005-live.json
 	node tools/privacy-observer.mjs analyse --dump evidence/privacy-audit/dump-44005-live.json --truth evidence/privacy-audit/truth-44005.json --out evidence/privacy-audit/observer-44005-live.json
 	node tools/privacy-reader.mjs --dump evidence/privacy-audit/dump-44005-live.json --truth evidence/privacy-audit/truth-44005.json --reader-name "Landlord Bola" --reader-name "Shaida underwriting bot (demo)" --out evidence/privacy-audit/reader-44005-live.json
+
+eligibility: ## Read-only: re-check acceptance gates A01-A12 and the live guards against GitHub, the live site and 44005; writes evidence/eligibility.md
+	node tools/eligibility.mjs
+
+judge-ui: ## Read-only: the judge path on the live site in headless Chromium (WIDTH=390); writes evidence/judge-ui/
+	node tools/ui-judge-live.mjs --width $(or $(WIDTH),390)
 
 verify-aevum: ## Read-only: rerun the deploy checks against deployments/aevum.json on Aevum testnet (sends nothing)
 	@test -f deployments/aevum.json || (echo "deployments/aevum.json not found" && exit 1)

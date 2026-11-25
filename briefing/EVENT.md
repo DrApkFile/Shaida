@@ -41,9 +41,9 @@ Fatal gates:
 | ID | Requirement | How we verify | Evidence file |
 |---|---|---|---|
 | A01 | Public GitHub repo, permissive license (MIT/Apache-2.0) | LICENSE present; repo public | repo root |
-| A02 | Contracts deployed on chain 44005, explorer links | `deployments/aevum.json` + script that reads code at each address | evidence/A02-deployments.md |
+| A02 | Contracts deployed on chain 44005, explorer links | `deployments/aevum.json` + `tools/verify-aevum.mjs` (code at each address); `make eligibility` | evidence/aevum-deployment.md |
 | A03 | Link to exact deployed commit | deploy script writes git SHA into deployments file | deployments/aevum.json |
-| A04 | Tx hashes showing the app working | demo run log with explorer links | evidence/A04-demo-run.md |
+| A04 | Tx hashes showing the app working | run logs with explorer links; `make eligibility` re-reads every receipt | evidence/live-44005-run1.md, live-44005-run2.md, underwrite-live-44005.md |
 | A05 | Live demo, works without login | deployed URL **https://shaida.onrender.com**; logged-out check by `tools/check-hosting.sh` (CLAIMS CL43) | evidence/hosting-render.md |
 | A06 | Docs: problem, architecture, workflows, technologies | README sections | README.md |
 | A07 | Credit reused code; NOTICE for third-party deps | NOTICE.md lists Gloam (MIT) and others | NOTICE.md |

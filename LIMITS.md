@@ -98,7 +98,7 @@ the ledger's V and S leaves, which a withdrawal does not touch (evidence/withdra
 ## What the chain and a proof link show (privacy audit, measured 2026-11-24/25)
 Measured by attacking the live deployment on Aevum testnet 44005 (every transaction from the deploy block to block
 3961095: runs 1 and 2, the withdrawal and the bot) and a fork fixture with two payers and two recipients. Tools,
-numbers and tx hashes: [evidence/privacy-audit.md](evidence/privacy-audit.md). Proposed fixes, none applied: DECISIONS D32.
+numbers and tx hashes: [evidence/privacy-audit.md](evidence/privacy-audit.md). Fixes: DECISIONS D32 (F3, F4, F5, F8, F9 applied on 2026-11-25, app only; F1, F2, F6, F7, F10 not applied). The live numbers below were measured before the fixes.
 
 What anyone with the explorer and an RPC sees:
 - **Which registered payer made each payment.** Not hidden. The `Vouched` event carries the payer id; the relayed
