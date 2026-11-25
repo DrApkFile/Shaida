@@ -42,6 +42,23 @@ indexer (chunked `eth_getLogs`, persisted cursor), a hardened relayer (one route
 claimed in Redis before each send), and the Next.js app. Diagram and guarantees table: README "The loop" and
 "How it works".
 
+## How it scales (distribution plan)
+Shaida is built to be integrated, not to be the place where people verify. There are no users yet.
+- **Verify side: one npm package.**
+  - A rental platform, lender, BNPL provider, freelance marketplace, visa consultancy, DAO grant program or AI agent
+    adds `@shaida/sdk`. It verifies links in its own page or server, against the Aevum RPC, with no Shaida server in
+    the path and no per-check cost (view calls only).
+  - It can then apply its own `definePolicy` rules, or the bot's presets.
+  - The examples show the whole integration: 13 lines in Node, and a landlord page of about 40 lines.
+- **Agents:** the bot's `/llms.txt`, `/.well-known/agent.json` and `/api/underwrite`, or the same engine in-process
+  through the SDK.
+- **Payer side (next):** payroll and payout platforms paying contractors through ShaidaLedger. This is the supply of
+  provable income. It is not in the SDK 0.1.0 (ROADMAP); today it runs in the app.
+- **Limits that matter at scale** (LIMITS.md):
+  - Payer identity is public by design.
+  - Totals narrow while there are few payers.
+  - One relayer key.
+
 ## Tracks
 Decentralized Payments; Confirmation of Payee (payer vouching). There is one prize pool.
 
@@ -73,11 +90,11 @@ Weights from qday.io (out of 100). Ecosystem contribution is DoraHacks' extra cr
 | Innovation and originality | 20 | Vouched, swept income totals proven in zero knowledge, bound to one reader and an expiry; a deterministic underwriting bot over the same proof | `packages/shaida-proofs/circuits/income.circom`, `contracts/src/ShaidaLedger.sol`, DECISIONS D3, D30 |
 | User experience and presentation | 15 | Pay, inbox, prove and verify in the browser at 390 px; named refusals that say whether anything changed; run 2 clicked by a person on the live site | `evidence/live-44005-run2.md`, `evidence/ui-44005/`, `evidence/judge-ui/`, `DESIGN.md` |
 | Technical quality and platform integration | 15 | EIP-3009 gasless deposits; legacy txs; Shanghai opcode check; 1,000-block log paging with a cursor; a restart-safe relayer; the snarkjs gas trap handled; `make gate` from a clean clone | `evidence/presubmit-audit.md`, `evidence/fork-gas.md`, `tools/gate.sh`, D14, D19, D29 |
-| Real-world utility | 15 | Templates for income (landlord), revenue (lender) and disbursements (sponsor); the bot as an API for lenders and agents | D31, `/underwrite`, `/.well-known/agent.json`, `evidence/underwrite-live-44005.md` |
+| Real-world utility | 15 | Templates for income (landlord), revenue (lender) and disbursements (sponsor); the bot as an API for lenders and agents; `@shaida/sdk` so platforms verify in their own product (distribution plan: "How it scales") | D31, D33, `/underwrite`, `/.well-known/agent.json`, `evidence/underwrite-live-44005.md`, `packages/sdk/README.md` |
 | Safety, trust and controls | 15 | Reader binding, expiry, payer revocation; relayer rails and gas budget; the bot's own capped key, opt-in recording; a two-contributor ceremony; a published privacy audit of our own deployment | `THREAT_MODEL.md`, `LIMITS.md`, `ceremony/TRANSCRIPT.md`, `evidence/privacy-audit.md` |
 | Demo | 10 | Two runs and a bot record on 44005 with tx links; a 60-second judge path with live attacks; read-only commands anyone can paste | `PROOF_PLAN.md`, `evidence/live-44005-run1.md`, `evidence/eligibility.md` |
 | Documentation | 10 | README in judge order with a diagram, contract addresses and reproduction steps; every claim in CLAIMS.md with evidence, checked by the gate | `README.md`, `CLAIMS.md`, `PRD.md`, `DECISIONS.md`, `DEPLOY_RENDER.md` |
-| Ecosystem contribution | — | `@shaida/proofs` (circuit, witness builder, verifier core with no network imports), `@shaida/underwrite` (engine and CLI), `tools/check-shanghai.mjs` extended to Gloam | `packages/shaida-proofs`, `packages/shaida-underwrite`, `NOTICE.md` |
+| Ecosystem contribution | — | `@shaida/sdk`: any Aevum app verifies a Shaida link (and runs a policy) against the RPC alone, with the key and network pinned by hash; a Node example and a landlord page built on it; `@shaida/proofs` and `@shaida/underwrite` underneath; `tools/check-shanghai.mjs` extended to Gloam | `packages/sdk/README.md`, `examples/`, `evidence/sdk/`, `NOTICE.md` |
 
 ## What is not built (stated on the page too)
 On-chain bundle checks, a reader code that authenticates the reader, a relayer key pool, signed bot decisions,

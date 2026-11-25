@@ -87,6 +87,7 @@ unit_tests() {
   pnpm --filter @shaida/underwrite test
   pnpm --filter @shaida/privacy-audit test
   pnpm --filter web test
+  pnpm --filter @shaida/sdk test
 }
 
 step "1 install" install

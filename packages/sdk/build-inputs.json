@@ -1,0 +1,10 @@
+{
+  "note": "what dist/index.js inlines (esbuild metafile); written by scripts/build.mjs",
+  "packages": [
+    "@noble/hashes (npm)",
+    "@shaida/proofs (workspace, MIT)",
+    "@shaida/sdk (MIT)",
+    "@shaida/underwrite (workspace, MIT)",
+    "config/underwrite-policies.json (Shaida, MIT)"
+  ]
+}
