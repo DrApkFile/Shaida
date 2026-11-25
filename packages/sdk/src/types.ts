@@ -12,6 +12,8 @@ export interface NetworkConfig {
   readonly incomeVerifier: string;
   /** ShaidaLedger's deploy block: no leaf exists before it. */
   readonly fromBlock: bigint;
+  /** The Revocations registry (0.2.0, D35). null: none deployed, so every verify is INCONCLUSIVE NotConfigured. */
+  readonly revocations: string | null;
 }
 
 /** A local fork or test chain with its own deployment. Chain 44005 is refused here: use "aevum-testnet". */
@@ -21,6 +23,8 @@ export interface CustomNetwork {
   readonly ledger: string;
   readonly incomeVerifier: string;
   readonly fromBlock: bigint;
+  /** The fork's Revocations registry (0.2.0). Without it, verify and underwrite cannot check revocation: NotConfigured. */
+  readonly revocations?: string;
 }
 
 export interface ReadOptions {
@@ -34,13 +38,15 @@ export interface ReadOptions {
 export interface VerifyOptions extends ReadOptions {
   /** Your name as the reader, exactly as the recipient typed it (case and spacing are normalised). */
   readonly readerName: string;
+  /** Your reader code (0.2.0, D36), for a code-protected link: the code you gave the person proving to you. */
+  readonly readerCode?: string;
   /** Unix seconds. Default: the system clock. */
   readonly now?: () => bigint;
 }
 
 /** Codes that are a final answer about the link. */
 export type InvalidCode =
-  | "ProofInvalid" | "AssetMismatch" | "MixedContexts" | "MixedRoots" | "RangesOverlap" | "ContextMismatch" | "WrongReader" | "ProofExpired";
+  | "ProofInvalid" | "AssetMismatch" | "MixedContexts" | "MixedRoots" | "RangesOverlap" | "ContextMismatch" | "WrongReader" | "ProofExpired" | "ProofRevoked";
 /** Codes that mean "no answer yet": never a pass. */
 export type InconclusiveCode = "UnknownRoot" | "RangeUnresolvable" | "ChainUnreachable" | "NotConfigured" | "InputRejected";
 export type VerifyCode = InvalidCode | InconclusiveCode;
@@ -63,6 +69,20 @@ export interface Valid {
   readonly network: string;
   /** The block every chain read was pinned to. */
   readonly block: bigint;
+  /** 0.2.0: the link's version, how its reader was checked, and whether its holder can revoke it (v1 links cannot). */
+  readonly link: LinkKind;
+}
+
+export interface LinkKind {
+  readonly version: 1 | 2;
+  /** "code": the reader's name and code were both checked. "name": the name only. */
+  readonly readerMode: "name" | "code";
+  readonly revocable: boolean;
+}
+
+/** INVALID ProofRevoked: the holder revoked the link on chain, at this block (and its time). */
+export interface Revoked extends Refused<"INVALID", "ProofRevoked"> {
+  readonly revokedAt: { readonly block: bigint; readonly time: Date };
 }
 
 export interface Refused<S extends "INVALID" | "INCONCLUSIVE", C extends VerifyCode> {
@@ -73,11 +93,13 @@ export interface Refused<S extends "INVALID" | "INCONCLUSIVE", C extends VerifyC
   readonly nextAction: string;
 }
 
-export type Verification = Valid | Refused<"INVALID", InvalidCode> | Refused<"INCONCLUSIVE", InconclusiveCode>;
+export type Verification = Valid | Refused<"INVALID", Exclude<InvalidCode, "ProofRevoked">> | Revoked | Refused<"INCONCLUSIVE", InconclusiveCode>;
 
 /** A link's payload, decoded and schema-checked but NOT verified: never trust these numbers without verifyIncomeLink. */
 export interface DecodedLink {
-  readonly version: 1;
+  /** 1: made before 0.2.0 (name only, not revocable). 2: revocable, with `readerMode`. */
+  readonly version: 1 | 2;
+  readonly readerMode: "name" | "code";
   readonly proofs: readonly {
     readonly ledgerRoot: string;
     readonly asset: string;

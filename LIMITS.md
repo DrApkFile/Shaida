@@ -60,8 +60,47 @@ The reader name normalises (trim, case, spaces), so it binds intent, not identit
 "Landlord Bola" gets VALID. The link is bound to `readerIdHash = Poseidon(3, length, name bytes)` of the normalised
 name; nothing checks who is typing it. This stops a link made for one reader being presented as made for another; it
 does not keep the link secret and does not authenticate the reader. Keep the link private; it expires on the date in
-it. The server never receives the name (it is typed on `/v`). A reader code that does authenticate the reader is on
-ROADMAP.md.
+it. The server never receives the name (it is typed on `/v`). This holds for every **name-only** link: all links made
+before D35/D36 and new links made without a code. The UI labels them "Name only: anyone with this link and the name
+can view it".
+
+## Reader codes: a shared secret, not a login (D36)
+A **code-protected** link binds `Poseidon(5, nameHash, Poseidon(code))`, where the code is 80 random bits the reader
+made on `/v` and gave the holder. The link and the name are no longer enough. What is left:
+- **Offline guessing.** Anyone with the link and the name can try codes without asking anyone: each guess is two
+  Poseidon hashes compared with the link's reader id. Measured: 439 guesses per second on one core of this machine
+  (Intel i3 M 370, poseidon-lite). For a random 80-bit code that is 4.37e13 years on that core, and 4.37e7 years at
+  an assumed (not measured) 1,000,000× speed-up (evidence/reader-code-work.md). The bound is the code's randomness:
+  a code from anywhere other than the page's CSPRNG is not covered.
+- **The code is a shared secret.** The holder and the reader both have it; whoever has the link, the name and the code
+  sees VALID. If the reader posts the code with the link, the link is name-only in effect.
+- **Shown once.** The page does not keep the code. A reader who loses it can't open a code-protected link; they make a
+  new code and ask for a new link.
+- **The bot is name-only.** Its reader names are public, so a code would be public too; it refuses code-protected
+  links (`WrongReader`).
+- **The label is the link's claim.** "Code-protected" in a link only makes the page ask for a code; the reader check
+  decides. Relabelling a link only makes it fail.
+
+## Revocation acts from its block on (D35)
+A link made since D35 can be revoked from Shared proofs. From the revocation's block, every verification (/v, the
+bot, `shaida-sdk` 0.2.0) is `ProofRevoked`. What it does not undo:
+- a VALID someone already saw, a screenshot, or a verification pinned to an earlier block;
+- an on-chain `IncomeVerifier.attest`: its `IncomeProofChecked` event stays a historical record, and
+  `IncomeVerifier.check` and the SDK's `checkOnChain` don't look at revocation;
+- what a reader learned from the link and the chain (below).
+
+Also:
+- **Links made before D35 can't be revoked.** Their salt has no known secret. They still verify and are labelled
+  "Not revocable (made before revocation existed)". A v1 link relabelled v2 still can't be revoked by anyone, so
+  "revocable" in a link is the link's own claim.
+- **The secret is in the vault only.** Without the vault (or its backup) the link can't be revoked. Someone who steals
+  the secret can revoke that one link, nothing else.
+- **The revoke tx is public.** It shows the secret, the salt and the time. The relayer sends it, so the sender is the
+  relayer, not the holder. A salt is one of the three inputs of the link's context; someone who also holds that
+  context (an on-chain attest of the link) and guesses the reader name and the expiry day can tie the revoke to the
+  attest. For a code-protected link the reader id also needs the code, so the guess fails.
+- **A dishonest RPC can hide a revocation**, as it can claim a root is known (the SDK's trust model).
+- **Unreadable is not "not revoked".** If the registry can't be read, the answer is INCONCLUSIVE, never VALID.
 
 ## Withdrawals are public (pool.unshield)
 withdrawals are public and reveal their amounts. A withdrawal (`/app/withdraw`, relayer route `unshield`) spends a

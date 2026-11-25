@@ -838,3 +838,99 @@ Decision:
   the registry's integrity equals the packed sha512. `pnpm --filter shaida-sdk npm-check` installs it from
   registry.npmjs.org into an empty project and runs the Node example on 44005 (evidence/sdk/npm-install.md).
 
+
+## D35: revoking a shared proof link (Revocations, link v2)
+Context: a holder who shared a link could not take it back; it verified until its expiry (≤ 365 days). Constraints
+(the builder, 2026-11-25): no circuit change and no new ceremony, so only the existing public
+`context = Poseidon(readerIdHash, expiry, salt)` and its free inputs; no existing contract redeployed, at most one
+small new one; every existing link (run 1's public example, run 2's, the bot link) verifies exactly as before.
+Decision:
+- **Salt.** A new link's salt is `Poseidon(4, revokeSecret)` (domain tag 4, after 1 vouch, 2 sweep, 3 reader name),
+  with a fresh 31-byte secret per link from the browser's CSPRNG, kept only in the holder's vault
+  (`SharedLink.revokeSecret`; encrypted, in the backup). To anyone without the secret the salt is as random as a v1
+  salt, so the context hides reader and expiry as before.
+- **Contract.** `Revocations` (contracts/src/Revocations.sol): `revoke(secret)` computes the salt with the deployed
+  PoseidonT3 (the circomlib one, checked against poseidon-lite by test RV05 and by the deploy script), stores the
+  block in `revokedAt[salt]` and emits `Revoked(salt, block)`. A second revoke reverts `AlreadyRevoked(salt, block)`;
+  a secret of 0 or ≥ the field order reverts `BadSecret`. No owner, no pause, no upgrade: nobody can un-revoke or
+  revoke for someone else without the secret. Shanghai, legacy txs, one create. Fork: deploy 237,696 gas; a whole
+  revoke tx 77,784–77,796 gas (evidence/revocations-gas.md).
+- **Link v2.** `{v: 2, proofs, readerIdHash, expiry, salt, reader: "name" | "code"}` (D36 for `reader`). v1 is frozen
+  and parsed as before (same keys, same order), so the bot's proofIds and decisionIds of v1 links don't change.
+- **Verification step 5a** (PRD §5): after context, reader and expiry, before the root, read `revokedAt(salt)` at
+  the same pinned block as `isKnownRoot`. Revoked → INVALID `ProofRevoked` with the block and its time. A failed read
+  → INCONCLUSIVE `ChainUnreachable`; no registry configured → INCONCLUSIVE `NotConfigured`; never VALID. Same core
+  function for /v, the bot and the SDK. Steps 1–5 stay offline (tests RV15, S03, S23).
+- **Every link is checked**, v1 included. The context does not include the version, so a v2 link edited to say v1
+  keeps its revocable salt; checking only v2 would let that edit escape (mutation M2 is caught). A v1 salt is random
+  with no known preimage under `Poseidon(4, ·)`, so a v1 link is never hit: it verifies as before and is labelled
+  "Not revocable (made before revocation existed)".
+- **Relayer.** One route, `POST /api/relay/revoke {chainId, secret}` → `Revocations.revoke(secret)`, with the same
+  rails as the others (strict body, simulation, budget, one record per key, restart safety). Key `revoke:<salt>`,
+  gas cap 200,000; `revokedAt ≠ 0` is refused as `AlreadyRevoked` (409) before anything is simulated or sent
+  (tests R40–R46).
+- **UI.** Shared proofs: a Revoke button with the confirm "Anyone you shared this with will see it as revoked.
+  This can't be undone."; states sending → pending → revoked (block) | unknown (Check again; never resent). /v: a
+  REVOKED verdict with block and time; the link's own label before verifying.
+- **Fail closed.** The web config and `tools/write-web-env.mjs` require a Revocations address for every listed network
+  (test W16); the bot CLI refuses a deployment without one; the SDK's `AEVUM_TESTNET.revocations` is pinned and a
+  custom network without one is NotConfigured.
+
+Rejected:
+- **Check revocation only for v2 links**: a v2 link relabelled v1 would escape revocation (above).
+- **Publish the salt to revoke** (`revoke(salt)`): anyone with the link knows the salt, so any reader could revoke.
+  The preimage is what only the holder has.
+- **A holder signature** (revoke by the holder's address): recipients have no on-chain address in the app (gasless,
+  keys in the browser), and a signature would tie the link to an identity.
+- **A server-side revocation list**: the server would hold link identifiers and could rewrite the list; proofs and
+  their identifiers never reach the server (CLAUDE.md).
+- **Revoke through ShaidaLedger or IncomeVerifier**: both would need a redeploy, which the constraints forbid.
+- **keccak256 for the salt**: cheaper in the contract, but it adds a second hash family to the core, the browser and
+  the SDK and needs a reduction into the field; Poseidon is already in all of them and PoseidonT3 is deployed.
+- **Un-revoke or expiry of revocations**: a revocation the holder can undo is a link the holder can switch on and off
+  between a reader's two visits; "This can't be undone" is simpler and is what the confirm says.
+
+Limits (LIMITS.md): revocation acts from its block on. A verification pinned to an earlier block, a VALID already
+seen, an on-chain `attest` (a historical record), a downloaded copy and the SDK's `checkOnChain` don't change. A
+dishonest RPC can hide a revocation. Losing the secret (no vault backup) means the link can't be revoked; a stolen
+secret lets the thief revoke that one link (denial of the holder's own link, nothing more). The revoke tx is public:
+it shows the secret, the salt and the time, sent by the relayer (not the holder). `revocable: true` is the link's own
+claim: a v1 link relabelled v2 verifies like the v1 link and can't be revoked by anyone.
+
+## D36: reader codes (a link bound to the reader's name and a code they chose)
+Context: a link made out to a name verifies for anyone who has the link and types that name (D27, LIMITS, CL30).
+Names are guessable. Same constraints as D35: no circuit change, only the context's free inputs.
+Decision:
+- **Code.** On /v the reader presses "Get a code to give the person proving to you": 10 bytes from
+  `crypto.getRandomValues`, shown once as 16 Crockford base32 characters (`XXXX-XXXX-XXXX-XXXX`, 80 bits), with Copy.
+  It is never stored or sent by the page. Typing ignores case, spaces and dashes; O→0, I/L→1.
+- **Binding.** The holder types the code in the prove form; the link's reader id is
+  `Poseidon(5, nameHash, Poseidon(code))` and the link says `reader: "code"`. The code is used to build the link and
+  then dropped: it is not in the link (RC07) or the vault (the shared-link schema has no field for it, RV24), and no
+  route of the relayer or the bot takes it. The fork fixture checks that its written truth and its log hold the
+  code in no form (text, normalised, decimal, hex).
+- **Verification.** A `"code"` link without a code → `WrongReader` ("needs the reader's name and their reader code"),
+  offline. Name + wrong code → `WrongReader`. The label is not trusted: a code link relabelled `"name"` or v1 fails
+  the reader check (the hash differs, RC04), and a name link relabelled `"code"` fails with any code (S23).
+- **Labels everywhere** (/v before and after verifying, the prove form, the link result, Shared proofs):
+  "Code-protected" or "Name only: anyone with this link and the name can view it".
+- **The bot stays name-only.** Its reader names are public preset names, so a code would be a published code; the bot
+  passes no code and a code-protected link is `DECLINE WrongReader` (U32). Its card and llms.txt say so.
+- **SDK 0.2.0.** `verifyIncomeLink(link, {readerName, readerCode?, …})`; a malformed code is INCONCLUSIVE
+  `InputRejected`.
+- **Why 80 bits.** The only attack is offline guessing with the link and the name: one guess is two Poseidon hashes.
+  Measured 439 guesses/s on one core of this machine; a random 80-bit code then takes 4.37e13 years on that core and
+  4.37e7 years at an assumed 1,000,000× speed-up (evidence/reader-code-work.md). 60 bits (the minimum asked for)
+  would be 42 years at that assumed speed-up, which is too thin a margin for an assumption; 16 characters are still
+  easy to read out.
+
+Rejected:
+- **The code in the link**: then the link alone is enough, which is the problem being fixed.
+- **A slow KDF (Argon2/scrypt) over a short code**: stretching matters for secrets people choose; this one is random
+  and 80 bits already put guessing out of reach. A KDF would add a dependency to the browser, the SDK and the bot and
+  make every verify slower.
+- **12-character (60-bit) codes**: above.
+- **A code instead of the name**: the name is what the holder sees in Shared proofs and the reader checks it is
+  theirs; the code adds a secret to it and keeps the binding of intent.
+- **A reader key pair and a signed challenge**: a real login for readers, but it needs reader accounts and an
+  interactive step; out of scope for this freeze (ROADMAP).

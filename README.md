@@ -1,8 +1,11 @@
 # Shaida
 
 Get paid privately in stablecoins on Aevum Testnet (chain 44005, tUSD8), then prove to a reader you name that registered
-payers paid you at least a threshold, without handing over your wallet history. The reader's name binds intent, not
-identity: anyone who has the link and types the name sees the result. <!-- CL36 -->
+payers paid you at least a threshold, without handing over your wallet history. A name-only link binds intent, not
+identity: anyone who has it and types the name sees the result. A code-protected link also needs an 80-bit code the
+reader made, which is not in the link; it is a shared secret, not a login. <!-- CL36 --> <!-- CL57 -->
+Links made since D35 can be revoked by their holder; every verifier then says REVOKED. Older links can't be revoked
+and verify as before. <!-- CL56 -->
 What stays hidden, and what does not, was measured by attacking the live deployment. Hidden: which receive address was
 paid, and single payment amounts unless a note is withdrawn whole. Public by design: which registered payer paid, and
 deposits and withdrawals. At today's testnet volume, timing narrows things further ([privacy audit](#privacy-what-the-audit-measured)). <!-- CL30 --> <!-- CL32 -->
@@ -205,9 +208,9 @@ Pages: `/` landing, `/app` dashboard, `/app/pay`, `/app/inbox`, `/app/prove`, `/
 | | Item |
 |---|---|
 | **Real** | contracts on 44005; Gloam's pool with its final keys; the income circuit with a two-contributor ceremony; browser proving; the relayer paying gas on 44005; two end-to-end runs; the bot's decisions and its one on-chain record; the hosted site |
-| **Simplified** | the payer registry has one attestor (the builder), and a malicious attestor is not defended (PRD §8); the reader's name binds intent, not identity; one relayer key; Render free, kept awake by a 5-minute monitor (uptime over time is not measured); the bot's presets are demos for one reader name |
+| **Simplified** | the payer registry has one attestor (the builder), and a malicious attestor is not defended (PRD §8); a reader name or code is not a login (D36); one relayer key; Render free, kept awake by a 5-minute monitor (uptime over time is not measured); the bot's presets are demos for one reader name |
 | **Demo data** | Acme Studio, Ada, Landlord Bola, Tenant Chidi and the bot's reader name are demo personas, labelled "demo" in the UI and the evidence. The amounts are real testnet tUSD8 |
-| **Not built** | on-chain bundles, reader codes, a relayer key pool, signed bot decisions, payer-name disclosure, F1/F2/F6/F7/F10, mainnet ([ROADMAP.md](ROADMAP.md)) |
+| **Not built** | on-chain bundles, reader authentication beyond a shared code, codes for the bot, a relayer key pool, signed bot decisions, payer-name disclosure, F1/F2/F6/F7/F10, mainnet ([ROADMAP.md](ROADMAP.md)) |
 
 ## Privacy: what the audit measured
 Measured by attacking the live deployment (every 44005 transaction to block 3961095) and a fork fixture with known
@@ -224,6 +227,8 @@ and F9 applied 2026-11-25, app only). The live numbers below were measured befor
 | Receive address paid | not learned (sealed memos show only a fixed header) | not learned |
 | Amount from gas | not learned (≤ 60 gas apart across amounts) | — |
 | Maker's time zone | — | old browser links showed it (UTC+1); new links end at 23:59:59 UTC (F8) |
+| Whom the link is for | — | the name confirms it on a name-only link; on a code-protected link (D36) the name alone confirms nothing (fork) <!-- CL58 --> |
+| A revocation (D35) | a `revoke` sent by the relayer, tied to no payment or holder without the link (fork) | its block and time: the page says REVOKED <!-- CL58 --> |
 
 Today the pool has one payer and one recipient, so several "not learned" rows hold only because nothing else happens
 in it. The suggested threshold is now rounded down and is never the exact total (F9). Choosing the maximum still
@@ -233,11 +238,12 @@ tells the reader the total to within one step.
 | Limit (LIMITS.md) | Next step (ROADMAP.md) |
 |---|---|
 | The payer of every payment is public | F2: a zero-knowledge "registered payer" vouch, worth it only once there are many payers |
-| A reader name is not a login | a reader code generated on `/v` and bound through the existing context field (no circuit change) |
+| A reader name, and even a reader code (D36), is not a login | a reader key pair and a signed challenge |
+| Revocation acts from its block on: an attest stays a historical record, a dishonest RPC can hide it (D35) | — (by design; LIMITS.md) |
 | Timing links sweeps to payments at low volume | F6: batched, delayed sweeps, which help once other users share the window |
 | One proof per on-chain check | `IncomeVerifier.checkBundle` with the §5 bundle rules on chain |
 | tUSD8's issuer can pause or blacklist (S9) | a trust assumption: the app names it (`TokenPaused`, `PayerBlacklisted`) before any signature |
-| The bot's APPROVE says "this proof meets the policy", not "this applicant earns this" | applicant binding with the reader code, plus signed decisions |
+| The bot's APPROVE says "this proof meets the policy", not "this applicant earns this"; the bot is name-only | a reader code per lender for the bot, plus signed decisions |
 
 ## Critical path in two minutes
 | Question | File |
@@ -266,6 +272,9 @@ Another app can verify a Shaida link without this website or its server, talking
 - [`shaida-sdk`](packages/sdk/README.md) (0.1.0, verify side) has a 5-line quickstart, the API reference, the
   closed codes and the trust model. It provides `verifyIncomeLink`, `decodeIncomeLink`, `checkOnChain`, and
   `underwrite` with the two presets or your own policy. <!-- CL53 -->
+- 0.2.0, in this repository and not yet on npm, adds `readerCode` for code-protected links and `ProofRevoked`, and
+  checks every link against the Revocations registry; 0.1.0 calls keep working (the SDK README's "Upgrading from
+  0.1.0"). <!-- CL56 --> <!-- CL57 -->
 - On npm: [`shaida-sdk@0.1.0`](https://www.npmjs.com/package/shaida-sdk), `npm install shaida-sdk`. A clean install from the registry runs the
   Node example on 44005 ([evidence/sdk/npm-install.md](evidence/sdk/npm-install.md)). <!-- CL55 -->
 - [examples/verify-node.mjs](examples/verify-node.mjs) (Node, 13 lines) and

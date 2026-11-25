@@ -11,7 +11,7 @@ import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { buildIncomeBundle, contextOf, datesForRange, encodeIncomeLink, leafRangeForPeriod, readerIdHashOf, solidityArgsOf, verifyIncomeLink, type IncomeLink, type VerifyDeps } from "@shaida/proofs";
 import { fetchCheckedTrees, incomeCandidates, incomeRequestOf, prepareWithdraw, relayClient, sweptNotes, timedLeaves, type FlowContext, type RelayRecord, type WithdrawContext } from "../src/index";
 import { setUp, type Env } from "./acts-4-6-setup";
-import { readDeployment, writeEvidence, type ActRow } from "./evidence";
+import { readDeployment, revocationOn, writeEvidence, type ActRow } from "./evidence";
 import { assertFork } from "./fork-setup";
 import { proveIncome, verifyIncomeGroth16 } from "./income-node";
 import { finalProvers, finalUnshieldProver, forkClient, isSpentReader, nodeFetch, rootReader, sleep } from "./node-env";
@@ -59,7 +59,7 @@ async function main() {
   const fragment = encodeIncomeLink({ v: 1, proofs, readerIdHash: bola.toString(), expiry: expiry.toString(), salt: salt.toString() });
   const verifyNow = async () => {
     const t = await trees();
-    const deps: VerifyDeps = { readerIdHash: bola, now: ctx.nowSec, verifyGroth16: verifyIncomeGroth16, resolveRange: async (a, b) => datesForRange(leaves, a, b), isKnownRoot: (root) => rootReader(client).isKnownRoot(dep.ledger, root, t.block) };
+    const deps: VerifyDeps = { readerIdHash: bola, readerCode: null, revocation: revocationOn(client, dep, t.block), now: ctx.nowSec, verifyGroth16: verifyIncomeGroth16, resolveRange: async (a, b) => datesForRange(leaves, a, b), isKnownRoot: (root) => rootReader(client).isKnownRoot(dep.ledger, root, t.block) };
     const v = await verifyIncomeLink(fragment, deps);
     const args = solidityArgsOf(proofs[0]!.proof, proofs[0]!.publicSignals);
     const callArgs = [{ a: [...args.proof.a], b: [[...args.proof.b[0]], [...args.proof.b[1]]], c: [...args.proof.c] }, args.signals] as never;

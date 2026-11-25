@@ -18,7 +18,8 @@ export function decodeIncomeLink(link: string): Decoded {
   return {
     ok: true,
     link: {
-      version: 1,
+      version: r.data.v,
+      readerMode: r.data.v === 1 ? "name" : r.data.reader,
       proofs: r.data.proofs.map((p) => ({
         ledgerRoot: hex32(at(p.publicSignals, "ledgerRoot")),
         asset: `0x${at(p.publicSignals, "asset").toString(16).padStart(40, "0")}`,

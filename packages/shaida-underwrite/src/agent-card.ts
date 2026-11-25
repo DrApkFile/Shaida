@@ -37,7 +37,7 @@ export function agentCard(c: CardInput) {
     schema: "shaida-agent-card/1",
     name: "Shaida underwriting bot (demo)",
     description:
-      "Decides APPROVE, DECLINE or INCONCLUSIVE on a Shaida income proof link under a fixed, versioned policy. Deterministic rules, no LLM. It runs the full proof verification (strict schema, context opening, reader, expiry, ShaidaLedger.isKnownRoot at a pinned block, Groth16 with the ceremony's final key, dates from ledger events) and only then the policy rules in a fixed order.",
+      "Decides APPROVE, DECLINE or INCONCLUSIVE on a Shaida income proof link under a fixed, versioned policy. Deterministic rules, no LLM. It runs the full proof verification (strict schema, context opening, reader, expiry, Revocations.revokedAt and ShaidaLedger.isKnownRoot at a pinned block, Groth16 with the ceremony's final key, dates from ledger events) and only then the policy rules in a fixed order.",
     chain:
       c.chainId === null
         ? { configured: false, state: "NotConfigured: this deployment has no Aevum network, so the bot cannot decide; POST /api/underwrite refuses" }
@@ -47,7 +47,7 @@ export function agentCard(c: CardInput) {
     sees:
       "Only what is in the link: up to 8 Groth16 proofs with their 7 public signals (ledger root, asset, threshold, count, leaf range, context) and the context opening (reader id hash, expiry, salt). No payer, no amount per payment, no address, no note secret. The bot logs decision and proof ids and codes, never the link; it stores a hash of each proof it records on chain, and the rate limit keeps request times per IP for two minutes.",
     readerBinding:
-      "A link must be made out to the policy's readerName. A name binds intent, not identity: anyone holding the link can submit it (LIMITS.md).",
+      "A link must be made out to the policy's readerName. The bot is name-only: its reader names are public, so it takes no reader code, and a code-protected link is DECLINE WrongReader. A name binds intent, not identity: anyone holding the link can submit it (LIMITS.md). A link its holder revoked is DECLINE ProofRevoked; if the revocation registry can't be read the answer is INCONCLUSIVE.",
     endpoints: [
       {
         method: "GET",
@@ -118,7 +118,7 @@ export function llmsTxt(c: CardInput): string {
   const lines = [
     "# Shaida",
     "",
-    "> Private income proofs on Aevum testnet (chain 44005, tUSD8). A recipient proves \"at least X received from N payments by registered payers, in a period\" to one named reader, with an expiry. Which registered payer paid is public by design (see Shaida's privacy audit).",
+    "> Private income proofs on Aevum testnet (chain 44005, tUSD8). A recipient proves \"at least X received from N payments by registered payers, in a period\" to one named reader, with an expiry. The holder can revoke a link (links made before revocation existed can't be revoked) and can bind it to a code the reader chose as well as the name. Which registered payer paid is public by design (see Shaida's privacy audit).",
     "",
     "Testnet only. Not audited. Demo personas and the demo bot are labelled demo.",
     "",

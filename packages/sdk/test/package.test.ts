@@ -32,11 +32,12 @@ describe("pins (refuse on mismatch)", () => {
     const file = readFileSync(`${REPO}packages/shaida-proofs/keys/income_final_vkey.json`);
     assert.equal(createHash("sha256").update(file).digest("hex"), record.final.vkey.sha256);
     assert.equal(canonicalHash(JSON.parse(file.toString())), PINNED.vkeySha256);
-    const dep = JSON.parse(readFileSync(`${REPO}deployments/aevum.json`, "utf8")) as { chainId: number; ledgerDeployBlock: number; contracts: Record<string, { address: string }> };
+    const dep = JSON.parse(readFileSync(`${REPO}deployments/aevum.json`, "utf8")) as { chainId: number; ledgerDeployBlock: number; contracts: Record<string, { address: string }>; revocations?: { address: string } };
     assert.equal(AEVUM_TESTNET.chainId, dep.chainId);
     assert.equal(AEVUM_TESTNET.ledger, dep.contracts.ShaidaLedger!.address.toLowerCase());
     assert.equal(AEVUM_TESTNET.incomeVerifier, dep.contracts.IncomeVerifier!.address.toLowerCase());
     assert.equal(AEVUM_TESTNET.fromBlock, BigInt(dep.ledgerDeployBlock));
+    assert.equal(AEVUM_TESTNET.revocations, dep.revocations?.address.toLowerCase() ?? null, "Revocations is the one deployments/aevum.json records (null before it is deployed)");
     assert.deepEqual(sdk.PINNED, PINNED);
   });
 });
@@ -113,7 +114,7 @@ describe("publish manifest", () => {
     const pkg = JSON.parse(readFileSync(fileURLToPath(new URL("../package.json", import.meta.url)), "utf8")) as Record<string, unknown>;
     const shipped = publishManifest(pkg);
     assert.equal(shipped.name, "shaida-sdk");
-    assert.equal(shipped.version, "0.1.0");
+    assert.equal(shipped.version, "0.2.0");
     assert.deepEqual(shipped.exports, pkg.exports);
     assert.deepEqual(shipped.files, ["dist", "README.md", "NOTICE.md", "LICENSE"]);
     assert.deepEqual(shipped.dependencies, { ffjavascript: "0.3.1", "poseidon-lite": "0.3.0", snarkjs: "0.7.6", zod: "3.25.76" });

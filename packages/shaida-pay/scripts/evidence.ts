@@ -4,24 +4,36 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { cpus, platform } from "node:os";
 import { join } from "node:path";
 import { z } from "zod";
-import type { Address } from "viem";
+import type { Address, PublicClient } from "viem";
+import { revocationAt } from "@shaida/index";
+import type { RevocationState } from "@shaida/proofs";
 import { REPO } from "./node-env";
 
 export interface ActRow { act: string; what: string; fn: string; hash: string; block: string; gasUsed: string }
-export interface Deployment { pool: Address; ledger: Address; depositor: Address; registry: Address; memo: Address; incomeVerifier: Address; gitCommit: string; gitDirty: boolean; poolDeployBlock: number }
+export interface Deployment { pool: Address; ledger: Address; depositor: Address; registry: Address; memo: Address; incomeVerifier: Address; revocations: Address | null; gitCommit: string; gitDirty: boolean; poolDeployBlock: number }
 
 const addr = z.object({ address: z.string().regex(/^0x[0-9a-fA-F]{40}$/) }).passthrough();
 const depSchema = z.object({
   chainId: z.literal(440050), gitCommit: z.string(), gitDirty: z.boolean(), poolDeployBlock: z.number(),
   contracts: z.object({ ShieldPoolPoseidon: addr, ShaidaLedger: addr, ShaidaDepositor: addr, PayerRegistry: addr, GloamPayMemo: addr, IncomeVerifier: addr }).passthrough(),
+  revocations: addr.optional(),
 }).passthrough();
+
+/**
+ * PRD §5 step 5a for the run scripts: Revocations.revokedAt at `block`. A deployment without Revocations (made before
+ * D35) is INCONCLUSIVE NotConfigured, never "not revoked": run make deploy-revocations-fork first.
+ */
+export const revocationOn = (client: PublicClient, dep: { readonly revocations: Address | null }, block: bigint) => async (salt: bigint): Promise<RevocationState> =>
+  dep.revocations === null
+    ? { state: "unreadable", code: "NotConfigured", message: "this deployment records no Revocations (make deploy-revocations-fork)" }
+    : revocationAt(client, dep.revocations, salt, block);
 
 export function readDeployment(): Deployment {
   const path = join(REPO, "deployments/fork.json");
   if (!existsSync(path)) throw new Error("deployments/fork.json not found: run make deploy-fork");
   const d = depSchema.parse(JSON.parse(readFileSync(path, "utf8")));
   const a = (k: keyof typeof d.contracts) => (d.contracts[k] as { address: string }).address.toLowerCase() as Address;
-  return { pool: a("ShieldPoolPoseidon"), ledger: a("ShaidaLedger"), depositor: a("ShaidaDepositor"), registry: a("PayerRegistry"), memo: a("GloamPayMemo"), incomeVerifier: a("IncomeVerifier"), gitCommit: d.gitCommit, gitDirty: d.gitDirty, poolDeployBlock: d.poolDeployBlock };
+  return { pool: a("ShieldPoolPoseidon"), ledger: a("ShaidaLedger"), depositor: a("ShaidaDepositor"), registry: a("PayerRegistry"), memo: a("GloamPayMemo"), incomeVerifier: a("IncomeVerifier"), revocations: d.revocations ? (d.revocations.address.toLowerCase() as Address) : null, gitCommit: d.gitCommit, gitDirty: d.gitDirty, poolDeployBlock: d.poolDeployBlock };
 }
 
 const git = (args: string[]) => execFileSync("git", args, { cwd: REPO, encoding: "utf8" }).trim();

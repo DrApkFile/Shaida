@@ -19,7 +19,7 @@ export const kvStoreOn = (kv: KvClient, lines: Record<string, unknown>[] = []): 
 
 export const CHAIN_ID = 440050;
 const addr = (n: number) => `0x${n.toString(16).padStart(40, "0")}` as Address;
-export const CONTRACTS: RelayContracts = { token: addr(0x7a), pool: addr(0xa1), ledger: addr(0xb2), depositor: addr(0xd4), registry: addr(0xe5), memo: addr(0xc3) };
+export const CONTRACTS: RelayContracts = { token: addr(0x7a), pool: addr(0xa1), ledger: addr(0xb2), depositor: addr(0xd4), registry: addr(0xe5), memo: addr(0xc3), revocations: addr(0xf6) };
 const rand = (bytes: number): Hex => toHex(crypto.getRandomValues(new Uint8Array(bytes)));
 
 export class FakeChain implements RelayChain {
@@ -31,6 +31,8 @@ export class FakeChain implements RelayChain {
   readonly knownRoots = new Set<string>();
   readonly seen = new Set<string>();
   readonly vouched = new Set<string>();
+  /** Revocations: salt (decimal) → block. */
+  readonly revoked = new Map<string, bigint>();
   simulation: Simulation = { ok: true };
   estimate = 1_000_000n;
   balanceWei = 10n ** 18n;
@@ -53,6 +55,7 @@ export class FakeChain implements RelayChain {
       case "isKnownRoot": return this.knownRoots.has(a);
       case "commitmentSeen": return this.seen.has(a);
       case "vouched": return this.vouched.has(a);
+      case "revokedAt": return this.revoked.get(a) ?? 0n;
       case "activeIdOf": {
         const s = this.payers.get(a);
         if (s === "active") return 1;
@@ -134,7 +137,12 @@ export function makeEnv(opts: { limits?: Partial<RelayLimits>; signerKey?: Hex; 
     return { chainId: CHAIN_ID, proof: rand(256), root, nullifier: rand(32), asset: over.asset ?? CONTRACTS.token, to: over.to ?? rand(20), amount: (over.amount ?? 1_500_000n).toString() };
   }
 
-  return { chain, deps, store, payer, relayer, lines, depositBody, vouchedPayBody, sweepBody, unshieldBody, tick: (ms: number) => void (clock += ms) };
+  /** A revoke body with a fresh 31-byte secret (D35). */
+  function revokeBody(secret = BigInt(rand(31))) {
+    return { chainId: CHAIN_ID, secret: secret.toString() };
+  }
+
+  return { chain, deps, store, payer, relayer, lines, depositBody, vouchedPayBody, sweepBody, unshieldBody, revokeBody, tick: (ms: number) => void (clock += ms) };
 }
 
 export const req = (body: unknown, ip = "203.0.113.7") => ({ ip, readBody: async () => JSON.parse(JSON.stringify(body)) as unknown });

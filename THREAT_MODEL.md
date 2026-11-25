@@ -1,8 +1,8 @@
 # Threat model
 
 PRD §8 is the security model for the contracts, the circuit, the relayer and the browser vault. This file adds what
-the underwriting bot (D30) brings: a public decision endpoint and a key of its own. Each threat names its control and
-the test or evidence that shows it.
+the underwriting bot (D30) brings: a public decision endpoint and a key of its own; and what revocation (D35) and
+reader codes (D36) bring. Each threat names its control and the test or evidence that shows it.
 
 ## The bot's key (recording on chain)
 
@@ -28,8 +28,33 @@ the test or evidence that shows it.
 | A silently edited policy | The policy hash is part of every decision and of the agent card; the file is validated at startup. | `test:U18` `test:U18b` `test:U18c` |
 | A spoofed client IP to dodge the limit | The IP comes from the host's trusted header (`TRUSTED_IP_HEADER`, cf-connecting-ip on Render), as for the relayer (D29). | `web/src/server/relay-route.ts` |
 
+## Revocation (D35)
+
+| Threat | Control | Shown by |
+|---|---|---|
+| Someone other than the holder revokes a link (a reader, an observer) | `revoke` takes the secret, not the salt; the salt is Poseidon(4, secret), so knowing the link (and its salt) is not enough. Another secret marks another salt and leaves this link VALID. | `test:RV02` `test:RV11` `test:RV05` |
+| The revoke secret is stolen (a vault backup, a shared device) | It opens nothing but this link's revocation: the thief can revoke that one link early (a denial of the holder's own link). The secret is encrypted in the vault like note secrets and never sent anywhere but the relayer's revoke route, which never logs it. | `test:R46` `test:RV24` |
+| A revoke tx in the mempool is copied and sent first | It revokes the same salt, which is what the holder asked for; the holder's tx then reverts AlreadyRevoked and the page reads the chain. | `test:RV06` `test:RV22` |
+| A revoked link edited to say v1, to skip the check | Every link's salt is checked, whatever its version; the edit is still ProofRevoked. | `test:RV13` `evidence/mutation-revoke-code.md` |
+| An RPC outage or a missing registry turns a revoked link into VALID | The read failing is INCONCLUSIVE (ChainUnreachable); no configured registry is NotConfigured; the web build, the bot CLI and the SDK refuse to run without an address. An address with no code answers "0x", which is an error, not "not revoked". | `test:RV14` `test:U31` `test:S21` `test:W16` |
+| A dishonest RPC hides a revocation | Not prevented: every chain fact comes from the RPC, as for roots (the SDK's trust model). Use an RPC you trust. | `packages/sdk/README.md` |
+| A double click, a retry or a restart sends two revokes | One relayer record per salt, ever; a lost answer is `unknown` and never resent; the page keeps `sending`/`unknown` and only reads the chain. | `test:R42` `test:R43` `test:RV22` `test:RV23` |
+| The revoke drains the relayer | Gas cap 200,000 per revoke (77,796 measured) and the daily budget, as every route. | `test:R45` `evidence/revocations-gas.md` |
+| The revoke tx ties the link to the holder | It is sent by the relayer, not the holder. It reveals the secret and the salt; tying it to an on-chain attest needs the reader id and the expiry (LIMITS.md). | `LIMITS.md` |
+
+## Reader codes (D36)
+
+| Threat | Control | Shown by |
+|---|---|---|
+| Guessing the code offline from the link and the name | 80 random bits from the browser's CSPRNG; measured 439 guesses/s on one core: 4.37e13 years expected, 4.37e7 years at an assumed 1,000,000× speed-up. A link lives at most 365 days and can be revoked. | `evidence/reader-code-work.md` `test:RC06` |
+| The code leaks through the link | The link carries only the code-bound reader id; the code is in it in no form. | `test:RC07` |
+| The code leaks through the vault, the server or logs | The vault schema has no field for it; no server route takes it; /v and the prove form keep it in memory only. The fork fixture checks its own output and log. | `test:RV24` `packages/shaida-pay/scripts/privacy-fixture.ts` |
+| A code-protected link relabelled name-only (or v1) to drop the code | The reader check uses the link's reader id, which includes the code's hash: WrongReader. | `test:RC04` `test:S23` |
+| Opened without a code, a code link falls back to the name | Refused: a code link with no code is WrongReader, offline. | `test:RC02` `evidence/mutation-revoke-code.md` |
+| A weak code (typed by hand, reused) | Not prevented: the page only makes random codes, but the prove form accepts any well-formed one. LIMITS.md says the bound holds for page-made codes. | `LIMITS.md` |
+
 ## Not covered
-- Who holds a link: the reader name is intent, not identity (LIMITS.md). The bot cannot tell a holder from the person
-  who was paid.
+- Who holds a link: the reader name is intent, not identity (LIMITS.md); a reader code is a shared secret, not a login.
+  The bot is name-only and cannot tell a holder from the person who was paid.
 - An operator who changes the server's code could keep links. The CLI runs the same engine locally.
 - Uptime and abuse beyond one process's view are not measured.

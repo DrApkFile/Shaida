@@ -50,7 +50,7 @@ export const relayDeps: RelayDeps = {
     return {
       chainId,
       chain: relayChainFor(net),
-      contracts: { token: TUSD8_ADDRESS.toLowerCase() as Hex, pool: c.pool, ledger: c.ledger, depositor: c.depositor, registry: c.registry, memo: c.memo },
+      contracts: { token: TUSD8_ADDRESS.toLowerCase() as Hex, pool: c.pool, ledger: c.ledger, depositor: c.depositor, registry: c.registry, memo: c.memo, revocations: c.revocations },
       signer: { address: account.address, signTransaction: (tx) => account.signTransaction(tx) },
     };
   },

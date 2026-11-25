@@ -22,10 +22,11 @@ AEVUM_CHAIN := 44005
 TUSD8_PER_DEPOSIT := 100000000
 TUSD8_TOTAL       := 10000000000
 STACK_SCRIPT := script/DeployStack.s.sol:DeployStack
+REVOCATIONS_SCRIPT := script/DeployRevocations.s.sol:DeployRevocations
 # PayerRegistry owner on `make fork`: anvil account 0, so payers can be registered locally. On 44005: ATTESTOR=0x... (required).
 FORK_ATTESTOR := $(ANVIL_0)
 
-.PHONY: help install build gate test test-redis test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-supersede ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum verify-aevum secrets deal register-payer dev privacy-audit-live eligibility judge-ui sdk-live sdk-ui sdk-pack
+.PHONY: help install build gate test test-redis test-fork test-groth16 ceremony-prepare ceremony-contribute ceremony-verify ceremony-supersede ceremony-beacon-announce ceremony-beacon-apply ceremony-finalize bench-circuit s8-build s8-serve s8-headless s8-record check anvil fork deploy-fork deploy-aevum deploy-revocations-fork deploy-revocations-aevum verify-aevum secrets deal register-payer dev privacy-audit-live eligibility judge-ui sdk-live sdk-ui sdk-pack
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36mmake %-14s\033[0m %s\n", $$1, $$2}'
@@ -100,6 +101,22 @@ deploy-aevum: ## Deploy the stack to Aevum testnet. Needs ACCOUNT=<keystore name
 	cd contracts && TUSD8_PER_DEPOSIT=$(TUSD8_PER_DEPOSIT) TUSD8_TOTAL=$(TUSD8_TOTAL) ATTESTOR=$(ATTESTOR) \
 	  forge script $(STACK_SCRIPT) --rpc-url $(AEVUM_RPC) --broadcast --legacy --slow --account $(ACCOUNT)
 	node tools/write-deployment.mjs --chain $(AEVUM_CHAIN) --rpc $(AEVUM_RPC) --out deployments/aevum.json
+
+# Revocations (D35): one new contract over the stack's PoseidonT3. Nothing else is deployed or changed.
+deploy-revocations-fork: ## Deploy Revocations to `make fork` over deployments/fork.json's PoseidonT3
+	@test "$$(cast chain-id --rpc-url $(FORK_RPC))" = "$(FORK_CHAIN)" || (echo "This only works on 'make fork'." && exit 1)
+	@DEPLOYER=$$(cast to-check-sum-address 0x$$(openssl rand -hex 20)); \
+	  cast rpc anvil_setBalance $$DEPLOYER 0x8ac7230489e80000 --rpc-url $(FORK_RPC) > /dev/null && \
+	  cast rpc anvil_impersonateAccount $$DEPLOYER --rpc-url $(FORK_RPC) > /dev/null && \
+	  cd contracts && forge script $(REVOCATIONS_SCRIPT) --rpc-url $(FORK_RPC) --broadcast --legacy --slow --unlocked --sender $$DEPLOYER
+	node tools/write-revocations.mjs --chain $(FORK_CHAIN) --rpc $(FORK_RPC) --out deployments/fork.json
+
+deploy-revocations-aevum: ## Deploy Revocations to Aevum testnet over deployments/aevum.json's PoseidonT3. Needs ACCOUNT=<keystore> and a clean, committed tree
+	@test -n "$(ACCOUNT)" || (echo "Set ACCOUNT=<name> (a cast keystore)." && exit 1)
+	@test -z "$$(git status --porcelain)" || (echo "Commit first: deployments/aevum.json records the exact commit." && exit 1)
+	@test "$$(cast chain-id --rpc-url $(AEVUM_RPC))" = "$(AEVUM_CHAIN)" || (echo "$(AEVUM_RPC) is not chain $(AEVUM_CHAIN)." && exit 1)
+	cd contracts && forge script $(REVOCATIONS_SCRIPT) --rpc-url $(AEVUM_RPC) --broadcast --legacy --slow --account $(ACCOUNT)
+	node tools/write-revocations.mjs --chain $(AEVUM_CHAIN) --rpc $(AEVUM_RPC) --out deployments/aevum.json
 
 secrets: ## gitleaks over the whole git history and the uncommitted changes (.gitleaks.toml)
 	gitleaks detect --source . --config .gitleaks.toml --redact --no-banner

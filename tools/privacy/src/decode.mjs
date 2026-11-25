@@ -19,6 +19,7 @@ export const FIELD_CLASSES = {
   unshield: [["to", "plain", "the withdrawal recipient"], ["amount", "plain", "the withdrawn amount (a whole note)"], ["asset", "plain", "tUSD8"], ["nullifier", "opaque", "spends a swept note"], ["root", "opaque", "a past pool root"], ["proof", "opaque", "Gloam unshield proof"], ["tokenFlow", "plain", "tUSD8 Transfer pool → to"]],
   register: [["account", "plain", "the payer's address"], ["payerId", "plain", "the payer's id"], ["nameHash", "opaque", "keccak256 of the display name: confirmable by guessing the name"]],
   revoke: [["payerId", "plain", "the payer id that stops being active"]],
+  revokeLink: [["secret", "plain", "the link's revoke secret: public once sent, but it opens nothing except its salt"], ["salt", "plain", "Revoked.salt = Poseidon(4, secret): the revoked link's salt, which is one of the three inputs of its proofs' context"]],
   attest: [["threshold", "plain", "at least this much"], ["count", "plain", "this many payments"], ["fromIndex", "plain", "first ledger leaf of the range"], ["toIndex", "plain", "last ledger leaf of the range"], ["asset", "plain", "tUSD8"], ["ledgerRoot", "opaque", "a past ledger root (names the ledger state the proof used)"], ["context", "opaque", "Poseidon(readerIdHash, expiry, salt)"], ["proof", "opaque", "Groth16 proof"]],
 };
 export const META_FIELDS = [["sender", "metadata", "tx.from"], ["block/time", "metadata", "when"], ["order", "metadata", "tx index and the sender's nonce"], ["gasUsed", "metadata", "receipt"], ["gasLimit", "metadata", "tx"], ["calldataBytes", "metadata", "size of the input"]];
@@ -69,6 +70,7 @@ async function fieldsOf(kind, fn, a, ev, dump, tx, events) {
     case "register": { const r = ev("PayerRegistered"); return { account: lower(r.account), payerId: r.payerId, nameHash: r.nameHash }; }
     case "revoke": return { payerId: a[0] };
     case "attest": return { signals: Object.fromEntries(SIGNALS.map((n, i) => [n, a[1][i]])) };
+    case "revokeLink": return { secret: a[0], salt: ev("Revoked")?.salt };
     default: return {};
   }
 }

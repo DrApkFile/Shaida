@@ -8,6 +8,7 @@ import {
   type IncomeLink,
   type IncomeProofWitness,
   PUBLIC_SIGNAL_ORDER,
+  type RevocationState,
   type VerifyDeps,
 } from "../../src/index";
 import { runCircuit } from "./circuit";
@@ -56,15 +57,38 @@ export function fragment(proofs: readonly LinkProof[], o: Opening): string {
   });
 }
 
+/** A v2 link (D35, D36): same proofs and opening, plus its reader mode. */
+export function fragmentV2(proofs: readonly LinkProof[], o: Opening, reader: "name" | "code"): string {
+  return encodeIncomeLink({
+    v: 2,
+    proofs: [...proofs],
+    readerIdHash: o.readerIdHash.toString(),
+    expiry: o.expiry.toString(),
+    salt: o.salt.toString(),
+    reader,
+  });
+}
+
+/** A revocation registry for tests: revoked salts with their block, or a registry that cannot be read. */
+export type Registry = ReadonlyMap<bigint, bigint> | "unreadable";
+export const registryRead = (r: Registry) => async (salt: bigint): Promise<RevocationState> => {
+  if (r === "unreadable") return { state: "unreadable", code: "ChainUnreachable", message: "RPC timeout (test)" };
+  const block = r.get(salt);
+  return block === undefined ? { state: "none" } : { state: "revoked", block, time: 1_750_000_000n + block };
+};
+
 /** Deps for a reader `readerIdHash` at time `now`, with these known roots; leaf i is dated 1_700_000_000 + 10·i. */
 export function depsFor(
   verify: VerifyDeps["verifyGroth16"],
   readerIdHash: bigint,
   knownRoots: readonly bigint[],
   now = 1_800_000_000n,
+  extra: { readonly readerCode?: bigint | null; readonly registry?: Registry } = {},
 ): VerifyDeps {
   return {
     readerIdHash,
+    readerCode: extra.readerCode ?? null,
+    revocation: registryRead(extra.registry ?? new Map()),
     now: () => now,
     isKnownRoot: async (root) => knownRoots.includes(root),
     verifyGroth16: verify,

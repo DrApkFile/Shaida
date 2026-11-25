@@ -2,7 +2,7 @@
 // Chain reads and writes around an income link (D27): leaf block times, the verifier's dependencies, the optional
 // IncomeVerifier.check (view, explicit gas: snarkjs verifiers return false when short of gas) and attest.
 import { BaseError, ContractFunctionRevertedError, decodeErrorResult, encodeFunctionData, parseAbi, type Hex, type PublicClient } from "viem";
-import type { CheckedTrees } from "@shaida/index";
+import { revocationAt, type CheckedTrees } from "@shaida/index";
 import { timedLeaves } from "@shaida/pay";
 import { datesForRange, INCOME_FINAL_VKEY, solidityArgsOf, type Groth16Proof, type ShaidaError, shaidaError, type TimedLeaf, type VerifyDeps } from "@shaida/proofs";
 import type { Wiring } from "../flows";
@@ -29,10 +29,18 @@ export const leafTimes = (w: Wiring, t: CheckedTrees): Promise<TimedLeaf[]> => t
 
 interface Snarkjs { groth16: { verify(vkey: Readonly<Record<string, unknown>>, s: readonly string[], p: Groth16Proof): Promise<boolean> } }
 
-/** verifyIncomeLink's dependencies for this reader: roots read at the snapshot's block, dates from its leaves. */
-export function verifyDepsFor(w: Wiring, t: CheckedTrees, leaves: readonly TimedLeaf[], readerIdHash: bigint, now: () => bigint): VerifyDeps {
+/** Who is verifying: the hash of their name (readerIdHashOf) and, for a code-protected link, their reader code. */
+export interface ReaderInput {
+  readonly nameHash: bigint;
+  readonly code: bigint | null;
+}
+
+/** verifyIncomeLink's dependencies for this reader: roots and revocations read at the snapshot's block, dates from its leaves. */
+export function verifyDepsFor(w: Wiring, t: CheckedTrees, leaves: readonly TimedLeaf[], reader: ReaderInput, now: () => bigint): VerifyDeps {
   return {
-    readerIdHash,
+    readerIdHash: reader.nameHash,
+    readerCode: reader.code,
+    revocation: (salt) => revocationAt(w.client, w.contracts.revocations, salt, t.block),
     now,
     isKnownRoot: (root) => w.client.readContract({ address: w.contracts.ledger, abi: ledgerAbi, functionName: "isKnownRoot", args: [hex32(root)], blockNumber: t.block }),
     verifyGroth16: async (signals, proof) => ((await import("snarkjs")) as unknown as Snarkjs).groth16.verify(INCOME_FINAL_VKEY, signals, proof),

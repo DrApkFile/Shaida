@@ -5,17 +5,29 @@
 // has exactly one V leaf (D9), and the ranges are strictly disjoint (step 2c). So no payment is counted by two
 // proofs, and Σ thresholds is a lower bound on distinct vouched, swept income. All proofs must use one ledger root
 // (D13): the builder never mixes roots, so a mixed bundle was assembled from separate builds and is refused.
+//
+// Revocation (D35) is read for every link, whatever its version: the version is not inside the context, so a revoked
+// v2 link edited to say v1 keeps its revocable salt and must still be refused. A v1 salt is random, with no known
+// preimage under the revoke tag, so it can never be hit. Reader codes (D36): a v2 link with reader "code" is bound to
+// Poseidon(5, nameHash, Poseidon(code)); without the right code the reader id differs (WrongReader).
 import { PUBLIC_SIGNAL_ORDER } from "../circuit-input";
 import { type ErrorCode, type ShaidaError, shaidaError } from "../errors";
 import { TUSD8_FIELD } from "../field";
 import { contextOf } from "../hash";
-import { decodeFragment, type Groth16Proof, incomeLinkSchema } from "./link";
+import { codeBoundReaderIdHash } from "../reader-code";
+import type { RevocationState } from "../revoke";
+import { decodeFragment, type Groth16Proof, type IncomeLink, incomeLinkSchema } from "./link";
+import { type LinkKind, linkKindOf } from "./link-kind";
 
 export interface VerifyDeps {
-  /** hash(this reader's id), computed by the caller from the signed-in reader. */
+  /** readerIdHashOf(this reader's name): the reader id of v1 and name-only v2 links. */
   readonly readerIdHash: bigint;
+  /** The reader code this reader entered (parseReaderCode), or null. Needed only for code-protected links (D36). */
+  readonly readerCode: bigint | null;
   /** Unix seconds. */
   readonly now: () => bigint;
+  /** Revocations.revokedAt(salt) at the pinned block, with that block's time (D35). Never throws for a read failure. */
+  readonly revocation: (salt: bigint) => Promise<RevocationState>;
   /** ShaidaLedger.isKnownRoot at a pinned block. */
   readonly isKnownRoot: (root: bigint) => Promise<boolean>;
   /** snarkjs groth16.verify with the pinned ceremony vkey (and optionally IncomeVerifier.check). */
@@ -35,17 +47,30 @@ export interface IncomeVerified {
   readonly toDate: bigint;
   readonly expiry: bigint;
   readonly proofs: number;
+  /** What kind of link this is (D35, D36): its version, how the reader was checked, and whether it can be revoked. */
+  readonly link: LinkKind;
 }
+
 
 export type IncomeVerification =
   | IncomeVerified
-  | { readonly status: "INVALID"; readonly error: ShaidaError }
+  | { readonly status: "INVALID"; readonly error: ShaidaError; readonly revokedAt?: { readonly block: bigint; readonly time: bigint } }
   | { readonly status: "INCONCLUSIVE"; readonly error: ShaidaError };
 
 const fail = (code: ErrorCode, message: string): IncomeVerification => {
   const error = shaidaError(code, `${message} Nothing was recorded.`);
   return error.retryable === "yes" ? { status: "INCONCLUSIVE", error } : { status: "INVALID", error };
 };
+const inconclusive = (code: "ChainUnreachable" | "NotConfigured", message: string): IncomeVerification => ({
+  status: "INCONCLUSIVE",
+  error: shaidaError(code, `${message} Nothing was recorded.`),
+});
+
+/** The reader id this link must carry for this reader (step 4). Null: the link needs a code the reader did not give. */
+function expectedReaderId(link: IncomeLink, deps: VerifyDeps): bigint | null {
+  if (link.v === 2 && link.reader === "code") return deps.readerCode === null ? null : codeBoundReaderIdHash(deps.readerIdHash, deps.readerCode);
+  return deps.readerIdHash;
+}
 
 const signal = (signals: readonly string[], name: (typeof PUBLIC_SIGNAL_ORDER)[number]) =>
   BigInt(signals[PUBLIC_SIGNAL_ORDER.indexOf(name)]!);
@@ -110,10 +135,19 @@ export async function verifyIncomeBundle(raw: unknown, deps: VerifyDeps): Promis
   if (contextOf(readerIdHash, expiry, BigInt(link.salt)) !== proofs[0]!.context) {
     return fail("ContextMismatch", "The reader, expiry or salt in the link do not match the proofs.");
   }
-  // 4. reader
-  if (readerIdHash !== deps.readerIdHash) return fail("WrongReader", "The link was made for another reader.");
+  // 4. reader (D36: a code-protected link needs the reader's code too)
+  const expected = expectedReaderId(link, deps);
+  if (expected === null) return fail("WrongReader", "The link is code-protected: it needs the reader's name and their reader code.");
+  if (readerIdHash !== expected) return fail("WrongReader", "The link was made for another reader.");
   // 5. expiry
   if (deps.now() > expiry) return fail("ProofExpired", `The link expired at ${expiry} (unix seconds).`);
+  // 5a. revocation (D35), at the pinned block, for every version (see the header)
+  const revocation = await deps.revocation(BigInt(link.salt));
+  if (revocation.state === "unreadable") return inconclusive(revocation.code, `The revocation registry could not be read (${revocation.message}).`);
+  if (revocation.state === "revoked") {
+    const error = shaidaError("ProofRevoked", `The holder revoked this link in block ${revocation.block} (unix time ${revocation.time}). Nothing was recorded.`);
+    return { status: "INVALID", error, revokedAt: { block: revocation.block, time: revocation.time } };
+  }
 
   // 6. the bundle's one root (2b) is known on chain
   const root = proofs[0]!.root;
@@ -141,5 +175,6 @@ export async function verifyIncomeBundle(raw: unknown, deps: VerifyDeps): Promis
     toDate: dates.toDate,
     expiry,
     proofs: proofs.length,
+    link: linkKindOf(link),
   };
 }

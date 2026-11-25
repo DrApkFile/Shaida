@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
 import type { CheckedTrees } from "@shaida/index";
 import { endOfDayUtc, suggestedThreshold, type CountablePayment } from "@shaida/pay";
-import { nearestValidThresholds, readerIdHashOf, type TimedLeaf } from "@shaida/proofs";
+import { nearestValidThresholds, parseReaderCode, readerIdHashOf, type TimedLeaf } from "@shaida/proofs";
 import { ProblemBox } from "@/components/ProblemBox";
 import type { Wiring } from "@/lib/flows";
 import { endOfDay, isoDate, isoInDays, startOfDay } from "@/lib/income/dates";
@@ -33,6 +33,7 @@ export function ProveForm({ w, t, leaves, countable }: { w: Wiring; t: CheckedTr
   // /app/prove?for=merchant (the landing page's "Who it's for") preselects a template.
   useEffect(() => setTemplate(templateOf(new URLSearchParams(window.location.search).get("for")).id), []);
   const [reader, setReader] = useState("");
+  const [code, setCode] = useState("");
   const [expiry, setExpiry] = useState(isoInDays(30));
   const [stage, setStage] = useState<Stage | null>(null);
   const [problem, setProblem] = useState<Problem | null>(null);
@@ -49,11 +50,14 @@ export function ProveForm({ w, t, leaves, countable }: { w: Wiring; t: CheckedTr
   const expiryEnd = endOfDayUtc(expiry); // D32 F8: 23:59:59 UTC, the same for everyone
   const nowSec = BigInt(Math.floor(Date.now() / 1000));
   const readerOk = readerIdHashOf(reader).ok;
+  const codeGiven = code.trim() !== "";
+  const codeOk = !codeGiven || parseReaderCode(code).ok;
   const tpl = TEMPLATES[template];
 
   const why = [
     start === null || end === null ? "Pick both dates of the period." : start > end ? "The period ends before it starts." : null,
     !readerOk ? "Type the reader's name (1–96 bytes)." : null,
+    !codeOk ? "The reader code is 16 letters and digits (like 7K3M-Q9TB-4XWZ-H2RD), exactly as the reader gave it." : null,
     threshold === null ? "Type an amount in tUSD8, like 9 or 9.5." : !fit?.valid ? "The amount must be a whole multiple of the step." : null,
     expiryEnd === null ? "Pick an expiry date." : expiryEnd <= nowSec ? "The expiry must be in the future." : expiryEnd > nowSec + BigInt(MAX_EXPIRY_DAYS * 86_400) ? `The expiry must be within ${MAX_EXPIRY_DAYS} days.` : null,
   ].filter((x): x is string => x !== null);
@@ -63,7 +67,7 @@ export function ProveForm({ w, t, leaves, countable }: { w: Wiring; t: CheckedTr
     setProblem(null); setBuilt(null);
     setStage({ done: 0, total: 3, label: "Starting" });
     try {
-      const r = await buildLink(w, t, leaves, countable, { reader, start, end, threshold, step, expiry: expiryEnd }, setStage);
+      const r = await buildLink(w, t, leaves, countable, { reader, readerCode: codeGiven ? code : null, start, end, threshold, step, expiry: expiryEnd }, setStage);
       if (!r.ok) { setProblem(r.error); return; }
       const made = { ...r.value, shared: { ...r.value.shared, template } };
       await vault.update((d) => ({ ...d, shared: [...d.shared, made.shared] }));
@@ -120,7 +124,16 @@ export function ProveForm({ w, t, leaves, countable }: { w: Wiring; t: CheckedTr
               <span>{tpl.suggestedReader.why}</span>
             </span>
           )}
-          <span className="hint">The link is made out to this name. It is not a login: anyone with the link who types the name sees VALID, so share it only with them.</span>
+          <span className="hint">
+            {codeGiven
+              ? "Code-protected: the reader needs this name and their code to see VALID. The code is not in the link."
+              : "Name only: anyone with this link and the name can view it. Ask the reader for a code to protect it."}
+          </span>
+        </label>
+        <label className="field">
+          <span>Reader&apos;s code (optional)</span>
+          <input name="reader-code" autoComplete="off" spellCheck={false} className="mono" placeholder="XXXX-XXXX-XXXX-XXXX" value={code} aria-invalid={!codeOk} onChange={(e) => setCode(e.target.value)} />
+          <span className="hint">The reader gets one on the verify page (“Get a code to give the person proving to you”). It is used to build the link and not kept.</span>
         </label>
         <label className="field">
           <span>Expires</span>

@@ -1,5 +1,5 @@
 // The one production network the SDK knows, bundled and pinned (src/pins.ts checks its hash before any read).
-// Source: deployments/aevum.json (ShaidaLedger, IncomeVerifier, ledgerDeployBlock), chain 44005, tUSD8.
+// Source: deployments/aevum.json (ShaidaLedger, IncomeVerifier, ledgerDeployBlock, revocations), chain 44005, tUSD8.
 import type { CustomNetwork, NetworkConfig } from "./types";
 import { z } from "zod";
 
@@ -11,6 +11,7 @@ export const AEVUM_TESTNET: NetworkConfig = Object.freeze({
   ledger: "0x677659b068278103f83eff413080cb53be3388ed",
   incomeVerifier: "0xc9844a8f058be2d658c972d1d2276b13f308e1c8",
   fromBlock: 3810988n,
+  revocations: null,
 });
 
 const address = z.string().regex(/^0x[0-9a-fA-F]{40}$/, "not a 20-byte hex address").transform((a) => a.toLowerCase());
@@ -21,6 +22,7 @@ const customSchema = z
     ledger: address,
     incomeVerifier: address,
     fromBlock: z.bigint().nonnegative(),
+    revocations: address.optional(),
   })
   .strict();
 
@@ -33,5 +35,5 @@ export function networkOf(network: "aevum-testnet" | CustomNetwork): { ok: true;
     const issue = r.error.issues[0];
     return { ok: false, why: `custom network: ${issue?.path.join(".") || "value"}: ${issue?.message ?? "invalid"}` };
   }
-  return { ok: true, value: { ...r.data, rpcUrl: null, asset: AEVUM_TESTNET.asset } };
+  return { ok: true, value: { ...r.data, revocations: r.data.revocations ?? null, rpcUrl: null, asset: AEVUM_TESTNET.asset } };
 }

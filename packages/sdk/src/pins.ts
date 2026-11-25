@@ -18,8 +18,8 @@ export function canonicalHash(value: unknown): string {
 export const PINNED = Object.freeze({
   /** Canonical-JSON hash of income_final_vkey.json (file sha256 2635a810…, ceremony/record.json final.vkey). */
   vkeySha256: "6a782a2b31d9d6b8e90e7950c34be731c2445060c1b1d8ada47b735c32534265",
-  /** Canonical-JSON hash of AEVUM_TESTNET. */
-  networkSha256: "3181ebe65b8f7612f4793d0d6718148802e335a221020cddbb9aa1b6477e30d6",
+  /** Canonical-JSON hash of AEVUM_TESTNET (0.2.0: with `revocations`). */
+  networkSha256: "66fcf3fb643a561b74202468706b84b77ab40be0d77e498a0033956be96e7047",
 });
 
 /** Pure: compares what is about to be used with what was pinned. Exported for the tests, not from the package. */

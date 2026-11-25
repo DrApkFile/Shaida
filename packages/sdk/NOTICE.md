@@ -1,4 +1,4 @@
-# NOTICE: shaida-sdk 0.1.0
+# NOTICE: shaida-sdk 0.2.0
 
 shaida-sdk is MIT (LICENSE). Copyright (c) 2026 Shaida contributors; the repository's LICENSE also names PQA Labs
 (Aevum Starter Kit). This file states facts about licences. It is not legal advice.
@@ -22,7 +22,7 @@ one, 69 MB of node_modules. Licences as each package declares them:
 | Licence | Packages |
 |---|---|
 | GPL-3.0 (9) | snarkjs 0.7.6, ffjavascript 0.3.1 and 0.3.0, wasmcurves 0.2.2, wasmbuilder 0.0.16, r1csfile 0.0.48, fastfile 0.0.20, @iden3/binfileutils 0.0.12, @iden3/bigarray 0.0.2 |
-| MIT (16, with this one) | shaida-sdk 0.1.0, zod 3.25.76, poseidon-lite 0.3.0, @noble/hashes 1.8.0, bfj 7.1.0, logplease 1.2.15, async 3.2.6, balanced-match 1.0.2, bluebird 3.7.2, brace-expansion 2.1.8, check-types 11.2.3, hoopy 0.1.4, jsonpath 1.3.0, static-eval 2.1.1, tryer 1.0.1, underscore 1.13.6 |
+| MIT (16, with this one) | shaida-sdk 0.2.0, zod 3.25.76, poseidon-lite 0.3.0, @noble/hashes 1.8.0, bfj 7.1.0, logplease 1.2.15, async 3.2.6, balanced-match 1.0.2, bluebird 3.7.2, brace-expansion 2.1.8, check-types 11.2.3, hoopy 0.1.4, jsonpath 1.3.0, static-eval 2.1.1, tryer 1.0.1, underscore 1.13.6 |
 | Apache-2.0 (5) | circom_runtime 0.1.28, ejs 3.1.10, filelist 1.0.6, jake 10.9.4, web-worker 1.2.0 |
 | BSD-2-Clause (4) | escodegen 2.1.0, esprima 4.0.1, estraverse 5.3.0, esutils 2.0.3 |
 | BSD (1) | esprima 1.2.5 |

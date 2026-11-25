@@ -15,7 +15,16 @@ export const REFUSAL_WORDS: Partial<Record<ErrorCode, string>> = {
   RangeUnresolvable: "The dates of the counted payments could not be read from the ledger yet. Try again in a minute.",
   NotConfigured: "This page is not set up for this network.",
   InputRejected: "Type your name as the sender wrote it.",
+  ProofRevoked: "The person who made this link revoked it. Ask them for a new one.",
+  ChainUnreachable: "The chain could not be read, so whether this link was revoked is not known. Try again in a minute.",
 };
+
+/** D36: how a link checks its reader, in the words the UI uses everywhere. */
+export const readerModeLabel = (mode: "name" | "code" | undefined): string =>
+  mode === "code" ? "Code-protected" : "Name only: anyone with this link and the name can view it";
+
+/** D35: links made before revocation (v1) cannot be revoked; they still verify as before. */
+export const NOT_REVOCABLE = "Not revocable (made before revocation existed)";
 
 export const refusalWords = (code: ErrorCode): string => REFUSAL_WORDS[code] ?? "This link could not be verified.";
 

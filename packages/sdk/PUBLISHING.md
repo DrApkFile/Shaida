@@ -4,6 +4,9 @@
 (sha512 `3az4S9…CAtA==`, evidence/sdk/pack.md), and tagged `shaida-sdk-v0.1.0` on 3175fe5. A clean install from the
 registry is checked by `pnpm --filter shaida-sdk npm-check` (evidence/sdk/npm-install.md).
 
+0.2.0 (revocation and reader codes, D35/D36) is packed but **not published**: the builder publishes it after
+Revocations is deployed on 44005 and `AEVUM_TESTNET.revocations` and the pin carry its address (test S12b).
+
 ## The name
 The package is the unscoped `shaida-sdk` (D34). The npm scope `@shaida` belongs to another user's account, so the
 SDK can't be published there. `@shaida/proofs`, `@shaida/underwrite` and the other `@shaida/*` names are private
@@ -14,16 +17,16 @@ workspace packages that are never published; the shipped manifest names none of 
 An npm account with 2FA turned on. With `--auth-type=web`, npm opens the browser for the login and the 2FA step,
 so no token is typed or stored by hand.
 
-## Each release (0.1.0 first)
+## Each release (X.Y.Z = the version in package.json)
 From a clean checkout of the commit to release, with `make gate` PASS:
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm --filter shaida-sdk test                  # builds dist/ and runs S01–S19
-pnpm --filter shaida-sdk tarball               # writes packages/sdk/shaida-sdk-0.1.0.tgz and prints its sha512
-tar -tzf packages/sdk/shaida-sdk-0.1.0.tgz     # package/ + dist/, README.md, NOTICE.md, LICENSE, package.json
-npm publish packages/sdk/shaida-sdk-0.1.0.tgz --auth-type=web
-npm view shaida-sdk@0.1.0 dist.integrity       # must equal the sha512 printed by the tarball step
+pnpm --filter shaida-sdk test                  # builds dist/ and runs S01–S24
+pnpm --filter shaida-sdk tarball               # writes packages/sdk/shaida-sdk-X.Y.Z.tgz and prints its sha512
+tar -tzf packages/sdk/shaida-sdk-X.Y.Z.tgz     # package/ + dist/, README.md, NOTICE.md, LICENSE, package.json
+npm publish packages/sdk/shaida-sdk-X.Y.Z.tgz --auth-type=web
+npm view shaida-sdk@X.Y.Z dist.integrity       # must equal the sha512 printed by the tarball step
 ```
 
 Publish the tarball made by `tarball` (scripts/pack.mjs), not with `npm publish` or `pnpm publish` run in

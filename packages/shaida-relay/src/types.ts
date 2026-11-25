@@ -2,7 +2,7 @@ import type { Address, Hex } from "viem";
 import type { ErrorCode, ShaidaError } from "@shaida/proofs";
 
 /** The relayed functions. Each has exactly one route and one contract function (AEVUM_INTEGRATION §4). */
-export const RELAY_FNS = ["deposit", "vouchedPay", "lateVouch", "sweep", "memo", "unshield"] as const;
+export const RELAY_FNS = ["deposit", "vouchedPay", "lateVouch", "sweep", "memo", "unshield", "revoke"] as const;
 export type RelayFn = (typeof RELAY_FNS)[number];
 
 /**
@@ -44,6 +44,8 @@ export interface RelayContracts {
   readonly depositor: Address;
   readonly registry: Address;
   readonly memo: Address;
+  /** Revocations (D35): the one contract the `revoke` route calls. */
+  readonly revocations: Address;
 }
 
 export interface Call {

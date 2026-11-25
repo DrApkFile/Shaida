@@ -2,6 +2,7 @@ export * from "./clients";
 export * from "./config";
 export * from "./inbox-state";
 export * from "./income";
+export * from "./revoke-link";
 export * from "./income-artifacts";
 export * from "./notes";
 export * from "./payer";

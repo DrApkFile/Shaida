@@ -33,6 +33,7 @@ export const REFUSAL_CODES = [
   "ContextMismatch",
   "WrongReader",
   "ProofExpired",
+  "ProofRevoked",
 ] as const satisfies readonly ErrorCode[];
 export type RefusalCode = (typeof REFUSAL_CODES)[number];
 
@@ -45,6 +46,7 @@ export const REFUSAL_WORDS: Record<RefusalCode, string> = {
   ContextMismatch: "The link's reader, expiry or salt do not match its proofs: it was altered.",
   WrongReader: "The link was made for another reader than this policy's.",
   ProofExpired: "The link has expired.",
+  ProofRevoked: "The holder revoked this link.",
 };
 
 export type DeclineCode = RuleCode | RefusalCode;

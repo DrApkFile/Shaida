@@ -14,17 +14,21 @@ ids and can guess names against `PayerRegistered`'s name hash). Not built.
 One relayer key per process signs every relayed call (D19); a stuck nonce holds the queue. Add a pool of keys with a
 dispatcher, each key with its own nonce lane (AEVUM_INTEGRATION §4 hardening item 6).
 
-## Reader code (authenticated reader)
-- reader code: the reader generates a random code on /v and gives it to the recipient, who binds the proof to it via
-  the existing context field (no circuit change). Today the link is bound to the reader's name only, which anyone can
-  type (LIMITS.md, D27).
+## Reader authentication, after reader codes
+Reader codes are built (D36): a code-protected link needs the reader's name and their 80-bit code. Not built:
+- a reader key pair and a signed challenge, so the reader is authenticated rather than holding a shared secret;
+- reader codes for the bot (per-lender bot instances with a private code), so an APPROVE needs more than the link.
+
+## Revocation, next (D35)
+- Revoke from another device: today the secret is in the browser's vault (and its backup) only.
+- A revocation list for on-chain attests: `IncomeVerifier` has no revocation hook, and redeploying it was out of scope.
 
 ## Underwriting bot, next (D30)
 - Signed decisions: the bot signs `{decisionId, proofId, policy hash, kind, codes, evaluatedAt}` with its key, so a
   lender can keep a decision and show it to a third party without asking the bot again.
 - Put the policy on chain: an `attest` variant (or a small registry) that records the policy hash and decision with
   the proof, so the on-chain record says which policy it passed, not only that it passed IncomeVerifier.
-- Applicant binding: combine the reader code (above) with the bot, so an APPROVE is for the applicant who received
+- Applicant binding: give the bot a reader code per lender (above), so an APPROVE is for the applicant who received
   the code, not for anyone holding the link.
 - Policies per lender: let an operator publish their own policy file (and reader name) behind the same engine.
 - A steadiness rule ("payments in at least N distinct months") needs the circuit to expose more than the range; it

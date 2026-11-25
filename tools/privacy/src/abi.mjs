@@ -23,6 +23,7 @@ const FUNCTIONS = [
   ["register", "registry", "function register(address account, bytes32 nameHash)"],
   ["revoke", "registry", "function revoke(uint32 payerId)"],
   ["attest", "incomeVerifier", "function attest(Proof proof, uint256[7] signals)"],
+  ["revokeLink", "revocations", "function revoke(uint256 secret)"],
 ];
 
 export const FUNCTION_TABLE = FUNCTIONS.map(([kind, contract, sig]) => {
@@ -41,6 +42,7 @@ export const EVENTS = parseAbi([
   "event PayerRegistered(uint32 indexed payerId, address indexed account, bytes32 nameHash)",
   "event PayerIdRevoked(uint32 indexed payerId, address indexed account)",
   "event IncomeProofChecked(uint256 indexed context, uint256 threshold, uint256 count)",
+  "event Revoked(uint256 indexed salt, uint256 blockNumber)",
   "event Transfer(address indexed from, address indexed to, uint256 value)",
 ]);
 

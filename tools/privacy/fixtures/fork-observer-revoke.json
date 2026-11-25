@@ -1,0 +1,965 @@
+{
+  "schema": "shaida-privacy-observer/1",
+  "chainId": 440050,
+  "blocks": [
+    4124856,
+    4128502
+  ],
+  "completeness": {
+    "explorer": "not checked",
+    "onlyInExplorer": [],
+    "failedInExplorer": []
+  },
+  "counts": {
+    "setup": 5,
+    "register": 2,
+    "deposit": 2,
+    "vouchedPay": 8,
+    "memo": 8,
+    "sweep": 8,
+    "unshield": 1,
+    "revokeLink": 1
+  },
+  "fields": {
+    "classes": {
+      "deposit": [
+        [
+          "payer",
+          "plain",
+          "the payer's address (calldata and Deposited)"
+        ],
+        [
+          "amount",
+          "plain",
+          "the deposit amount"
+        ],
+        [
+          "gasless",
+          "plain",
+          "which deposit path"
+        ],
+        [
+          "commitment",
+          "opaque",
+          "the new note"
+        ],
+        [
+          "shieldProof",
+          "opaque",
+          "Groth16 proof"
+        ],
+        [
+          "auth",
+          "plain",
+          "EIP-3009 window and signature: recovers to the payer"
+        ],
+        [
+          "leafIndex",
+          "plain",
+          "pool tree position"
+        ],
+        [
+          "tokenFlow",
+          "plain",
+          "tUSD8 Transfer payer → depositor → pool"
+        ]
+      ],
+      "vouchedPay": [
+        [
+          "payer",
+          "plain",
+          "the payer's address (calldata)"
+        ],
+        [
+          "payerId",
+          "plain",
+          "Vouched.payerId (indexed)"
+        ],
+        [
+          "signature",
+          "plain",
+          "EIP-712 Vouch signature: recovers to the payer's address"
+        ],
+        [
+          "deadline",
+          "plain",
+          "signature deadline: about when the payer signed"
+        ],
+        [
+          "proof",
+          "opaque",
+          "Gloam transfer proof"
+        ],
+        [
+          "root",
+          "opaque",
+          "a past pool root"
+        ],
+        [
+          "nullifier",
+          "opaque",
+          "spends the payer's note"
+        ],
+        [
+          "paymentCommitment",
+          "opaque",
+          "the payment note (newCommitments[0])"
+        ],
+        [
+          "changeCommitment",
+          "opaque",
+          "the payer's change note (newCommitments[1])"
+        ],
+        [
+          "leafIndex",
+          "plain",
+          "ledger tree position of V"
+        ],
+        [
+          "leaf",
+          "opaque",
+          "V = Poseidon(1, payerId, Cp)"
+        ]
+      ],
+      "lateVouch": [
+        [
+          "payer",
+          "plain",
+          "the payer's address"
+        ],
+        [
+          "payerId",
+          "plain",
+          "Vouched.payerId"
+        ],
+        [
+          "signature",
+          "plain",
+          "recovers to the payer"
+        ],
+        [
+          "deadline",
+          "plain",
+          "signature deadline"
+        ],
+        [
+          "paymentCommitment",
+          "opaque",
+          "the payment note"
+        ],
+        [
+          "leafIndex",
+          "plain",
+          "ledger tree position"
+        ],
+        [
+          "leaf",
+          "opaque",
+          "V leaf"
+        ]
+      ],
+      "sweep": [
+        [
+          "proof",
+          "opaque",
+          "Gloam transfer proof"
+        ],
+        [
+          "root",
+          "opaque",
+          "a past pool root"
+        ],
+        [
+          "nullifier",
+          "opaque",
+          "spends the payment note; unlinkable to it without the note's secret"
+        ],
+        [
+          "sweepCommitment",
+          "opaque",
+          "the recipient's new note"
+        ],
+        [
+          "changeCommitment",
+          "opaque",
+          "second output note"
+        ],
+        [
+          "leafIndex",
+          "plain",
+          "ledger tree position of S"
+        ],
+        [
+          "leaf",
+          "opaque",
+          "S = Poseidon(2, N, Cs)"
+        ]
+      ],
+      "memo": [
+        [
+          "paymentCommitment",
+          "opaque",
+          "equals the pay's newCommitments[0]: names which payment the memo belongs to"
+        ],
+        [
+          "memo",
+          "opaque",
+          "sealed ticket (ECDH P-256 + AES-GCM), padded to 512-byte steps"
+        ],
+        [
+          "memoLength",
+          "plain",
+          "the padded length"
+        ]
+      ],
+      "unshield": [
+        [
+          "to",
+          "plain",
+          "the withdrawal recipient"
+        ],
+        [
+          "amount",
+          "plain",
+          "the withdrawn amount (a whole note)"
+        ],
+        [
+          "asset",
+          "plain",
+          "tUSD8"
+        ],
+        [
+          "nullifier",
+          "opaque",
+          "spends a swept note"
+        ],
+        [
+          "root",
+          "opaque",
+          "a past pool root"
+        ],
+        [
+          "proof",
+          "opaque",
+          "Gloam unshield proof"
+        ],
+        [
+          "tokenFlow",
+          "plain",
+          "tUSD8 Transfer pool → to"
+        ]
+      ],
+      "register": [
+        [
+          "account",
+          "plain",
+          "the payer's address"
+        ],
+        [
+          "payerId",
+          "plain",
+          "the payer's id"
+        ],
+        [
+          "nameHash",
+          "opaque",
+          "keccak256 of the display name: confirmable by guessing the name"
+        ]
+      ],
+      "revoke": [
+        [
+          "payerId",
+          "plain",
+          "the payer id that stops being active"
+        ]
+      ],
+      "revokeLink": [
+        [
+          "secret",
+          "plain",
+          "the link's revoke secret: public once sent, but it opens nothing except its salt"
+        ],
+        [
+          "salt",
+          "plain",
+          "Revoked.salt = Poseidon(4, secret): the revoked link's salt, which is one of the three inputs of its proofs' context"
+        ]
+      ],
+      "attest": [
+        [
+          "threshold",
+          "plain",
+          "at least this much"
+        ],
+        [
+          "count",
+          "plain",
+          "this many payments"
+        ],
+        [
+          "fromIndex",
+          "plain",
+          "first ledger leaf of the range"
+        ],
+        [
+          "toIndex",
+          "plain",
+          "last ledger leaf of the range"
+        ],
+        [
+          "asset",
+          "plain",
+          "tUSD8"
+        ],
+        [
+          "ledgerRoot",
+          "opaque",
+          "a past ledger root (names the ledger state the proof used)"
+        ],
+        [
+          "context",
+          "opaque",
+          "Poseidon(readerIdHash, expiry, salt)"
+        ],
+        [
+          "proof",
+          "opaque",
+          "Groth16 proof"
+        ]
+      ]
+    },
+    "meta": [
+      [
+        "sender",
+        "metadata",
+        "tx.from"
+      ],
+      [
+        "block/time",
+        "metadata",
+        "when"
+      ],
+      [
+        "order",
+        "metadata",
+        "tx index and the sender's nonce"
+      ],
+      [
+        "gasUsed",
+        "metadata",
+        "receipt"
+      ],
+      [
+        "gasLimit",
+        "metadata",
+        "tx"
+      ],
+      [
+        "calldataBytes",
+        "metadata",
+        "size of the input"
+      ]
+    ]
+  },
+  "volume": {
+    "registeredPayers": 2,
+    "payingPayers": 2,
+    "payments": 8,
+    "sweeps": 8,
+    "daysWithPayments": 1
+  },
+  "a1": [
+    {
+      "pay": "0xb8b12bb5cae5eedaaeff274497445bdde452235d965ecb714c28dedddd7c35cd",
+      "lo": "1",
+      "hi": "9999996",
+      "exact": null,
+      "fromWithdrawal": "1000000",
+      "guess": "1000000"
+    },
+    {
+      "pay": "0x5cc37b5b207d8e7c6a92ceca8324afd07a056faddee5caf44313f1492265aecd",
+      "lo": "1",
+      "hi": "5999998",
+      "exact": null,
+      "fromWithdrawal": null,
+      "guess": null
+    },
+    {
+      "pay": "0x5aa1042c3b3f75496a3100195f524c03fcd5ae2ce341086b801efc06b22d35ef",
+      "lo": "1",
+      "hi": "9999996",
+      "exact": null,
+      "fromWithdrawal": null,
+      "guess": null
+    },
+    {
+      "pay": "0x2e60a89e9424e423eeb61bbc7e3787a5f28795eda861cb488ddc77712a5e0209",
+      "lo": "1",
+      "hi": "5999998",
+      "exact": null,
+      "fromWithdrawal": null,
+      "guess": null
+    },
+    {
+      "pay": "0x5a2bf27886bc5294a5931f224e0a55c3d3209da226105d2bfc856bdb11fc18d4",
+      "lo": "1",
+      "hi": "9999996",
+      "exact": null,
+      "fromWithdrawal": null,
+      "guess": null
+    },
+    {
+      "pay": "0x16ceff766eabef09c0bd8665ac4457f633350aef8f42fe2b1b9c4a0212691725",
+      "lo": "1",
+      "hi": "9999996",
+      "exact": null,
+      "fromWithdrawal": null,
+      "guess": null
+    },
+    {
+      "pay": "0xa56a43e90a2aba4056cfc4b71a39383cee2a486e484fe0534b7c4432518a6a0e",
+      "lo": "1",
+      "hi": "5999998",
+      "exact": null,
+      "fromWithdrawal": null,
+      "guess": null
+    },
+    {
+      "pay": "0xda0fd9073cf071a3607bc9522dc088b75999e837d0d2c57e9504e6e03d2097a2",
+      "lo": "1",
+      "hi": "9999996",
+      "exact": null,
+      "fromWithdrawal": null,
+      "guess": null
+    }
+  ],
+  "withdrawals": [
+    {
+      "unshield": "0x6ea773290b08999750eb1504178cf4da7330c25afdabe9204e83f09e94a35f61",
+      "pay": "0xb8b12bb5cae5eedaaeff274497445bdde452235d965ecb714c28dedddd7c35cd",
+      "amount": "1000000",
+      "why": "FIFO, fits the bounds"
+    }
+  ],
+  "a2": {
+    "sessions": [
+      [
+        "0x76646e2d30a31f6b9ddbd954a28f21136518c81486ebeda6fd8bad0cc0fd7cf8",
+        "0x77b1e388884a8796e4b11b0776206dcec98e18e2b4df9cb59ae490c8a6e3236b"
+      ],
+      [
+        "0x0a5f23a77054b0b1d70f404b44606cd775d483047bb66d465a02f5eeec0078b3",
+        "0x9a40f43338e40d20c079b84ed79a1f50760c403bb87b12f75e8ef669d49579ae",
+        "0xd9cec6eca140c879de45522c2fbd1ab6ac7caef7275c543d153ca07692a2bf61",
+        "0x9c2b3698e85876972b0f4f06d525e741d016b75bc673a0f561f3255ea983eb8f",
+        "0x0928754fa2bb8198a7e9c134c829041ff9e1e84b23d066e9c4ab4ed1d2bff6e2",
+        "0x0128749231e45add461c7a8b30f5b36490f67a141101637f13f012b162874c2c"
+      ]
+    ],
+    "cluster": {
+      "0xb8b12bb5cae5eedaaeff274497445bdde452235d965ecb714c28dedddd7c35cd": 0,
+      "0x5cc37b5b207d8e7c6a92ceca8324afd07a056faddee5caf44313f1492265aecd": 0,
+      "0x5aa1042c3b3f75496a3100195f524c03fcd5ae2ce341086b801efc06b22d35ef": 1,
+      "0x2e60a89e9424e423eeb61bbc7e3787a5f28795eda861cb488ddc77712a5e0209": 1,
+      "0x5a2bf27886bc5294a5931f224e0a55c3d3209da226105d2bfc856bdb11fc18d4": 1,
+      "0x16ceff766eabef09c0bd8665ac4457f633350aef8f42fe2b1b9c4a0212691725": 1,
+      "0xa56a43e90a2aba4056cfc4b71a39383cee2a486e484fe0534b7c4432518a6a0e": 1,
+      "0xda0fd9073cf071a3607bc9522dc088b75999e837d0d2c57e9504e6e03d2097a2": 1
+    },
+    "joined": {
+      "0xb8b12bb5cae5eedaaeff274497445bdde452235d965ecb714c28dedddd7c35cd": 0,
+      "0x5cc37b5b207d8e7c6a92ceca8324afd07a056faddee5caf44313f1492265aecd": 0,
+      "0x5aa1042c3b3f75496a3100195f524c03fcd5ae2ce341086b801efc06b22d35ef": 1,
+      "0x2e60a89e9424e423eeb61bbc7e3787a5f28795eda861cb488ddc77712a5e0209": 1,
+      "0x5a2bf27886bc5294a5931f224e0a55c3d3209da226105d2bfc856bdb11fc18d4": 1,
+      "0x16ceff766eabef09c0bd8665ac4457f633350aef8f42fe2b1b9c4a0212691725": 1,
+      "0xa56a43e90a2aba4056cfc4b71a39383cee2a486e484fe0534b7c4432518a6a0e": 1,
+      "0xda0fd9073cf071a3607bc9522dc088b75999e837d0d2c57e9504e6e03d2097a2": 1
+    }
+  },
+  "a3": [
+    {
+      "sweep": "0x76646e2d30a31f6b9ddbd954a28f21136518c81486ebeda6fd8bad0cc0fd7cf8",
+      "pay": "0xb8b12bb5cae5eedaaeff274497445bdde452235d965ecb714c28dedddd7c35cd",
+      "candidates": 4,
+      "delayBlocks": 408
+    },
+    {
+      "sweep": "0x77b1e388884a8796e4b11b0776206dcec98e18e2b4df9cb59ae490c8a6e3236b",
+      "pay": "0x5cc37b5b207d8e7c6a92ceca8324afd07a056faddee5caf44313f1492265aecd",
+      "candidates": 3,
+      "delayBlocks": 407
+    },
+    {
+      "sweep": "0x0a5f23a77054b0b1d70f404b44606cd775d483047bb66d465a02f5eeec0078b3",
+      "pay": "0x5aa1042c3b3f75496a3100195f524c03fcd5ae2ce341086b801efc06b22d35ef",
+      "candidates": 6,
+      "delayBlocks": 1214
+    },
+    {
+      "sweep": "0x9a40f43338e40d20c079b84ed79a1f50760c403bb87b12f75e8ef669d49579ae",
+      "pay": "0x2e60a89e9424e423eeb61bbc7e3787a5f28795eda861cb488ddc77712a5e0209",
+      "candidates": 5,
+      "delayBlocks": 1213
+    },
+    {
+      "sweep": "0xd9cec6eca140c879de45522c2fbd1ab6ac7caef7275c543d153ca07692a2bf61",
+      "pay": "0x5a2bf27886bc5294a5931f224e0a55c3d3209da226105d2bfc856bdb11fc18d4",
+      "candidates": 4,
+      "delayBlocks": 410
+    },
+    {
+      "sweep": "0x9c2b3698e85876972b0f4f06d525e741d016b75bc673a0f561f3255ea983eb8f",
+      "pay": "0x16ceff766eabef09c0bd8665ac4457f633350aef8f42fe2b1b9c4a0212691725",
+      "candidates": 3,
+      "delayBlocks": 409
+    },
+    {
+      "sweep": "0x0928754fa2bb8198a7e9c134c829041ff9e1e84b23d066e9c4ab4ed1d2bff6e2",
+      "pay": "0xa56a43e90a2aba4056cfc4b71a39383cee2a486e484fe0534b7c4432518a6a0e",
+      "candidates": 2,
+      "delayBlocks": 408
+    },
+    {
+      "sweep": "0x0128749231e45add461c7a8b30f5b36490f67a141101637f13f012b162874c2c",
+      "pay": "0xda0fd9073cf071a3607bc9522dc088b75999e837d0d2c57e9504e6e03d2097a2",
+      "candidates": 1,
+      "delayBlocks": 407
+    }
+  ],
+  "a4": [],
+  "a5": [
+    {
+      "pay": "0xb8b12bb5cae5eedaaeff274497445bdde452235d965ecb714c28dedddd7c35cd",
+      "payerId": 1,
+      "calldataPayer": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+      "signer": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+      "registryAccount": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+      "agree": true
+    },
+    {
+      "pay": "0x5cc37b5b207d8e7c6a92ceca8324afd07a056faddee5caf44313f1492265aecd",
+      "payerId": 2,
+      "calldataPayer": "0x996c599c5e86c402627c529a631a4f37d09c306c",
+      "signer": "0x996c599c5e86c402627c529a631a4f37d09c306c",
+      "registryAccount": "0x996c599c5e86c402627c529a631a4f37d09c306c",
+      "agree": true
+    },
+    {
+      "pay": "0x5aa1042c3b3f75496a3100195f524c03fcd5ae2ce341086b801efc06b22d35ef",
+      "payerId": 1,
+      "calldataPayer": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+      "signer": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+      "registryAccount": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+      "agree": true
+    },
+    {
+      "pay": "0x2e60a89e9424e423eeb61bbc7e3787a5f28795eda861cb488ddc77712a5e0209",
+      "payerId": 2,
+      "calldataPayer": "0x996c599c5e86c402627c529a631a4f37d09c306c",
+      "signer": "0x996c599c5e86c402627c529a631a4f37d09c306c",
+      "registryAccount": "0x996c599c5e86c402627c529a631a4f37d09c306c",
+      "agree": true
+    },
+    {
+      "pay": "0x5a2bf27886bc5294a5931f224e0a55c3d3209da226105d2bfc856bdb11fc18d4",
+      "payerId": 1,
+      "calldataPayer": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+      "signer": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+      "registryAccount": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+      "agree": true
+    },
+    {
+      "pay": "0x16ceff766eabef09c0bd8665ac4457f633350aef8f42fe2b1b9c4a0212691725",
+      "payerId": 1,
+      "calldataPayer": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+      "signer": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+      "registryAccount": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+      "agree": true
+    },
+    {
+      "pay": "0xa56a43e90a2aba4056cfc4b71a39383cee2a486e484fe0534b7c4432518a6a0e",
+      "payerId": 2,
+      "calldataPayer": "0x996c599c5e86c402627c529a631a4f37d09c306c",
+      "signer": "0x996c599c5e86c402627c529a631a4f37d09c306c",
+      "registryAccount": "0x996c599c5e86c402627c529a631a4f37d09c306c",
+      "agree": true
+    },
+    {
+      "pay": "0xda0fd9073cf071a3607bc9522dc088b75999e837d0d2c57e9504e6e03d2097a2",
+      "payerId": 1,
+      "calldataPayer": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+      "signer": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+      "registryAccount": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+      "agree": true
+    }
+  ],
+  "a6": {
+    "deposits": [
+      {
+        "hash": "0x6fb64950ce3a127076b45d16bd21f3614d17e732ae5bfb670b311be71219e4ad",
+        "block": 4124871,
+        "time": 1795646792,
+        "payer": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+        "amount": "10000000",
+        "gasless": true
+      },
+      {
+        "hash": "0x8ffde07df7cd2f1dbc848dc0e388a933f18e74a2a5d4a29556a6c747e224f128",
+        "block": 4125275,
+        "time": 1795646796,
+        "payer": "0x996c599c5e86c402627c529a631a4f37d09c306c",
+        "amount": "6000000",
+        "gasless": true
+      }
+    ],
+    "withdrawals": [
+      {
+        "hash": "0x6ea773290b08999750eb1504178cf4da7330c25afdabe9204e83f09e94a35f61",
+        "block": 4127700,
+        "time": 1795646980,
+        "to": "0x795c7fe0bf9bfaf4e20adc5f44128f54144ebce7",
+        "amount": "1000000"
+      }
+    ],
+    "fundedPayers": [
+      {
+        "hash": "0x3d914bb949e311647f16ed06179408d8feee452d9da54e16a0be9b49f01ec9e8",
+        "block": 4124870,
+        "from": "0x0000000000000000000000000000000000000000",
+        "to": "0xf3d0b17595154160b294528c4ce0351f3ff82716",
+        "value": "10000000"
+      },
+      {
+        "hash": "0x9f412911b3422c773eff90ada5b41e39ced0dc256e6d856f75e9ff17e9ccd175",
+        "block": 4125274,
+        "from": "0x0000000000000000000000000000000000000000",
+        "to": "0x996c599c5e86c402627c529a631a4f37d09c306c",
+        "value": "6000000"
+      }
+    ],
+    "forwarded": [
+      {
+        "hash": "0xb285f02049b96eb58d2112b42c03dbd9e97245010ae3b21934a8b554f1a2ad15",
+        "block": 4128101,
+        "from": "0x795c7fe0bf9bfaf4e20adc5f44128f54144ebce7",
+        "to": "0xcfb4620d64feea93e9682d3c3f74b37ec4a718cb",
+        "value": "1000000"
+      }
+    ],
+    "sameEntity": [],
+    "totals": {
+      "in": "16000000",
+      "out": "1000000"
+    }
+  },
+  "metadata": {
+    "byKind": {
+      "setup": {
+        "senders": [
+          "0x8fb8885ce0a7316b5fabc608091fbdec919821ee"
+        ],
+        "gasMin": 29361,
+        "gasMax": 507023,
+        "calldataBytes": [
+          4,
+          36,
+          100,
+          2263
+        ]
+      },
+      "register": {
+        "senders": [
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+        ],
+        "gasMin": 100822,
+        "gasMax": 117922,
+        "calldataBytes": [
+          68
+        ]
+      },
+      "deposit": {
+        "senders": [
+          "0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
+        ],
+        "gasMin": 1180611,
+        "gasMax": 1254018,
+        "calldataBytes": [
+          580
+        ]
+      },
+      "vouchedPay": {
+        "senders": [
+          "0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
+        ],
+        "gasMin": 2669366,
+        "gasMax": 2724096,
+        "calldataBytes": [
+          708
+        ]
+      },
+      "memo": {
+        "senders": [
+          "0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
+        ],
+        "gasMin": 44923,
+        "gasMax": 44923,
+        "calldataBytes": [
+          964
+        ]
+      },
+      "sweep": {
+        "senders": [
+          "0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
+        ],
+        "gasMin": 2619335,
+        "gasMax": 2639853,
+        "calldataBytes": [
+          484
+        ]
+      },
+      "unshield": {
+        "senders": [
+          "0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
+        ],
+        "gasMin": 343710,
+        "gasMax": 343710,
+        "calldataBytes": [
+          484
+        ]
+      },
+      "revokeLink": {
+        "senders": [
+          "0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
+        ],
+        "gasMin": 77796,
+        "gasMax": 77796,
+        "calldataBytes": [
+          36
+        ]
+      }
+    },
+    "pays": [
+      {
+        "pay": "0xb8b12bb5cae5eedaaeff274497445bdde452235d965ecb714c28dedddd7c35cd",
+        "leafIndex": "0",
+        "gasUsed": 2724096,
+        "calldataBytes": 708
+      },
+      {
+        "pay": "0x5cc37b5b207d8e7c6a92ceca8324afd07a056faddee5caf44313f1492265aecd",
+        "leafIndex": "1",
+        "gasUsed": 2684857,
+        "calldataBytes": 708
+      },
+      {
+        "pay": "0x5aa1042c3b3f75496a3100195f524c03fcd5ae2ce341086b801efc06b22d35ef",
+        "leafIndex": "2",
+        "gasUsed": 2679607,
+        "calldataBytes": 708
+      },
+      {
+        "pay": "0x2e60a89e9424e423eeb61bbc7e3787a5f28795eda861cb488ddc77712a5e0209",
+        "leafIndex": "3",
+        "gasUsed": 2679746,
+        "calldataBytes": 708
+      },
+      {
+        "pay": "0x5a2bf27886bc5294a5931f224e0a55c3d3209da226105d2bfc856bdb11fc18d4",
+        "leafIndex": "6",
+        "gasUsed": 2669366,
+        "calldataBytes": 708
+      },
+      {
+        "pay": "0x16ceff766eabef09c0bd8665ac4457f633350aef8f42fe2b1b9c4a0212691725",
+        "leafIndex": "7",
+        "gasUsed": 2674743,
+        "calldataBytes": 708
+      },
+      {
+        "pay": "0xa56a43e90a2aba4056cfc4b71a39383cee2a486e484fe0534b7c4432518a6a0e",
+        "leafIndex": "8",
+        "gasUsed": 2679643,
+        "calldataBytes": 708
+      },
+      {
+        "pay": "0xda0fd9073cf071a3607bc9522dc088b75999e837d0d2c57e9504e6e03d2097a2",
+        "leafIndex": "9",
+        "gasUsed": 2674616,
+        "calldataBytes": 708
+      }
+    ],
+    "memoDelay": [
+      {
+        "memo": "0xbbd576302cee48bc88a91465120aa99135a58236909b91f3796170b0def9ebcf",
+        "pay": "0xb8b12bb5cae5eedaaeff274497445bdde452235d965ecb714c28dedddd7c35cd",
+        "delayBlocks": 1
+      },
+      {
+        "memo": "0xf6b2e522d76b590712a9e6e909e3895e4328f64d27c2f38081e5c7f488b3ae5f",
+        "pay": "0x5cc37b5b207d8e7c6a92ceca8324afd07a056faddee5caf44313f1492265aecd",
+        "delayBlocks": 1
+      },
+      {
+        "memo": "0x70ba9976f1ed72341adbc2cff4b44607a40b11526fa25d108158b38f0f47d128",
+        "pay": "0x5aa1042c3b3f75496a3100195f524c03fcd5ae2ce341086b801efc06b22d35ef",
+        "delayBlocks": 1
+      },
+      {
+        "memo": "0xee3ad8eb6f4c4dadaaf5560e99c095883e496a1fe759d2ba7519cc712f7472bb",
+        "pay": "0x2e60a89e9424e423eeb61bbc7e3787a5f28795eda861cb488ddc77712a5e0209",
+        "delayBlocks": 1
+      },
+      {
+        "memo": "0xc3a09662c84ab9cfe10d5fab35c5e2345574e3d895caba0d4ed10aec703f17a3",
+        "pay": "0x5a2bf27886bc5294a5931f224e0a55c3d3209da226105d2bfc856bdb11fc18d4",
+        "delayBlocks": 1
+      },
+      {
+        "memo": "0x60f4bd517ecf3c0beb7f09b637e0a520004bec6b4e84c68625d50bb64143a3f9",
+        "pay": "0x16ceff766eabef09c0bd8665ac4457f633350aef8f42fe2b1b9c4a0212691725",
+        "delayBlocks": 1
+      },
+      {
+        "memo": "0xe8bcd7db44ddee1787e7795fc3514bb1c4df49c30cf63e42dd2f4c2fd3e52c51",
+        "pay": "0xa56a43e90a2aba4056cfc4b71a39383cee2a486e484fe0534b7c4432518a6a0e",
+        "delayBlocks": 1
+      },
+      {
+        "memo": "0x4ca114add7078c7604b47229940bf81f0855d5d0e448fd435cedb65f293bd449",
+        "pay": "0xda0fd9073cf071a3607bc9522dc088b75999e837d0d2c57e9504e6e03d2097a2",
+        "delayBlocks": 1
+      }
+    ],
+    "legacyOnly": true
+  },
+  "memo": {
+    "count": 8,
+    "lengths": [
+      852
+    ],
+    "commonPrefixBytes": 29,
+    "constantHeaderBytes": 29,
+    "distinctEphemeralKeys": 8,
+    "distinctIvs": 8,
+    "notTickets": []
+  },
+  "model": {
+    "atMost": 8,
+    "atLeast": 0
+  },
+  "score": {
+    "A1": {
+      "verdict": "fails",
+      "right": 0,
+      "wrong": 1,
+      "total": 8,
+      "boundsContainTruth": true,
+      "unsound": [],
+      "byBoundsAlone": 0,
+      "withdrawalsEqualToTheirPayment": 0,
+      "withdrawals": 1
+    },
+    "A2": {
+      "verdict": "partly",
+      "right": 16,
+      "total": 28,
+      "sessionsOnly": {
+        "pairs": 28,
+        "right": 16,
+        "payments": 8
+      },
+      "withAttests": {
+        "pairs": 28,
+        "right": 16,
+        "payments": 8
+      },
+      "paymentsTiedToAWithdrawalAddress": 0,
+      "wronglyTied": 1
+    },
+    "A3": {
+      "verdict": "partly",
+      "right": 6,
+      "total": 8,
+      "randomGuessExpected": 3.033333333333333,
+      "detail": [
+        {
+          "sweep": "0x76646e2d30a31f6b9ddbd954a28f21136518c81486ebeda6fd8bad0cc0fd7cf8",
+          "pay": "0xb8b12bb5cae5eedaaeff274497445bdde452235d965ecb714c28dedddd7c35cd",
+          "truePay": "0x5aa1042c3b3f75496a3100195f524c03fcd5ae2ce341086b801efc06b22d35ef",
+          "candidates": 4,
+          "right": false
+        },
+        {
+          "sweep": "0x77b1e388884a8796e4b11b0776206dcec98e18e2b4df9cb59ae490c8a6e3236b",
+          "pay": "0x5cc37b5b207d8e7c6a92ceca8324afd07a056faddee5caf44313f1492265aecd",
+          "truePay": "0x5cc37b5b207d8e7c6a92ceca8324afd07a056faddee5caf44313f1492265aecd",
+          "candidates": 3,
+          "right": true
+        },
+        {
+          "sweep": "0x0a5f23a77054b0b1d70f404b44606cd775d483047bb66d465a02f5eeec0078b3",
+          "pay": "0x5aa1042c3b3f75496a3100195f524c03fcd5ae2ce341086b801efc06b22d35ef",
+          "truePay": "0xb8b12bb5cae5eedaaeff274497445bdde452235d965ecb714c28dedddd7c35cd",
+          "candidates": 6,
+          "right": false
+        },
+        {
+          "sweep": "0x9a40f43338e40d20c079b84ed79a1f50760c403bb87b12f75e8ef669d49579ae",
+          "pay": "0x2e60a89e9424e423eeb61bbc7e3787a5f28795eda861cb488ddc77712a5e0209",
+          "truePay": "0x2e60a89e9424e423eeb61bbc7e3787a5f28795eda861cb488ddc77712a5e0209",
+          "candidates": 5,
+          "right": true
+        },
+        {
+          "sweep": "0xd9cec6eca140c879de45522c2fbd1ab6ac7caef7275c543d153ca07692a2bf61",
+          "pay": "0x5a2bf27886bc5294a5931f224e0a55c3d3209da226105d2bfc856bdb11fc18d4",
+          "truePay": "0x5a2bf27886bc5294a5931f224e0a55c3d3209da226105d2bfc856bdb11fc18d4",
+          "candidates": 4,
+          "right": true
+        },
+        {
+          "sweep": "0x9c2b3698e85876972b0f4f06d525e741d016b75bc673a0f561f3255ea983eb8f",
+          "pay": "0x16ceff766eabef09c0bd8665ac4457f633350aef8f42fe2b1b9c4a0212691725",
+          "truePay": "0x16ceff766eabef09c0bd8665ac4457f633350aef8f42fe2b1b9c4a0212691725",
+          "candidates": 3,
+          "right": true
+        },
+        {
+          "sweep": "0x0928754fa2bb8198a7e9c134c829041ff9e1e84b23d066e9c4ab4ed1d2bff6e2",
+          "pay": "0xa56a43e90a2aba4056cfc4b71a39383cee2a486e484fe0534b7c4432518a6a0e",
+          "truePay": "0xa56a43e90a2aba4056cfc4b71a39383cee2a486e484fe0534b7c4432518a6a0e",
+          "candidates": 2,
+          "right": true
+        },
+        {
+          "sweep": "0x0128749231e45add461c7a8b30f5b36490f67a141101637f13f012b162874c2c",
+          "pay": "0xda0fd9073cf071a3607bc9522dc088b75999e837d0d2c57e9504e6e03d2097a2",
+          "truePay": "0xda0fd9073cf071a3607bc9522dc088b75999e837d0d2c57e9504e6e03d2097a2",
+          "candidates": 1,
+          "right": true
+        }
+      ]
+    },
+    "A4": {
+      "verdict": "—",
+      "right": 0,
+      "total": 0,
+      "sound": true,
+      "detail": []
+    },
+    "A5": {
+      "verdict": "succeeds",
+      "right": 8,
+      "total": 8,
+      "allThreeAgree": true
+    },
+    "A6": {
+      "verdict": "succeeds",
+      "right": 3,
+      "total": 3,
+      "sameEntity": []
+    }
+  }
+}

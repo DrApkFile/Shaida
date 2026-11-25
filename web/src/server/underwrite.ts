@@ -58,6 +58,7 @@ function engineFor(b: BotNetwork): UnderwriteDeps {
   return nodeUnderwriteDeps({
     client,
     ledger: b.contracts.ledger,
+    revocations: b.contracts.revocations,
     now: () => BigInt(Math.floor(Date.now() / 1000)),
     view: async () => {
       for (let round = 0; round < MAX_SYNC_ROUNDS; round++) {

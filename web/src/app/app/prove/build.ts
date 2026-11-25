@@ -1,11 +1,13 @@
 "use client";
 // Builds a proof link (PRD §5, D27): reader id → leaf range → witness bundle → one fresh worker per proof → link →
 // the same verification the reader runs, here, before the link is shown. Note secrets stay in this tab and its workers.
+// Links are v2 (D35, D36): salt = Poseidon(4, revokeSecret), the secret kept only in the vault; with a reader code the
+// reader id is Poseidon(5, nameHash, Poseidon(code)). The code is used here and dropped: never in the link or vault.
 import type { CheckedTrees } from "@shaida/index";
 import { incomeRequestOf, type CountablePayment, type SharedLink } from "@shaida/pay";
 import {
-  buildIncomeBundle, contextOf, encodeIncomeLink, leafRangeForPeriod, readerIdHashOf, verifyIncomeLink,
-  shaidaError, type IncomeLink, type Result, type TimedLeaf,
+  buildIncomeBundle, codeBoundReaderIdHash, contextOf, encodeIncomeLink, leafRangeForPeriod, parseReaderCode, readerIdHashOf,
+  REVOKE_SECRET_BYTES, revokeSaltOf, revokeSecretFromBytes, verifyIncomeLink, shaidaError, type IncomeLink, type Result, type TimedLeaf,
 } from "@shaida/proofs";
 import type { Wiring } from "@/lib/flows";
 import { verifyDepsFor } from "@/lib/income/chain";
@@ -13,6 +15,8 @@ import { incomeArtifacts, proveInFreshWorker } from "@/lib/income/prover";
 
 export interface ProveAsk {
   readonly reader: string;
+  /** The reader's code as they gave it (D36), or null for a name-only link. */
+  readonly readerCode: string | null;
   /** Unix seconds, inclusive. */
   readonly start: bigint;
   readonly end: bigint;
@@ -29,19 +33,21 @@ export interface Built {
   readonly proveMs: readonly number[];
 }
 
-/** A random salt below 2^248 (31 bytes), so the context reveals nothing about reader or expiry. */
-function randomSalt(): bigint {
-  const b = crypto.getRandomValues(new Uint8Array(31));
-  return b.reduce((v, x) => (v << 8n) | BigInt(x), 0n);
-}
+/** A fresh revoke secret below 2^248 (31 random bytes); its salt Poseidon(4, secret) reveals nothing about reader or expiry. */
+const randomRevokeSecret = (): bigint => revokeSecretFromBytes(crypto.getRandomValues(new Uint8Array(REVOKE_SECRET_BYTES)));
 
 export async function buildLink(w: Wiring, t: CheckedTrees, leaves: readonly TimedLeaf[], countable: readonly CountablePayment[], ask: ProveAsk, progress: (s: Stage) => void): Promise<Result<Built>> {
   const reader = readerIdHashOf(ask.reader);
   if (!reader.ok) return reader;
+  const code = ask.readerCode === null ? null : parseReaderCode(ask.readerCode);
+  if (code && !code.ok) return code;
+  const codeValue = code ? code.value : null;
+  const readerId = codeValue === null ? reader.value : codeBoundReaderIdHash(reader.value, codeValue);
   const range = leafRangeForPeriod(leaves, ask.start, ask.end);
   if (!range.ok) return range;
-  const salt = randomSalt();
-  const context = contextOf(reader.value, ask.expiry, salt);
+  const revokeSecret = randomRevokeSecret();
+  const salt = revokeSaltOf(revokeSecret);
+  const context = contextOf(readerId, ask.expiry, salt);
 
   progress({ done: 0, total: 3, label: "Checking the final key's files" });
   const a = await incomeArtifacts();
@@ -64,9 +70,10 @@ export async function buildLink(w: Wiring, t: CheckedTrees, leaves: readonly Tim
   }
 
   progress({ done: 2 + n, total, label: "Checking the link as the reader will" });
-  const fragment = encodeIncomeLink({ v: 1, proofs, readerIdHash: reader.value.toString(), expiry: ask.expiry.toString(), salt: salt.toString() });
+  const mode = codeValue === null ? "name" : "code";
+  const fragment = encodeIncomeLink({ v: 2, proofs, readerIdHash: readerId.toString(), expiry: ask.expiry.toString(), salt: salt.toString(), reader: mode });
   const nowSec = () => BigInt(Math.floor(Date.now() / 1000));
-  const v = await verifyIncomeLink(fragment, verifyDepsFor(w, t, leaves, reader.value, nowSec));
+  const v = await verifyIncomeLink(fragment, verifyDepsFor(w, t, leaves, { nameHash: reader.value, code: codeValue }, nowSec));
   if (v.status !== "VALID") return { ok: false, error: v.error };
   progress({ done: total, total, label: "Done" });
 
@@ -85,6 +92,8 @@ export async function buildLink(w: Wiring, t: CheckedTrees, leaves: readonly Tim
         toDate: Number(v.toDate),
         proofs: v.proofs,
         createdAt: Number(nowSec()),
+        revokeSecret: revokeSecret.toString(),
+        readerMode: mode,
       },
     },
   };

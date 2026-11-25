@@ -7,12 +7,20 @@
 // --fixes runs the same plan with D32's applied fixes, as the app now does them: no on-chain attest (F3), expiry at
 // 23:59:59 UTC (F8), the suggested rounded-down threshold instead of the most (F9), split sweeps, and Chidi withdraws
 // only the 1 tUSD8 part of P2's 2 (F4). Writes tools/privacy/fixtures/fork-truth-fixes.json instead.
-// Usage: pnpm --filter @shaida/pay privacy:fixture [--fixes] [--base http://localhost:3100] [--rpc http://127.0.0.1:8555]
+// --revoke (D35, D36) is --fixes with links as the app now makes them: v2, salt = Poseidon(4, revokeSecret); Ada's
+// link is code-protected (a random 80-bit reader code, as /v makes it), Chidi's is name only; after the withdrawal
+// Chidi revokes his link through the relayer, and the same request again is answered from that record (nothing sent).
+// Neither the reader code nor the revoke secret is written anywhere. Writes fork-truth-revoke.json.
+// Usage: pnpm --filter @shaida/pay privacy:fixture [--fixes | --revoke] [--base http://localhost:3100] [--rpc http://127.0.0.1:8555]
 import { randomBytes } from "node:crypto";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { generateReceiveKey, type ReceiveKey } from "@gloamtrade/sdk";
-import { buildIncomeBundle, contextOf, encodeIncomeLink, leafRangeForPeriod, readerIdHashOf, solidityArgsOf, type IncomeLink } from "@shaida/proofs";
+import {
+  buildIncomeBundle, codeBoundReaderIdHash, contextOf, encodeIncomeLink, leafRangeForPeriod, parseReaderCode, readerCodeFromBytes, readerIdHashOf,
+  REVOKE_SECRET_BYTES, revokeSaltOf, revokeSecretFromBytes, solidityArgsOf, type IncomeLink,
+} from "@shaida/proofs";
+import { revocationsReadAbi } from "@shaida/index";
 import { createWalletClient, encodeFunctionData, http, parseAbi, type Hex } from "viem";
 import { generatePrivateKey, privateKeyToAccount, type PrivateKeyAccount } from "viem/accounts";
 import { endOfDayUtc, fetchCheckedTrees, incomeCandidates, incomeRequestOf, openInbox, prepareDeposit, preparePay, prepareSweep, prepareWithdraw, relayClient, seen, splitPartOf, startSweep, suggestedThreshold, sweptNotes, timedLeaves, type FlowContext, type InboxEntry, type IncomingPayment, type Note, type RelayRecord } from "../src/index";
@@ -24,8 +32,9 @@ import { finalProvers, finalUnshieldProver, forkClient, nodeFetch, REPO, rootRea
 const arg = (n: string, d: string) => { const i = process.argv.indexOf(`--${n}`); return i >= 0 ? (process.argv[i + 1] ?? d) : d; };
 const BASE = arg("base", "http://localhost:3100");
 const RPC = arg("rpc", "http://127.0.0.1:8555");
-const FIXES = process.argv.includes("--fixes");
-const OUT = join(REPO, `tools/privacy/fixtures/fork-truth${FIXES ? "-fixes" : ""}.json`);
+const REVOKE = process.argv.includes("--revoke");
+const FIXES = REVOKE || process.argv.includes("--fixes");
+const OUT = join(REPO, `tools/privacy/fixtures/fork-truth${REVOKE ? "-revoke" : FIXES ? "-fixes" : ""}.json`);
 const TUSD8 = "0x456569838f1d43009A91ebA4263147Afd7233483" as const;
 const U = 1_000_000n;
 const verifierAbi = parseAbi(["struct Proof { uint256[2] a; uint256[2][2] b; uint256[2] c; }", "function attest(Proof proof, uint256[7] signals) returns (bool)"]);
@@ -35,6 +44,12 @@ const must = <T>(r: Res<T>, what: string): T => { if (!r.ok) throw new Error(`${
 
 // Who pays whom, in chain order (amounts in base units).
 const PLAN = [["acme", "ada", 1_500_000n], ["bisi", "chidi", 2_000_000n], ["acme", "chidi", 700_000n], ["bisi", "ada", 1_000_000n], ["acme", "ada", 2_250_000n], ["acme", "ada", 500_000n], ["bisi", "ada", 1_200_000n], ["acme", "ada", 1_000_000n]] as const;
+
+// D36: every line this script prints is kept, so the end of a --revoke run can check that no reader code is in it.
+const printed: string[] = [];
+const consoleLog = console.log.bind(console);
+console.log = (...a: unknown[]) => { printed.push(a.map(String).join(" ")); consoleLog(...a); };
+const codeForms: string[] = [];
 
 async function main() {
   const client = forkClient(RPC);
@@ -129,16 +144,24 @@ async function main() {
   // Proof links. Ada: all six, the most she can show (a 2-proof bundle); Chidi: both, ≥ 2 tUSD8.
   const links: Record<string, unknown>[] = [];
   const attests: Record<string, unknown>[] = [];
-  const prove = async (who: string, readerName: string, threshold: bigint | "most") => {
+  const secrets: Record<string, bigint> = {};
+  const prove = async (who: string, readerName: string, threshold: bigint | "most", mode: "name" | "code" = "name") => {
     const t = await trees();
     const leaves = await timedLeaves(t, async (b) => (await client.getBlock({ blockNumber: b })).timestamp);
     const c = incomeCandidates(t, inboxes[who]!.payments, inboxes[who]!.inbox);
     const first = leaves.find((l) => l.index === c.countable[0]!.vouchIndex)!;
     const range = must(leafRangeForPeriod(leaves, first.time, ctx.nowSec()), "period");
-    const reader = must(readerIdHashOf(readerName), "reader");
+    const nameHash = must(readerIdHashOf(readerName), "reader");
+    // D36: the code exists only in this process (the reader would type it on /v); it is never written out.
+    const codeText = REVOKE && mode === "code" ? readerCodeFromBytes(randomBytes(10)) : null;
+    const code = codeText === null ? null : must(parseReaderCode(codeText), "reader code");
+    if (codeText !== null && code !== null) codeForms.push(codeText, codeText.replace(/-/g, ""), code.toString(), code.toString(16));
+    const reader = code === null ? nameHash : codeBoundReaderIdHash(nameHash, code);
     const in30 = new Date(Number(ctx.nowSec() + 30n * 86_400n) * 1000).toISOString().slice(0, 10);
     const expiry = FIXES ? endOfDayUtc(in30)! : ctx.nowSec() + 30n * 86_400n;
-    const salt = BigInt(`0x${randomBytes(31).toString("hex")}`);
+    const secret = revokeSecretFromBytes(randomBytes(REVOKE_SECRET_BYTES));
+    if (REVOKE) secrets[who] = secret;
+    const salt = REVOKE ? revokeSaltOf(secret) : BigInt(`0x${randomBytes(31).toString("hex")}`);
     const sum = c.countable.reduce((s, x) => s + x.amount, 0n);
     const ask = threshold === "most" ? (FIXES ? suggestedThreshold(sum, U) : null) : threshold;
     if (FIXES && ask === null) throw new Error(`${who}: no suggested threshold below ${sum}`);
@@ -147,12 +170,13 @@ async function main() {
     const b = must(bundle, `${who} bundle`);
     const proofs: IncomeLink["proofs"] = [];
     for (const p of b.proofs) { const r = await proveIncome(p.input); proofs.push({ proof: r.proof, publicSignals: r.publicSignals }); }
-    const url = `/v#${encodeIncomeLink({ v: 1, proofs, readerIdHash: reader.toString(), expiry: expiry.toString(), salt: salt.toString() })}`;
+    const fields = { proofs, readerIdHash: reader.toString(), expiry: expiry.toString(), salt: salt.toString() };
+    const url = `/v#${encodeIncomeLink(REVOKE ? { v: 2, ...fields, reader: mode } : { v: 1, ...fields })}`;
     const held = pays.filter((p) => p.recipient === names[who]).map((p) => p.hash);
-    links.push({ name: who, from: { url }, reader: readerName, holder: names[who], pays: held });
+    links.push({ name: who, from: { url }, reader: readerName, holder: names[who], pays: held, ...(REVOKE ? { readerMode: mode, revocable: true } : {}) });
     return { proofs, held };
   };
-  const ada = await prove("ada", "Landlord Bola", "most"); // with --fixes: the suggested threshold (F9)
+  const ada = await prove("ada", "Landlord Bola", "most", "code"); // with --fixes: the suggested threshold (F9); --revoke: code-protected
   const bola = privateKeyToAccount(generatePrivateKey());
   await client.request({ method: "anvil_setBalance" as never, params: [bola.address, "0xde0b6b3a7640000"] as never });
   for (const p of FIXES ? [] : ada.proofs) { // F3: with --fixes nobody records on chain
@@ -179,17 +203,43 @@ async function main() {
   const fHash = await createWalletClient({ account: fresh, transport: http(RPC) }).writeContract({ chain: null, address: TUSD8, abi: erc20, functionName: "transfer", args: [onward, w.amount], type: "legacy" });
   await client.waitForTransactionReceipt({ hash: fHash });
 
+  // D35: Chidi revokes his link through the relayer; the same request again sends nothing.
+  const revocations: Record<string, unknown>[] = [];
+  if (REVOKE) {
+    await pause();
+    if (!dep.revocations) throw new Error("deployments/fork.json has no Revocations: run make deploy-revocations-fork");
+    const body = { chainId: 440050, secret: secrets.chidi!.toString() };
+    const rec = must(await relay.post("revoke", body), "revoke");
+    const rHash = await settle(rec, "Chidi revokes his link");
+    const receipt = await client.getTransactionReceipt({ hash: rHash as Hex });
+    const salt = revokeSaltOf(secrets.chidi!);
+    const at = await client.readContract({ address: dep.revocations, abi: revocationsReadAbi, functionName: "revokedAt", args: [salt] });
+    if (at !== receipt.blockNumber) throw new Error(`revokedAt ${at}, receipt block ${receipt.blockNumber}`);
+    // The same request again is answered from the first record (relayer test R42): the same request id and tx hash,
+    // nothing sent. (AlreadyRevoked is for a salt the chain shows revoked with no record of this relayer: test R41.)
+    const nonceBefore = await client.getTransactionCount({ address: receipt.from });
+    const again = await relay.post("revoke", body);
+    if (!again.ok) throw new Error(`second revoke: ${again.error.code}`);
+    if (again.value.requestId !== rec.requestId || again.value.hash.toLowerCase() !== rHash) throw new Error(`second revoke: a new record ${again.value.requestId} (${again.value.state})`);
+    if ((await client.getTransactionCount({ address: receipt.from })) !== nonceBefore) throw new Error("second revoke: the relayer sent another tx");
+    console.log(`· a second revoke request: answered from the first record (${again.value.state}, same request id and hash); the relayer's nonce did not move`);
+    revocations.push({ hash: rHash, link: "chidi", holder: names.chidi, salt: salt.toString(), block: receipt.blockNumber.toString(), gasUsed: receipt.gasUsed.toString(), sender: receipt.from.toLowerCase(), secondRequest: `same record, ${again.value.state}; nothing sent` });
+  }
+
   const truth = {
     schema: "shaida-privacy-truth/1", chainId: 440050, personas: "demo: Acme Studio and Bisi Foods pay; Ada and Chidi receive; Landlord Bola and Lender Dayo read",
     sources: { all: `written by packages/shaida-pay/scripts/privacy-fixture.ts${FIXES ? " --fixes" : ""} from the run that made the transactions` },
-    fixes: FIXES ? ["F3 no attest", "F4 split sweeps, part withdrawn", "F8 expiry 23:59:59 UTC", "F9 suggested threshold"] : [],
+    fixes: FIXES ? ["F3 no attest", "F4 split sweeps, part withdrawn", "F8 expiry 23:59:59 UTC", "F9 suggested threshold", ...(REVOKE ? ["D35 revocable v2 links; Chidi revokes", "D36 Ada's link code-protected"] : [])] : [],
     payers: Object.fromEntries(Object.values(payers).map((p) => [p.account.address.toLowerCase(), p.name])),
     deposits, pays,
     unshields: [{ hash: uHash, amount: w.amount.toString(), pay: pays[1]!.hash, recipient: names.chidi, to: fresh.address.toLowerCase(), forwardedTo: onward.toLowerCase(), forwardTx: fHash.toLowerCase() }],
-    attests, links,
+    attests, links, ...(REVOKE ? { revocations } : {}),
   };
-  writeFileSync(OUT, `${JSON.stringify(truth, null, 2)}\n`);
-  console.log(`wrote ${OUT}`);
+  const written = `${JSON.stringify(truth, null, 2)}\n`;
+  const leaked = codeForms.filter((f) => written.toLowerCase().includes(f.toLowerCase()) || printed.some((l) => l.toLowerCase().includes(f.toLowerCase())));
+  if (leaked.length > 0) throw new Error(`a reader code form is in the output or the log (${leaked.length} form(s)); nothing written`);
+  writeFileSync(OUT, written);
+  console.log(`wrote ${OUT}${REVOKE ? `; checked: the reader code is in neither the truth file nor the log (${codeForms.length} forms)` : ""}`);
 }
 
 main().then(() => process.exit(0), (e: unknown) => { console.error(e); process.exit(1); });

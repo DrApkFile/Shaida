@@ -5,13 +5,14 @@ underwriting policy on it. The SDK talks only to the Aevum testnet RPC (chain 44
 website or server.
 
 A Shaida link proves "at least X tUSD8 received from N payments by registered payers, in a period". The recipient
-makes it out to one named reader, and it carries an expiry. Verification is the full PRD §5 check: the strict link
-schema, the asset, the bundle rules, the context opening, the reader and the expiry; then the ledger root on chain
-and Groth16 with the ceremony's final key; and finally the period's dates from the ledger.
+makes it out to one named reader (since 0.2.0, optionally bound to a code the reader chose too), and it carries an
+expiry. The recipient can revoke a link made since 0.2.0. Verification is the full PRD §5 check: the strict link
+schema, the asset, the bundle rules, the context opening, the reader and the expiry; then revocation and the ledger
+root on chain, and Groth16 with the ceremony's final key; and finally the period's dates from the ledger.
 
-Status: 0.1.0, **verify side only**. The payer side (making vouched payments through ShaidaLedger) is not in this
+Status: 0.2.0, **verify side only**. The payer side (making vouched payments through ShaidaLedger) is not in this
 package; see [ROADMAP](../../ROADMAP.md). Published on npm as [`shaida-sdk`](https://www.npmjs.com/package/shaida-sdk): `npm install shaida-sdk`. To use
-it from this repository, run `pnpm --filter shaida-sdk tarball` and install the `shaida-sdk-0.1.0.tgz` it writes, or
+it from this repository, run `pnpm --filter shaida-sdk tarball` and install the `shaida-sdk-0.2.0.tgz` it writes, or
 depend on `packages/sdk` in a pnpm workspace.
 
 ## Quickstart
@@ -19,7 +20,7 @@ depend on `packages/sdk` in a pnpm workspace.
 ```js
 import { verifyIncomeLink } from "shaida-sdk";
 
-const v = await verifyIncomeLink(link, { readerName: "Landlord Bola", network: "aevum-testnet" });
+const v = await verifyIncomeLink(link, { readerName: "Landlord Bola", readerCode, network: "aevum-testnet" });
 if (v.status === "VALID") console.log(`at least ${Number(v.threshold) / 1e6} tUSD8 from ${v.count} payments`);
 else console.log(v.status, v.code, v.message); // INVALID: refuse. INCONCLUSIVE: no answer yet, never a pass.
 ```
@@ -31,6 +32,17 @@ run. That time goes to dating the leaf range and the root with binary searches o
 no index; refusals that need no chain read return in milliseconds. The examples are
 [examples/verify-node.mjs](../../examples/verify-node.mjs) (Node) and
 [examples/rental-check/](../../examples/rental-check/) (a demo landlord page that runs in the browser).
+
+## Upgrading from 0.1.0
+
+Every 0.1.0 call still type-checks and means the same; links made before 0.2.0 verify exactly as before. What is new:
+- `readerCode` (optional) on `verifyIncomeLink`, for code-protected links. Without it such a link is `WrongReader`.
+- `ProofRevoked` (INVALID), with `revokedAt { block, time }`: the recipient revoked the link on chain.
+- VALID carries `link { version, readerMode, revocable }`; `decodeIncomeLink` gives `version` 1 or 2 and `readerMode`.
+- `AEVUM_TESTNET` has `revocations`, so `PINNED.networkSha256` changed.
+- Every link, old or new, is checked against the Revocations registry at the same pinned block. A `CustomNetwork`
+  without `revocations` therefore gives `INCONCLUSIVE NotConfigured` from `verifyIncomeLink`, and `underwrite` throws
+  `ShaidaConfigError`: add your fork's Revocations address. This is on purpose: an unchecked revocation is not a pass.
 
 ## API reference
 
@@ -44,23 +56,28 @@ Runs the whole PRD §5 verification. `options` (`VerifyOptions`):
 | Option | |
 |---|---|
 | `readerName` | Your name as the reader, exactly as the recipient made the link out (case and spacing are normalised). Required. |
+| `readerCode` | Your reader code (16 characters, like `7K3M-Q9TB-4XWZ-H2RD`; case, spaces and dashes don't matter), for a code-protected link. Ignored for a name-only link. |
 | `network` | `"aevum-testnet"` (bundled, pinned). A `CustomNetwork` object is for local forks and test chains; chain 44005 is refused there. Required. |
 | `rpcUrl` | The JSON-RPC endpoint you trust. Default for `"aevum-testnet"`: `https://rpc-test.qday.info`. A custom network needs one. |
 | `timeoutMs` | Per RPC call. Default 15 000. |
 | `now` | `() => bigint` unix seconds. Default: the system clock. |
 
 It returns one of three shapes:
-- `VALID`: `{ threshold, count, from, to, expiry, proofs, leafRange, ledgerRoot, network, block }`. `from` and `to`
-  are the block times of the first and last vouched payment counted. `block` is the block every chain read was
-  pinned to.
-- `INVALID`: `{ code, message, nextAction }`. This is a final answer about the link: refuse it.
+- `VALID`: `{ threshold, count, from, to, expiry, proofs, leafRange, ledgerRoot, network, block, link }`. `from`
+  and `to` are the block times of the first and last vouched payment counted. `block` is the block every chain read
+  was pinned to. `link` is `{ version, readerMode, revocable }`: `readerMode` `"code"` means your name and code were
+  both checked; `"name"` means anyone with the link and your name sees this; `revocable` is false for links made
+  before 0.2.0.
+- `INVALID`: `{ code, message, nextAction }`. This is a final answer about the link: refuse it. `ProofRevoked` also
+  carries `revokedAt { block, time }`.
 - `INCONCLUSIVE`: `{ code, message, nextAction }`. There is no answer yet. Never treat it as a pass.
 
-A link refused on its own content (malformed, edited, wrong reader, expired) makes no RPC call at all.
+A link refused on its own content (malformed, edited, wrong reader or missing code, expired) makes no RPC call at
+all.
 
 ### `decodeIncomeLink(link): Decoded`
 
-Pure, with no network. It returns `{ ok: true, link }` with each proof's public signals (`threshold`, `count`,
+Pure, with no network. It returns `{ ok: true, link }` with the link's `version` (1 or 2) and `readerMode`, each proof's public signals (`threshold`, `count`,
 `fromIndex`, `toIndex`, `ledgerRoot`, `asset`, `context`) and the link's `expiry`. Otherwise it returns
 `{ ok: false, code: "ProofInvalid", message }`. **Unverified**: use it for display only.
 
@@ -90,9 +107,13 @@ policy's reader, then the policy's six rules in a fixed order. The result is one
 - `DECLINE { reasons[], facts | null }`, which lists every rule that fails, or the single link refusal;
 - `INCONCLUSIVE { error }`, with `ChainUnreachable`, `UnknownRoot` or `RangeUnresolvable`.
 
+`underwrite` is name only: it checks the policy's reader name and takes no code, so a code-protected link is
+`DECLINE WrongReader`. A revoked link is `DECLINE ProofRevoked`.
+
 Every decision carries `decisionId`, `proofId`, `policy {id, version, hash, title}` and `evaluatedAt`. The same link
 under the same policy gives the same `decisionId` while no time limit is crossed. `options` is `UnderwriteOptions`:
-`ReadOptions` plus `now`. A bad setup (failed pins, an unknown network, an RPC on another chain) throws
+`ReadOptions` plus `now`. A bad setup (failed pins, an unknown network, a network without a Revocations registry,
+an RPC on another chain) throws
 `ShaidaConfigError` instead of returning a decision.
 
 ### `definePolicy(input): { ok: true, policy } | { ok: false, code: "InputRejected", message }`
@@ -139,7 +160,9 @@ The bundled network, frozen:
 - `asset`: tUSD8 `0x4565…3483`;
 - `ledger`: ShaidaLedger `0x677659b0…88ed`;
 - `incomeVerifier`: `0xc9844a8f…c1c8`;
-- `fromBlock`: 3810988, the ledger's deploy block.
+- `fromBlock`: 3810988, the ledger's deploy block;
+- `revocations`: the Revocations registry (0.2.0). `null` in a build made before it was deployed: every verify is
+  then `INCONCLUSIVE NotConfigured`.
 
 All of these come from `deployments/aevum.json`.
 
@@ -156,8 +179,10 @@ Every code below, as `{ outcome, meaning, nextAction }`, ready to render.
 
 | Type | |
 |---|---|
-| `Verification` | `Valid \| Refused<"INVALID", InvalidCode> \| Refused<"INCONCLUSIVE", InconclusiveCode>` |
+| `Verification` | `Valid \| Refused<"INVALID", …> \| Revoked \| Refused<"INCONCLUSIVE", InconclusiveCode>` |
 | `Valid` | The VALID shape above |
+| `LinkKind` | `{ version: 1 \| 2, readerMode: "name" \| "code", revocable }` in VALID |
+| `Revoked` | INVALID `ProofRevoked` with `revokedAt { block, time }` |
 | `Refused` | `{ status, code, message, nextAction }` |
 | `VerifyCode` | `InvalidCode \| InconclusiveCode` |
 | `InvalidCode` | The INVALID codes below |
@@ -173,10 +198,10 @@ Every code below, as `{ outcome, meaning, nextAction }`, ready to render.
 | `Policy` | A validated policy (from `definePolicy` or a preset) |
 | `PolicyInput` | What `definePolicy` takes |
 | `ReadOptions` | `{ network, rpcUrl?, timeoutMs? }` |
-| `VerifyOptions` | `ReadOptions` and `{ readerName, now? }` |
+| `VerifyOptions` | `ReadOptions` and `{ readerName, readerCode?, now? }` |
 | `UnderwriteOptions` | `ReadOptions` and `{ now? }` |
 | `NetworkConfig` | The shape of `AEVUM_TESTNET` |
-| `CustomNetwork` | `{ name, chainId, ledger, incomeVerifier, fromBlock }` for a local fork |
+| `CustomNetwork` | `{ name, chainId, ledger, incomeVerifier, fromBlock, revocations? }` for a local fork |
 | `CodeInfo` | `{ outcome, meaning, nextAction }` |
 
 ## Codes
@@ -195,11 +220,12 @@ any INVALID code.
 | `ContextMismatch` | INVALID | The link's reader, expiry or salt do not match its proofs: it was altered. |
 | `WrongReader` | INVALID | The link was made for another reader. |
 | `ProofExpired` | INVALID | The link has expired. |
+| `ProofRevoked` | INVALID | The recipient revoked the link on chain (`revokedAt` says when). |
 | `UnknownRoot` | INCONCLUSIVE | The proof's ledger root is not known at the pinned block: a stale RPC, the wrong network, or a forged root. |
 | `RangeUnresolvable` | INCONCLUSIVE | The leaf range could not be dated from the chain yet. |
 | `ChainUnreachable` | INCONCLUSIVE | The RPC is down, timed out, or refused the call. |
-| `NotConfigured` | INCONCLUSIVE | The SDK refused its own setup: a pin mismatch, an unknown or invalid network, or an RPC on another chain. |
-| `InputRejected` | INCONCLUSIVE | The reader name is empty or longer than 96 bytes. |
+| `NotConfigured` | INCONCLUSIVE | The SDK refused its own setup: a pin mismatch, an unknown or invalid network, a network without a Revocations registry, or an RPC on another chain. |
+| `InputRejected` | INCONCLUSIVE | The reader name is empty or longer than 96 bytes, or the reader code is malformed. |
 | `BelowMinThreshold` | DECLINE | The proof shows less income than the policy needs. |
 | `TooFewPayments` | DECLINE | The proof counts fewer payments than the policy needs. |
 | `PeriodTooShort` | DECLINE | The proof covers fewer days of the ledger than the policy needs. |
@@ -213,7 +239,8 @@ any INVALID code.
 - Every proof in the link verifies under the income circuit's **final** ceremony key, which is pinned by hash.
 - The proofs share one ledger root, which ShaidaLedger on chain 44005 knows at `block`.
 - The proofs count disjoint leaf ranges, so no payment is counted twice.
-- The link was made out to `readerName` and has not expired at `now`.
+- The link was made out to `readerName` (and, for a code-protected link, `readerCode`) and has not expired at `now`.
+- The Revocations registry had no revocation of the link's salt at `block`.
 
 Given those, the recipient received at least `threshold` tUSD8 in at least `count` payments, through Shaida's
 ledger. Each payment was vouched by a payer that was **registered and active** when it paid, and swept by the
@@ -222,8 +249,18 @@ paid, or what each payment was.
 
 **The reader name binds intent, not identity.** The reader name is a commitment inside the proof: a link made for
 "Landlord Bola" fails for anyone who types another name. Nothing authenticates that the person verifying is Bola.
-Anyone holding the link who types "Landlord Bola" gets VALID. Treat a link as a document the applicant handed to
-you, not as a credential that proves who you are.
+For a **name-only** link (`readerMode` `"name"`, and every link made before 0.2.0), anyone holding the link who types
+"Landlord Bola" gets VALID. A **code-protected** link also needs the 80-bit code the reader made and gave the
+recipient; the code is not in the link, so the link and the name are not enough. Guessing it offline is the only
+attack, and is measured in [evidence/reader-code-work.md](../../evidence/reader-code-work.md). Anyone who has the
+link, the name and the code still gets VALID: the code is a shared secret, not a login.
+
+**Revocation.** A link made since 0.2.0 can be revoked by its recipient: Revocations then records the link's salt
+with its block, and every later verify is `ProofRevoked`. A verify pinned to a block before the revocation still
+says VALID, and a VALID you saw earlier is not undone. An on-chain `IncomeVerifier.check`/`attest` stays a historical
+record; `checkOnChain` does not look at revocation. `revocable` is the link's own claim: a v1 link relabelled v2 still
+verifies like the v1 link (its salt can't be revoked by anyone), so treat `revocable: true` as "the sender says they
+can revoke it".
 
 **Expiry.** The recipient picks it when making the link, and it is bound into the proof: editing it gives
 `ContextMismatch`. After it, the link is `ProofExpired`. `underwrite` adds the policy's own floors
@@ -233,7 +270,8 @@ you, not as a credential that proves who you are.
 `https://rpc-test.qday.info`: the chain id, the root's status, and the leaf dates. A dishonest RPC could claim a
 forged root is known. Groth16 still has to verify against that root, but the root-on-chain step is only as good as
 the RPC. Use an endpoint you trust, or run your own node, for anything that matters. The SDK checks that the RPC
-serves the network you asked for (otherwise `NotConfigured`), and it pins every read to one block.
+serves the network you asked for (otherwise `NotConfigured`), and it pins every read to one block. That includes
+the revocation read: a dishonest RPC could hide a revocation.
 
 **What a verifier learns.** This summarises Shaida's privacy audit ([LIMITS.md](../../LIMITS.md),
 [evidence/privacy-audit.md](../../evidence/privacy-audit.md), D32).

@@ -115,7 +115,10 @@ Disclosure cost: each proof's threshold, count and range are public, so a bundle
 ## 4. Vocabulary
 - **Payer:** a registered business that pays through Shaida. **Recipient:** the freelancer. **Reader:** whoever the proof is for.
 - **Vouch leaf (V)**, **sweep leaf (S)**, **ledger tree**.
-- **Context:** binds a proof to a reader and an expiry.
+- **Context:** binds a proof to a reader and an expiry. Since D35/D36 its salt is `Poseidon(4, revokeSecret)` (the
+  holder can revoke the link) and its reader id can bind a reader code: `Poseidon(5, nameHash, Poseidon(code))`.
+- **Link versions:** v1 (before D35: random salt, name only, not revocable; still verified exactly as before) and v2
+  (`reader: "name" | "code"`, revocable).
 - **States:**
   - payment: `sent → swept`, or `unknown`
   - proof: `building → ready → shared`
@@ -156,10 +159,12 @@ Disclosure cost: each proof's threshold, count and range are public, so a bundle
 | `AttestCapReached` | the bot's daily record count or gas cap is reached (D30) | later | the decision stands; nothing was sent |
 | `AlreadyRecorded` | part of this link was already recorded by the bot (D30) | no | nothing to do |
 | `RecorderUnavailable` | the bot has no recording key or not enough gas (D30) | later | the decision stands; nothing was sent |
+| `ProofRevoked` | the holder revoked the link: Revocations has its salt at the pinned block (D35) | no | ask the holder for a new link |
+| `AlreadyRevoked` | the link is already revoked; nothing was sent (D35) | no | nothing to do |
 
 The bot's decisions (D30) are `APPROVE`, `DECLINE` with reasons, or `INCONCLUSIVE` with one code. A DECLINE reason is a
 verification refusal above (`ProofInvalid`, `AssetMismatch`, `MixedContexts`, `MixedRoots`, `RangesOverlap`,
-`ContextMismatch`, `WrongReader`, `ProofExpired`) or a policy rule, checked in this order: `BelowMinThreshold`,
+`ContextMismatch`, `WrongReader`, `ProofExpired`, `ProofRevoked`) or a policy rule, checked in this order: `BelowMinThreshold`,
 `TooFewPayments`, `PeriodTooShort`, `PeriodTooLong`, `ProofTooOld`, `ExpiresTooSoon`. INCONCLUSIVE is
 `ChainUnreachable`, `UnknownRoot` or `RangeUnresolvable`; it is never an approval.
 
@@ -168,25 +173,36 @@ with the codes above before asking for a signature (D7). `ShaidaDepositor` repea
 
 ## 5. Core verification steps (`verifyIncomeLink`, first failure returns its code)
 Input: a bundle of 1–8 proofs (D12). Pure (`packages/shaida-proofs/src/verify/`): the chain reads, the Groth16 check,
-the reader's id hash and the clock are injected. Retryable codes (`UnknownRoot`, `RangeUnresolvable`) give
-`INCONCLUSIVE`, the others `INVALID`.
+the reader's id hash, the reader code, the revocation read and the clock are injected. Retryable codes (`UnknownRoot`,
+`RangeUnresolvable`) and an unreadable revocation registry (`ChainUnreachable`, `NotConfigured`) give `INCONCLUSIVE`,
+the others `INVALID`.
 1. Decode the fragment and parse it as `unknown`; strict schema (`.strict()`, canonical decimal strings, 1–8 proofs). → `ProofInvalid`
 2. Every proof's `asset == tUSD8`. → `AssetMismatch`
    - 2a. Every proof has the same `context`. → `MixedContexts`
    - 2b. Every proof has the same `ledgerRoot` (D13). → `MixedRoots`
    - 2c. Leaf ranges are strictly disjoint (sorted by `fromIndex`, each `toIndex` < the next `fromIndex`; a duplicated proof overlaps itself). → `RangesOverlap`
 3. `context == Poseidon(readerIdHash, expiry, salt)`. → `ContextMismatch`
-4. `readerIdHash == hash(this reader's id)`. → `WrongReader`
+4. `readerIdHash == hash(this reader's id)`: the name's hash, or for a v2 `"code"` link `Poseidon(5, nameHash,
+   Poseidon(code))` with the reader's code (no code given → `WrongReader`, D36). → `WrongReader`
 5. `now ≤ expiry`. → `ProofExpired`
+   - 5a. `Revocations.revokedAt(salt)` at the same pinned block as step 6, for **every** link (v1 included, D35). Revoked →
+     `ProofRevoked` (INVALID) with the revocation's block and time. Unreadable → `ChainUnreachable`, no registry
+     configured → `NotConfigured` (both INCONCLUSIVE, never VALID).
 6. `ledger.isKnownRoot(ledgerRoot)` at a pinned block, for the bundle's one root. → `UnknownRoot`
 7. Groth16 verify every proof (off-chain), and optionally `IncomeVerifier.check` on-chain. → `ProofInvalid`
 8. Map the lowest `fromIndex` and highest `toIndex` to block timestamps via ledger `Vouched` events. → `RangeUnresolvable`
-9. Result `VALID{threshold = Σ thresholds, count = Σ counts, fromDate, toDate, expiry, proofs}`.
+9. Result `VALID{threshold = Σ thresholds, count = Σ counts, fromDate, toDate, expiry, proofs, link: {version, readerMode, revocable}}`.
+
+Steps 1–5 read nothing from the chain, so a link refused on its own content (including a code-protected link opened
+without its code) is refused offline.
 
 ## 6. State machines
 - **Payment (recipient side):** `seen` (memo opened) → `sweeping` → `swept` | `unknown`. `unknown` has **no resend edge**: check by nullifier.
 - **Relayed tx:** `accepted → pending → mined | dropped | unknown`. Each is persisted with (requestId, nonce, hash, gas).
 - **Proof:** `selecting → proving → ready`. A failure returns to `selecting` with a code.
+- **Revoke (holder side, D35):** `revocable → sending → pending → revoked | unknown`, saved before the relayer is
+  called. `revoked` only when `revokedAt(salt) > 0` on chain; `unknown` has **no resend edge** (checked on chain and by
+  the relayer's record). A refusal before sending goes back to `revocable` with its code.
 
 ## 7. Demo script (live, 3–5 min, top 5)
 1. (0:00) Problem in one line; Ada's public wallet shown on the explorer: everything visible.

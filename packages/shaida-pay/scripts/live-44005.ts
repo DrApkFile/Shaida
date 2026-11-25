@@ -26,6 +26,7 @@ import {
 } from "../src/index";
 import { proveIncome, verifyIncomeGroth16 } from "./income-node";
 import { finalProvers, nodeFetch, REPO, rootReader, sleep } from "./node-env";
+import { revocationOn } from "./evidence";
 
 const arg = (n: string, d = "") => { const i = process.argv.indexOf(`--${n}`); return i >= 0 ? (process.argv[i + 1] ?? d) : d; };
 const BASE = arg("base", "http://localhost:3100");
@@ -77,8 +78,8 @@ function load(): State {
 async function main() {
   const client = createPublicClient({ transport: http(RPC) }) as PublicClient;
   if ((await client.getChainId()) !== CHAIN_ID) throw new Error("RPC is not Aevum testnet 44005");
-  const d = JSON.parse(readFileSync(join(REPO, "deployments/aevum.json"), "utf8")) as { contracts: Record<string, { address: Address }> };
-  const dep = { pool: d.contracts.ShieldPoolPoseidon!.address, ledger: d.contracts.ShaidaLedger!.address, depositor: d.contracts.ShaidaDepositor!.address, registry: d.contracts.PayerRegistry!.address, incomeVerifier: d.contracts.IncomeVerifier!.address };
+  const d = JSON.parse(readFileSync(join(REPO, "deployments/aevum.json"), "utf8")) as { contracts: Record<string, { address: Address }>; revocations?: { address: Address } };
+  const dep = { pool: d.contracts.ShieldPoolPoseidon!.address, ledger: d.contracts.ShaidaLedger!.address, depositor: d.contracts.ShaidaDepositor!.address, registry: d.contracts.PayerRegistry!.address, incomeVerifier: d.contracts.IncomeVerifier!.address, revocations: d.revocations?.address ?? null };
   const payer = privateKeyToAccount(decryptKey("shaida-payer-demo"));
   const reader = privateKeyToAccount(decryptKey("shaida-reader"));
   const ctx: FlowContext = { chainId: CHAIN_ID, contracts: { pool: dep.pool, ledger: dep.ledger, depositor: dep.depositor }, provers: finalProvers(), nowSec: () => BigInt(Math.floor(Date.now() / 1000)) };
@@ -205,7 +206,7 @@ async function main() {
 
   // Act 5: Bola verifies the link (roots checked on 44005 at the snapshot's block).
   const v = await verifyIncomeLink(s.link.fragment, {
-    readerIdHash: must(readerIdHashOf("Landlord Bola"), "reader"), now: ctx.nowSec, verifyGroth16: verifyIncomeGroth16,
+    readerIdHash: must(readerIdHashOf("Landlord Bola"), "reader"), readerCode: null, revocation: revocationOn(client, dep, t.block), now: ctx.nowSec, verifyGroth16: verifyIncomeGroth16,
     resolveRange: async (a, b) => datesForRange(leaves, a, b), isKnownRoot: (root) => rootReader(client).isKnownRoot(dep.ledger, root, t.block),
   });
   if (v.status !== "VALID") throw new Error(`Bola sees ${v.error.code}: ${v.error.message}`);

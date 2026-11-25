@@ -1,7 +1,8 @@
 // One spec per relayed function: its body, key, gas cap, rails and the single call it may make.
 import { encodeFunctionData, parseSignature, type Address, type Hex } from "viem";
 import type { z } from "zod";
-import { depositorAbi, ledgerAbi, memoBoardAbi, poolAbi } from "./abi";
+import { revokeSaltOf } from "@shaida/proofs";
+import { depositorAbi, ledgerAbi, memoBoardAbi, poolAbi, revocationsAbi } from "./abi";
 import { payerRefusal, signerRefusal, spendRefusal, tokenRefusal, windowRefusal } from "./checks";
 import type { PinnedReader } from "./reads";
 import * as S from "./schemas";
@@ -129,6 +130,25 @@ const unshield: FnSpec<S.UnshieldBody> = {
   call: (b, c) => ({ to: c.pool, data: encodeFunctionData({ abi: poolAbi, functionName: "unshield", args: [b.proof, b.root, b.nullifier, b.asset, b.to, b.amount] }) }),
 };
 
+/**
+ * Revocations.revoke (D35). The secret is the only proof of the right to revoke; the relayer only pays the gas. One
+ * record per salt, ever (a revoke can't be undone), so a retry or a second process never sends it twice; an
+ * already-revoked salt is refused by name before anything is signed.
+ */
+const revoke: FnSpec<S.RevokeBody> = {
+  fn: "revoke",
+  schema: S.revokeBody,
+  gasCap: 200_000n, // measured on the fork: evidence/revocations-gas.md
+  key: (b) => `revoke:${revokeSaltOf(b.secret)}`,
+  payer: () => null,
+  offchain: async () => null,
+  onchain: async (b, r, ctx) => {
+    const at = await r.revokedAt(ctx.contracts.revocations, revokeSaltOf(b.secret));
+    return at === 0n ? null : { code: "AlreadyRevoked", message: `This link was already revoked in block ${at}. Nothing was sent.` };
+  },
+  call: (b, c) => ({ to: c.revocations, data: encodeFunctionData({ abi: revocationsAbi, functionName: "revoke", args: [b.secret] }) }),
+};
+
 export interface BodyOf {
   deposit: S.DepositBody;
   vouchedPay: S.VouchedPayBody;
@@ -136,6 +156,7 @@ export interface BodyOf {
   sweep: S.SweepBody;
   memo: S.MemoBody;
   unshield: S.UnshieldBody;
+  revoke: S.RevokeBody;
 }
 
-export const SPECS: { readonly [F in RelayFn]: FnSpec<BodyOf[F]> } = { deposit, vouchedPay, lateVouch, sweep, memo, unshield };
+export const SPECS: { readonly [F in RelayFn]: FnSpec<BodyOf[F]> } = { deposit, vouchedPay, lateVouch, sweep, memo, unshield, revoke };

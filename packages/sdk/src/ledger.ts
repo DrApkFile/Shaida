@@ -2,13 +2,14 @@
 //   isKnownRoot(root)     PRD §5 step 6
 //   datesForRange         step 8: the block times of the first V leaf ≥ fromIndex and the last V leaf ≤ toIndex
 //   rootTime(root)        the block time the root was formed (the policy rule ProofTooOld)
+//   revokedAt(salt)       step 5a (0.2.0, D35): Revocations.revokedAt at the same block, and that revocation's time
 // No indexer and no full log scan: the block of leaf i is found by binary search on nextIndex() at past blocks, and a
 // leaf's kind (V or S) by one eth_getLogs over ≤ 1000 blocks there (Aevum's getLogs limit). All selectors and topics
 // are checked against viem in test S11.
 import { hexOf, word, type Rpc } from "./rpc";
 import type { NetworkConfig } from "./types";
 
-export const SELECTORS = { isKnownRoot: "0x6d9833e3", nextIndex: "0xfc7e9c6f", check: "0x1620e538" } as const;
+export const SELECTORS = { isKnownRoot: "0x6d9833e3", nextIndex: "0xfc7e9c6f", check: "0x1620e538", revokedAt: "0x871bd456" } as const;
 export const TOPICS = {
   Vouched: "0x0f261e8c13be127d3405bce37a07673fe92d4b7002a3c90a2bc5af9274b48bd6",
   Swept: "0xb8b0aa967035d4c4e2afe48f28aab6fc93be6b675d3936a1884e0f0f0fdafc95",
@@ -25,6 +26,8 @@ export interface LedgerReader {
   isKnownRoot(root: bigint): Promise<boolean>;
   datesForRange(fromIndex: bigint, toIndex: bigint): Promise<{ fromDate: bigint; toDate: bigint } | null>;
   rootTime(root: bigint): Promise<bigint | null>;
+  /** null: not revoked at `block`. Needs net.revocations (the caller checks it is set). */
+  revokedAt(salt: bigint): Promise<{ block: bigint; time: bigint } | null>;
 }
 
 export async function ledgerAt(rpc: Rpc, net: NetworkConfig): Promise<LedgerReader> {
@@ -92,6 +95,16 @@ export async function ledgerAt(rpc: Rpc, net: NetworkConfig): Promise<LedgerRead
     async rootTime(root) {
       const b = await firstBlock((at) => known(root, at), net.fromBlock, block);
       return b === null ? null : timeOf(b);
+    },
+    async revokedAt(salt) {
+      if (net.revocations === null) throw new Error("this network has no Revocations registry");
+      const raw = await rpc.call<string>("eth_call", [{ to: net.revocations, data: `${SELECTORS.revokedAt}${word(salt)}` }, hexOf(block)]);
+      // "0x" here means no contract at that address and block: that is not "not revoked", it is an unreadable registry.
+      if (!/^0x[0-9a-fA-F]{64}$/.test(raw)) throw new Error(`Revocations at ${net.revocations} answered ${raw.slice(0, 20)} at block ${block}, not a uint256 (no contract there?)`);
+      const at = BigInt(raw);
+      if (at === 0n) return null;
+      if (at > block) throw new Error(`Revocations answered block ${at}, after the pinned block ${block}`);
+      return { block: at, time: await timeOf(at) };
     },
   };
 }

@@ -30,6 +30,9 @@ for (const [k, name] of Object.entries(need)) {
   if (!/^0x[0-9a-fA-F]{40}$/.test(a ?? "")) fail(`${name} has no address in ${file}`);
   contracts[k] = a;
 }
+// Revocations (D35) is deployed after the stack and recorded on its own (tools/write-revocations.mjs).
+if (!/^0x[0-9a-fA-F]{40}$/.test(d.revocations?.address ?? "")) fail(`Revocations has no address in ${file} (make deploy-revocations-${network})`);
+contracts.revocations = d.revocations.address;
 if (!Number.isInteger(d.poolDeployBlock)) fail(`poolDeployBlock missing in ${file}`);
 contracts.startBlock = String(d.poolDeployBlock);
 

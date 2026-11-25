@@ -26,7 +26,7 @@ const result = await build({
   mainFields: ["module", "main"],
   metafile: true,
   legalComments: "eof",
-  banner: { js: "// shaida-sdk 0.1.0 (MIT). Bundles Shaida's own MIT code and parts of viem / @noble/hashes (MIT). See NOTICE.md." },
+  banner: { js: "// shaida-sdk 0.2.0 (MIT). Bundles Shaida's own MIT code and parts of viem / @noble/hashes (MIT). See NOTICE.md." },
   logLevel: "warning",
 });
 const inputs = Object.keys(result.metafile.inputs);

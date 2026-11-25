@@ -1,10 +1,14 @@
 "use client";
 // Shared proofs (D26, D27): the links made in this browser, newest first, from the vault. Nothing here is on a server.
+import { useMemo } from "react";
 import { formatUnits } from "viem";
 import { VaultBar, VaultGate } from "@/components/VaultGate";
-import { dateOf, expiryOf } from "@/lib/income/words";
+import { wiringFor } from "@/lib/flows";
+import { dateOf, expiryOf, readerModeLabel } from "@/lib/income/words";
+import { useNetwork } from "@/lib/network";
 import { TEMPLATES, verifyPath } from "@/lib/templates";
 import { useVault } from "@/lib/vault";
+import { RevokeControl } from "./RevokeControl";
 
 export default function SharedPage() {
   return (
@@ -26,6 +30,9 @@ export default function SharedPage() {
 
 function SharedList() {
   const vault = useVault();
+  const { net } = useNetwork();
+  const wired = useMemo(() => wiringFor(net), [net]);
+  const w = wired.ok ? wired.value : null;
   const links = [...(vault.data?.shared ?? [])].reverse();
   const now = Math.floor(Date.now() / 1000);
   if (links.length === 0) {
@@ -50,10 +57,12 @@ function SharedList() {
               <div className="stack tight">
                 <span className="payment-amount">≥ {formatUnits(BigInt(s.threshold), 6)} <small>tUSD8 · {s.count} {t.paymentWord}{s.count > 1 ? "s" : ""}</small></span>
                 <span className="fine">{t.label} · for {s.reader} · {dateOf(BigInt(s.fromDate))} – {dateOf(BigInt(s.toDate))} · made {dateOf(BigInt(s.createdAt))}</span>
+                <span className="fine">{readerModeLabel(s.readerMode)}</span>
               </div>
               <div className="row">
                 <span className={`status-pill ${expired ? "warn" : "good"}`}>{expired ? `expired ${expiryOf(BigInt(s.expiry))}` : `expires ${expiryOf(BigInt(s.expiry))}`}</span>
                 <a className="btn secondary small" href={url} target="_blank" rel="noreferrer">Open</a>
+                <RevokeControl w={w} link={s} />
               </div>
             </li>
           );

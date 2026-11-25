@@ -46,6 +46,9 @@ export const ERROR_CODES = {
   AttestCapReached: { retryable: "later", nextAction: "the bot's daily record cap is reached; the decision stands, nothing was sent" },
   AlreadyRecorded: { retryable: "no", nextAction: "nothing to do; this proof was already recorded by the bot" },
   RecorderUnavailable: { retryable: "later", nextAction: "the bot cannot send its record now (no key or no gas); the decision stands, nothing was sent" },
+  // D35 (revocation)
+  ProofRevoked: { retryable: "no", nextAction: "the holder revoked this link; ask them for a new one" },
+  AlreadyRevoked: { retryable: "no", nextAction: "nothing to do; this link is already revoked" },
 } as const satisfies Record<string, CodeSpec>;
 
 export type ErrorCode = keyof typeof ERROR_CODES;
