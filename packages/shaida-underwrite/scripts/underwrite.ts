@@ -54,9 +54,12 @@ async function main(): Promise<number> {
   const linkArg = str(a, "link");
   const link = linkArg.startsWith("@") ? readFileSync(linkArg.slice(1), "utf8") : linkArg;
 
-  const deployment = JSON.parse(readFileSync(join(REPO, str(a, "deployment", "deployments/aevum.json")), "utf8")) as { chainId: number; contracts: Record<string, { address: Address }> };
+  const deployment = JSON.parse(readFileSync(join(REPO, str(a, "deployment", "deployments/aevum.json")), "utf8")) as { chainId: number; contracts: Record<string, { address: Address }>; revocations?: { address: Address } };
   const ledger = deployment.contracts.ShaidaLedger?.address;
   if (!ledger) throw new Error("the deployment has no ShaidaLedger");
+  // D35: every link is checked for revocation; without the registry the bot refuses to decide anything.
+  const revocations = deployment.revocations?.address;
+  if (!revocations) throw new Error("the deployment has no Revocations (make deploy-revocations-…): nothing can be decided");
   const client = createPublicClient({ transport: http(str(a, "rpc", "https://rpc-test.qday.info"), { retryCount: 2, timeout: 20_000 }) }) as PublicClient;
   if ((await client.getChainId()) !== deployment.chainId) throw new Error(`the RPC is not chain ${deployment.chainId}`);
   const indexBase = str(a, "index", "https://shaida.onrender.com").replace(/\/+$/, "");
@@ -65,6 +68,7 @@ async function main(): Promise<number> {
   const deps = nodeUnderwriteDeps({
     client,
     ledger,
+    revocations,
     now: () => BigInt(Math.floor(Date.now() / 1000)),
     view: async () => {
       const t = await fetchCheckedTrees(indexBase, deployment.chainId, async (url) => { const r = await fetch(url, { cache: "no-store" }); return { status: r.status, json: () => r.json() as Promise<unknown> }; }, {

@@ -1,7 +1,7 @@
 // Node wiring for the engine (server route and CLI): Groth16 with the ceremony's final vkey, ledger reads pinned to a
 // checked index snapshot's block, dates and root times from that snapshot. Not imported by browser code.
 import { parseAbi, type Address, type Hex, type PublicClient } from "viem";
-import type { CheckedTrees } from "@shaida/index";
+import { revocationAt, type CheckedTrees } from "@shaida/index";
 import { datesForRange, INCOME_FINAL_VKEY, type Groth16Proof, type TimedLeaf, type VerifyDeps } from "@shaida/proofs";
 import { chainUnreachable, LedgerNotReadable, type UnderwriteDeps } from "./decide";
 import { rootFormedAt, type DatedLeaf } from "./root-time";
@@ -62,6 +62,8 @@ const hex32 = (n: bigint): Hex => `0x${n.toString(16).padStart(64, "0")}`;
 export interface NodeDepsOptions {
   readonly client: PublicClient;
   readonly ledger: Address;
+  /** Revocations (D35): read for every link at the snapshot's block. */
+  readonly revocations: Address;
   readonly now: () => bigint;
   /** Loads (once per deps) the checked snapshot; may throw LedgerNotReadable. Any other failure reads as ChainUnreachable. */
   readonly view: () => Promise<LedgerView>;
@@ -85,6 +87,8 @@ export function nodeUnderwriteDeps(o: NodeDepsOptions): UnderwriteDeps {
         throw chainUnreachable("ShaidaLedger.isKnownRoot", e);
       }
     },
+    // The view throws LedgerNotReadable (INCONCLUSIVE) if the index can't be read; the registry read itself never throws.
+    revocation: async (salt) => revocationAt(o.client, o.revocations, salt, (await view()).trees.block),
     verifyGroth16: o.verifyGroth16 ?? nodeGroth16,
     resolveRange: async (from, to) => datesForRange((await view()).timed, from, to),
     rootTime: async (root) => rootFormedAt((await view()).dated, root),

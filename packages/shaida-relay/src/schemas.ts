@@ -1,6 +1,7 @@
 // Request bodies, one per relayed function. Strict: an unknown field is refused, never ignored.
 import { z } from "zod";
 import type { Address, Hex } from "viem";
+import { FIELD_ORDER } from "@shaida/proofs";
 
 const hex = (bytes?: number) =>
   z
@@ -43,9 +44,15 @@ export const memoBody = z
   .object({ chainId, commitment: hex(32), memo: hex().refine((m) => m.length >= 4 && (m.length - 2) / 2 <= MAX_MEMO_BYTES, `1..${MAX_MEMO_BYTES} bytes`) })
   .strict();
 
+/** Revocations.revoke(secret) (D35): the holder's revoke secret, a non-zero field element. */
+export const revokeBody = z
+  .object({ chainId, secret: uint.refine((s) => s > 0n && s < FIELD_ORDER, "must be a non-zero field element") })
+  .strict();
+
 export type DepositBody = z.output<typeof depositBody>;
 export type VouchedPayBody = z.output<typeof vouchedPayBody>;
 export type LateVouchBody = z.output<typeof lateVouchBody>;
 export type SweepBody = z.output<typeof sweepBody>;
 export type MemoBody = z.output<typeof memoBody>;
 export type UnshieldBody = z.output<typeof unshieldBody>;
+export type RevokeBody = z.output<typeof revokeBody>;

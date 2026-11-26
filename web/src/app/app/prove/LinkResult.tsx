@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { formatUnits } from "viem";
 import { CopyIcon } from "@/components/Icons";
-import { dateOf, expiryOf } from "@/lib/income/words";
+import { dateOf, expiryOf, readerModeLabel } from "@/lib/income/words";
 import { verifyPath, type Template } from "@/lib/templates";
 import type { Built } from "./build";
 
@@ -20,6 +20,8 @@ export function LinkResult({ built, template }: { built: Built; template: Templa
       <dl className="kv">
         <dt>Template</dt><dd>{template.label}</dd>
         <dt>Reader</dt><dd>{s.reader}</dd>
+        <dt>Protection</dt><dd>{readerModeLabel(s.readerMode)}</dd>
+        <dt>Revocable</dt><dd>{s.revokeSecret ? "Yes, from Shared proofs" : "No"}</dd>
         <dt>At least</dt><dd className="num">{formatUnits(BigInt(s.threshold), 6)} tUSD8</dd>
         <dt>{template.paymentWord[0]!.toUpperCase()}{template.paymentWord.slice(1)}s</dt><dd className="num">{s.count}</dd>
         <dt>Period</dt><dd>{dateOf(BigInt(s.fromDate))} – {dateOf(BigInt(s.toDate))}</dd>

@@ -4,7 +4,7 @@
 import { fileURLToPath } from "node:url";
 import { keccak256 } from "viem";
 import { memoryKv } from "@shaida/kv";
-import { contextOf, encodeIncomeLink, PUBLIC_SIGNAL_ORDER, readerIdHashOf, TUSD8_FIELD, type Groth16Proof } from "@shaida/proofs";
+import { contextOf, encodeIncomeLink, PUBLIC_SIGNAL_ORDER, readerIdHashOf, TUSD8_FIELD, type Groth16Proof, type RevocationState } from "@shaida/proofs";
 import { DAY, kvRecordStore, PRESETS, SendRefused, type Policy, type RecorderChain, type RecorderDeps, type UnderwriteDeps } from "../src/index";
 
 export const REPO = fileURLToPath(new URL("../../..", import.meta.url));
@@ -32,6 +32,8 @@ export interface LinkSpec {
   readonly root?: bigint;
   readonly asset?: bigint;
   readonly proofs: readonly ProofSpec[];
+  /** D35/D36: a v2 link with this reader mode (default: a v1 link). */
+  readonly v2?: "name" | "code";
 }
 
 /** Stand-in prover: the ids of proofs it "made", with the exact signals each was made for. */
@@ -58,7 +60,8 @@ export function linkOf(spec: LinkSpec, prover: StandIn): string {
     const publicSignals = PUBLIC_SIGNAL_ORDER.map((k) => named[k].toString());
     return { proof: prover.prove(publicSignals), publicSignals };
   });
-  return encodeIncomeLink({ v: 1, proofs, readerIdHash: reader.toString(), expiry: expiry.toString(), salt: salt.toString() });
+  const base = { proofs, readerIdHash: reader.toString(), expiry: expiry.toString(), salt: salt.toString() };
+  return encodeIncomeLink(spec.v2 ? { v: 2, ...base, reader: spec.v2 } : { v: 1, ...base });
 }
 
 export interface Ledger {
@@ -68,6 +71,8 @@ export interface Ledger {
   /** Block time of the leaf that formed the proof's root. */
   readonly rootTime: bigint;
   readonly knownRoots?: readonly bigint[];
+  /** Revoked salts → block (D35), or a registry that cannot be read. Default: nothing revoked. */
+  readonly revoked?: ReadonlyMap<bigint, bigint> | "unreadable";
 }
 
 export const leafTime = (l: Ledger, i: bigint): bigint => l.start + i * l.spacing;
@@ -77,6 +82,12 @@ export function depsOf(prover: StandIn, ledger: Ledger, now = NOW): UnderwriteDe
   return {
     now: () => now,
     isKnownRoot: async (root) => (ledger.knownRoots ?? [ROOT]).includes(root),
+    revocation: async (salt): Promise<RevocationState> => {
+      const r = ledger.revoked ?? new Map<bigint, bigint>();
+      if (r === "unreadable") return { state: "unreadable", code: "ChainUnreachable", message: "RPC timeout (test)" };
+      const block = r.get(salt);
+      return block === undefined ? { state: "none" } : { state: "revoked", block, time: NOW - 60n };
+    },
     verifyGroth16: prover.verify,
     resolveRange: async (from, to) => {
       const first = from % 2n === 0n ? from : from + 1n;

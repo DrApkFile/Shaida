@@ -29,7 +29,10 @@ to keep the rest of their finances to themselves.
   ceremony, that vouched and swept payments add up to at least a threshold. The proof is bound to one reader name
   and an expiry, and rides in the URL fragment, so the server never sees it.
 - The reader opens the link, types their name and gets VALID or a named refusal (WrongReader, ProofInvalid,
-  ContextMismatch, ProofExpired, …). They can also run the on-chain check, which costs no gas.
+  ContextMismatch, ProofExpired, ProofRevoked, …). They can also run the on-chain check, which costs no gas.
+- The reader can make a code on the verify page and give it to the person proving; a link bound to it needs the
+  reader's name and that code (a shared secret, not a login). The holder can revoke a link from Shared proofs; every
+  verifier then says REVOKED. Both use the existing context field: no circuit change and no new ceremony (D35, D36).
 - Landlords and lenders who read many links can point the underwriting bot at them. It runs the same verification,
   then six fixed rules, and answers APPROVE, DECLINE with every reason, or INCONCLUSIVE.
 
@@ -91,13 +94,13 @@ Weights from qday.io (out of 100). Ecosystem contribution is DoraHacks' extra cr
 | User experience and presentation | 15 | Pay, inbox, prove and verify in the browser at 390 px; named refusals that say whether anything changed; run 2 clicked by a person on the live site | `evidence/live-44005-run2.md`, `evidence/ui-44005/`, `evidence/judge-ui/`, `DESIGN.md` |
 | Technical quality and platform integration | 15 | EIP-3009 gasless deposits; legacy txs; Shanghai opcode check; 1,000-block log paging with a cursor; a restart-safe relayer; the snarkjs gas trap handled; `make gate` from a clean clone | `evidence/presubmit-audit.md`, `evidence/fork-gas.md`, `tools/gate.sh`, D14, D19, D29 |
 | Real-world utility | 15 | Templates for income (landlord), revenue (lender) and disbursements (sponsor); the bot as an API for lenders and agents; `shaida-sdk` so platforms verify in their own product (distribution plan: "How it scales") | D31, D33, `/underwrite`, `/.well-known/agent.json`, `evidence/underwrite-live-44005.md`, `packages/sdk/README.md` |
-| Safety, trust and controls | 15 | Reader binding, expiry, payer revocation; relayer rails and gas budget; the bot's own capped key, opt-in recording; a two-contributor ceremony; a published privacy audit of our own deployment | `THREAT_MODEL.md`, `LIMITS.md`, `ceremony/TRANSCRIPT.md`, `evidence/privacy-audit.md` |
+| Safety, trust and controls | 15 | Reader binding (name, or name and code), expiry, link revocation, payer revocation; relayer rails and gas budget; the bot's own capped key, opt-in recording; a two-contributor ceremony; a published privacy audit of our own deployment | `THREAT_MODEL.md`, `LIMITS.md`, `ceremony/TRANSCRIPT.md`, `evidence/privacy-audit.md` |
 | Demo | 10 | Two runs and a bot record on 44005 with tx links; a 60-second judge path with live attacks; read-only commands anyone can paste | `PROOF_PLAN.md`, `evidence/live-44005-run1.md`, `evidence/eligibility.md` |
 | Documentation | 10 | README in judge order with a diagram, contract addresses and reproduction steps; every claim in CLAIMS.md with evidence, checked by the gate | `README.md`, `CLAIMS.md`, `PRD.md`, `DECISIONS.md`, `DEPLOY_RENDER.md` |
 | Ecosystem contribution | — | `shaida-sdk` on npm ([shaida-sdk@0.1.0](https://www.npmjs.com/package/shaida-sdk)): any Aevum app verifies a Shaida link (and runs a policy) against the RPC alone, with the key and network pinned by hash; a Node example and a landlord page built on it; `@shaida/proofs` and `@shaida/underwrite` underneath; `tools/check-shanghai.mjs` extended to Gloam | `packages/sdk/README.md`, https://www.npmjs.com/package/shaida-sdk, `evidence/sdk/npm-install.md`, `examples/`, `NOTICE.md` |
 
 ## What is not built (stated on the page too)
-On-chain bundle checks, a reader code that authenticates the reader, a relayer key pool, signed bot decisions,
+On-chain bundle checks, reader authentication beyond a shared code (and codes for the bot), a relayer key pool, signed bot decisions,
 payer-name disclosure, the privacy fixes F1, F2, F6, F7 and F10, and mainnet (ROADMAP.md). The payer of every payment
 is public by design, and at today's volume timing links sweeps to payments (LIMITS.md).
 
@@ -116,7 +119,8 @@ is public by design, and at today's volume timing links sweeps to payments (LIMI
 | Nov 23 | `9d7b525`–`ad2b9ff` | Withdrawal batch on 44005; prove-form fix; **live run 2**, clicked by hand |
 | Nov 23–24 | `a5f4f00`–`159545d` | Underwriting bot, templates, agent card; live APPROVE/DECLINE and the bot's on-chain record |
 | Nov 25 | `db8c13d`–`9aec406` | Privacy audit of the live deployment; pitch corrected; quick fixes F3, F4, F5, F8, F9 |
-| Nov 25 | this branch | Judge docs: README, PROOF_PLAN, SUBMISSION, video kit, `make eligibility`, `make judge-ui`, pre-submit audit |
+| Nov 25 | `495ebf1`–`f745bb2` | Judge docs: README, PROOF_PLAN, SUBMISSION, video kit, `make eligibility`, `make judge-ui`, pre-submit audit; `shaida-sdk` 0.1.0 on npm |
+| Nov 25–26 | feat/revoke-and-reader-code | Link revocation (Revocations contract, link v2) and reader codes; `shaida-sdk` 0.2.0 packed |
 
 ## Credits and licences (organisers' attribution rules)
 - **Gloam** (MIT, © 2026 Gloam), https://github.com/gloamtrade/gloam: the shielded pool, final-ceremony verifiers,

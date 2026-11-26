@@ -3,6 +3,8 @@
 // eth_chainId, eth_blockNumber, eth_getBlockByNumber for recorded blocks, eth_getLogs (Aevum's ≤ 1000-block rule),
 // and ShaidaLedger's isKnownRoot / nextIndex at any block, computed from the recorded leaves with Gloam's
 // incremental tree (prefixRoots). It is not a chain: IncomeVerifier has no code here, so check() is an error.
+// Revocations (0.2.0) is replayed at a stand-in address: revokedAt(salt) is 0 unless the test revokes that salt at a
+// recorded block (FixtureOptions.revoked); before Revocations "existed" (revocationsFrom) it has no code ("0x").
 import { createServer, type Server } from "node:http";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -16,6 +18,8 @@ const dump = JSON.parse(readFileSync(`${FIX}fork-dump-fixes.json`, "utf8")) as {
 const deployment = JSON.parse(readFileSync(`${FIX}fork-deployment-fixes.json`, "utf8")) as { contracts: { ShaidaLedger: { block: number } } };
 const truth = JSON.parse(readFileSync(`${FIX}fork-truth-fixes.json`, "utf8")) as { links: { name: string; reader: string; holder: string; from: { url: string } }[] };
 
+/** A stand-in address: the fork fixture predates Revocations, so the replay plays its part. */
+const REVOCATIONS = "0x00000000000000000000000000000000000d3535";
 const VOUCHED = "0x0f261e8c13be127d3405bce37a07673fe92d4b7002a3c90a2bc5af9274b48bd6";
 const SWEPT = "0xb8b0aa967035d4c4e2afe48f28aab6fc93be6b675d3936a1884e0f0f0fdafc95";
 const ledger = dump.contracts.ledger.toLowerCase();
@@ -31,7 +35,7 @@ const blockTime = new Map(dump.txs.map((t) => [t.block, t.time]));
 export const FIXTURE = {
   chainId: dump.chainId,
   head: dump.toBlock,
-  network: { name: "aevum-fork (fixture replay)", chainId: dump.chainId, ledger, incomeVerifier: dump.contracts.incomeVerifier.toLowerCase(), fromBlock: BigInt(deployment.contracts.ShaidaLedger.block) },
+  network: { name: "aevum-fork (fixture replay)", chainId: dump.chainId, ledger, incomeVerifier: dump.contracts.incomeVerifier.toLowerCase(), fromBlock: BigInt(deployment.contracts.ShaidaLedger.block), revocations: REVOCATIONS },
   leaves,
   links: truth.links.map((l) => ({ name: l.name, reader: l.reader, holder: l.holder, url: l.from.url })),
   timeOf: (block: number) => blockTime.get(block),
@@ -42,6 +46,12 @@ export interface FixtureOptions {
   readonly head?: number;
   /** Answer eth_chainId with another chain (the wrong-RPC test). */
   readonly chainId?: number;
+  /** Revoked salts → the (recorded) block of their revocation. */
+  readonly revoked?: ReadonlyMap<bigint, number>;
+  /** Revocations has code from this block on (default: always). */
+  readonly revocationsFrom?: number;
+  /** Revocations calls fail like a timed-out RPC (the registry is unreadable; the ledger still answers). */
+  readonly revocationsDown?: boolean;
 }
 
 export interface FixtureServer {
@@ -76,6 +86,13 @@ function answer(method: string, params: unknown[], o: Required<FixtureOptions>):
     case "eth_call": {
       const c = params[0] as { to: string; data: string };
       const b = Math.min(tag(params[1]), o.head);
+      if (c.to.toLowerCase() === REVOCATIONS) {
+        if (o.revocationsDown) throw Object.assign(new Error("request timed out"), { code: -32000 });
+        if (b < o.revocationsFrom) return "0x";
+        if (!c.data.startsWith("0x871bd456")) throw Object.assign(new Error(`Revocations call ${c.data.slice(0, 10)} is not replayed`), { code: -32601 });
+        const at = o.revoked.get(BigInt(`0x${c.data.slice(10)}`));
+        return word(at !== undefined && at <= b ? at : 0);
+      }
       if (c.to.toLowerCase() !== ledger) throw Object.assign(new Error(`the fixture replays ShaidaLedger only; ${c.to} has no code here`), { code: -32601 });
       if (b < FIXTURE.network.fromBlock) return "0x";
       const n = leaves.filter((l) => l.block <= b).length;
@@ -88,7 +105,7 @@ function answer(method: string, params: unknown[], o: Required<FixtureOptions>):
 }
 
 export async function startFixtureRpc(opts: FixtureOptions = {}, port = 0): Promise<FixtureServer> {
-  const o = { head: opts.head ?? FIXTURE.head, chainId: opts.chainId ?? FIXTURE.chainId };
+  const o = { head: opts.head ?? FIXTURE.head, chainId: opts.chainId ?? FIXTURE.chainId, revoked: opts.revoked ?? new Map<bigint, number>(), revocationsFrom: opts.revocationsFrom ?? 0, revocationsDown: opts.revocationsDown ?? false };
   const calls: FixtureServer["calls"] = [];
   const server: Server = createServer((req, res) => {
     res.setHeader("access-control-allow-origin", "*");

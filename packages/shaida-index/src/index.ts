@@ -5,3 +5,4 @@ export * from "./logs";
 export * from "./snapshot";
 export * from "./sync";
 export * from "./kv-store";
+export * from "./revocation";

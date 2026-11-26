@@ -1,0 +1,40 @@
+
+> @shaida/pay@0.1.0 privacy:fixture /home/kingghidorah/Documents/projects/bounties/shaida/packages/shaida-pay
+> tsx scripts/privacy-fixture.ts --revoke
+
+· Acme Studio (demo): deposit 10 tUSD8: 0x277ca52df47f34851eea31d2d1fb275c7294be7f27b60b85c701ba3fa8e5ec86
+· Bisi Foods (demo): deposit 6 tUSD8: 0x8edcaa980556bfe81d42583a9832fb9954797b384cc1e4a7a865367fe80fb9c7
+· P1 Acme Studio (demo) → Ada (demo) 1.5: 0x895af713ad459aeb4c8bd91c60b2e6f9ddc6e5a6fc36b12bea669edd0815bceb
+· memo 1: 0x93410c6efea8df486a7ac227d597653199f6b3ce2c4315cef2bb01ae5355ff67
+· P2 Bisi Foods (demo) → Chidi (demo) 2: 0x9534ce23fbff0f2ea92005ec5c7e120283cdb2b1763a5a88cd181700fac3bfdf
+· memo 2: 0x22c1e7d3003c1f6a34f28ebfefd826f01c27fc0f997ece4069d6ba20a2b7ff2b
+· P3 Acme Studio (demo) → Chidi (demo) 0.7: 0xf3f14d4884dd4535635ccf73a1db812adbe828e5ba0d48c17bded5e4f3152b57
+· memo 3: 0x82882487665adbf0e0d0adca93de90ef725a7cc9cfb55e9e14f510de95ea4f33
+· P4 Bisi Foods (demo) → Ada (demo) 1: 0x1859750a90683c03f1334bbc968059bc0cc55a10213df87e67da57256322ab54
+· memo 4: 0x2bdf6361e2500739aa0451d782c0fcdfe9ddb7221140610391b4ba0ee1630438
+· Chidi (demo) sweeps 0.7: 0x093cc920864a589e43e984ca53cfda583ce5c9683fa1cd709db7c22513ec0ff2
+· Chidi (demo) sweeps 2 split 1 + 1: 0x959f7055eb94a64dfb32450bd28b4bab346a7966244020cee0bf7826dc531add
+· P5 Acme Studio (demo) → Ada (demo) 2.25: 0xbd53e06ea282795162d775462ef7cf27160818cba89ed892520e729ba53feb88
+· memo 5: 0x0802e7aa68945a5e4d2c7650000f35d5774adcac630c6ff951f80fc58ab55313
+· P6 Acme Studio (demo) → Ada (demo) 0.5: 0xc4de2f06ae7754a1d2279302d4528fc90b01f00769b7b878f3aecf44fd6ad2ad
+· memo 6: 0x5615431cae625009a9614de2f6cfcae4086c044da8308e8a09affd5d1bc49d0c
+· P7 Bisi Foods (demo) → Ada (demo) 1.2: 0xc95abab336ace5a26852386f0d556d09d2a850c0a2602ec53ad20df13205ab81
+· memo 7: 0xd2c44ae74815072f4737e14bda3ae80f81775036966861cbd49bd0ebbe4937d0
+· P8 Acme Studio (demo) → Ada (demo) 1: 0x7a8907b324d5c732c9f35109dfcb6504ed56e05f95ba7b84783c03aafc7fac0a
+· memo 8: 0xe328ba20a06a46215e2097f400e12bd4e55fa147549362bddc2e6021bcac47e8
+· RateLimited (nothing sent): waiting 65 s
+· Ada (demo) sweeps 1.5 split 1 + 0.5: 0x533a7be800b674ac6a59add891e9900fdf181c824130a8e5e524547309892a1c
+· Ada (demo) sweeps 1: 0xa6924b7c395382189096a34db784b046f898f08586ef451da17ff6badd34e07e
+· Ada (demo) sweeps 2.25 split 2 + 0.25: 0x0a51e03a989c3a2edc08fe9a2018a10ac6aa022e57e24edbbbc0018db939a29f
+· Ada (demo) sweeps 0.5: 0xfd263301c6275efb62054db1af880ecb57bc877826acbf7ffb645ab1d44504aa
+· Ada (demo) sweeps 1.2 split 1 + 0.2: 0xb70ce76c86fdd65d09a943528690298848816d3477033d01030bdd29defb8568
+· Ada (demo) sweeps 1: 0xbc3cffa82a77b23f192d2e96e8b4bc3b6fdcc68f8d56480d5fa989671ddac79b
+· Chidi withdraws 1 tUSD8: 0x2044a96b60025352c66d30b6eec4aaa006c28c1915dd36993b325d8bb39c5735
+· Chidi revokes his link: 0xb4d127c4c2e49f3b13d8c3d070a042eddc63e5389c60ffecfc16427b42e11d09
+Error: second revoke: mined
+    at main (/home/kingghidorah/Documents/projects/bounties/shaida/packages/shaida-pay/scripts/privacy-fixture.ts:219:66)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+/home/kingghidorah/Documents/projects/bounties/shaida/packages/shaida-pay:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @shaida/pay@0.1.0 privacy:fixture: `tsx scripts/privacy-fixture.ts --revoke`
+Exit status 1
+exit 1

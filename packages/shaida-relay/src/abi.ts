@@ -1,6 +1,6 @@
 import { parseAbi } from "viem";
 
-/** The six functions the relayer may call. Nothing else is ever encoded. */
+/** The seven functions the relayer may call. Nothing else is ever encoded. */
 export const depositorAbi = parseAbi([
   "struct Authorization { uint256 validAfter; uint256 validBefore; uint8 v; bytes32 r; bytes32 s; }",
   "function depositWithAuthorization(address payer, uint256 amount, bytes32 commitment, bytes shieldProof, Authorization auth)",
@@ -18,6 +18,9 @@ export const memoBoardAbi = parseAbi(["function postMemo(bytes32 paymentCommitme
 
 export const poolAbi = parseAbi(["function unshield(bytes proof, bytes32 root, bytes32 nullifier, address asset, address to, uint256 amount)"]);
 
+/** Revocations (D35). */
+export const revocationsAbi = parseAbi(["function revoke(uint256 secret) returns (uint256)"]);
+
 /** Reads the rails make, each at one pinned block. */
 export const readsAbi = parseAbi([
   "function paused() view returns (bool)",
@@ -27,6 +30,7 @@ export const readsAbi = parseAbi([
   "function isKnownRoot(bytes32 root) view returns (bool)",
   "function commitmentSeen(bytes32 commitment) view returns (bool)",
   "function authorizationState(address authorizer, bytes32 nonce) view returns (bool)",
+  "function revokedAt(uint256 salt) view returns (uint256)",
 ]);
 
 /** Every custom error a relayed call can revert with, so a simulation revert decodes to a name. */
@@ -57,4 +61,7 @@ export const relayErrorsAbi = parseAbi([
   "error PayerBlacklisted(address payer)",
   "error ZeroAmount()",
   "error PoolPullMismatch(uint256 balanceBefore, uint256 balanceAfter)",
+  // Revocations (D35)
+  "error BadSecret()",
+  "error AlreadyRevoked(uint256 salt, uint256 blockNumber)",
 ]);

@@ -30,6 +30,7 @@ export function renderReader(r) {
   const L = [];
   for (const l of r.links) {
     L.push(`${l.name}: ${l.proofs.length} proof(s); reader hash ${l.readerIdHash ? short(l.readerIdHash) : "— (not in the source)"}; expiry ${l.expiryIso ?? "—"}${l.expiryHint ? ` (${l.expiryHint})` : ""}`);
+    if (l.version != null) L.push(`  link v${l.version}, reader ${l.readerMode}; names tried that confirm the reader: ${l.readerNameMatches.length ? l.readerNameMatches.join(", ") : "none"}; revoked on chain: ${l.revocation ? `yes, block ${l.revocation.block} (${l.revocation.time}), sent by ${l.revocation.sender}` : "no"}`);
     for (const p of l.proofs) {
       L.push(`  ≥ ${usd(p.threshold)} tUSD8, count ${p.count}, leaves ${p.fromIndex}–${p.toIndex} (${p.fromTime ?? "—"} → ${p.toTime ?? "—"}), root known ${p.rootIsKnown}`);
       L.push(`  leaves in range: ${p.vouchLeaves.length} V (payer ids ${[...new Set(p.vouchLeaves.map((v) => v.payerId))].join(", ")}), ${p.sweepLeaves.length} S; V = count: ${p.vouchLeaves.length === Number(p.count)}`);

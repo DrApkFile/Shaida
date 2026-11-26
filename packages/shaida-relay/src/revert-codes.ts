@@ -22,6 +22,8 @@ const BY_ERROR_NAME: Record<string, ErrorCode> = {
   BadMemo: "InputRejected",
   ZeroAddress: "InputRejected",
   InsufficientPoolBalance: "InputRejected",
+  AlreadyRevoked: "AlreadyRevoked",
+  BadSecret: "InputRejected",
 };
 
 /** FiatTokenV2_2 revert strings (S9). */

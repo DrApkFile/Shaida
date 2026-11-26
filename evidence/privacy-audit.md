@@ -183,6 +183,40 @@ the same tree positions (evidence/acts-2-3-fork.md); the two withdrawals of the 
 against one withdrawal for a whole note. Circuit test: `F4 counts a split-swept payment at its full amount`
 (packages/shaida-proofs).
 
+## Revocation and reader codes (D35, D36; 2026-11-26)
+No circuit, ceremony or existing-contract change: one new contract (Revocations) and link v2. The fork fixture ran
+again with both (`pnpm --filter @shaida/pay privacy:fixture --revoke`, which implies `--fixes`; same plan, fresh
+`make fork` with the same deployer and nonces, so the same addresses as the built app). Ada's link is
+**code-protected** for "Landlord Bola" (the code comes from 10 CSPRNG bytes and is never written out). Chidi's is
+**name only** for "Lender Dayo", and after his withdrawal he revokes it through the relayer. Data:
+[fork-truth-revoke.json](../tools/privacy/fixtures/fork-truth-revoke.json),
+[fork-dump-revoke.json](../tools/privacy/fixtures/fork-dump-revoke.json),
+[observer-fork-revoke.json](privacy-audit/observer-fork-revoke.json),
+[reader-fork-revoke.json](privacy-audit/reader-fork-revoke.json). Reader run with `--reader-name "Landlord Bola"
+--reader-name "Lender Dayo"`.
+
+What changes for the **reader**:
+
+| | Before (v1, or v2 name only) | Code-protected (Ada) | Revoked (Chidi) |
+|---|---|---|---|
+| Does the reader's name alone confirm whom the link is for? | yes: "Landlord Bola" matches the reader hash (live links, fork fixtures) | **no**: the hash is Poseidon(5, nameHash, Poseidon(code)); "Landlord Bola" confirms nothing (`names tried that confirm the reader: none`). Verifying needs the name and the code | yes, as before: "Lender Dayo" matches |
+| Who can view it | anyone with the link who guesses or knows the name | anyone with the link, the name and the code (a shared secret, not a login) | anyone with the link and the name sees **REVOKED** |
+| What the revocation shows | v1: nothing (not revocable, labelled so) | not revoked | the block (4128502) and its time; the sender is the relayer (`0x7099…79c8`), not the holder |
+| Payers, leaf range, timing, total bounds | as in "Reader" above | **unchanged**: payer ids 1, 2; leaves 0–7 and 8–15; total [5, 16] (truth 7.45) | **unchanged**: leaves 1–15; [2, 16) (truth 2.7) |
+
+A reader code hides **who the link is for** from someone holding the link and a guessed name. It does not hide the
+ledger facts the link carries. Revoking stops future verification; a VALID already seen stays seen, and the link's
+ledger facts were public before the revoke.
+
+What changes for the **observer** (no link): one `revokeLink` tx, sent by the relayer, carrying the secret and the
+salt. With no attest of that link on chain, it ties the revoke to no payment, payer or holder: the salt reaches
+the link only through the link itself. Its gas was 77,796. Everything else is unchanged from the fixes run: A5 8 of
+8, A6 3 of 3, A3 6 of 8, A2 16 of 28, A1 0 of 8, memos all 852 bytes, no records (A4 empty).
+
+The fixture also checks that the relayer answers a repeat revoke request from its first record (same request id and
+hash) without sending, and that the reader code appears in neither the truth file nor the log (text, without
+dashes, decimal, hex).
+
 ## Runs that failed (kept on record)
 Fork fixture, 2026-11-25, on `make fork`:
 1. Stopped at Ada's second sweep with **RateLimited** from the app's relayer (per-address limit; nothing sent). The
@@ -198,3 +232,11 @@ Fork fixture, 2026-11-25, on `make fork`:
    it read the pool's `nextIndex` at a block where the pool did not exist yet. An artifact of reusing the build, not
    of a normal deploy. Fixed by waiting for the index to catch up first; the script also asks again on a retryable
    index refusal (at most 30 times).
+
+Revocation fixture (`--revoke`), 2026-11-26, on `make fork`:
+1. Ran through the withdrawal and Chidi's revoke (mined), then stopped at the script's own check: it expected a
+   second revoke request to be refused **AlreadyRevoked**, but the relayer answered from its first record (`mined`,
+   same request id), as designed (relayer test R42; AlreadyRevoked is for a salt revoked with no record of this
+   relayer, R41). The script's expectation was wrong, not the rail; the check now asserts the same record and an
+   unmoved relayer nonce. Log: [fixture-revoke-run1-FAILED.log](privacy-audit/fixture-revoke-run1-FAILED.log). The
+   rerun was on a fresh fork and a clean relayer store.

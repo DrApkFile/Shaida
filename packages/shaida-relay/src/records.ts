@@ -19,6 +19,7 @@ export function takenRefusal(key: string, holder: RequestRecord): Refusal {
     return { code: "AlreadySpent", message: done ? "This note was already spent on chain. Nothing was sent." : "Another request is already spending this note. Nothing was sent." };
   }
   if (kind === "vouch") return { code: "AlreadyVouched", message: "This payment already has (or is getting) a vouch. Nothing was sent." };
+  if (kind === "revoke") return { code: "AlreadyRevoked", message: done ? "This link was already revoked on chain. Nothing was sent." : "This link is already being revoked. Nothing was sent." };
   if (kind === "memo") return { code: "InputRejected", message: "A memo for this payment was already posted (or is being posted). Nothing was sent." };
   return { code: "InputRejected", message: "This deposit commitment is already used by another request. Make a new note; nothing was sent." };
 }

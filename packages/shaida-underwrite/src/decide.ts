@@ -13,7 +13,8 @@ import { isInconclusiveCode, isRefusalCode, REFUSAL_WORDS, type DeclineCode, typ
 import { policyLabel, type Policy } from "./policy";
 import { failingRules, periodDays, proofAgeSeconds, RULES, secondsLeft, type ProofFacts, type Rule } from "./rules";
 
-export interface UnderwriteDeps extends Omit<VerifyDeps, "readerIdHash"> {
+/** The bot is name-only (D36): its reader name is public by design, so it has no reader code to enter. */
+export interface UnderwriteDeps extends Omit<VerifyDeps, "readerIdHash" | "readerCode"> {
   /** Block time of the ledger leaf that formed `root`, or null when the bot's ledger copy does not reach it yet. */
   readonly rootTime: (root: bigint) => Promise<bigint | null>;
 }
@@ -126,7 +127,7 @@ export async function underwrite(fragment: string, policy: Policy, deps: Underwr
   let verified: IncomeVerified;
   let rootTime: bigint | null;
   try {
-    const v = await verifyIncomeLink(fragment, { ...deps, now: () => now, readerIdHash: policy.readerIdHash });
+    const v = await verifyIncomeLink(fragment, { ...deps, now: () => now, readerIdHash: policy.readerIdHash, readerCode: null });
     if (v.status === "INCONCLUSIVE") {
       if (!isInconclusiveCode(v.error.code)) throw new Error(`verifyIncomeLink returned INCONCLUSIVE(${v.error.code}), which the bot does not map`);
       return inconclusive(v.error);

@@ -23,22 +23,34 @@ export const groth16ProofSchema = z
 
 const signals = z.array(fieldString).length(PUBLIC_SIGNAL_ORDER.length);
 
-export const incomeLinkSchema = z
-  .object({
-    v: z.literal(1),
-    proofs: z
-      .array(z.object({ proof: groth16ProofSchema, publicSignals: signals }).strict())
-      .min(1)
-      .max(MAX_BUNDLE_PROOFS),
-    readerIdHash: fieldString,
-    /** Unix seconds. */
-    expiry: z.string().regex(/^(0|[1-9][0-9]{0,19})$/).refine((s) => BigInt(s) < 1n << 64n, "must be below 2^64"),
-    salt: fieldString,
-  })
-  .strict();
+const linkFields = {
+  proofs: z
+    .array(z.object({ proof: groth16ProofSchema, publicSignals: signals }).strict())
+    .min(1)
+    .max(MAX_BUNDLE_PROOFS),
+  readerIdHash: fieldString,
+  /** Unix seconds. */
+  expiry: z.string().regex(/^(0|[1-9][0-9]{0,19})$/).refine((s) => BigInt(s) < 1n << 64n, "must be below 2^64"),
+  salt: fieldString,
+};
+
+/** Link version 1 (D12, frozen with its tests): made before revocation and reader codes; reader id = the name's hash. */
+export const incomeLinkV1Schema = z.object({ v: z.literal(1), ...linkFields }).strict();
+
+/**
+ * Link version 2 (D35, D36): salt = Poseidon(4, revokeSecret), so the holder can revoke it; `reader` says how the
+ * reader id was made: "name" = readerIdHashOf(name), as in v1; "code" = Poseidon(5, nameHash, Poseidon(code)). The
+ * code itself is never in the link. Neither field is trusted alone: the context opening and the reader check bind
+ * them (a v2 link edited to v1 still has its revocable salt, and every link's salt is checked for revocation).
+ */
+export const incomeLinkV2Schema = z.object({ v: z.literal(2), ...linkFields, reader: z.enum(["name", "code"]) }).strict();
+
+export const incomeLinkSchema = z.discriminatedUnion("v", [incomeLinkV1Schema, incomeLinkV2Schema]);
 
 export type Groth16Proof = z.infer<typeof groth16ProofSchema>;
 export type IncomeLink = z.infer<typeof incomeLinkSchema>;
+export type IncomeLinkV1 = z.infer<typeof incomeLinkV1Schema>;
+export type IncomeLinkV2 = z.infer<typeof incomeLinkV2Schema>;
 
 const toBase64Url = (bytes: Uint8Array): string => {
   let bin = "";

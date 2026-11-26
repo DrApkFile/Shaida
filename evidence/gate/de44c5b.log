@@ -1,0 +1,978 @@
+bash tools/gate.sh
+gate: fresh clone of de44c5b558af in /home/kingghidorah/.cache/shaida-gate/run.H2j4QE
+
+━━ 1 install
+Scope: all 15 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +484
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 484, reused 1, downloaded 0, added 0
+Progress: resolved 484, reused 3, downloaded 0, added 0
+Progress: resolved 484, reused 4, downloaded 0, added 0
+Progress: resolved 484, reused 6, downloaded 0, added 0
+Progress: resolved 484, reused 7, downloaded 0, added 0
+Progress: resolved 484, reused 8, downloaded 0, added 0
+
+   ╭───────────────────────────────────────────╮
+   │                                           │
+   │    Update available! 10.8.1 → 12.23.0.    │
+   │   Changelog: https://pnpm.io/v/12.23.0    │
+   │   To update, run: pnpm add -g @pnpm/exe   │
+   │                                           │
+   ╰───────────────────────────────────────────╯
+
+Progress: resolved 484, reused 9, downloaded 0, added 0
+Progress: resolved 484, reused 10, downloaded 0, added 0
+Progress: resolved 484, reused 12, downloaded 0, added 0
+Progress: resolved 484, reused 13, downloaded 0, added 0
+Progress: resolved 484, reused 14, downloaded 0, added 0
+Progress: resolved 484, reused 18, downloaded 0, added 0
+Progress: resolved 484, reused 20, downloaded 0, added 0
+Progress: resolved 484, reused 23, downloaded 0, added 0
+Progress: resolved 484, reused 26, downloaded 0, added 0
+Progress: resolved 484, reused 30, downloaded 0, added 0
+Progress: resolved 484, reused 34, downloaded 0, added 0
+Progress: resolved 484, reused 36, downloaded 0, added 0
+Progress: resolved 484, reused 39, downloaded 0, added 0
+Progress: resolved 484, reused 40, downloaded 0, added 0
+Progress: resolved 484, reused 42, downloaded 0, added 0
+Progress: resolved 484, reused 43, downloaded 0, added 0
+Progress: resolved 484, reused 46, downloaded 0, added 0
+Progress: resolved 484, reused 47, downloaded 0, added 0
+Progress: resolved 484, reused 48, downloaded 0, added 0
+Progress: resolved 484, reused 49, downloaded 0, added 0
+Progress: resolved 484, reused 50, downloaded 0, added 0
+Progress: resolved 484, reused 53, downloaded 0, added 0
+Progress: resolved 484, reused 54, downloaded 0, added 0
+Progress: resolved 484, reused 55, downloaded 0, added 0
+Progress: resolved 484, reused 58, downloaded 0, added 0
+Progress: resolved 484, reused 62, downloaded 0, added 0
+Progress: resolved 484, reused 69, downloaded 0, added 0
+Progress: resolved 484, reused 80, downloaded 0, added 0
+Progress: resolved 484, reused 91, downloaded 0, added 0
+Progress: resolved 484, reused 105, downloaded 0, added 0
+Progress: resolved 484, reused 118, downloaded 0, added 0
+Progress: resolved 484, reused 122, downloaded 0, added 0
+Progress: resolved 484, reused 138, downloaded 0, added 0
+Progress: resolved 484, reused 154, downloaded 0, added 0
+Progress: resolved 484, reused 167, downloaded 0, added 0
+Progress: resolved 484, reused 191, downloaded 0, added 0
+Progress: resolved 484, reused 226, downloaded 0, added 0
+Progress: resolved 484, reused 251, downloaded 0, added 0
+Progress: resolved 484, reused 293, downloaded 0, added 0
+Progress: resolved 484, reused 358, downloaded 0, added 0
+Progress: resolved 484, reused 378, downloaded 0, added 0
+Progress: resolved 484, reused 423, downloaded 0, added 0
+Progress: resolved 484, reused 454, downloaded 0, added 0
+Progress: resolved 484, reused 472, downloaded 0, added 0
+Progress: resolved 484, reused 474, downloaded 0, added 86
+Progress: resolved 484, reused 474, downloaded 0, added 181
+Progress: resolved 484, reused 474, downloaded 0, added 182
+Progress: resolved 484, reused 474, downloaded 0, added 320
+Progress: resolved 484, reused 474, downloaded 0, added 400
+Progress: resolved 484, reused 474, downloaded 0, added 483
+Progress: resolved 484, reused 474, downloaded 0, added 484, done
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: blake-hash, bufferutil, keccak, utf-8-validate.     │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 1m 3.8s using pnpm v10.8.1
+✓ web/public/gloam/shield.wasm
+✓ web/public/gloam/shield_final.zkey
+✓ web/public/gloam/transfer.wasm
+✓ web/public/gloam/transfer_final.zkey
+✓ web/public/gloam/unshield.wasm
+✓ web/public/gloam/unshield_final.zkey
+
+━━ 2 forge build + Shanghai check
+Compiling 91 files with Solc 0.8.24
+Solc 0.8.24 finished in 22.58s
+Compiler run successful!
+warning[block-timestamp]: usage of `block.timestamp` in a comparison may be manipulated by validators
+   ╭▸ src/ShaidaLedger.sol:83:13
+   │
+83 │         if (block.timestamp > deadline) revert SignatureExpired(deadline);
+   │             ━━━━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://getfoundry.sh/forge/linting/block-timestamp
+
+warning[block-timestamp]: usage of `block.timestamp` in a comparison may be manipulated by validators
+    ╭▸ src/ShaidaLedger.sol:102:13
+    │
+102 │         if (block.timestamp > deadline) revert SignatureExpired(deadline);
+    │             ━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://getfoundry.sh/forge/linting/block-timestamp
+
+warning[inconsistent-type-names]: contract mixes shorthand and explicit integer type names; use `uint256` and `int256` consistently
+   ╭▸ src/generated/IncomeGroth16Verifier.sol:80:26
+   │
+80 │     function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[7] calldata _pubSignals) public vie…
+   │                          ━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://getfoundry.sh/forge/linting/inconsistent-type-names
+
+warning[inconsistent-type-names]: contract mixes shorthand and explicit integer type names; use `uint256` and `int256` consistently
+   ╭▸ src/generated/IncomeGroth16Verifier.sol:80:48
+   │
+80 │     function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[7] calldata _pubSignals) public vie…
+   │                                                ━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://getfoundry.sh/forge/linting/inconsistent-type-names
+
+warning[inconsistent-type-names]: contract mixes shorthand and explicit integer type names; use `uint256` and `int256` consistently
+   ╭▸ src/generated/IncomeGroth16Verifier.sol:80:73
+   │
+80 │     function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[7] calldata _pubSignals) public vie…
+   │                                                                         ━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://getfoundry.sh/forge/linting/inconsistent-type-names
+
+warning[inconsistent-type-names]: contract mixes shorthand and explicit integer type names; use `uint256` and `int256` consistently
+   ╭▸ src/generated/IncomeGroth16Verifier.sol:80:95
+   │
+80 │     function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[7] calldata _pubSignals) public vie…
+   │                                                                                               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://getfoundry.sh/forge/linting/inconsistent-type-names
+
+✓ 35 bytecode blobs checked (23 from Gloam): Shanghai-safe.
+
+━━ 3 circuit compile + artifact hashes
+
+> @shaida/proofs@0.1.0 compile /home/kingghidorah/.cache/shaida-gate/run.H2j4QE/packages/shaida-proofs
+> node scripts/compile.mjs
+
+template instances: 154
+non-linear constraints: 44687
+linear constraints: 0
+public inputs: 7
+private inputs: 344 (342 belong to witness)
+public outputs: 0
+wires: 44833
+labels: 143639
+Written successfully: build/income.r1cs
+Written successfully: build/income.sym
+Written successfully: build/income_js/income.wasm
+Everything went okay
+✓ build/income.r1cs, build/income_js/income.wasm (circom compiler 2.2.3)
+✓ circuit r1cs (ceremony-bound): packages/shaida-proofs/build/income.r1cs d866695ca2473e70…
+✓ income wasm (browser prover, D27): packages/shaida-proofs/build/income_js/income.wasm 8fb36f38c220edb2…
+✓ final vkey: packages/shaida-proofs/keys/income_final_vkey.json 2635a81044a14f06…
+✓ browser pins (income-artifacts.json) = ceremony final zkey and vkey
+✓ final verifier (ceremony output): contracts/src/generated/IncomeGroth16Verifier.sol 96db550b107ffe22…
+✓ deploy script imports the ceremony verifier (../src/generated/IncomeGroth16Verifier.sol)
+· final zkey not present locally (ceremony/work/income_final.zkey; release asset ceremony-v1): hash not checked here
+
+━━ 4 typecheck + lint
+Scope: 14 of 15 workspace projects
+packages/gloam-fixtures typecheck$ tsc --noEmit
+packages/shaida-kv typecheck$ tsc --noEmit
+packages/shaida-proofs typecheck$ tsc --noEmit
+packages/shaida-kv typecheck: Done
+packages/shaida-proofs typecheck: Done
+packages/gloam-fixtures typecheck: Done
+ceremony typecheck$ tsc --noEmit
+packages/shaida-index typecheck$ tsc --noEmit
+packages/shaida-relay typecheck$ tsc --noEmit
+tools/s8-bench typecheck$ tsc --noEmit
+ceremony typecheck: Done
+tools/s8-bench typecheck: Done
+packages/shaida-index typecheck: Done
+packages/shaida-relay typecheck: Done
+packages/shaida-pay typecheck$ tsc --noEmit
+packages/shaida-pay typecheck: Done
+packages/shaida-underwrite typecheck$ tsc --noEmit
+packages/shaida-underwrite typecheck: Done
+packages/sdk typecheck$ node scripts/build.mjs && tsc --noEmit
+web typecheck$ tsc --noEmit
+packages/sdk typecheck: ✓ dist/index.js (62476 bytes), declarations: check.d.ts, codes.d.ts, decode.d.ts, index.d.ts, ledger.d.ts, network.d.ts, pins.d.ts, rpc.d.ts, session.d.ts, types.d.ts, underwrite.d.ts, verify.d.ts
+packages/sdk typecheck:   inlined: @noble/hashes (npm), @shaida/proofs (workspace, MIT), @shaida/underwrite (workspace, MIT), config/underwrite-policies.json (Shaida, MIT), shaida-sdk (MIT)
+packages/sdk typecheck: Done
+web typecheck: Done
+✓ forge lint [block-timestamp] src/ShaidaLedger.sol: 2/2 accepted by D16
+✓ forge lint [inconsistent-type-names] src/generated/IncomeGroth16Verifier.sol: 4/4 accepted by D24
+✓ forge lint: 6 finding(s), none outside the allowlist
+✓ TypeScript rules over 325 files (no any, no empty catch)
+✓ colours: 91 web/src files, only tokens.css writes a colour
+
+━━ 5 unit, circuit, indexer, relayer, flow tests
+No files changed, compilation skipped
+
+Ran 8 tests for test/Revocations.t.sol:RevocationsTest
+[PASS] test_GAS_revoke() (gas: 88326)
+[PASS] test_RV01_revoke_marks_the_salt_with_its_block_and_emits_Revoked() (gas: 104336)
+[PASS] test_RV02_a_wrong_secret_cannot_revoke_another_links_salt() (gas: 188476)
+[PASS] test_RV03_a_second_revoke_is_refused_and_keeps_the_first_block() (gas: 150136)
+[PASS] test_RV04_zero_or_out_of_field_secrets_are_refused() (gas: 84545)
+[PASS] test_RV05_salt_equals_the_browsers_poseidon() (gas: 81275)
+[PASS] test_RV06_anyone_may_send_it_and_a_copied_call_revokes_the_same_salt() (gas: 150090)
+[PASS] test_RV07_constructor_refuses_a_zero_poseidon() (gas: 104584)
+Suite result: ok. 8 passed; 0 failed; 0 skipped; finished in 142.06ms (13.32ms CPU time)
+
+Ran 5 tests for test/IncomeFinalKey.t.sol:IncomeFinalKeyTest
+[PASS] test_K01_the_final_verifier_accepts_a_final_key_proof() (gas: 270325)
+[PASS] test_K02_the_final_verifier_rejects_a_throwaway_key_proof_of_the_same_signals() (gas: 291753)
+[PASS] test_K03_the_deploy_check_passes_for_the_final_verifier() (gas: 879025)
+[PASS] test_K04_the_deploy_check_refuses_a_throwaway_verifier() (gas: 1142793)
+[PASS] test_K05_IncomeVerifier_over_the_final_key_checks_a_final_proof_on_a_known_root() (gas: 938575)
+Suite result: ok. 5 passed; 0 failed; 0 skipped; finished in 285.34ms (187.27ms CPU time)
+
+Ran 11 tests for test/ShaidaDepositor.t.sol:ShaidaDepositorTest
+[PASS] test_D7_refuses_PayerBlacklisted_on_both_paths() (gas: 216187)
+[PASS] test_D7_refuses_TokenPaused_before_pulling_anything() (gas: 212375)
+[PASS] test_S6_gasless_deposit_moves_exactly_the_signed_amount_into_the_note() (gas: 1135941)
+[PASS] test_S6_refuses_a_replayed_signature() (gas: 1133369)
+[PASS] test_S6_refuses_a_signature_presented_for_another_payer() (gas: 153287)
+[PASS] test_S6_refuses_a_signature_reused_for_another_commitment() (gas: 112989)
+[PASS] test_S6_refuses_an_amount_changed_by_the_relayer() (gas: 110064)
+[PASS] test_a_rejected_shield_proof_moves_nothing() (gas: 262013)
+[PASS] test_refuses_a_zero_amount() (gas: 54090)
+[PASS] test_standard_deposit_pulls_from_the_caller_into_the_pool() (gas: 1104736)
+[PASS] test_tokens_sent_to_the_depositor_directly_do_not_block_deposits() (gas: 1143498)
+Suite result: ok. 11 passed; 0 failed; 0 skipped; finished in 151.96ms (127.88ms CPU time)
+
+Ran 13 tests for test/IncomeVerifier.t.sol:IncomeVerifierTest
+[PASS] test_GAS_verifyProof_fits_within_MIN_VERIFY_GAS() (gas: 776069)
+[PASS] test_X12_key_A_refuses_its_proof_with_the_threshold_raised() (gas: 1111951)
+[PASS] test_a_bare_snarkjs_verifier_short_of_gas_returns_false_for_a_valid_proof() (gas: 904060)
+[PASS] test_a_throwaway_key_A_proof_is_refused_by_key_B_verifier_with_ProofInvalid() (gas: 1111346)
+[PASS] test_a_throwaway_key_A_proof_verifies_under_key_A() (gas: 1111386)
+[PASS] test_attest_emits_IncomeProofChecked_with_context_threshold_and_count() (gas: 84574)
+[PASS] test_attest_emits_nothing_for_a_refused_proof() (gas: 109343)
+[PASS] test_check_passes_for_a_known_root_tUSD8_and_an_accepted_proof() (gas: 53321)
+[PASS] test_check_refuses_a_root_the_ledger_never_had_with_UnknownRoot() (gas: 75284)
+[PASS] test_check_refuses_another_asset_with_AssetMismatch() (gas: 42948)
+[PASS] test_check_refuses_to_start_short_of_gas_with_InsufficientGas_not_ProofInvalid() (gas: 49252)
+[PASS] test_check_reverts_ProofInvalid_where_the_verifier_returns_false() (gas: 79981)
+[PASS] test_constructor_refuses_zero_addresses() (gas: 331108)
+Suite result: ok. 13 passed; 0 failed; 0 skipped; finished in 122.51ms (116.37ms CPU time)
+
+Ran 6 tests for test/PayerRegistry.t.sol:PayerRegistryTest
+[PASS] test_X01_activeIdOf_refuses_an_unregistered_address() (gas: 13469)
+[PASS] test_X03_revocation_is_immediate_and_permanent() (gas: 246115)
+[PASS] test_attestor_cannot_renounce_and_hands_over_in_two_steps() (gas: 120692)
+[PASS] test_only_the_attestor_registers_or_revokes() (gas: 183505)
+[PASS] test_refuses_zero_address_empty_name_and_unknown_ids() (gas: 91812)
+[PASS] test_registers_payers_with_ids_from_one_and_reads_them_back() (gas: 261270)
+Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 12.64ms (8.48ms CPU time)
+
+Ran 9 tests for test/ShaidaLedgerLateVouch.t.sol:ShaidaLedgerLateVouchTest
+[PASS] test_D9_X01_a_recipient_who_is_not_a_payer_cannot_vouch_for_their_own_note() (gas: 1923311)
+[PASS] test_D9_X01_refuses_lateVouch_from_an_unregistered_sender() (gas: 1701594)
+[PASS] test_D9_X03_refuses_lateVouch_from_a_revoked_payer_direct_and_relayed() (gas: 1949551)
+[PASS] test_D9_X04_refuses_a_second_lateVouch_for_the_same_commitment() (gas: 2929286)
+[PASS] test_D9_X04_refuses_lateVouch_for_a_payment_already_vouched_by_vouchedPay() (gas: 2746019)
+[PASS] test_D9_a_relayed_lateVouch_works_once_and_only_for_its_commitment() (gas: 4522958)
+[PASS] test_D9_lateVouch_by_the_payer_repairs_a_copied_vouchedPay() (gas: 2827458)
+[PASS] test_D9_refuses_a_relayed_lateVouch_after_its_deadline() (gas: 1834414)
+[PASS] test_D9_refuses_lateVouch_for_a_commitment_the_pool_never_saw() (gas: 197103)
+Suite result: ok. 9 passed; 0 failed; 0 skipped; finished in 542.71ms (498.18ms CPU time)
+
+Ran 11 tests for test/ShaidaLedger.t.sol:ShaidaLedgerTest
+[PASS] test_X01_refuses_vouchedPay_from_an_unregistered_sender() (gas: 96159)
+[PASS] test_X02_a_relayed_pay_signed_by_an_active_payer_is_vouched_once() (gas: 3698149)
+[PASS] test_X02_refuses_a_registered_payers_signature_moved_to_another_transfer() (gas: 276603)
+[PASS] test_X02_refuses_a_relayed_pay_signed_by_an_unregistered_key() (gas: 105113)
+[PASS] test_X03_refuses_a_revoked_payer_direct_and_relayed() (gas: 325701)
+[PASS] test_X03_revocation_leaves_earlier_vouches_in_place() (gas: 2779098)
+[PASS] test_a_refused_pool_transfer_adds_no_leaf() (gas: 1196449)
+[PASS] test_refuses_a_relayed_pay_after_its_deadline() (gas: 214096)
+[PASS] test_sweep_and_vouch_leaves_differ_for_the_same_inputs() (gas: 104736)
+[PASS] test_sweep_inserts_the_sweep_leaf_from_nullifier_and_fresh_note() (gas: 2608630)
+[PASS] test_vouchedPay_by_an_active_payer_inserts_the_vouch_leaf() (gas: 2796007)
+Suite result: ok. 11 passed; 0 failed; 0 skipped; finished in 573.26ms (438.49ms CPU time)
+
+Ran 2 tests for test/IncomeVectors.t.sol:IncomeVectorsTest
+[PASS] test_empty_ledger_root_equals_the_circuit_tree_empty_root() (gas: 125335)
+[PASS] test_ledger_inserts_the_circuit_V_and_S_leaves_and_reaches_the_same_roots() (gas: 10312051)
+Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 305.13ms (270.43ms CPU time)
+
+Ran 8 test suites in 593.95ms (2.14s CPU time): 65 tests passed, 0 failed, 0 skipped (65 total tests)
+
+> @shaida/proofs@0.1.0 test /home/kingghidorah/.cache/shaida-gate/run.H2j4QE/packages/shaida-proofs
+> node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'
+
+▶ income circuit: cheating witnesses are refused (C1)
+  ✔ X04 refuses the same payment counted twice (792.367983ms)
+  ✔ X04 refuses payments out of order (425.78582ms)
+  ✔ X05 refuses a payment before fromIndex and one after toIndex (538.19677ms)
+  ✔ X06 refuses an inflated amount (361.533223ms)
+  ✔ X07 refuses a fabricated note that is not in the ledger (343.639647ms)
+  ✔ X08 refuses a vouched payment with no S leaf (never swept, so the payer could claw it back) (719.658191ms)
+  ✔ X09 refuses the payer presenting the recipient's swept payment (cannot open Cs) (442.401995ms)
+  ✔ refuses a zero sweep secret (411.540281ms)
+  ✔ refuses a wrong threshold, and one outside 68 bits (738.69745ms)
+  ✔ refuses a false count, above and below (1059.655662ms)
+  ✔ refuses a wrong root: an earlier ledger root and a random one (341.877447ms)
+  ✔ refuses a gap between used slots (630.89572ms)
+  ✔ refuses zero payments (745.080995ms)
+✔ income circuit: cheating witnesses are refused (C1) (7573.538495ms)
+INCONCLUSIVE: PTAU_PATH unset; Groth16 proving tests not run (see briefing/CEREMONY.md)
+﹣ income circuit: Groth16 with a throwaway key (local) (6.325698ms) # INCONCLUSIVE: PTAU_PATH unset; Groth16 proving tests not run (see briefing/CEREMONY.md)
+﹣ verifyIncomeLink with real Groth16 proofs: a 2-proof bundle (D12, local) (0.913087ms) # INCONCLUSIVE: PTAU_PATH unset; Groth16 proving tests not run (see briefing/CEREMONY.md)
+▶ income circuit: honest proofs (C2)
+  ✔ H1 accepts one vouched, swept payment at exactly the threshold (18163.611536ms)
+  ✔ H2 accepts three payments from different payers among other people's leaves, and a sub-period of two (2538.252877ms)
+  ✔ F4 counts a split-swept payment at its full amount: the sweep note holds 1 of 2 tUSD8, the proof shows ≥ 2 (13231.439169ms)
+  ✔ accepts the full 4-slot case (10708.834427ms)
+✔ income circuit: honest proofs (C2) (44651.934582ms)
+▶ witness builder: bundles over disjoint ranges (D12)
+  ✔ splits 5 payments into proofs of 4 + 1 (2221.894058ms)
+  ✔ splits 9 payments into proofs of 4 + 4 + 1 (2837.536654ms)
+  ✔ splits 12 payments into proofs of 4 + 4 + 4 (2907.971242ms)
+  ✔ C3 splits the largest showable threshold into each proof's sum rounded down to whole tUSD8 (2058.298117ms)
+  ✔ C3 rounds shares to a coarser step when asked (5 tUSD8): a capped share shows its sum only to 5 tUSD8 (335.021881ms)
+  ✔ builds the largest bundle: 32 payments in 8 proofs (1090.571918ms)
+✔ witness builder: bundles over disjoint ranges (D12) (11454.971051ms)
+▶ witness builder: named refusals (PRD §4, D10)
+  ✔ NotEnoughSlots: refuses 33 payments in one period (more than 8 proofs of 4) (1100.570401ms)
+  ✔ NoSweptPayments: zero payments in the period (153.650722ms)
+  ✔ BelowThreshold: refuses a threshold above the swept total (132.017895ms)
+  ✔ BelowThreshold: refuses a threshold the payments reach only before rounding each proof's share (D13) (380.78832ms)
+  ✔ UnknownRoot: refuses leaves that do not give the checked root (incomplete sync) (130.727213ms)
+  ✔ InputRejected: refuses an amount of 2^64, a zero sweep secret, reversed range, unknown keys and off-step thresholds (69.93881ms)
+  ✔ X04 counts a payment listed twice once (122.629283ms)
+  ✔ X08 skips a vouched payment that was never swept, X07 one with no V leaf (180.39504ms)
+✔ witness builder: named refusals (PRD §4, D10) (2273.164649ms)
+property: PROPERTY_SEED=2139920764 PROPERTY_RUNS=24
+property: cheats tried {"wrongRoot":2,"X05_toBeforeLast":2,"X05_fromAfterFirst":1,"gap":2,"otherPayerId":1,"X04_duplicate":3,"falseCount":2,"otherSweepAmount":1,"X07_fabricateNote":1,"zeroPayments":3,"X09_guessSweepSecret":5}
+▶ income circuit: property over random honest and cheating witnesses
+  ✔ accepts every honest witness and refuses every cheat (24 seeds from 2139920764) (47928.100476ms)
+✔ income circuit: property over random honest and cheating witnesses (47936.662974ms)
+▶ ledger format: circuit = JS = ShaidaLedger
+  ✔ zero hashes and the empty root equal Gloam's IncrementalMerkleTreePoseidon constants (4.68769ms)
+  ✔ the committed vectors are what the generator produces (re-run `pnpm vectors` if not) (200.323005ms)
+  ✔ the circuit proves income over the vector leaves, so its V and S hashes equal the ledger's (1951.831469ms)
+✔ ledger format: circuit = JS = ShaidaLedger (2163.799608ms)
+▶ reader id (D27)
+  ✔ W01 one reader however the name is spaced, cased or composed (28.763596ms)
+  ✔ W02 refuses an empty name and one longer than 96 bytes with InputRejected (14.804336ms)
+  ✔ W03 different names give different ids (incl. names differing in one byte, a leading NUL, or the last chunk) (59.025267ms)
+  ✔ X11 a link made for Landlord Bola verifies for that name in any spacing and is WrongReader for another (2454.035671ms)
+✔ reader id (D27) (2566.812944ms)
+▶ period ↔ leaf range (D27)
+  ✔ W04 a period maps to the first leaf at or after its start and the last at or before its end (25.16204ms)
+  ✔ W05 a period with no leaf is NoSweptPayments; a reversed one is InputRejected (8.492262ms)
+  ✔ W06 the reader's dates are the first and last V leaf inside the range; none is null (RangeUnresolvable) (2.616738ms)
+✔ period ↔ leaf range (D27) (40.268702ms)
+▶ threshold suggestions (D13, D27)
+  ✔ W07 an off-step amount gets the nearest multiples below and above; a multiple is valid (1.91518ms)
+  ✔ W08 every suggestion is a positive multiple of the step, within one step of the amount (47.710418ms)
+✔ threshold suggestions (D13, D27) (51.946944ms)
+▶ on-chain check arguments (D27)
+  ✔ W09 packs a snarkjs proof in exportSolidityCallData's order (G2 coordinates swapped) (1227.683035ms)
+✔ on-chain check arguments (D27) (1233.009267ms)
+▶ threshold split: shares rounded to the step (D13)
+  ✔ C3 no share ever equals an unrounded chunk sum (5000 cases, SPLIT_SEED=1664054376) (601.719525ms)
+  ✔ refuses a threshold off the step, or above what the rounded sums show (1.785168ms)
+✔ threshold split: shares rounded to the step (D13) (608.453523ms)
+▶ verifyIncomeLink: honest bundles (D12, C2)
+  ✔ accepts an honest 2-proof bundle: total = Σ thresholds, count = Σ counts (2580.271665ms)
+  ✔ accepts an honest 3-proof bundle, in any order (2945.391616ms)
+  ✔ accepts a single proof as a bundle of one (915.85787ms)
+✔ verifyIncomeLink: honest bundles (D12, C2) (6447.846927ms)
+▶ verifyIncomeLink: bundle refusals (D12, C1)
+  ✔ X14 RangesOverlap: refuses two proofs whose leaf ranges share an index (1814.581306ms)
+  ✔ X15 RangesOverlap: refuses the same proof included twice (1864.462932ms)
+  ✔ X16 MixedContexts: refuses a bundle that joins proofs made for two readers (2678.088525ms)
+  ✔ X17 MixedContexts: refuses a bundle that joins proofs with two expiries (3026.893163ms)
+  ✔ X18 MixedRoots: refuses a bundle that joins proofs made against two known ledger roots (D13) (2997.901244ms)
+  ✔ ProofInvalid: one tampered proof in an otherwise honest bundle fails the whole bundle (2139.852106ms)
+✔ verifyIncomeLink: bundle refusals (D12, C1) (14526.180496ms)
+▶ verifyIncomeLink: PRD §5 steps on a bundle
+  ✔ returns the first failing step's code (1824.884785ms)
+✔ verifyIncomeLink: PRD §5 steps on a bundle (1827.994039ms)
+▶ RP01 revocation and reader codes, as a property
+  ✔ RP01 over 3000 random links, VALID exactly when not revoked, readable and for this reader (never VALID when revoked or wrong reader) (47781.986072ms)
+✔ RP01 revocation and reader codes, as a property (47785.874855ms)
+▶ D35 revocation (PRD §5 step 5a)
+  ✔ RV10 a revoked link is INVALID ProofRevoked, with the revocation's block and time (1183.397552ms)
+  ✔ RV11 a wrong secret can't revoke: another secret's salt leaves this link VALID (876.172097ms)
+  ✔ RV12 an old v1 link is not revocable but still VALID, labelled as made before revocation (1029.341935ms)
+  ✔ RV13 a revoked v2 link edited to say v1 is still ProofRevoked (the salt is checked for every version) (866.251338ms)
+  ✔ RV14 an unreadable revocation registry is INCONCLUSIVE, never VALID, for v1 and v2 links (1723.098045ms)
+  ✔ RV15 content refusals read no registry: WrongReader and ProofExpired come first and offline (627.242626ms)
+  ✔ RV16 v2 links report themselves revocable; the secret's salt is Poseidon(4, secret) (626.936419ms)
+✔ D35 revocation (PRD §5 step 5a) (6939.980829ms)
+▶ D36 reader codes (PRD §5 step 4)
+  ✔ RC01 the reader's name and code give VALID, reported as code-checked (622.469193ms)
+  ✔ RC02 the name alone (no code) is WrongReader (743.01164ms)
+  ✔ RC03 a wrong code is WrongReader, and so is the right code with another name (737.213221ms)
+  ✔ RC04 a code-protected link without a code is WrongReader, also when edited to say name-only or v1 (739.226596ms)
+  ✔ RC05 old name-only links stay VALID with their label, with or without a code typed (1378.107866ms)
+  ✔ RC06 codes are 16 Crockford base32 characters (80 bits), read forgivingly and refused by name otherwise (34.879037ms)
+  ✔ RC07 a reader code never appears in the link: not as text, not as its value (623.396433ms)
+✔ D36 reader codes (PRD §5 step 4) (4883.35922ms)
+ℹ tests 72
+ℹ suites 19
+ℹ pass 72
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 103479.134572
+
+> @shaida/kv@0.1.0 test /home/kingghidorah/.cache/shaida-gate/run.H2j4QE/packages/shaida-kv
+> node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'
+
+▶ store choice at startup
+  ✔ KV01 production with no Redis env is refused by name, naming both variables (5.414861ms)
+  ✔ KV01 production with one variable missing or a non-https URL is refused, and the token never appears in the message (1.11572ms)
+  ✔ KV02 production with both variables chooses Redis (0.633893ms)
+  ✔ KV03 the file store is chosen only for dev or by SHAIDA_STORE=file, and refused on Render (0.753312ms)
+  ✔ KV04 SHAIDA_STORE=redis in dev still needs both variables; any other value is refused (0.658448ms)
+  ✔ KV05 plain http is accepted only to this machine (a local Redis for measuring), never to a remote host (0.663008ms)
+✔ store choice at startup (14.11982ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 867.7583
+
+> @shaida/index@0.1.0 test /home/kingghidorah/.cache/shaida-gate/run.H2j4QE/packages/shaida-index
+> node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'
+
+▶ indexer: pages
+  ✔ I01 never asks for toBlock − fromBlock above 999, and splits 1,001 blocks into two pages (3.76935ms)
+  ✔ I01 reads events on both sides of a 1,000-block page boundary exactly once (41.039205ms)
+✔ indexer: pages (47.292317ms)
+▶ indexer: cursor
+  ✔ I02 resumes from the persisted cursor and never rescans from the deploy block (395.904243ms)
+  ✔ I02 starts over when the stored snapshot is for another deployment (162.742667ms)
+✔ indexer: cursor (559.254567ms)
+▶ indexer: retry
+  ✔ I03 retries a failed page with backoff and loses nothing (160.411607ms)
+  ✔ I03 a page that keeps failing stops the sync at the last good page; the next sync resumes there (179.513433ms)
+✔ indexer: retry (340.683651ms)
+▶ indexer: gaps and roots
+  ✔ I04 a lost log marks the tree incomplete, the client refuses with UnknownRoot, the next sync starts over (171.676415ms)
+  ✔ I05 accepts an honest snapshot: both rebuilt roots are known on chain (297.636168ms)
+  ✔ I05 refuses a snapshot whose pool leaves were altered (root mismatch → UnknownRoot) (253.890866ms)
+  ✔ I05 refuses a ledger leaf that does not match its event fields, and a snapshot for another chain (182.496627ms)
+  ✔ I06 serves memos in chain order with their transaction (169.12999ms)
+✔ indexer: gaps and roots (1076.152078ms)
+▶ indexer: the cursor in Redis (Render's disk is wiped on restart)
+  ✔ I07 a restarted server resumes from the cursor persisted in Redis and never rescans from the deploy block (581.711085ms)
+  ✔ I08 writes Redis at most once per interval however many pages a sync reads, and serves later reads from memory (335.639783ms)
+✔ indexer: the cursor in Redis (Render's disk is wiped on restart) (918.05063ms)
+ℹ tests 13
+ℹ suites 5
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14547.169533
+
+> @shaida/relay@0.1.0 test /home/kingghidorah/.cache/shaida-gate/run.H2j4QE/packages/shaida-relay
+> node --import tsx --test --test-reporter=spec 'test/**/*.test.ts' && SHAIDA_TEST_STORE=kv node --import tsx --test --test-reporter=spec test/rails.test.ts test/outcomes.test.ts test/revoke.test.ts
+
+commands: submit 8, status 1
+▶ relayer on Redis: command budget
+  ✔ R30 a relayed sweep costs at most 8 Redis commands, a status poll at most 2 (336.587669ms)
+✔ relayer on Redis: command budget (342.110812ms)
+▶ relayer budget (gas, not a tx count)
+  ✔ R10 reserves each in-flight call at its gas limit and refuses past the daily gas budget (538.485645ms)
+  ✔ R10 a mined call settles to its gasUsed and frees the rest of its reservation (117.011838ms)
+  ✔ R10 refuses when the relayer's balance is below the floor (45.033822ms)
+✔ relayer budget (gas, not a tx count) (712.215151ms)
+▶ relayer: persisted records and unknown outcomes
+  ✔ R12 a send with no answer is unknown; the same request again returns that record and never resends (35.227223ms)
+  ✔ R13 an unknown tx whose nonce was used by another is dropped; only then may the payment be submitted again (49.415208ms)
+  ✔ R17 a tx that is mined between the nonce read and the receipt read is mined, not dropped (23.337771ms)
+  ✔ R18 a different request on a note another record already spent is AlreadySpent, not that record (76.005096ms)
+  ✔ R18 an identical retry still gets its own record; a reverted record frees the key (89.46777ms)
+  ✔ R13 a node refusal drops the record (nothing sent) and releases its reservation (51.948531ms)
+  ✔ R14 a mined but reverted tx is recorded as mined, reverted, TxRejected (17.875795ms)
+  ✔ R14 logs hash, nonce and gas for each state change, never the body (50.293527ms)
+✔ relayer: persisted records and unknown outcomes (398.124975ms)
+▶ relayer rails (run before any simulation)
+  ✔ R01 rate-limits per IP before the body is parsed (525.6961ms)
+  ✔ R02 refuses a malformed body or an unknown field with InputRejected and no chain call (27.04832ms)
+  ✔ R02 refuses a chain the app has no relayer for (NotConfigured) (17.059944ms)
+  ✔ R03 rate-limits per payer (417.051165ms)
+  ✔ R04 refuses TokenPaused and PayerBlacklisted up front, without simulating (129.893456ms)
+  ✔ R05 X02 refuses an unregistered or revoked payer on the relayed paths (162.437167ms)
+  ✔ R06 refuses a signature by someone else, or with a window over an hour, before any chain read (118.871976ms)
+  ✔ R07 A2 refuses a clawback of a swept note with AlreadySpent, without simulating (40.659838ms)
+  ✔ R07 refuses an unknown pool root, a seen output note, a duplicate vouch and a memo for an unvouched payment (67.134507ms)
+✔ relayer rails (run before any simulation) (1522.802099ms)
+▶ relayer: simulate, gas, one call per function
+  ✔ R08 maps a simulation revert to its code and sends nothing (80.214043ms)
+  ✔ R09 refuses an estimate above the function's explicit gas cap (10.162464ms)
+  ✔ R11 sends a legacy tx with an explicit gas limit = min(estimate × 1.3, cap), to the one contract function (215.101687ms)
+  ✔ R15 each function encodes exactly one call to its own contract (191.877144ms)
+  ✔ R16 public anvil keys relay only on local chains (1.410568ms)
+✔ relayer: simulate, gas, one call per function (502.852543ms)
+▶ relayer: unshield (withdrawals, public by nature)
+  ✔ R20 refuses another asset, a zero amount, and an app contract or zero address as recipient, with no chain call (28.214066ms)
+  ✔ R21 refuses a spent note, an unknown root, a blacklisted recipient and a paused token without simulating (15.541185ms)
+  ✔ R22 sends exactly pool.unshield with the proof's own recipient and amount, capped at 500,000 gas, once per nullifier (26.453676ms)
+✔ relayer: unshield (withdrawals, public by nature) (71.917062ms)
+▶ relayer on Redis: restarts never cause a second send
+  ✔ R23 a restart after the record was persisted but before the send: the retry gets that record, nothing is sent, status settles it by nonce (669.867424ms)
+  ✔ R24 a restart after the send but before `pending` was recorded: the retry is answered from the record and the receipt settles it (71.22935ms)
+  ✔ R25 two processes get the same request at once: one send, and the other answers with that record (53.481812ms)
+  ✔ R26 two processes get different requests spending one note at once: one is sent, the other is AlreadySpent (43.10733ms)
+  ✔ R27 a lock held by another live process refuses as RelayerUnavailable with nothing sent; a dead process's lock expires at its lease (292.064561ms)
+  ✔ R28 records survive in the database: a new process reads the budget, the day's records and each record by id (89.939212ms)
+✔ relayer on Redis: restarts never cause a second send (1241.636912ms)
+▶ relayer on Redis: the claim is a compare-and-set
+  ✔ R29 two processes that both saw the key free claim it at once: exactly one record is written (66.264586ms)
+  ✔ R29 a claim retried by the HTTP client after it already landed answers true again and writes nothing new (37.785551ms)
+  ✔ R29 put never creates a record that was not claimed (25.479094ms)
+✔ relayer on Redis: the claim is a compare-and-set (138.855249ms)
+▶ relayer: revoke (D35)
+  ✔ R40 a revoke sends exactly one legacy tx: Revocations.revoke(secret), to the Revocations address (363.256438ms)
+  ✔ R41 an already revoked link is AlreadyRevoked (409) before anything is simulated, signed or sent (132.5895ms)
+  ✔ R42 the relayer never double-sends a revoke: a lost answer stays unknown, a retry gets that record (35.827564ms)
+  ✔ R43 a restart after the record was written, and two processes at once, still send one revoke (118.055615ms)
+  ✔ R44 malformed revoke bodies are refused by name: zero, out of field, not decimal, extra fields (25.900855ms)
+  ✔ R45 a revoke counts against the daily gas budget and is refused past it, with nothing sent (36.094385ms)
+  ✔ R46 the relayer's logs never carry the revoke secret (22.799517ms)
+✔ relayer: revoke (D35) (752.028204ms)
+▶ RS store conformance on in-memory fake
+  ✔ RS01 claim writes a record and its key only while the key's holder is the expected one (32.841087ms)
+  ✔ RS02 put replaces an existing record and refuses to create one (6.784988ms)
+  ✔ RS03 the day's committed gas sums the day's records (limit while in flight, gasUsed once mined) (5.393439ms)
+  ✔ RS04 hit counts a sliding one-minute window per bucket (2.454534ms)
+  ✔ RS05 the chain lock serializes two processes' tasks and is released after each, also after a failure (306.879433ms)
+✔ RS store conformance on in-memory fake (371.077418ms)
+▶ RS store conformance on a real Redis
+  ﹣ RS00 not run: SHAIDA_KV_TEST_URL / SHAIDA_KV_TEST_TOKEN unset (the Lua was not executed in this run) (5.960444ms) # INCONCLUSIVE: no Redis configured
+✔ RS store conformance on a real Redis (7.148062ms)
+ℹ tests 51
+ℹ suites 11
+ℹ pass 50
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 23964.713717
+▶ relayer budget (gas, not a tx count)
+  ✔ R10 reserves each in-flight call at its gas limit and refuses past the daily gas budget (558.451442ms)
+  ✔ R10 a mined call settles to its gasUsed and frees the rest of its reservation (69.932136ms)
+  ✔ R10 refuses when the relayer's balance is below the floor (14.523314ms)
+✔ relayer budget (gas, not a tx count) (660.940034ms)
+▶ relayer: persisted records and unknown outcomes
+  ✔ R12 a send with no answer is unknown; the same request again returns that record and never resends (29.781874ms)
+  ✔ R13 an unknown tx whose nonce was used by another is dropped; only then may the payment be submitted again (33.613243ms)
+  ✔ R17 a tx that is mined between the nonce read and the receipt read is mined, not dropped (22.646388ms)
+  ✔ R18 a different request on a note another record already spent is AlreadySpent, not that record (44.671208ms)
+  ✔ R18 an identical retry still gets its own record; a reverted record frees the key (31.531793ms)
+  ✔ R13 a node refusal drops the record (nothing sent) and releases its reservation (30.636197ms)
+  ✔ R14 a mined but reverted tx is recorded as mined, reverted, TxRejected (43.944967ms)
+  ✔ R14 logs hash, nonce and gas for each state change, never the body (108.11158ms)
+✔ relayer: persisted records and unknown outcomes (349.403466ms)
+▶ relayer rails (run before any simulation)
+  ✔ R01 rate-limits per IP before the body is parsed (706.482276ms)
+  ✔ R02 refuses a malformed body or an unknown field with InputRejected and no chain call (80.437862ms)
+  ✔ R02 refuses a chain the app has no relayer for (NotConfigured) (45.6624ms)
+  ✔ R03 rate-limits per payer (378.998519ms)
+  ✔ R04 refuses TokenPaused and PayerBlacklisted up front, without simulating (79.701354ms)
+  ✔ R05 X02 refuses an unregistered or revoked payer on the relayed paths (92.92219ms)
+  ✔ R06 refuses a signature by someone else, or with a window over an hour, before any chain read (113.232132ms)
+  ✔ R07 A2 refuses a clawback of a swept note with AlreadySpent, without simulating (47.680146ms)
+  ✔ R07 refuses an unknown pool root, a seen output note, a duplicate vouch and a memo for an unvouched payment (52.639942ms)
+✔ relayer rails (run before any simulation) (1636.925379ms)
+▶ relayer: simulate, gas, one call per function
+  ✔ R08 maps a simulation revert to its code and sends nothing (48.153252ms)
+  ✔ R09 refuses an estimate above the function's explicit gas cap (13.920481ms)
+  ✔ R11 sends a legacy tx with an explicit gas limit = min(estimate × 1.3, cap), to the one contract function (98.51ms)
+  ✔ R15 each function encodes exactly one call to its own contract (114.405366ms)
+  ✔ R16 public anvil keys relay only on local chains (1.182004ms)
+✔ relayer: simulate, gas, one call per function (278.252355ms)
+▶ relayer: unshield (withdrawals, public by nature)
+  ✔ R20 refuses another asset, a zero amount, and an app contract or zero address as recipient, with no chain call (16.746868ms)
+  ✔ R21 refuses a spent note, an unknown root, a blacklisted recipient and a paused token without simulating (44.245784ms)
+  ✔ R22 sends exactly pool.unshield with the proof's own recipient and amount, capped at 500,000 gas, once per nullifier (28.709857ms)
+✔ relayer: unshield (withdrawals, public by nature) (90.615405ms)
+▶ relayer: revoke (D35)
+  ✔ R40 a revoke sends exactly one legacy tx: Revocations.revoke(secret), to the Revocations address (289.359412ms)
+  ✔ R41 an already revoked link is AlreadyRevoked (409) before anything is simulated, signed or sent (40.73474ms)
+  ✔ R42 the relayer never double-sends a revoke: a lost answer stays unknown, a retry gets that record (109.101542ms)
+  ✔ R43 a restart after the record was written, and two processes at once, still send one revoke (123.297886ms)
+  ✔ R44 malformed revoke bodies are refused by name: zero, out of field, not decimal, extra fields (56.569739ms)
+  ✔ R45 a revoke counts against the daily gas budget and is refused past it, with nothing sent (65.027471ms)
+  ✔ R46 the relayer's logs never carry the revoke secret (38.902641ms)
+✔ relayer: revoke (D35) (734.754603ms)
+ℹ tests 35
+ℹ suites 6
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14435.352192
+
+> @shaida/pay@0.1.0 test /home/kingghidorah/.cache/shaida-gate/run.H2j4QE/packages/shaida-pay
+> node --import tsx --test --test-force-exit --test-reporter=spec 'test/**/*.test.ts'
+
+▶ income proof inputs (D27)
+  ✔ P10 counts only my vouched payments swept into my own note; lists unvouched, unswept and clawed-back ones (14207.847468ms)
+  ✔ P11 a vault sealed before D27 (no shared field) still opens, with no shared links (2855.82748ms)
+  ✔ P12 the income pins are the ceremony's final key, and other bytes under its name are refused (279.476128ms)
+✔ income proof inputs (D27) (17356.301869ms)
+▶ prove form choices (D32 F8, F9)
+  ✔ F8 a link expires at 23:59:59 UTC of the chosen day, whatever the browser's time zone (290.8565ms)
+  ✔ F9 the suggested threshold is rounded down to 1, 5 or 10 tUSD8 and is never the exact total (2.219474ms)
+✔ prove form choices (D32 F8, F9) (294.204795ms)
+▶ config
+  ✔ P01 refuses the THROWAWAY income key on Aevum 44005 and allows it on the fork (6.468043ms)
+✔ config (11.465418ms)
+▶ vault
+  ✔ P02 round-trips, refuses a wrong passphrase, and never stores a secret in clear (19498.296729ms)
+✔ vault (19499.45444ms)
+▶ inbox
+  ✔ P03 opens only memos sealed to this key that open the commitment they name (53.95425ms)
+  ✔ P04 refuses a pay to a non-address or above the note, before any proving (4.772372ms)
+✔ inbox (59.964741ms)
+▶ sweep states (PRD §6: seen → sweeping → swept | unknown)
+  ✔ P05 unknown has no resend edge, and only the chain (by nullifier) settles it (3.168874ms)
+  ✔ P05 a refusal or a dropped sweep returns to seen; a sweep by someone else is AlreadySpent (3.929376ms)
+✔ sweep states (PRD §6: seen → sweeping → swept | unknown) (8.392533ms)
+▶ notes
+  ✔ P06 keeps a zero-value change note (a pay of a whole note) and refuses a malformed amount (4.342053ms)
+✔ notes (4.890949ms)
+▶ browser prover
+  ✔ P07 refuses a served key that is not Gloam's final ceremony key (the same-named dev key) (422.48478ms)
+  ✔ P07 proves from the checked bytes, and the proof verifies against Gloam's final shield vkey (17325.727252ms)
+✔ browser prover (17756.881912ms)
+▶ revoking a shared link (D35)
+  ✔ RV20 an old link (no secret) is not revocable and no request can be built for it (4.552258ms)
+  ✔ RV21 a request is built only from revocable, and carries the secret whose salt the link uses (5.772173ms)
+  ✔ RV22 a lost answer is unknown (no resend edge); a refusal before sending is revocable again; AlreadyRevoked waits for the chain (0.952218ms)
+  ✔ RV23 revoked only when Revocations.revokedAt says so: a mined receipt alone is not enough, unreadable changes nothing (0.895826ms)
+  ✔ RV24 a vault's shared links made before D35 still parse; the reader's code is not a field the vault can hold (10.856056ms)
+✔ revoking a shared link (D35) (28.385691ms)
+▶ withdraw (pool.unshield of a swept note)
+  ✔ P08 refuses a note that is not in the checked pool tree, or holds 0, before any proving (23644.431513ms)
+  ✔ P08 lists only swept notes holding money, and a vault written before withdrawals opens with none (983.883923ms)
+  ✔ F4 a split sweep's part is the largest whole tUSD8 below the payment; 1 tUSD8 or less cannot be split (1.751031ms)
+  ✔ F4 a split sweep's two notes are both listed for withdrawal; a refused sweep forgets both; older vault entries have none (6.464861ms)
+  ✔ F4 refuses a split that leaves nothing in one of the notes, before any proving (64.386886ms)
+  ✔ P09 proves with Gloam's final unshield key (hash-checked), binding this note, recipient and amount; the proof verifies (6397.002229ms)
+✔ withdraw (pool.unshield of a swept note) (31104.346216ms)
+ℹ tests 25
+ℹ suites 10
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 103187.088849
+
+> @shaida/ceremony@0.1.0 test /home/kingghidorah/.cache/shaida-gate/run.H2j4QE/ceremony
+> node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'
+
+▶ ceremony: zkey verify log
+  ✔ reads the circuit hash and every contribution, with names and the beacon (6.540054ms)
+  ✔ refuses a log with a contribution number missing (0.685578ms)
+  ✔ refuses a log without "ZKey Ok!" and a log with a cut hash (0.598113ms)
+✔ ceremony: zkey verify log (11.067465ms)
+▶ ceremony: beacon rules
+  ✔ picks the block ~2 h ahead at 1.012 s per block (0.788527ms)
+  ✔ announces only after two verified contributions, never twice, never after a beacon (15.837075ms)
+  ✔ waits for the block and its confirmations, and refuses an announcement committed after the block (1.435575ms)
+✔ ceremony: beacon rules (19.331572ms)
+▶ ceremony: entropy, paths and arguments
+  ✔ allows test entropy only in a dry run (3.404541ms)
+  ✔ refuses unknown options (1.757488ms)
+  ✔ labels a dry-run transcript and shows every contribution hash (4.30213ms)
+✔ ceremony: entropy, paths and arguments (11.475003ms)
+▶ ceremony: superseding a verified zkey
+  ✔ reads the record written before supersede existed: no entry is superseded (12.72497ms)
+  ✔ allows only the latest active zkey, and only before the beacon is announced (3.544894ms)
+  ✔ after superseding contribution 1, the redo starts from the setup and the old zkey is refused as input (1.014622ms)
+  ✔ the redone chain counts only active zkeys: superseded #1, new #1, then #2 can be announced (1.223071ms)
+  ✔ the transcript keeps the superseded entry, its log and the reason (1.479773ms)
+✔ ceremony: superseding a verified zkey (24.139097ms)
+ℹ tests 14
+ℹ suites 4
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1270.04197
+
+> @shaida/underwrite@0.1.0 test /home/kingghidorah/.cache/shaida-gate/run.H2j4QE/packages/shaida-underwrite
+> node --import tsx --test --test-reporter=spec 'test/**/*.test.ts'
+
+▶ underwrite: approvals (D30)
+  ✔ U01 APPROVE under rent-check for a link that meets every rule (35.391391ms)
+  ✔ U02 APPROVE under revenue-credit for a 2-proof bundle that meets every rule (17.688054ms)
+  ✔ U02b the same rent link is DECLINED by the stricter revenue-credit preset, every failing rule listed in order (20.166624ms)
+✔ underwrite: approvals (D30) (79.461435ms)
+▶ underwrite: each DECLINE reason on its own (revenue-credit, D30)
+  ✔ U03 DECLINE(BelowMinThreshold) alone when only the threshold is below the policy's minimum (25.567723ms)
+  ✔ U04 DECLINE(TooFewPayments) alone when only the payment count is too low (33.7308ms)
+  ✔ U05 DECLINE(PeriodTooShort) alone when only the period is too short (16.70666ms)
+  ✔ U06 DECLINE(PeriodTooLong) alone when only the period is too long (14.704707ms)
+  ✔ U07 DECLINE(ProofTooOld) alone when only the ledger state is too old (30.128198ms)
+  ✔ U08 DECLINE(ExpiresTooSoon) alone when only the link expires too soon (14.120106ms)
+  ✔ U05b a period of exactly minPeriodDays and maxPeriodDays is allowed (UTC calendar days, inclusive) (27.682677ms)
+✔ underwrite: each DECLINE reason on its own (revenue-credit, D30) (165.779793ms)
+▶ underwrite: verification refusals are DECLINEs (PRD §5)
+  ✔ U09 DECLINE(WrongReader) for a link made out to Landlord Bola, sent to the bot (18.250998ms)
+  ✔ U10 DECLINE(ProofExpired) for a link past its expiry (8.92752ms)
+  ✔ U11 DECLINE(ProofInvalid) for a tampered link: a raised threshold, a cut fragment, junk (9.295258ms)
+✔ underwrite: verification refusals are DECLINEs (PRD §5) (37.502397ms)
+▶ underwrite: INCONCLUSIVE, never an approval
+  ✔ U12 INCONCLUSIVE(ChainUnreachable) when the RPC is down (10.030722ms)
+  ✔ U12b INCONCLUSIVE(UnknownRoot) for a root the chain does not know, and (RangeUnresolvable) when the bot's ledger cannot date it (17.453307ms)
+  ✔ U12c a bug in a dependency is thrown, not turned into a decision (8.550174ms)
+✔ underwrite: INCONCLUSIVE, never an approval (37.059625ms)
+▶ underwrite: idempotent (D30)
+  ✔ U13 the same link and policy version give the same decision and decisionId; another version gives another id (29.529358ms)
+✔ underwrite: idempotent (D30) (30.279201ms)
+▶ underwrite: every rule is load-bearing (U17)
+  ✔ U17 removing any single rule check turns that rule's DECLINE test into an APPROVE (so its test would fail) (188.89064ms)
+✔ underwrite: every rule is load-bearing (U17) (189.479484ms)
+▶ bot settings (D30)
+  ✔ U24 recording is off unless UNDERWRITE_RECORD=on; off needs no key and holds none (3.840304ms)
+  ✔ U24b refuses to start: a bad switch, on without a key, a malformed key, the relayer's own key, caps out of range (3.614931ms)
+✔ bot settings (D30) (12.812449ms)
+▶ recording lock (D30)
+  ✔ U25 one holder at a time; released after the task, also when it throws; a stuck holder gives LockBusy (96.693194ms)
+✔ recording lock (D30) (98.898913ms)
+▶ underwrite over real Groth16 (final key, D30)
+  ✔ U20 APPROVE for a final-key proof made out to the bot; DECLINE(ProofInvalid) once a public signal is edited (3403.972726ms)
+✔ underwrite over real Groth16 (final key, D30) (3410.680731ms)
+▶ underwrite over an unreachable RPC (D30)
+  ✔ U12d INCONCLUSIVE(ChainUnreachable) from a real viem client whose node does not answer, and when the index cannot be loaded (444.206393ms)
+  ✔ U12e a malformed link is declined without reading the chain at all (1.920205ms)
+✔ underwrite over an unreachable RPC (D30) (447.213589ms)
+▶ underwrite: property (D30)
+  ✔ U16 never APPROVE when any rule fails; APPROVE when all hold; reasons = the failing rules in order (2,000 random cases) (22947.410696ms)
+✔ underwrite: property (D30) (22951.330156ms)
+▶ record: who and what (D30)
+  ✔ U21 recording is off by default: NotConfigured, nothing signed (61.100073ms)
+  ✔ U21b only an APPROVE is recorded: a DECLINE is refused with InputRejected, nothing signed (28.317835ms)
+  ✔ U21c the bot's key signs only IncomeVerifier.attest (legacy, explicit 420k gas), one tx per proof of a bundle (92.004487ms)
+  ✔ U21d a proof IncomeVerifier.check refuses is not claimed or signed (22.78728ms)
+  ✔ U21e an unfunded bot key refuses with RecorderUnavailable before claiming (18.549067ms)
+✔ record: who and what (D30) (235.443855ms)
+▶ record: idempotent and capped (D30)
+  ✔ U14 the same proof again gives back its record, with no second attest; also under another policy version (25.52974ms)
+  ✔ U15 refuses beyond the daily record cap with AttestCapReached, and allows again the next UTC day (52.566224ms)
+  ✔ U15b refuses beyond the daily gas cap, and a bundle that would cross the count cap is refused whole (68.847256ms)
+✔ record: idempotent and capped (D30) (149.23163ms)
+▶ record: never resent (D30)
+  ✔ U22 the signed record (hash, nonce) is stored before the send; a send with no answer is TxOutcomeUnknown and never sent again (22.151669ms)
+  ✔ U22b a send the node refuses is dropped and not retried for that proof (25.072753ms)
+✔ record: never resent (D30) (48.618576ms)
+▶ underwrite: revocation (D35) and reader codes (D36)
+  ✔ U30 a revoked link is DECLINE(ProofRevoked); the same link before the revoke is APPROVE (84.979078ms)
+  ✔ U31 an unreadable revocation registry is INCONCLUSIVE(ChainUnreachable), never an approval, for v1 and v2 links (30.054058ms)
+  ✔ U32 the bot is name-only: a code-protected link is DECLINE(WrongReader), even one bound to the bot's own name (17.802681ms)
+  ✔ U33 a revocable name-only link made out to the bot is APPROVEd like an old one (51.53931ms)
+✔ underwrite: revocation (D35) and reader codes (D36) (198.509318ms)
+▶ policies: strict, versioned, checked at startup (D30)
+  ✔ U18 the shipped config parses: rent-check and revenue-credit, one reader name, version 1 (6.994412ms)
+  ✔ U18b refuses an unknown field, min > max, a bad reader name, version 0, duplicate ids, a non-canonical amount (51.513688ms)
+  ✔ U18c a changed limit changes the policy hash even at the same version (24.021783ms)
+✔ policies: strict, versioned, checked at startup (D30) (88.495775ms)
+▶ POST /api/underwrite handler (D30)
+  ✔ U19 rate limit is checked before the body is read (429 RateLimited) (4.389301ms)
+  ✔ U19b refuses a body over the cap (413), non-JSON, an unknown field and an unknown preset, deciding nothing (5.718604ms)
+  ✔ U19c decides from a full link URL and never logs the link payload (31.925037ms)
+✔ POST /api/underwrite handler (D30) (43.54527ms)
+▶ agent card and llms.txt (D30)
+  ✔ U19d the card's request schema, presets, codes and limits are the code's own (9.576173ms)
+  ✔ U19f the card names its chain when configured and says NotConfigured, never chain 0, when not (5.547546ms)
+  ✔ U19e llms.txt names the endpoint, the card, every rule and the presets (1.935877ms)
+✔ agent card and llms.txt (D30) (22.280419ms)
+▶ root dating for ProofTooOld (D30)
+  ✔ U23 prefixRoots equals the root of every prefix, and rootFormedAt returns the forming leaf's time (4359.961248ms)
+✔ root dating for ProofTooOld (D30) (4360.47324ms)
+ℹ tests 49
+ℹ suites 19
+ℹ pass 49
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34196.42007
+
+> @shaida/privacy-audit@0.1.0 test /home/kingghidorah/.cache/shaida-gate/run.H2j4QE/tools/privacy
+> node --import tsx --test --test-reporter=spec 'test/*.test.mjs'
+
+✔ O-classes every public field the fixture's transactions carry has a class (plain, opaque, metadata) (3.640933ms)
+✔ O-A5 the observer names the payer of every payment: calldata, the EIP-712 signer and the registry agree (0.705748ms)
+✔ O-A3 first-in-first-out timing pairs every live sweep, and fails on the fixture's out-of-order sweeps (0.493857ms)
+✔ O-A1 amount bounds always contain the true amount (the deposit-budget assumption holds in both datasets) (0.622799ms)
+✔ O-A4 live: deposits and the three attests pin Ada's total from Acme to exactly 4 tUSD8 (0.499235ms)
+✔ O-A4 fixture: bounds contain the truth; other people's vouches inside the range keep the total from being pinned (0.579684ms)
+✔ O-A6 every deposit and withdrawal amount is read exactly, and the withdrawal is followed one hop (3.089068ms)
+✔ O-memo sealed memos share only the constant P-256 header and one padded length (1.163698ms)
+✔ R-direct the reader gets threshold, count, range, root and expiry; the context matches the reader's name (1.437501ms)
+✔ R-chain live: each link's total is pinned exactly by the link, the deposits and the other link's attest (1.313097ms)
+✔ R-chain the payer ids in a link's range are the payers who paid the holder when the range holds only the holder's payments (0.740014ms)
+✔ R-D13 a capped share in the fixture's bundle shows its proof's sum only to a 1 tUSD8 window, which holds the truth (0.756476ms)
+✔ F3 with recording opt-in and nobody recording, the observer has no attested range to total (before: [7, 16] over 8 payments) (0.282102ms)
+✔ F4 a split sweep's withdrawn note is a part of the payment, not its amount (before: 1 of 1 withdrawals equal to their payment) (0.272357ms)
+✔ F8 links end at 23:59:59 UTC, which names no time zone (the live bot link named UTC+1) (0.699129ms)
+✔ F9 the suggested threshold is below the total: Ada's shown floor drops from 7 to 5 (truth 7.45); bounds and D13 windows still hold the truth (0.84153ms)
+✔ F-unchanged the fixes do not touch who paid (A5), deposits and withdrawals being public (A6), or sweep timing (A3) (0.35265ms)
+✔ A4 a deposit and an attest over the same payments pin their total exactly (9.171366ms)
+✔ A4 an earlier proof that used up a deposit caps the next run's payments by the next deposit (2.787036ms)
+✔ A1 bounds are unbounded above for a payer with no deposit seen (1.143528ms)
+✔ A1 a withdrawal is matched first in first out, and refused when it does not fit the bounds (1.148582ms)
+✔ R reader: an expiry at 23:59:59 local time names the maker's UTC offset; 23:59:59 UTC (F8) and an exact time do not (2.017927ms)
+✔ memo: tickets share only the constant P-256 header, never a per-recipient part (2949.954042ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7077.43122
+
+> web@0.1.0 test /home/kingghidorah/.cache/shaida-gate/run.H2j4QE/web
+> node --test --test-reporter=spec 'test/**/*.test.ts'
+
+▶ NEXT_PUBLIC_NETWORKS (audit B2)
+  ✔ W10 accepts known keys in order (7.291877ms)
+  ✔ W11 refuses a typo instead of falling back to production (1.545694ms)
+  ✔ W12 refuses unset, blank, empty entries and repeats (1.408347ms)
+✔ NEXT_PUBLIC_NETWORKS (audit B2) (16.798661ms)
+▶ contracts at startup (audit B3)
+  ✔ W13 a valid config passes with every listed network's contracts (8.605148ms)
+  ✔ W14 a listed network without contracts, with a bad address or an extra field is refused, with every problem (6.390721ms)
+  ✔ W15 an unlisted network's contracts are not required (1.297622ms)
+✔ contracts at startup (audit B3) (17.879632ms)
+▶ Revocations in the config (D35)
+  ✔ W16 a network without a Revocations address is refused by name: links are never shown VALID unchecked (2.422954ms)
+✔ Revocations in the config (D35) (3.529472ms)
+ℹ tests 7
+ℹ suites 3
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 605.979497
+
+> shaida-sdk@0.2.0 test /home/kingghidorah/.cache/shaida-gate/run.H2j4QE/packages/sdk
+> node scripts/build.mjs && node --import tsx --test --test-force-exit --test-reporter=spec 'test/**/*.test.ts'
+
+✓ dist/index.js (62476 bytes), declarations: check.d.ts, codes.d.ts, decode.d.ts, index.d.ts, ledger.d.ts, network.d.ts, pins.d.ts, rpc.d.ts, session.d.ts, types.d.ts, underwrite.d.ts, verify.d.ts
+  inlined: @noble/hashes (npm), @shaida/proofs (workspace, MIT), @shaida/underwrite (workspace, MIT), config/underwrite-policies.json (Shaida, MIT), shaida-sdk (MIT)
+▶ pins (refuse on mismatch)
+  ✔ S12 the bundled key and network match their pins; an edited key or network is refused by name (40.414547ms)
+  ✔ S12b the pinned key is the ceremony's final vkey (file sha256 in ceremony/record.json) and the network is deployments/aevum.json (139.563497ms)
+✔ pins (refuse on mismatch) (188.366319ms)
+▶ public API = README
+  ✔ S13 every export is documented under API reference, and every documented name is exported (7.768989ms)
+  ✔ S14 the codes table lists exactly CODES, with each code's outcome (4.031863ms)
+✔ public API = README (13.211914ms)
+▶ wire format
+  ✔ S15 selectors and topics equal viem's, and checkOnChain sends exactly viem's calldata with 400k gas (462.977643ms)
+✔ wire format (464.710565ms)
+▶ the built package
+  ✔ S16 dist inlines no GPL code, its declarations stay inside the package, and it names no host but the bundled RPC (14.046194ms)
+✔ the built package (15.495926ms)
+▶ viem shim
+  ✔ S17 the bundle's sha256 and stringToBytes equal viem's (27.617192ms)
+✔ viem shim (30.828571ms)
+▶ publish manifest
+  ✔ S19 the shipped package.json is shaida-sdk with its exports, files and runtime deps, and no devDependencies, scripts, workspace: or @shaida/ name (51.983061ms)
+✔ publish manifest (52.516637ms)
+▶ shaida-sdk 0.2.0: revocation (D35)
+  ✔ S20 a revoked link is INVALID ProofRevoked with the revocation's block and time; underwrite DECLINEs it (483.918071ms)
+  ✔ S21 no answer about revocation is never VALID or APPROVE: registry down or without code is ChainUnreachable; a network without one is NotConfigured (underwrite throws) (341.352829ms)
+  ✔ S22 0.1.0 calls work unchanged: an old link is VALID and says it is v1, name only, not revocable; decode says the same (4148.616249ms)
+✔ shaida-sdk 0.2.0: revocation (D35) (5017.178154ms)
+▶ shaida-sdk 0.2.0: reader codes (D36)
+  ✔ S23 a link relabelled code-protected is WrongReader with the name alone and with any code, before any chain read (24.327082ms)
+  ✔ S24 a malformed reader code is INCONCLUSIVE InputRejected, and nothing is read (16.283353ms)
+✔ shaida-sdk 0.2.0: reader codes (D36) (41.554313ms)
+▶ verifyIncomeLink over the fork fixture
+  ✔ S01 VALID: Ada's two-proof link for Landlord Bola gives the sum, the count and the ledger's own dates (4607.62814ms)
+  ✔ S02 decodeIncomeLink reads a full URL, #fragment or bare fragment, and refuses garbage, without the network (9.829871ms)
+  ✔ S03 INVALID with the named code for each refusal before the chain, reading nothing from the RPC (48.824504ms)
+  ✔ S04 a tampered threshold is INVALID ProofInvalid: the root is known, Groth16 refuses (105.48625ms)
+✔ verifyIncomeLink over the fork fixture (4811.386128ms)
+▶ verifyIncomeLink: no answer is never a pass
+  ✔ S05 INCONCLUSIVE ChainUnreachable when the RPC is down (8.105322ms)
+  ✔ S06 INCONCLUSIVE UnknownRoot when the RPC's chain does not reach the proof's ledger state (36.651173ms)
+  ✔ S07 INCONCLUSIVE NotConfigured for an RPC on another chain, chain 44005 passed as custom, or an unknown network (30.231368ms)
+  ✔ S08 INCONCLUSIVE InputRejected for an empty or over-long reader name (2.007234ms)
+  ✔ S09 talks to no host but the RPC it was given (243.886714ms)
+✔ verifyIncomeLink: no answer is never a pass (323.162683ms)
+▶ underwrite and checkOnChain
+  ✔ S10 underwrite: a policy for your own reader name decides; the same link and policy give the same decisionId (888.364922ms)
+  ✔ S11 checkOnChain: REJECTED for a malformed link without reading; INCONCLUSIVE, never ACCEPTED, where the contract cannot run (15.006497ms)
+✔ underwrite and checkOnChain (904.307379ms)
+▶ examples
+  ✔ S18 examples/verify-node.mjs prints VALID for Ada's link over the fork fixture and exits 0, and WrongReader with exit 1 (2469.21279ms)
+✔ examples (2470.712404ms)
+ℹ tests 25
+ℹ suites 12
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14388.892539
+
+━━ 6 fork tests (real tUSD8 via https://rpc-test.qday.info)
+No files changed, compilation skipped
+
+Ran 1 test for test/fork/AevumFork.t.sol:AevumForkTest
+[PASS] test_A10_real_tUSD8_has_the_expected_domain_and_decimals() (gas: 35461)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 3.83s (2.12s CPU time)
+
+Ran 8 tests for test/fork/S9Tusd8AdminSurface.t.sol:S9Tusd8AdminSurfaceTest
+[PASS] test_S9_blacklisted_payer_can_still_approve_but_every_pull_reverts() (gas: 259360)
+[PASS] test_S9_blacklisted_pool_freezes_every_payout() (gas: 114731)
+[PASS] test_S9_blacklisted_recipient_cannot_be_paid_out() (gas: 120383)
+[PASS] test_S9_pause_stops_deposits_payouts_and_gasless_pulls() (gas: 193777)
+[PASS] test_S9_proxy_admin_can_swap_the_token_code() (gas: 359494)
+[PASS] test_S9_reports_the_live_admin_roles() (gas: 167961)
+[PASS] test_S9_transfers_move_the_exact_amount_no_fee() (gas: 101412)
+[PASS] test_S9_unpause_restores_payouts() (gas: 189462)
+Suite result: ok. 8 passed; 0 failed; 0 skipped; finished in 5.80s (4.99s CPU time)
+
+Warning: the following cheatcode(s) are deprecated and will be removed in future versions:
+  lastCallGas(): replaced by `lastFrameGas`
+Ran 3 tests for test/fork/ExitCheckFork.t.sol:ExitCheckForkTest
+[PASS] test_EXIT_a_tampered_payment_proof_is_refused_by_the_final_verifier() (gas: 3285967)
+[PASS] test_EXIT_gasless_deposit_then_vouchedPay_then_sweep_on_real_tUSD8() (gas: 10615337)
+[PASS] test_GAS_baseline_same_payment_sent_to_the_pool_directly() (gas: 3983163)
+Suite result: ok. 3 passed; 0 failed; 0 skipped; finished in 10.32s (10.65s CPU time)
+
+Ran 3 test suites in 10.32s (19.96s CPU time): 12 tests passed, 0 failed, 0 skipped (12 total tests)
+
+━━ 7 claims check
+✓ claims: 53 in CLAIMS.md (53 PROVEN, 0 NOT PROVEN); README cites 52
+
+━━ 8 secret scan (gitleaks, whole history)
+3:08AM INF 117 commits scanned.
+3:08AM INF scan completed in 31.4s
+3:08AM INF no leaks found
+
+| Step | Result | Seconds |
+|---|---|---:|
+| 1 install | PASS | 66 |
+| 2 forge build + Shanghai check | PASS | 24 |
+| 3 circuit compile + artifact hashes | PASS | 21 |
+| 4 typecheck + lint | PASS | 196 |
+| 5 unit, circuit, indexer, relayer, flow tests | PASS | 359 |
+| 6 fork tests | PASS | 19 |
+| 7 claims check | PASS | 1 |
+| 8 secret scan (gitleaks, whole history) | PASS | 31 |
+
+gate: PASS at de44c5b in 854 s

@@ -9,6 +9,6 @@ export { AEVUM_TESTNET } from "./network";
 export { PINNED } from "./pins";
 export { CODES } from "./codes";
 export type {
-  CodeInfo, CustomNetwork, Decision, DecisionFacts, DeclineCode, Decoded, DecodedLink, InconclusiveCode, InvalidCode, NetworkConfig,
-  OnChainCheck, Policy, PolicyInput, ReadOptions, Refused, RuleCode, ShaidaErrorInfo, Valid, Verification, VerifyCode, VerifyOptions,
+  CodeInfo, CustomNetwork, Decision, DecisionFacts, DeclineCode, Decoded, DecodedLink, InconclusiveCode, InvalidCode, LinkKind, NetworkConfig,
+  OnChainCheck, Policy, PolicyInput, ReadOptions, Refused, Revoked, RuleCode, ShaidaErrorInfo, Valid, Verification, VerifyCode, VerifyOptions,
 } from "./types";

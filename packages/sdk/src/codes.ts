@@ -8,8 +8,8 @@ const INCONCLUSIVE_WORDS: Record<InconclusiveCode, string> = {
   UnknownRoot: "The proof's ledger root is not known on this chain at the pinned block (a stale RPC, the wrong network, or a forged root).",
   RangeUnresolvable: "The proof's leaf range could not be dated from the chain yet.",
   ChainUnreachable: "The RPC could not be read: it is down, timed out, or refused the call.",
-  NotConfigured: "The SDK refused its own setup: the bundled key or network failed its pinned hash, the network is unknown or invalid, or the RPC serves another chain.",
-  InputRejected: "The reader name is empty or longer than 96 bytes.",
+  NotConfigured: "The SDK refused its own setup: the bundled key or network failed its pinned hash, the network is unknown or invalid or has no Revocations registry, or the RPC serves another chain.",
+  InputRejected: "The reader name is empty or longer than 96 bytes, or the reader code is not 16 Crockford base32 characters.",
 };
 
 const info = (outcome: CodeInfo["outcome"], meaning: string, code: keyof typeof ERROR_CODES | RuleCode): CodeInfo => ({

@@ -9,7 +9,7 @@ import { refusalOf } from "./revert-codes";
 import { keyIsLive, recordKey, requestHashOf, takenRefusal } from "./records";
 import { ChainBusy, SendError, type LegacyTx, type Refusal, type RelayFn, type RelayReply, type RequestRecord } from "./types";
 
-const STATUS: Partial<Record<ErrorCode, number>> = { RateLimited: 429, RelayerBudgetExceeded: 503, RelayerUnavailable: 503, NotConfigured: 503, AlreadySpent: 409, AlreadyVouched: 409 };
+const STATUS: Partial<Record<ErrorCode, number>> = { RateLimited: 429, RelayerBudgetExceeded: 503, RelayerUnavailable: 503, NotConfigured: 503, AlreadySpent: 409, AlreadyVouched: 409, AlreadyRevoked: 409 };
 const refuse = (r: Refusal): RelayReply => ({ ok: false, status: STATUS[r.code] ?? 400, error: shaidaError(r.code, r.message) });
 
 export interface Incoming {
@@ -36,6 +36,7 @@ export async function submit(fn: RelayFn, req: Incoming, deps: RelayDeps): Promi
     case "sweep": return run(SPECS.sweep, raw, deps);
     case "memo": return run(SPECS.memo, raw, deps);
     case "unshield": return run(SPECS.unshield, raw, deps);
+    case "revoke": return run(SPECS.revoke, raw, deps);
   }
 }
 

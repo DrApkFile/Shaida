@@ -9,7 +9,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "test": "node --import tsx --test --test-reporter=spec 'test/**/*.test.ts' && SHAIDA_TEST_STORE=kv node --import tsx --test --test-reporter=spec test/rails.test.ts test/outcomes.test.ts",
+    "test": "node --import tsx --test --test-reporter=spec 'test/**/*.test.ts' && SHAIDA_TEST_STORE=kv node --import tsx --test --test-reporter=spec test/rails.test.ts test/outcomes.test.ts test/revoke.test.ts",
     "typecheck": "tsc --noEmit",
     "test:redis": "node --import tsx --test --test-reporter=spec test/store-conformance.test.ts"
   },

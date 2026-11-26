@@ -13,7 +13,7 @@ import {
 } from "@shaida/proofs";
 import { fetchCheckedTrees, incomeCandidates, incomeRequestOf, relayClient, timedLeaves, type FlowContext, type RelayRecord } from "../src/index";
 import { setUp, type Env } from "./acts-4-6-setup";
-import { readDeployment, writeEvidence, type ActRow } from "./evidence";
+import { readDeployment, revocationOn, writeEvidence, type ActRow } from "./evidence";
 import { assertFork } from "./fork-setup";
 import { proveIncome, verifyIncomeGroth16 } from "./income-node";
 import { finalProvers, forkClient, nodeFetch, rootReader, sleep } from "./node-env";
@@ -71,7 +71,7 @@ async function main() {
 
   // Act 5: Bola verifies (roots at the snapshot's block, Groth16 with the committed final vkey, dates from leaves).
   const deps = (reader: bigint, now = ctx.nowSec()): VerifyDeps => ({
-    readerIdHash: reader, now: () => now, verifyGroth16: verifyIncomeGroth16, resolveRange: async (a, b) => datesForRange(leaves, a, b),
+    readerIdHash: reader, readerCode: null, revocation: revocationOn(client, dep, t.block), now: () => now, verifyGroth16: verifyIncomeGroth16, resolveRange: async (a, b) => datesForRange(leaves, a, b),
     isKnownRoot: (root) => rootReader(client).isKnownRoot(dep.ledger, root, t.block),
   });
   const v = await verifyIncomeLink(fragment, deps(must(readerIdHashOf(" landlord  BOLA "), "reader")));

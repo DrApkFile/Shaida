@@ -6,6 +6,7 @@ import { fragmentOf } from "../../shaida-underwrite/src/fragment";
 import { policyOf, policySchema, PolicyConfigError } from "../../shaida-underwrite/src/policy";
 import { presetById } from "../../shaida-underwrite/src/presets";
 import { groth16Verify } from "./groth16";
+import { revocationOf } from "./revocation";
 import { ReadFailed, sessionOf, ShaidaConfigError, WrongChain } from "./session";
 import type { Decision, Policy, PolicyInput, ReadOptions } from "./types";
 
@@ -50,12 +51,14 @@ const notReadable = (e: unknown): never => {
 export async function underwrite(link: string, policy: Policy, o: UnderwriteOptions): Promise<Decision> {
   const s = sessionOf(o);
   if (!s.ok) throw new ShaidaConfigError(`${s.why}. Nothing was decided.`);
+  if (s.value.net.revocations === null) throw new ShaidaConfigError(`network ${s.value.net.name} has no Revocations registry, so revocation can't be checked. Nothing was decided.`);
   const { read } = s.value;
   const guard = <T>(f: () => Promise<T>) => f().catch(notReadable);
   try {
     return await decide(fragmentOf(link), policy, {
       now: o.now ?? (() => BigInt(Math.floor(Date.now() / 1000))),
       isKnownRoot: (root) => guard(() => read("ShaidaLedger.isKnownRoot", (l) => l.isKnownRoot(root))),
+      revocation: revocationOf(s.value, guard),
       verifyGroth16: groth16Verify,
       resolveRange: (from, to) => guard(() => read("ShaidaLedger leaf dates", (l) => l.datesForRange(from, to))),
       rootTime: (root) => guard(() => read("ShaidaLedger root time", (l) => l.rootTime(root))),

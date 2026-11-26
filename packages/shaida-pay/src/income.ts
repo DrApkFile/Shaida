@@ -5,6 +5,7 @@ import { TUSD8_FIELD, type PaymentRecord, type TimedLeaf } from "@shaida/proofs"
 import { z } from "zod";
 import type { InboxEntry } from "./inbox-state";
 import type { IncomingPayment } from "./recipient";
+import { revocationSchema } from "./revoke-link";
 
 /** Why one of my payments cannot be counted (statuses for the screen, not errors; D10). */
 export type NotCountable =
@@ -99,6 +100,14 @@ export const sharedLinkSchema = z
     createdAt: unix,
     /** D31: the wording the link was made with (presentation only; absent on links made before templates). */
     template: z.enum(["income", "merchant", "grantee"]).optional(),
+    /** D35: the revoke secret (salt = Poseidon(4, secret)). Kept only here; absent on links made before revocation. */
+    revokeSecret: z.string().regex(/^[1-9][0-9]{0,77}$/).optional(),
+    /** D36: how the reader is checked. Absent on older links: name only. The reader's code itself is never kept. */
+    readerMode: z.enum(["name", "code"]).optional(),
+    /** D35: a revocation sent from this browser, and what the chain said. */
+    revocation: revocationSchema.optional(),
+    /** The last refusal of a revoke (nothing was sent), to show. */
+    revokeError: z.object({ code: z.string(), message: z.string() }).strict().optional(),
   })
   .strict();
 export type SharedLink = z.output<typeof sharedLinkSchema>;

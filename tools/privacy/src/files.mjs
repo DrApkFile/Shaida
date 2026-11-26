@@ -14,6 +14,11 @@ export function deploymentOf(d) {
   }
   if (!Number.isFinite(fromBlock)) throw new Error("the deployment record has no deploy blocks");
   if (!/^0x[0-9a-fA-F]{40}$/.test(d.token?.address ?? "")) throw new Error("the deployment record has no token address");
+  // D35: Revocations is a separate record (deployed later); watched when present. Its deploy block is not the stack's.
+  if (d.revocations !== undefined) {
+    if (!/^0x[0-9a-fA-F]{40}$/.test(d.revocations?.address ?? "")) throw new Error("the deployment's revocations record has no address");
+    contracts.revocations = d.revocations.address.toLowerCase();
+  }
   return { chainId: d.chainId, rpc: d.rpc, contracts, token: d.token.address.toLowerCase(), fromBlock };
 }
 

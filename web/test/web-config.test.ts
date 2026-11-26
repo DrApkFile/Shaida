@@ -11,6 +11,8 @@ const contracts = JSON.stringify({
   registry: "0xce43b77adc82db336d07f03bd84c3834fd9c5215",
   memo: "0xe2f7c6310e5ccb87fde4ff887b100236960c4e17",
   incomeVerifier: "0xc9844a8f058be2d658c972d1d2276b13f308e1c8",
+  // a test value: the shape is what is checked here, not the deployed address
+  revocations: "0x00000000000000000000000000000000000000f6",
   startBlock: "3810968",
 });
 
@@ -50,5 +52,16 @@ describe("contracts at startup (audit B3)", () => {
   });
   it("W15 an unlisted network's contracts are not required", () => {
     assert.equal(checkWebConfig({ NEXT_PUBLIC_NETWORKS: "aevum", NEXT_PUBLIC_SHAIDA_AEVUM: contracts, NEXT_PUBLIC_SHAIDA_FORK: "junk" }).ok, true);
+  });
+});
+
+describe("Revocations in the config (D35)", () => {
+  it("W16 a network without a Revocations address is refused by name: links are never shown VALID unchecked", () => {
+    const { revocations: _r, ...rest } = JSON.parse(contracts) as Record<string, string>;
+    const r = checkWebConfig({ NEXT_PUBLIC_NETWORKS: "aevum", NEXT_PUBLIC_SHAIDA_AEVUM: JSON.stringify(rest) });
+    assert.equal(r.ok, false);
+    if (!r.ok) assert.match(r.problems.join("; "), /NEXT_PUBLIC_SHAIDA_AEVUM: revocations: Required/);
+    const bad = parseContracts("aevum", JSON.stringify({ ...rest, revocations: "0x1234" }));
+    assert.equal(bad.ok, false);
   });
 });

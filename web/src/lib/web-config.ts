@@ -50,6 +50,8 @@ const contractsSchema = z
     memo: address,
     /** IncomeVerifier: check (view) and attest for income proofs (PRD §3, D27). */
     incomeVerifier: address,
+    /** Revocations (D35): every verification reads it (PRD §5 step 5a); required, so a link is never shown VALID unchecked. */
+    revocations: address,
     /** First block to index: the pool's deploy block. */
     startBlock: z.string().regex(/^[1-9][0-9]*$/).transform((b) => BigInt(b)),
   })

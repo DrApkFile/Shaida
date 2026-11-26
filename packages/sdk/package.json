@@ -1,6 +1,6 @@
 {
   "name": "shaida-sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Verify a Shaida income proof link (and run an underwriting policy on it) against the Aevum testnet RPC only: no Shaida website, no Shaida server.",
   "license": "MIT",
   "type": "module",

@@ -13,12 +13,15 @@ export function linkFromUrl(url) {
   const d = decodeFragment(fragment);
   if (!d.ok) throw new Error(`not a proof link: ${d.why}`);
   const link = incomeLinkSchema.parse(d.json);
-  return { proofs: link.proofs.map((p) => signalsOf(p.publicSignals)), readerIdHash: BigInt(link.readerIdHash), expiry: BigInt(link.expiry), salt: BigInt(link.salt), fragmentChars: fragment.length };
+  return {
+    proofs: link.proofs.map((p) => signalsOf(p.publicSignals)), readerIdHash: BigInt(link.readerIdHash), expiry: BigInt(link.expiry), salt: BigInt(link.salt), fragmentChars: fragment.length,
+    version: link.v, readerMode: link.v === 1 ? "name" : link.reader,
+  };
 }
 export function linkFromAttest(actions, hash) {
   const a = actions.find((x) => x.kind === "attest" && x.hash === hash);
   if (!a) throw new Error(`no attest ${hash} in the dump`);
-  return { proofs: [Object.fromEntries(SIGNALS.map((n) => [n, BigInt(a.signals[n])]))], readerIdHash: null, expiry: null, salt: null, fromAttest: hash };
+  return { proofs: [Object.fromEntries(SIGNALS.map((n) => [n, BigInt(a.signals[n])]))], readerIdHash: null, expiry: null, salt: null, fromAttest: hash, version: null, readerMode: null };
 }
 const signalsOf = (arr) => Object.fromEntries(SIGNALS.map((n, i) => [n, BigInt(arr[i])]));
 
@@ -37,6 +40,7 @@ export async function analyseLinks(dump, inputs, { readerNames = [] } = {}) {
   const ok = (k) => actions.filter((a) => a.kind === k && a.status === "success");
   const pays = [...ok("vouchedPay"), ...ok("lateVouch")];
   const sweeps = ok("sweep"), deposits = ok("deposit"), attests = ok("attest");
+  const revoked = new Map(ok("revokeLink").map((r) => [BigInt(r.salt), r]));
   const registry = new Map(ok("register").map((r) => [r.payerId, r.account]));
   const leaves = [...pays.map((p) => ({ index: Number(p.leafIndex), leaf: BigInt(p.leaf), time: p.time, kind: "V", payerId: p.payerId, pay: p.hash })), ...sweeps.map((s) => ({ index: Number(s.leafIndex), leaf: BigInt(s.leaf), time: s.time, kind: "S", sweep: s.hash }))].sort((a, b) => a.index - b.index);
   const rootAt = new Map();
@@ -44,7 +48,10 @@ export async function analyseLinks(dump, inputs, { readerNames = [] } = {}) {
 
   return inputs.map(({ name, link }) => {
     const ctxOk = link.readerIdHash === null ? null : link.proofs.every((p) => p.context === contextOf(link.readerIdHash, link.expiry, link.salt));
+    // A name guess confirms a name-only link's reader. A code-protected link's reader id also hashes the reader's
+    // 80-bit code (D36), so a name list alone confirms nothing (evidence/reader-code-work.md: the cost of guessing).
     const nameMatches = link.readerIdHash === null ? [] : readerNames.filter((n) => { const h = readerIdHashOf(n); return h.ok && h.value === link.readerIdHash; });
+    const rv = link.salt === null ? null : revoked.get(link.salt) ?? null;
     const own = link.proofs.map((s) => ({ signals: s }));
     const chainAttests = attests.map((a) => ({ signals: Object.fromEntries(SIGNALS.map((n) => [n, BigInt(a.signals[n])])) }));
     const model = amountModel(pays, deposits, [...chainAttests, ...own]);
@@ -77,7 +84,11 @@ export async function analyseLinks(dump, inputs, { readerNames = [] } = {}) {
       name, fromAttest: link.fromAttest ?? null, holderTotal, holderTotalWithoutChainAttests: { lo: floor, hi: linkOnly.total(inRanges).hi }, fragmentChars: link.fragmentChars ?? null,
       readerIdHash: link.readerIdHash, readerNameMatches: nameMatches, contextMatches: ctxOk,
       expiry: link.expiry, expiryIso: link.expiry === null ? null : iso(link.expiry), expiryHint: link.expiry === null ? null : expiryHint(link.expiry),
-      salt: link.salt === null ? null : "random, 31 bytes (the context hides reader and expiry from anyone without the link)", proofs,
+      salt: link.salt === null ? null : link.version === 2 ? "Poseidon(4, a random 31-byte secret): random to anyone without the secret; hides reader and expiry like a v1 salt" : "random, 31 bytes (the context hides reader and expiry from anyone without the link)",
+      version: link.version, readerMode: link.readerMode,
+      // D35: whether the chain shows this link revoked, by whom (the tx sender: the relayer, not the holder) and when.
+      revocation: rv === null ? null : { tx: rv.hash, block: rv.block, time: iso(rv.time), sender: rv.sender },
+      proofs,
     };
   });
 }

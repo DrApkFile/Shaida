@@ -4,17 +4,30 @@
 import { formatUnits } from "viem";
 import type { IncomeVerification } from "@shaida/proofs";
 import type { Wiring } from "@/lib/flows";
-import { dateOf, expiryOf, refusalWords } from "@/lib/income/words";
+import { dateOf, expiryOf, NOT_REVOCABLE, readerModeLabel, refusalWords } from "@/lib/income/words";
 import { plural, type Template } from "@/lib/templates";
 import { OnChain } from "./OnChain";
 
-export function Verdict({ v, w, fragment, template }: { v: IncomeVerification; w: Wiring; fragment: string; template: Template }) {
+export function Verdict({ v, w, fragment, template, codeProtected }: { v: IncomeVerification; w: Wiring; fragment: string; template: Template; codeProtected: boolean }) {
+  if (v.status === "INVALID" && v.error.code === "ProofRevoked") {
+    return (
+      <section className="card stack verdict-card" aria-live="polite" data-verdict="REVOKED" data-code="ProofRevoked">
+        <p className="verdict invalid">REVOKED</p>
+        <p className="mono verdict-code">ProofRevoked</p>
+        <p className="lede">{refusalWords("ProofRevoked")}</p>
+        {v.revokedAt && (
+          <p className="fine">Revoked on chain in block <span className="num">{v.revokedAt.block.toString()}</span>, {new Date(Number(v.revokedAt.time) * 1000).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })} your time.</p>
+        )}
+        <p className="fine">Nothing in this link counts any more. Nothing was recorded.</p>
+      </section>
+    );
+  }
   if (v.status !== "VALID") {
     return (
       <section className="card stack verdict-card" aria-live="polite" data-verdict={v.status} data-code={v.error.code}>
         <p className={`verdict ${v.status === "INVALID" ? "invalid" : "inconclusive"}`}>{v.status === "INVALID" ? "NOT VALID" : "NOT CHECKED YET"}</p>
         <p className="mono verdict-code">{v.error.code}</p>
-        <p className="lede">{refusalWords(v.error.code)}</p>
+        <p className="lede">{v.error.code === "WrongReader" && codeProtected ? "This link is code-protected: it needs your name and the reader code you gave the sender. Check both, or ask for a new link." : refusalWords(v.error.code)}</p>
         <p className="fine">Next: {v.error.nextAction}. Nothing was recorded.</p>
       </section>
     );
@@ -31,6 +44,8 @@ export function Verdict({ v, w, fragment, template }: { v: IncomeVerification; w
         <dt>Count</dt><dd className="num">{plural(v.count, template.paymentWord)}</dd>
         <dt>Period</dt><dd>{dateOf(v.fromDate)} – {dateOf(v.toDate)}</dd>
         <dt>Link expires</dt><dd>{expiryOf(v.expiry)}</dd>
+        <dt>Reader check</dt><dd>{readerModeLabel(v.link.readerMode)}</dd>
+        <dt>Revocation</dt><dd>{v.link.revocable ? "Not revoked (checked on chain at the same block)" : NOT_REVOCABLE}</dd>
       </dl>
       {template.botPreset && (
         <p className="notice info">

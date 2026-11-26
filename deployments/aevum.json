@@ -148,5 +148,18 @@
   "attestor": "0x5f8066e6e18f6381a0ff593bb6b1a036c5a69698",
   "ledgerDeployBlock": 3810988,
   "broadcastFile": "contracts/broadcast/DeployStack.s.sol/44005/run-latest.json",
-  "recordedAt": "2026-11-22T06:25:07.357Z"
+  "recordedAt": "2026-11-22T06:25:07.357Z",
+  "revocations": {
+    "address": "0x3b19c8f3e2f65030ccddebec776c3be32090f2e4",
+    "txHash": "0x0f836c2031c775e718d8133cf1ec51a72207bb3c7fb5700adac480c324d9e159",
+    "block": 4135878,
+    "gasUsed": 237696,
+    "deployer": "0x5f8066e6e18f6381a0ff593bb6b1a036c5a69698",
+    "poseidonT3": "0x1e771073ac7703772c3717650ca0577e103dfaaf",
+    "gitCommit": "67993b7b5173ec1462dfb8493ee3410c92fd2599",
+    "gitDirty": false,
+    "check": "PoseidonT3 vector, saltOf(1) = poseidon-lite, nothing revoked; read back from the chain",
+    "broadcastFile": "contracts/broadcast/DeployRevocations.s.sol/44005/run-latest.json",
+    "recordedAt": "2026-11-26T01:51:16.575Z"
+  }
 }
