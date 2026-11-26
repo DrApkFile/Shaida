@@ -2,11 +2,13 @@
 
 0.1.0 was published by the builder on 2026-11-25 (https://www.npmjs.com/package/shaida-sdk), from the tarball packed at 134d704
 (sha512 `3az4S9…CAtA==`, evidence/sdk/pack.md), and tagged `shaida-sdk-v0.1.0` on 3175fe5. A clean install from the
-registry is checked by `pnpm --filter shaida-sdk npm-check` (evidence/sdk/npm-install.md).
+registry is checked by `pnpm --filter shaida-sdk npm-check` (evidence/sdk/npm-install-0.1.0.md).
 
-0.2.0 (revocation and reader codes, D35/D36) is packed but **not published**. Revocations is deployed on 44005
-(`0x3b19c8f3…f2e4`, block 4135878, evidence/revocations-44005.md), and `AEVUM_TESTNET.revocations` and the network
-pin (`ccaf1682…ca7b`) carry it (test S12b). The builder publishes it.
+0.2.0 (revocation and reader codes, D35/D36) was published by the builder on 2026-11-26 from the tarball packed at
+a801d64 (sha512 `pUiyvZ…5iXA==`, evidence/sdk/pack.md), and tagged `shaida-sdk-v0.2.0` on fc4ba32. Its network names
+Revocations `0x3b19c8f3…f2e4` (block 4135878, evidence/revocations-44005.md) under the pin `ccaf1682…ca7b` (test
+S12b). The registry install: evidence/sdk/npm-install-0.2.0.md. `npm-check` checks each version against the integrity
+recorded in its `PACKED` table, so add the new one there after packing.
 
 ## The name
 The package is the unscoped `shaida-sdk` (D34). The npm scope `@shaida` belongs to another user's account, so the

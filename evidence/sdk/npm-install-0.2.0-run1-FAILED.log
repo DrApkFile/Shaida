@@ -1,0 +1,18 @@
+
+> shaida-sdk@0.2.0 npm-check /home/kingghidorah/Documents/projects/bounties/shaida/packages/sdk
+> node scripts/npm-check.mjs
+
+file:///home/kingghidorah/Documents/projects/bounties/shaida/packages/sdk/scripts/npm-check.mjs:24
+  if (locked.integrity !== PACKED_INTEGRITY) throw new Error(`integrity ${locked.integrity} is not the packed tarball's`);
+                                                   ^
+
+Error: integrity sha512-pUiyvZkmYDy0bAK2ccqbcXzcYpDIZ2b3BLmrbdmtJ790bbUPainEeqbOm3/jDfGNyjz5/JEyqqTZbbkiHA5iXA== is not the packed tarball's
+    at file:///home/kingghidorah/Documents/projects/bounties/shaida/packages/sdk/scripts/npm-check.mjs:24:52
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.19.0
+/home/kingghidorah/Documents/projects/bounties/shaida/packages/sdk:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  shaida-sdk@0.2.0 npm-check: `node scripts/npm-check.mjs`
+Exit status 1

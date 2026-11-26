@@ -156,6 +156,20 @@ Personas are demo. The same path, scripted at 390 px: `make judge-ui` ([evidence
    **APPROVE** under `rent-check`. Pick `revenue-credit` and ask again: **DECLINE**, with BelowMinThreshold,
    TooFewPayments and PeriodTooShort. A link made out to Bola gives **WrongReader**. The sample's APPROVE holds
    until about 17 Dec 2026 23:00 UTC, when fewer than 7 days are left on it (ExpiresTooSoon, by design: LIMITS.md).
+6. Revocation and reader codes (D35, D36):
+   - Run 1's VALID from step 2 says **Name only: anyone with this link and the name can view it** and **Not
+     revocable (made before revocation existed)**: it predates both, and still verifies exactly as before.
+   - On **https://shaida.onrender.com/v**, press **Get a code to give the person proving to you**. A reader gives
+     this code to the person proving; their link then needs the name and the code ("Code-protected"). Shown once,
+     made in your browser, sent nowhere. Press "Done, hide it".
+   - The live revoke: Ada (demo) revoked a code-protected link made for Landlord Bola, and Bola's page said
+     **REVOKED** ([the live check](evidence/revoke-live-44005.md), with screenshots). On chain, nothing sent:
+     ```bash
+     cast call 0x3b19c8f3e2f65030ccddebec776c3be32090f2e4 "revokedAt(uint256)(uint256)" \
+       0x2c4e9e589f75d055e66379448132eb16963d94dbf4ab45d711d2e6488757df60 --rpc-url https://rpc-test.qday.info
+     # → 4139250  (the block of the revoke tx 0x920fd1f6…, sent by the relayer)
+     ```
+     That link is not published: opening it needs Bola's code. <!-- CL56 --> <!-- CL57 -->
 
 ## How it works
 **Boundary:** there is no AI. Shaida proves a lower bound on vouched, swept income to a named reader, and nothing
@@ -269,14 +283,14 @@ Packages: `@shaida/proofs` (circuit, witness builder, verifier: reusable), `@sha
 
 ## For integrators
 Another app can verify a Shaida link without this website or its server, talking only to the Aevum RPC:
-- [`shaida-sdk`](packages/sdk/README.md) (0.1.0, verify side) has a 5-line quickstart, the API reference, the
+- [`shaida-sdk`](packages/sdk/README.md) (0.2.0, verify side) has a 5-line quickstart, the API reference, the
   closed codes and the trust model. It provides `verifyIncomeLink`, `decodeIncomeLink`, `checkOnChain`, and
   `underwrite` with the two presets or your own policy. <!-- CL53 -->
-- 0.2.0, in this repository and not yet on npm, adds `readerCode` for code-protected links and `ProofRevoked`, and
-  checks every link against the Revocations registry; 0.1.0 calls keep working (the SDK README's "Upgrading from
-  0.1.0"). <!-- CL56 --> <!-- CL57 -->
-- On npm: [`shaida-sdk@0.1.0`](https://www.npmjs.com/package/shaida-sdk), `npm install shaida-sdk`. A clean install from the registry runs the
-  Node example on 44005 ([evidence/sdk/npm-install.md](evidence/sdk/npm-install.md)). <!-- CL55 -->
+- 0.2.0 adds `readerCode` for code-protected links and `ProofRevoked`, and checks every link against the
+  Revocations registry; 0.1.0 calls keep working (the SDK README's "Upgrading from 0.1.0"). <!-- CL56 --> <!-- CL57 -->
+- On npm: [`shaida-sdk@0.2.0`](https://www.npmjs.com/package/shaida-sdk/v/0.2.0), `npm install shaida-sdk`. A clean
+  install from the registry runs the Node example on 44005
+  ([0.2.0](evidence/sdk/npm-install-0.2.0.md), [0.1.0](evidence/sdk/npm-install-0.1.0.md)). <!-- CL59 --> <!-- CL55 -->
 - [examples/verify-node.mjs](examples/verify-node.mjs) (Node, 13 lines) and
   [examples/rental-check/](examples/rental-check/) (a demo landlord page, in the browser). Both are checked against
   run 1 on 44005 and against the fork fixture. <!-- CL54 -->

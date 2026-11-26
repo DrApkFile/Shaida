@@ -5,6 +5,8 @@
 //   judge can reach without a wallet: no proof in the link (empty), a malformed link (error), a link over a ledger
 //   root the chain does not know (INCONCLUSIVE UnknownRoot: the stale/resync state), the dashboard with no vault; then
 //   the bot: its sample link APPROVE under rent-check and DECLINE under revenue-credit, run 1's link WrongReader.
+//   D35/D36: the live revoke's revokedAt on chain (eth_call), run 1 labelled name-only and not revocable, and the
+//   reader-code card on /v (the code is masked in the screenshot and never written).
 // "Record check" is never pressed. Writes <out>/report-<width>.md and screenshots (default out: evidence/judge-ui).
 // Usage: node tools/ui-judge-live.mjs [--width 390] [--base https://shaida.onrender.com]
 import { execFileSync } from "node:child_process";
@@ -23,6 +25,9 @@ const run1 = JSON.parse(readFileSync(join(REPO, "web/src/app/example-links.json"
 const botLink = JSON.parse(readFileSync(join(REPO, "evidence/underwrite-live-44005/run.json"), "utf8")).link;
 const testRoot = JSON.parse(readFileSync(join(REPO, "packages/shaida-underwrite/test/fixtures/final-key-link.json"), "utf8")).fragment;
 const BOT = "Shaida underwriting bot (demo)";
+const RPC = "https://rpc-test.qday.info";
+const liveRevoke = JSON.parse(readFileSync(join(REPO, "evidence/revoke-live-44005/run.json"), "utf8"));
+const LIVE_REVOKE = { registry: liveRevoke.registry, salt: liveRevoke.salt, block: BigInt(liveRevoke.block) };
 const log = [];
 const note = (s) => { log.push(`${new Date().toISOString()} ${s}`); console.log(s); };
 const b64 = { dec: (s) => JSON.parse(Buffer.from(s, "base64url").toString("utf8")), enc: (o) => Buffer.from(JSON.stringify(o), "utf8").toString("base64url") };
@@ -68,6 +73,10 @@ async function main() {
   mkdirSync(OUT, { recursive: true });
   const health = await (await fetch(`${BASE}/api/health`)).json();
   note(`/api/health: commit ${health.commit}, networks ${JSON.stringify(health.networks)}, store ${health.store}`);
+  // D35: the live revoke (evidence/revoke-live-44005.md) is on chain: Revocations.revokedAt(salt) is its block.
+  const call = await (await fetch(RPC, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: LIVE_REVOKE.registry, data: `0x871bd456${LIVE_REVOKE.salt.slice(2)}` }, "latest"] }) })).json();
+  if (BigInt(call.result ?? "0x0") !== LIVE_REVOKE.block) throw new Error(`revokedAt(live salt) = ${call.result ?? JSON.stringify(call.error)}, expected ${LIVE_REVOKE.block}`);
+  note(`Revocations.revokedAt(the live revoke's salt) = ${LIVE_REVOKE.block} (eth_call, nothing sent)`);
   await withChromium({ chromium: CHROMIUM, port: 9337, base: BASE, out: OUT, note }, async (_c, page) => {
     const judge = await page("judge", { width: WIDTH });
     await judge.goto("/");
@@ -79,6 +88,11 @@ async function main() {
     const valid = await verifyAs(judge, href, "Landlord Bola");
     if (valid.verdict !== "VALID") throw new Error(`run 1's link: ${valid.verdict} ${valid.code}`);
     note(`Landlord Bola → VALID: ${valid.text.slice(0, 160)}`);
+    // D35/D36: run 1 predates both, so it is labelled name-only and not revocable, and still VALID.
+    const kind = await judge.eval(`document.querySelector(".link-kind")?.innerText.replace(/\\s+/g, " ") ?? ""`);
+    if (!kind.includes("Name only: anyone with this link and the name can view it") || !kind.includes("not revocable (made before revocation existed)")) throw new Error(`run 1's label: ${kind}`);
+    if (!valid.text.includes("Not revocable (made before revocation existed)")) throw new Error("run 1's VALID has no Revocation row");
+    note(`run 1's label: ${kind}`);
     await judge.click("Check on-chain");
     await judge.until(`document.querySelector(".on-chain-ok") || document.querySelector(".on-chain [role=alert]")`, 120_000, "on-chain check");
     const onChain = await judge.eval(`(document.querySelector(".on-chain-ok") ?? document.querySelector(".on-chain [role=alert]")).innerText.replace(/\\s+/g, " ")`);
@@ -118,6 +132,17 @@ async function main() {
     await judge.until(`document.querySelector(".card.empty")`, 60_000, "empty state on /v");
     note(`/v with no fragment (empty state): ${await judge.eval(`document.querySelector(".card.empty").innerText.replace(/\\s+/g, " ")`)}`);
     await judge.shot(shotName("08-empty-v"));
+
+    // D36: the reader code card. The code is masked before the screenshot and never written to the report.
+    await judge.click("Get a code to give the person proving to you");
+    await judge.until(`document.querySelector(".reader-code")`, 10_000, "the reader code");
+    const code = await judge.eval(`document.querySelector(".reader-code").innerText.trim()`);
+    if (!/^[0-9A-HJKMNP-TV-Z]{4}(-[0-9A-HJKMNP-TV-Z]{4}){3}$/.test(code)) throw new Error(`reader code: not 16 Crockford characters in 4 groups (${code.length} chars)`);
+    await judge.eval(`document.querySelector(".reader-code").innerText = "XXXX-XXXX-XXXX-XXXX (masked in this screenshot)"`);
+    note(`/v "Get a code to give the person proving to you": a 16-character Crockford code in 4 groups, shown once (not written here; masked in the screenshot)`);
+    await judge.shot(shotName("08b-reader-code"));
+    await judge.click("Done, hide it");
+    await judge.until(`!document.querySelector(".reader-code")`, 5_000, "the code hidden");
 
     await judge.goto("/app");
     note(`/app in a fresh profile (no vault, no wallet): ${(await judge.eval(`document.querySelector("main").innerText.replace(/\\s+/g, " ")`)).slice(0, 200)}`);

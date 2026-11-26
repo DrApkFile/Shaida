@@ -1,0 +1,13 @@
+{
+  "chainId": 44005,
+  "site": "https://shaida.onrender.com",
+  "siteCommit": "fc4ba32627440c4271376f2443fbc1a6be6fa167",
+  "registry": "0x3b19c8f3e2f65030ccddebec776c3be32090f2e4",
+  "revokeTx": "0x920fd1f6ad1b529440a1500e3215e411ea94c80e21bdc14545c36d9d222ef8b2",
+  "block": 4139250,
+  "time": "2026-11-26T02:48:06Z",
+  "salt": "0x2c4e9e589f75d055e66379448132eb16963d94dbf4ab45d711d2e6488757df60",
+  "sender": "0xf4945dd57c8de1c637966179df5b631689901422",
+  "gasUsed": 77796,
+  "note": "The link itself is not kept: it was code-protected for Landlord Bola, and the code was never recorded."
+}

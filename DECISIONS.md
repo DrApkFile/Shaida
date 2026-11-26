@@ -836,7 +836,7 @@ Decision:
   a pushed tag is not moved. The release is tagged `shaida-sdk-v0.1.0` on 3175fe5 (pushed by the builder).
 - **Published.** The builder published `shaida-sdk@0.1.0` from the 134d704 tarball (https://www.npmjs.com/package/shaida-sdk);
   the registry's integrity equals the packed sha512. `pnpm --filter shaida-sdk npm-check` installs it from
-  registry.npmjs.org into an empty project and runs the Node example on 44005 (evidence/sdk/npm-install.md).
+  registry.npmjs.org into an empty project and runs the Node example on 44005 (evidence/sdk/npm-install-0.1.0.md).
 
 
 ## D35: revoking a shared proof link (Revocations, link v2)
