@@ -19,7 +19,7 @@ export const PINNED = Object.freeze({
   /** Canonical-JSON hash of income_final_vkey.json (file sha256 2635a810…, ceremony/record.json final.vkey). */
   vkeySha256: "6a782a2b31d9d6b8e90e7950c34be731c2445060c1b1d8ada47b735c32534265",
   /** Canonical-JSON hash of AEVUM_TESTNET (0.2.0: with `revocations`). */
-  networkSha256: "66fcf3fb643a561b74202468706b84b77ab40be0d77e498a0033956be96e7047",
+  networkSha256: "ccaf1682b1e588f1872c5391fff8287cc8e86bf44d4b4bc4ee15d63ce4a3ca7b",
 });
 
 /** Pure: compares what is about to be used with what was pinned. Exported for the tests, not from the package. */

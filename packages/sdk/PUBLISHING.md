@@ -4,8 +4,9 @@
 (sha512 `3az4S9…CAtA==`, evidence/sdk/pack.md), and tagged `shaida-sdk-v0.1.0` on 3175fe5. A clean install from the
 registry is checked by `pnpm --filter shaida-sdk npm-check` (evidence/sdk/npm-install.md).
 
-0.2.0 (revocation and reader codes, D35/D36) is packed but **not published**: the builder publishes it after
-Revocations is deployed on 44005 and `AEVUM_TESTNET.revocations` and the pin carry its address (test S12b).
+0.2.0 (revocation and reader codes, D35/D36) is packed but **not published**. Revocations is deployed on 44005
+(`0x3b19c8f3…f2e4`, block 4135878, evidence/revocations-44005.md), and `AEVUM_TESTNET.revocations` and the network
+pin (`ccaf1682…ca7b`) carry it (test S12b). The builder publishes it.
 
 ## The name
 The package is the unscoped `shaida-sdk` (D34). The npm scope `@shaida` belongs to another user's account, so the

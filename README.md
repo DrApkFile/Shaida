@@ -294,7 +294,9 @@ The underwriting bot is an API with a published contract:
 
 ## Aevum testnet contracts (chain 44005)
 Deployed from commit `2a10759`, and checked against the chain in [evidence/aevum-deployment.md](evidence/aevum-deployment.md),
-which lists all 16 addresses with each verified source's SPDX line. <!-- CL03 --> <!-- CL39 -->
+which lists all 16 addresses with each verified source's SPDX line. <!-- CL03 --> <!-- CL39 --> Revocations (D35) was
+added on its own on 2026-11-26 from commit `67993b7`, over the same PoseidonT3; nothing else was redeployed
+([evidence/revocations-44005.md](evidence/revocations-44005.md)). <!-- CL56 -->
 
 | Contract | Address | Explorer |
 |---|---|---|
@@ -309,6 +311,7 @@ which lists all 16 addresses with each verified source's SPDX line. <!-- CL03 --
 | ShieldVerifierFinal / ShieldIVerifierFinal (Gloam) | [`0x6c15d7cc7f05d8fb8fceab9bd7e92c753abe13e7`](https://explorer-test.qday.info/address/0x6c15d7cc7f05d8fb8fceab9bd7e92c753abe13e7?tab=contract) | verified (adapter `0x6f82…b446` too) |
 | UnshieldVerifierFinal / UnshieldIVerifierFinal (Gloam) | [`0xa25b573404fe423aeb005c9539c79d806199a1f5`](https://explorer-test.qday.info/address/0xa25b573404fe423aeb005c9539c79d806199a1f5?tab=contract) | verified (adapter `0xa63d…e843` too) |
 | TransferVerifierFinal / TransferIVerifierFinal (Gloam) | [`0xf220726b8f177e7347d6b58f0b14b2380a572cda`](https://explorer-test.qday.info/address/0xf220726b8f177e7347d6b58f0b14b2380a572cda?tab=contract) | verified (adapter `0xfe33…5708` too) |
+| Revocations | [`0x3b19c8f3e2f65030ccddebec776c3be32090f2e4`](https://explorer-test.qday.info/address/0x3b19c8f3e2f65030ccddebec776c3be32090f2e4?tab=contract) | verified |
 | PoseidonT3 / PoseidonT4 | [`0x1e771073ac7703772c3717650ca0577e103dfaaf`](https://explorer-test.qday.info/address/0x1e771073ac7703772c3717650ca0577e103dfaaf?tab=contract) | bytecode only (circomlibjs, no source); T4 `0xc7aa…ec69` |
 
 ## Setup and commands

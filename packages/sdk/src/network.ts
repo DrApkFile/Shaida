@@ -11,7 +11,7 @@ export const AEVUM_TESTNET: NetworkConfig = Object.freeze({
   ledger: "0x677659b068278103f83eff413080cb53be3388ed",
   incomeVerifier: "0xc9844a8f058be2d658c972d1d2276b13f308e1c8",
   fromBlock: 3810988n,
-  revocations: null,
+  revocations: "0x3b19c8f3e2f65030ccddebec776c3be32090f2e4",
 });
 
 const address = z.string().regex(/^0x[0-9a-fA-F]{40}$/, "not a 20-byte hex address").transform((a) => a.toLowerCase());

@@ -11,7 +11,8 @@ schema, the asset, the bundle rules, the context opening, the reader and the exp
 root on chain, and Groth16 with the ceremony's final key; and finally the period's dates from the ledger.
 
 Status: 0.2.0, **verify side only**. The payer side (making vouched payments through ShaidaLedger) is not in this
-package; see [ROADMAP](../../ROADMAP.md). Published on npm as [`shaida-sdk`](https://www.npmjs.com/package/shaida-sdk): `npm install shaida-sdk`. To use
+package; see [ROADMAP](../../ROADMAP.md). Published on npm as [`shaida-sdk`](https://www.npmjs.com/package/shaida-sdk): `npm install shaida-sdk` (0.1.0;
+0.2.0 is packed in this repository and not yet published). To use
 it from this repository, run `pnpm --filter shaida-sdk tarball` and install the `shaida-sdk-0.2.0.tgz` it writes, or
 depend on `packages/sdk` in a pnpm workspace.
 
@@ -161,8 +162,8 @@ The bundled network, frozen:
 - `ledger`: ShaidaLedger `0x677659b0…88ed`;
 - `incomeVerifier`: `0xc9844a8f…c1c8`;
 - `fromBlock`: 3810988, the ledger's deploy block;
-- `revocations`: the Revocations registry (0.2.0). `null` in a build made before it was deployed: every verify is
-  then `INCONCLUSIVE NotConfigured`.
+- `revocations`: the Revocations registry (0.2.0) `0x3b19c8f3…f2e4`, deployed at block 4135878 and verified on the
+  explorer.
 
 All of these come from `deployments/aevum.json`.
 
